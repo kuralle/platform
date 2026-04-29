@@ -111,90 +111,60 @@ function LiveSupervisorRoute() {
         </div>
       </div>
 
-      <div className="grid grid-cols-[1fr_320px] overflow-hidden">
-        <div className="flex flex-col overflow-hidden border-r border-border">
-          <ScrollArea className="flex-1">
-            <div className="flex flex-col gap-2 p-5">
-              {transcript.map((t) => (
-                <div
-                  key={t.id}
-                  className={cn(
-                    "flex flex-col gap-1.5 rounded-md border border-border bg-card p-3",
-                    t.speaker === "caller" && "ml-auto max-w-[80%] bg-card/60",
-                    t.speaker === "agent" && "mr-auto max-w-[80%]",
-                  )}
-                >
-                  <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                    <Eyebrow className="text-[10px] text-muted-foreground">{t.speaker}</Eyebrow>
-                    <span className="font-mono tabular-nums">{formatDuration(t.timestampSec)}</span>
-                  </div>
-                  <div className="text-[13px] leading-relaxed text-foreground">{t.text}</div>
-                </div>
-              ))}
-              <div className="ml-auto flex items-center gap-2 self-start text-[11px] text-muted-foreground">
-                <LiveDot size={6} tone="live" />
-                streaming…
+      <div className="flex flex-col overflow-hidden">
+        {/* Caller strip — replaces the old right rail. */}
+        <div className="flex items-center justify-between border-b border-border bg-card px-6 py-3">
+          <div className="grid grid-cols-3 gap-6 text-[13px]">
+            <div>
+              <Eyebrow className="text-muted-foreground">Caller</Eyebrow>
+              <div className="mt-0.5 font-medium">{conversation.callerName ?? "Unknown"}</div>
+              <div className="font-mono text-[11px] tabular-nums text-muted-foreground">
+                {conversation.callerId}
               </div>
             </div>
-          </ScrollArea>
-
-          <div className="border-t border-border bg-background p-4">
-            <WaveformPlayer
-              durationSec={Math.max(elapsed + 5, 60)}
-              positionSec={elapsed}
-              onSeek={() => undefined}
-              live
-            />
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <ToolButton
-                icon={muted ? MicOff : Mic}
-                label={muted ? "Unmute caller" : "Mute caller"}
-                onClick={() => setMuted((m) => !m)}
-              />
-              <ToolButton
-                icon={audioOn ? Volume2 : VolumeOff}
-                label={audioOn ? "Mute audio" : "Unmute audio"}
-                onClick={() => setAudioOn((a) => !a)}
-              />
-              <ToolButton icon={Hand} label="Whisper" />
-              <ToolButton icon={PhoneCall} label="Bridge to operator" onClick={takeover} />
-              <ToolButton icon={Siren} label="Panic · escalate" tone="danger" />
-              <ToolButton icon={PhoneOff} label="End call" tone="danger" />
+            <div>
+              <Eyebrow className="text-muted-foreground">Agent</Eyebrow>
+              <div className="mt-0.5 font-medium">{conversation.agentName}</div>
             </div>
-            <div className="mt-3 flex items-center gap-2">
-              <Input
-                value={composer}
-                onChange={(e) => setComposer(e.target.value)}
-                placeholder="Inject text for the agent to read…"
-                className="h-9 border-border bg-card text-foreground"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") injectAgent();
-                }}
-              />
-              <Button onClick={injectAgent} className="gap-1">
-                <Send size={14} /> Inject
-              </Button>
+            <div>
+              <Eyebrow className="text-muted-foreground">Started</Eyebrow>
+              <div className="mt-0.5 font-mono text-[12px] tabular-nums">{formatDuration(elapsed)} ago</div>
             </div>
           </div>
+          <Button variant="destructive" className="gap-2 bg-destructive/15 text-destructive hover:bg-destructive/30">
+            <Siren size={14} /> Panic
+          </Button>
         </div>
 
-        <ScrollArea>
-          <div className="flex flex-col gap-4 p-5">
-            <Card className="border-border bg-card p-4">
-              <Eyebrow className="text-muted-foreground">Caller</Eyebrow>
-              <div className="mt-2 grid gap-1 text-[13px]">
-                <div className="font-medium">{conversation.callerName ?? "Unknown"}</div>
-                <div className="font-mono text-[12px] tabular-nums text-muted-foreground">{conversation.callerId}</div>
+        <ScrollArea className="flex-1">
+          <div className="flex flex-col gap-2 p-5">
+            {transcript.map((t) => (
+              <div
+                key={t.id}
+                className={cn(
+                  "flex flex-col gap-1.5 rounded-md border border-border bg-card p-3",
+                  t.speaker === "caller" && "ml-auto max-w-[80%] bg-card/60",
+                  t.speaker === "agent" && "mr-auto max-w-[80%]",
+                )}
+              >
+                <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                  <Eyebrow className="text-[10px] text-muted-foreground">{t.speaker}</Eyebrow>
+                  <span className="font-mono tabular-nums">{formatDuration(t.timestampSec)}</span>
+                </div>
+                <div className="text-[13px] leading-relaxed text-foreground">{t.text}</div>
               </div>
-              <Button variant="destructive" className="mt-4 w-full gap-2 bg-destructive/15 text-destructive hover:bg-destructive/30">
-                <Siren size={14} /> Panic
-              </Button>
-            </Card>
-            <Card className="border-border bg-card p-4">
-              <Eyebrow className="text-muted-foreground">Audit log</Eyebrow>
+            ))}
+            <div className="ml-auto flex items-center gap-2 self-start text-[11px] text-muted-foreground">
+              <LiveDot size={6} tone="live" />
+              streaming…
+            </div>
+
+            {/* Audit log inline beneath transcript — replaces the right-rail audit card. */}
+            <Card className="mt-4 p-4">
+              <Eyebrow>Audit log</Eyebrow>
               <ul className="mt-2 grid gap-1.5 font-mono text-[11px] tabular-nums">
                 {audit.current.map((row, i) => (
-                  <li key={i} className="grid grid-cols-[44px_1fr] gap-3 text-muted-foreground">
+                  <li key={i} className="grid grid-cols-[60px_1fr] gap-3 text-muted-foreground">
                     <span>{row.at}</span>
                     <span className="text-foreground">{row.event}</span>
                   </li>
@@ -203,6 +173,45 @@ function LiveSupervisorRoute() {
             </Card>
           </div>
         </ScrollArea>
+
+        <div className="border-t border-border bg-background p-4">
+          <WaveformPlayer
+            durationSec={Math.max(elapsed + 5, 60)}
+            positionSec={elapsed}
+            onSeek={() => undefined}
+            live
+          />
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <ToolButton
+              icon={muted ? MicOff : Mic}
+              label={muted ? "Unmute caller" : "Mute caller"}
+              onClick={() => setMuted((m) => !m)}
+            />
+            <ToolButton
+              icon={audioOn ? Volume2 : VolumeOff}
+              label={audioOn ? "Mute audio" : "Unmute audio"}
+              onClick={() => setAudioOn((a) => !a)}
+            />
+            <ToolButton icon={Hand} label="Whisper" />
+            <ToolButton icon={PhoneCall} label="Bridge to operator" onClick={takeover} />
+            <ToolButton icon={Siren} label="Panic · escalate" tone="danger" />
+            <ToolButton icon={PhoneOff} label="End call" tone="danger" />
+          </div>
+          <div className="mt-3 flex items-center gap-2">
+            <Input
+              value={composer}
+              onChange={(e) => setComposer(e.target.value)}
+              placeholder="Inject text for the agent to read…"
+              className="h-9 border-border bg-card text-foreground"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") injectAgent();
+              }}
+            />
+            <Button onClick={injectAgent} className="gap-1">
+              <Send size={14} /> Inject
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );

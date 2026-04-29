@@ -15,6 +15,7 @@ const TABS = [
   { slug: "behavior", label: "Behavior" },
   { slug: "llm", label: "LLM" },
   { slug: "voice", label: "Voice" },
+  { slug: "knowledge", label: "Knowledge" },
   { slug: "compliance", label: "Compliance" },
 ] as const;
 

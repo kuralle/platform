@@ -1,16 +1,10 @@
 import { Card } from "@kuralle/ui/components/card";
 import { ComplianceChip } from "@kuralle/ui/components/compliance-chip";
+import { DataTable } from "@kuralle/ui/components/data-table";
 import { Eyebrow } from "@kuralle/ui/components/eyebrow";
 import { KpiTile } from "@kuralle/ui/components/kpi-tile";
 import { PageHeader } from "@kuralle/ui/components/page-header";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@kuralle/ui/components/table";
+import { type ColumnDef, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { createFileRoute } from "@tanstack/react-router";
 import { CircleCheck, Minus, X } from "lucide-react";
 import { useMemo } from "react";
@@ -89,12 +83,42 @@ const AUDIT_TRAIL = [
   { at: "2026-04-25T08:30:00Z", actor: "system", event: "Annual TCPA review · passed" },
 ];
 
+type AuditRow = (typeof AUDIT_TRAIL)[number];
+
 function ComplianceRoute() {
   const { workspace } = useWorkspace();
   const sparks = useMemo(() => {
     const rng = createRng(0xc4ff);
     return [spark(rng), spark(rng), spark(rng), spark(rng)];
   }, []);
+
+  const auditColumns = useMemo<ColumnDef<AuditRow>[]>(() => [
+    {
+      accessorKey: "at",
+      header: "When",
+      cell: ({ row }) => (
+        <span className="font-mono text-[12px] tabular-nums text-muted-foreground">
+          {formatRelative(row.original.at)}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "actor",
+      header: "Actor",
+      cell: ({ row }) => <span className="font-mono text-[12px] tabular-nums">{row.original.actor}</span>,
+    },
+    {
+      accessorKey: "event",
+      header: "Event",
+      cell: ({ row }) => <span className="text-[13px]">{row.original.event}</span>,
+    },
+  ], []);
+
+  const auditTable = useReactTable({
+    data: AUDIT_TRAIL,
+    columns: auditColumns,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
   return (
     <div className="mx-auto max-w-[1280px] px-8 py-8">
@@ -139,32 +163,11 @@ function ComplianceRoute() {
         })}
       </div>
 
-      <Card className="mt-6">
-        <div className="border-b px-5 py-3">
-          <Eyebrow>Audit trail</Eyebrow>
-          <div className="mt-1 font-display text-[16px] font-semibold">Last 7 days</div>
-        </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[160px]">When</TableHead>
-              <TableHead className="w-[200px]">Actor</TableHead>
-              <TableHead>Event</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {AUDIT_TRAIL.map((row, i) => (
-              <TableRow key={i}>
-                <TableCell className="font-mono text-[12px] tabular-nums text-muted-foreground">
-                  {formatRelative(row.at)}
-                </TableCell>
-                <TableCell className="font-mono text-[12px] tabular-nums">{row.actor}</TableCell>
-                <TableCell className="text-[13px]">{row.event}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Card>
+      <div className="mt-6">
+        <Eyebrow>Audit trail</Eyebrow>
+        <div className="mt-1 mb-3 font-display text-[16px] font-semibold">Last 7 days</div>
+        <DataTable table={auditTable} hidePagination />
+      </div>
     </div>
   );
 }

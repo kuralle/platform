@@ -3,13 +3,13 @@ import { Card } from "@kuralle/ui/components/card";
 import { Eyebrow } from "@kuralle/ui/components/eyebrow";
 import { Field, FieldDescription, FieldLabel } from "@kuralle/ui/components/field";
 import { Input } from "@kuralle/ui/components/input";
+import { PageHeader } from "@kuralle/ui/components/page-header";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kuralle/ui/components/select";
 import { Slider } from "@kuralle/ui/components/slider";
 import { StickySaveBar } from "@kuralle/ui/components/sticky-save-bar";
 import { Switch } from "@kuralle/ui/components/switch";
-import { cn } from "@kuralle/ui/lib/utils";
+import { Tabs, TabsList, TabsTrigger } from "@kuralle/ui/components/tabs";
 import { createFileRoute } from "@tanstack/react-router";
-import { Bell, KeyRound, Plug, Settings2, ShieldCheck, Webhook } from "lucide-react";
 import { useState } from "react";
 
 import { useWorkspace } from "@/contexts/workspace";
@@ -19,12 +19,12 @@ export const Route = createFileRoute("/_app/workspace/settings")({
 });
 
 const SECTIONS = [
-  { id: "general", label: "General", icon: Settings2 },
-  { id: "security", label: "Security", icon: ShieldCheck },
-  { id: "webhooks", label: "Webhooks", icon: Webhook },
-  { id: "retention", label: "Retention defaults", icon: Bell },
-  { id: "billing", label: "Billing", icon: KeyRound },
-  { id: "mcp", label: "MCP", icon: Plug },
+  { id: "general", label: "General" },
+  { id: "security", label: "Security" },
+  { id: "webhooks", label: "Webhooks" },
+  { id: "retention", label: "Retention" },
+  { id: "billing", label: "Billing" },
+  { id: "mcp", label: "MCP" },
 ] as const;
 
 type SectionId = (typeof SECTIONS)[number]["id"];
@@ -38,34 +38,27 @@ function WorkspaceSettingsRoute() {
   const [requireSso, setRequireSso] = useState(true);
   const [require2fa, setRequire2fa] = useState(false);
 
-  const dirty = name !== workspace.name || retention !== 90 || requireSso !== true || require2fa !== false;
   const changes = (name !== workspace.name ? 1 : 0) + (retention !== 90 ? 1 : 0) + (requireSso !== true ? 1 : 0) + (require2fa !== false ? 1 : 0);
 
   return (
-    <div className="grid h-[calc(100svh-3.5rem)] grid-cols-[240px_1fr]">
-      <aside className="border-r bg-card">
-        <div className="px-4 pt-5 pb-2">
-          <Eyebrow>Workspace settings</Eyebrow>
-          <div className="mt-1 font-display text-[16px] font-semibold">{workspace.name}</div>
-        </div>
-        <nav className="flex flex-col gap-0.5 p-2">
-          {SECTIONS.map((s) => (
-            <button
-              key={s.id}
-              onClick={() => setActive(s.id)}
-              className={cn(
-                "flex h-9 items-center gap-2 rounded-md px-2 text-[13px] font-medium transition",
-                active === s.id ? "bg-muted text-foreground" : "text-foreground hover:bg-muted",
-              )}
-            >
-              <s.icon size={14} className={active === s.id ? "text-primary" : ""} />
-              {s.label}
-            </button>
-          ))}
-        </nav>
-      </aside>
-      <div className="flex flex-col overflow-auto">
-        <div className="flex-1 px-8 py-8">
+    <div className="flex h-[calc(100svh-3.5rem)] flex-col">
+      <div className="flex-1 overflow-auto">
+        <div className="mx-auto max-w-3xl px-8 py-8">
+          <PageHeader
+            eyebrow="Workspace"
+            title="Settings"
+            description={`Configure ${workspace.name} — auth, secrets, retention, and billing.`}
+          />
+          <Tabs value={active} onValueChange={(v) => setActive(v as SectionId)} className="mb-6">
+            <TabsList className="flex-wrap">
+              {SECTIONS.map((s) => (
+                <TabsTrigger key={s.id} value={s.id}>
+                  {s.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+          <div>
           {active === "general" && (
             <div className="mx-auto grid max-w-2xl gap-6">
               <Card className="p-6">
@@ -205,18 +198,19 @@ function WorkspaceSettingsRoute() {
               </Card>
             </div>
           )}
+          </div>
         </div>
-        <StickySaveBar
-          changes={changes}
-          onSave={() => undefined}
-          onDiscard={() => {
-            setName(workspace.name);
-            setRetention(90);
-            setRequireSso(true);
-            setRequire2fa(false);
-          }}
-        />
       </div>
+      <StickySaveBar
+        changes={changes}
+        onSave={() => undefined}
+        onDiscard={() => {
+          setName(workspace.name);
+          setRetention(90);
+          setRequireSso(true);
+          setRequire2fa(false);
+        }}
+      />
     </div>
   );
 }

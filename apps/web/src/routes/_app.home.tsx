@@ -1,24 +1,19 @@
-import { Badge } from "@kuralle/ui/components/badge";
 import { Button } from "@kuralle/ui/components/button";
 import { Card } from "@kuralle/ui/components/card";
 import { ComplianceChip } from "@kuralle/ui/components/compliance-chip";
+import { DataTable } from "@kuralle/ui/components/data-table";
 import { Eyebrow } from "@kuralle/ui/components/eyebrow";
 import { KpiTile } from "@kuralle/ui/components/kpi-tile";
 import { LiveDot } from "@kuralle/ui/components/live-dot";
 import { PageHeader } from "@kuralle/ui/components/page-header";
 import { Sparkline } from "@kuralle/ui/components/sparkline";
 import { StatusPill } from "@kuralle/ui/components/status-pill";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@kuralle/ui/components/table";
+import { type ColumnDef, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowUpRight, BookOpen, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
+
+import type { Conversation } from "@/types/domain";
 
 import { ComplianceStatusModal } from "@/components/modals/compliance-status-modal";
 import { WelcomeModal } from "@/components/modals/welcome-modal";
@@ -39,7 +34,76 @@ function HomeRoute() {
   const [empty, setEmpty] = useState(false);
 
   const kpis = useMemo(() => makeDashboardKpis(), []);
-  const conversations = useMemo(() => makeConversations(8), []);
+  const conversations = useMemo(() => makeConversations(8).slice(0, 6), []);
+
+  const recentColumns = useMemo<ColumnDef<Conversation>[]>(() => [
+    {
+      accessorKey: "id",
+      header: "ID",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2 font-mono text-[12px] tabular-nums">
+          {row.original.isLive && <LiveDot size={6} tone="live" />}
+          {row.original.id}
+        </div>
+      ),
+    },
+    { accessorKey: "agentName", header: "Agent" },
+    {
+      id: "caller",
+      header: "Caller",
+      cell: ({ row }) => (
+        <div className="flex flex-col">
+          <span className="font-mono text-[12px] tabular-nums">{row.original.callerId}</span>
+          {row.original.callerName && (
+            <span className="text-[11px] text-muted-foreground">{row.original.callerName}</span>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "outcome",
+      header: "Outcome",
+      cell: ({ row }) =>
+        row.original.isLive ? (
+          <StatusPill tone="live">Live · {row.original.direction}</StatusPill>
+        ) : (
+          <StatusPill tone={outcomeTone(row.original.outcome)}>{row.original.outcome}</StatusPill>
+        ),
+    },
+    {
+      accessorKey: "durationSec",
+      header: () => <div className="text-right">Duration</div>,
+      cell: ({ row }) => (
+        <div className="text-right font-mono text-[12px] tabular-nums">
+          {Math.floor(row.original.durationSec / 60)}:{String(row.original.durationSec % 60).padStart(2, "0")}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "costUsd",
+      header: () => <div className="text-right">Cost</div>,
+      cell: ({ row }) => (
+        <div className="text-right font-mono text-[12px] tabular-nums">
+          {formatUsd(row.original.costUsd, { precise: true })}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "startedAt",
+      header: () => <div className="text-right">Started</div>,
+      cell: ({ row }) => (
+        <div className="text-right text-[12px] text-muted-foreground">
+          {formatRelative(row.original.startedAt)}
+        </div>
+      ),
+    },
+  ], []);
+
+  const recentTable = useReactTable({
+    data: conversations,
+    columns: recentColumns,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
   if (empty) {
     return (
@@ -154,74 +218,26 @@ function HomeRoute() {
       </div>
 
       {/* Recent conversations */}
-      <Card className="mt-6">
-        <div className="flex items-center justify-between border-b px-5 py-3">
-          <div>
-            <Eyebrow>Recent conversations</Eyebrow>
-            <div className="mt-1 font-display text-[16px] font-semibold">Last 90 minutes</div>
-          </div>
-          <Button nativeButton={false} render={<Link to="/conversations" />} variant="ghost" className="h-8 px-2 text-[12px]">
-            Open all →
-          </Button>
+      <div className="mt-6 flex items-center justify-between">
+        <div>
+          <Eyebrow>Recent conversations</Eyebrow>
+          <div className="mt-1 font-display text-[16px] font-semibold">Last 90 minutes</div>
         </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[120px]">ID</TableHead>
-              <TableHead>Agent</TableHead>
-              <TableHead>Caller</TableHead>
-              <TableHead>Outcome</TableHead>
-              <TableHead className="text-right">Duration</TableHead>
-              <TableHead className="text-right">Cost</TableHead>
-              <TableHead className="text-right">Started</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {conversations.slice(0, 6).map((c) => (
-              <TableRow
-                key={c.id}
-                className="cursor-pointer"
-                onClick={() =>
-                  navigate({
-                    to: c.isLive ? "/conversations/$id/live" : "/conversations/$id",
-                    params: { id: c.id },
-                  })
-                }
-              >
-                <TableCell className="font-mono text-[12px] tabular-nums">
-                  <div className="flex items-center gap-2">
-                    {c.isLive && <LiveDot size={6} tone="live" />}
-                    {c.id}
-                  </div>
-                </TableCell>
-                <TableCell className="text-[13px]">{c.agentName}</TableCell>
-                <TableCell className="text-[13px]">
-                  <div className="flex flex-col">
-                    <span className="font-mono tabular-nums">{c.callerId}</span>
-                    {c.callerName && <span className="text-[11px] text-muted-foreground">{c.callerName}</span>}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {c.isLive ? (
-                    <StatusPill tone="live">Live · {c.direction}</StatusPill>
-                  ) : (
-                    <StatusPill tone={outcomeTone(c.outcome)}>{c.outcome}</StatusPill>
-                  )}
-                </TableCell>
-                <TableCell className="text-right font-mono text-[12px] tabular-nums">
-                  {Math.floor(c.durationSec / 60)}:{String(c.durationSec % 60).padStart(2, "0")}
-                </TableCell>
-                <TableCell className="text-right font-mono text-[12px] tabular-nums text-foreground">
-                  {formatUsd(c.costUsd, { precise: true })}
-                </TableCell>
-                <TableCell className="text-right text-[12px] text-muted-foreground">
-                  {formatRelative(c.startedAt)}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Card>
+        <Button nativeButton={false} render={<Link to="/conversations" />} variant="ghost" className="h-8 px-2 text-[12px]">
+          Open all →
+        </Button>
+      </div>
+      <DataTable
+        table={recentTable}
+        hidePagination
+        className="mt-3"
+        onRowClick={(c) =>
+          navigate({
+            to: c.isLive ? "/conversations/$id/live" : "/conversations/$id",
+            params: { id: c.id },
+          })
+        }
+      />
 
       <WelcomeModal open={welcomeOpen} onOpenChange={setWelcomeOpen} />
       <ComplianceStatusModal open={complianceOpen} onOpenChange={setComplianceOpen} />

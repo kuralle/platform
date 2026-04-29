@@ -1,14 +1,8 @@
 import { Button } from "@kuralle/ui/components/button";
 import { Card } from "@kuralle/ui/components/card";
+import { DataTable } from "@kuralle/ui/components/data-table";
 import { Eyebrow } from "@kuralle/ui/components/eyebrow";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@kuralle/ui/components/table";
+import { type ColumnDef, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ChevronLeft, Download, Printer } from "lucide-react";
 import { useMemo } from "react";
@@ -26,6 +20,54 @@ function RoiReceiptRoute() {
 
   const sumPerAgent = receipt.perAgent.reduce((a, p) => a + p.recovered, 0);
   const maxRecovered = Math.max(...receipt.perAgent.map((p) => p.recovered));
+
+  type Row = (typeof receipt.perAgent)[number];
+  const perAgentColumns = useMemo<ColumnDef<Row>[]>(() => [
+    {
+      accessorKey: "agentName",
+      header: "Source",
+      cell: ({ row }) => (
+        <div>
+          <div className="text-[13px] font-medium">{row.original.agentName}</div>
+          <div className="mt-1 h-1.5 w-full rounded-full bg-muted">
+            <div
+              className="h-1.5 rounded-full bg-foreground"
+              style={{ width: `${(row.original.recovered / maxRecovered) * 100}%` }}
+            />
+          </div>
+        </div>
+      ),
+    },
+    {
+      accessorKey: "calls",
+      header: () => <div className="text-right">Calls</div>,
+      cell: ({ row }) => (
+        <div className="text-right font-mono tabular-nums">{row.original.calls}</div>
+      ),
+    },
+    {
+      accessorKey: "recovered",
+      header: () => <div className="text-right">Recovered</div>,
+      cell: ({ row }) => (
+        <div className="text-right font-mono tabular-nums">{formatUsd(row.original.recovered)}</div>
+      ),
+    },
+    {
+      id: "share",
+      header: () => <div className="text-right">Share</div>,
+      cell: ({ row }) => (
+        <div className="text-right font-mono tabular-nums">
+          {formatPct(row.original.recovered / sumPerAgent)}
+        </div>
+      ),
+    },
+  ], [maxRecovered, sumPerAgent]);
+
+  const perAgentTable = useReactTable({
+    data: receipt.perAgent,
+    columns: perAgentColumns,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
   function print() {
     window.print();
@@ -81,38 +123,7 @@ function RoiReceiptRoute() {
 
           <section className="mt-10 grid gap-3">
             <Eyebrow>How we got here</Eyebrow>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Source</TableHead>
-                  <TableHead className="text-right">Calls</TableHead>
-                  <TableHead className="text-right">Recovered</TableHead>
-                  <TableHead className="text-right">Share</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {receipt.perAgent.map((row) => (
-                  <TableRow key={row.agentName}>
-                    <TableCell>
-                      <div className="text-[13px] font-medium">{row.agentName}</div>
-                      <div className="mt-1 h-1.5 w-full rounded-full bg-muted">
-                        <div
-                          className="h-1.5 rounded-full bg-foreground"
-                          style={{ width: `${(row.recovered / maxRecovered) * 100}%` }}
-                        />
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right font-mono tabular-nums">{row.calls}</TableCell>
-                    <TableCell className="text-right font-mono tabular-nums text-foreground">
-                      {formatUsd(row.recovered)}
-                    </TableCell>
-                    <TableCell className="text-right font-mono tabular-nums">
-                      {formatPct(row.recovered / sumPerAgent)}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <DataTable table={perAgentTable} hidePagination />
           </section>
 
           <section className="mt-8 grid grid-cols-3 gap-4">

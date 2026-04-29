@@ -76,9 +76,9 @@
 }
 
 @theme inline {
-  --font-sans: "Inter", "Inter Variable", system-ui, sans-serif;
-  --font-display: "Geist", "Inter", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+  --font-sans: "Manrope", system-ui, sans-serif;
+  --font-display: "Geist", "Manrope", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", monospace;
 
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
