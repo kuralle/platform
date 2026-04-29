@@ -49,12 +49,6 @@ function LiveSupervisorRoute() {
   ]);
 
   useEffect(() => {
-    // Live supervisor flips to dark theme scope while mounted.
-    document.documentElement.classList.add("dark");
-    return () => document.documentElement.classList.remove("dark");
-  }, []);
-
-  useEffect(() => {
     const t = setInterval(() => setElapsed((e) => e + 1), 1000);
     return () => clearInterval(t);
   }, []);
@@ -87,7 +81,7 @@ function LiveSupervisorRoute() {
   }
 
   return (
-    <div className="grid h-[calc(100svh-3.5rem)] grid-rows-[auto_1fr] bg-background text-foreground">
+    <div className="dark grid h-[calc(100svh-3.5rem)] grid-rows-[auto_1fr] bg-background text-foreground">
       <div className="border-b border-border bg-background px-6 py-3">
         <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
           <Link to="/conversations" className="inline-flex items-center gap-1 hover:text-foreground">
