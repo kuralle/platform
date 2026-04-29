@@ -22,10 +22,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import {
   ArrowRightLeft,
   ClipboardList,
+  GripVertical,
   Phone,
   PhoneOff,
   Play,
+  Plus,
   Sparkles,
+  Trash2,
   Wrench,
   X,
 } from "lucide-react";
@@ -65,14 +68,87 @@ interface NodeData extends Record<string, unknown> {
   transferTo?: string;
   /** Subagent tool list. */
   tools?: string[];
+  /** Memory strategy across transitions — AriaFlow `contextStrategy`. */
+  contextStrategy?: "append" | "reset" | "reset_with_summary";
+  /** Summarisation prompt used when contextStrategy is reset_with_summary. */
+  summaryPrompt?: string;
+  /** Whether the global flow prompt prefixes this node's prompt (default true). */
+  addGlobalPrompt?: boolean;
+  /** End-node terminal reason (postActions[type=end].reason). */
+  endReason?: string;
   /** Extraction-only config — modelled on AriaFlow ExtractionNodeConfig. */
   extraction?: {
-    requiredFields: string[];
-    schema: string;
+    fields: ExtractionField[];
     maxTurns: number;
     completeTransition: string;
     promptMode: "llm" | "deterministic";
   };
+}
+
+export type ExtractionFieldType =
+  | "text"
+  | "number"
+  | "boolean"
+  | "email"
+  | "phone"
+  | "date"
+  | "text[]"
+  | "number[]";
+
+export interface ExtractionField {
+  id: string;
+  name: string;
+  type: ExtractionFieldType;
+  required: boolean;
+  description?: string;
+}
+
+const FIELD_TYPE_LABEL: Record<ExtractionFieldType, string> = {
+  text: "TEXT",
+  number: "NUMBER",
+  boolean: "BOOLEAN",
+  email: "EMAIL",
+  phone: "PHONE",
+  date: "DATE",
+  "text[]": "TEXT[]",
+  "number[]": "NUMBER[]",
+};
+
+function zodForField(f: ExtractionField): string {
+  const base = (() => {
+    switch (f.type) {
+      case "text":     return "z.string().min(1)";
+      case "email":    return "z.string().email()";
+      case "phone":    return "z.string().min(7)";
+      case "number":   return "z.number()";
+      case "boolean":  return "z.boolean()";
+      case "date":     return "z.string().datetime()";
+      case "text[]":   return "z.array(z.string())";
+      case "number[]": return "z.array(z.number())";
+    }
+  })();
+  return f.required ? base : `${base}.optional()`;
+}
+
+function buildZodSchema(fields: ExtractionField[]): string {
+  if (fields.length === 0) return "z.object({})";
+  const lines = fields.map((f) => `  ${f.name}: ${zodForField(f)},`);
+  return `z.object({\n${lines.join("\n")}\n})`;
+}
+
+function newExtractionField(seed = 0): ExtractionField {
+  return {
+    id: `f_${Math.random().toString(36).slice(2, 8)}`,
+    name: `field_${seed + 1}`,
+    type: "text",
+    required: true,
+  };
+}
+
+/** Flow-level config — globalPrompt + mode (strict | flexible). */
+interface FlowMeta {
+  globalPrompt: string;
+  mode: "strict" | "flexible";
 }
 
 const KIND_META: Record<NodeKind, { label: string; icon: React.ComponentType<{ size?: number }>; tone: string }> = {
@@ -139,11 +215,20 @@ function WorkflowNode({ data, selected }: { data: NodeData; selected?: boolean }
           {data.extraction && (
             <>
               <div className="text-[10px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
-                Required fields
+                Data collection fields
               </div>
-              <div className="flex flex-wrap gap-1">
-                {data.extraction.requiredFields.map((f) => (
-                  <Badge key={f} variant="outline" className="font-mono text-[10px]">{f}</Badge>
+              <div className="grid gap-1">
+                {data.extraction.fields.map((f) => (
+                  <div
+                    key={f.id}
+                    className="flex items-center justify-between gap-2 rounded border bg-background px-2 py-1"
+                  >
+                    <span className="truncate font-mono text-[11px]">{f.name}</span>
+                    <span className="font-mono text-[9px] uppercase tracking-wide text-muted-foreground">
+                      {FIELD_TYPE_LABEL[f.type]}
+                      {!f.required && " · opt"}
+                    </span>
+                  </div>
                 ))}
               </div>
               <div className="grid grid-cols-2 gap-2 font-mono text-[10px] text-muted-foreground">
@@ -173,7 +258,12 @@ function WorkflowNode({ data, selected }: { data: NodeData; selected?: boolean }
       )}
 
       {data.kind === "end" && (
-        <NodeContent className="text-[12px] text-muted-foreground">Graceful termination — fires post-call webhooks.</NodeContent>
+        <NodeContent className="grid gap-1 text-[12px] text-muted-foreground">
+          <div>Graceful termination — fires post-call webhooks.</div>
+          {data.endReason && (
+            <div className="font-mono text-[11px] text-foreground">reason: {data.endReason}</div>
+          )}
+        </NodeContent>
       )}
     </WfNode>
   );
@@ -222,6 +312,8 @@ function sampleNodes(): NodeType<NodeData>[] {
         prompt: "Greet the caller and ask how you can help them today. Immediately transition to collect_info.",
         llmOverride: "gpt-4o-mini",
         tools: ["start_collection"],
+        contextStrategy: "append",
+        addGlobalPrompt: true,
       },
     },
     {
@@ -234,10 +326,14 @@ function sampleNodes(): NodeType<NodeData>[] {
         description: "Loops until name, phone, and reason all parse against the Zod schema.",
         prompt: "You are a friendly receptionist collecting contact information from the caller.",
         llmOverride: "gpt-4o-mini",
+        contextStrategy: "append",
+        addGlobalPrompt: true,
         extraction: {
-          requiredFields: ["name", "phone", "reason"],
-          schema:
-            "z.object({\n  name: z.string().min(1),\n  phone: z.string().min(7),\n  reason: z.string().min(1),\n})",
+          fields: [
+            { id: "f_name",   name: "name",   type: "text",  required: true },
+            { id: "f_phone",  name: "phone",  type: "phone", required: true },
+            { id: "f_reason", name: "reason", type: "text",  required: true },
+          ],
           maxTurns: 8,
           completeTransition: "confirm",
           promptMode: "llm",
@@ -267,6 +363,9 @@ function sampleNodes(): NodeType<NodeData>[] {
           "Review the collected information and confirm with the caller:\n- Name: {{name}}\n- Phone: {{phone}}\n- Reason: {{reason}}\n\nAsk if everything is correct.",
         llmOverride: "gpt-4o-mini",
         tools: ["confirmed"],
+        contextStrategy: "reset_with_summary",
+        summaryPrompt: "Summarise the collected name, phone, and reason for the next phase.",
+        addGlobalPrompt: true,
       },
     },
     {
@@ -277,10 +376,16 @@ function sampleNodes(): NodeType<NodeData>[] {
         kind: "end",
         title: "End call",
         description: "Thank the caller and let them know someone will be in touch.",
+        endReason: "intake_completed",
       },
     },
   ];
 }
+
+const DEFAULT_FLOW_META: FlowMeta = {
+  globalPrompt: "You are a friendly receptionist at a medical clinic.",
+  mode: "strict",
+};
 
 function sampleEdges(): EdgeType<EdgeData>[] {
   return [
@@ -321,6 +426,7 @@ function WorkflowTab() {
 
   const [nodes, setNodes] = useState<NodeType<NodeData>[]>(() => sampleNodes());
   const [edges, setEdges] = useState<EdgeType<EdgeData>[]>(() => sampleEdges());
+  const [flowMeta, setFlowMeta] = useState<FlowMeta>(DEFAULT_FLOW_META);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
 
@@ -353,8 +459,7 @@ function WorkflowTab() {
       description: NODE_TEMPLATES.find((t) => t.kind === kind)?.description,
       ...(kind === "extraction" && {
         extraction: {
-          requiredFields: ["field_a", "field_b"],
-          schema: "z.object({ field_a: z.string(), field_b: z.string() })",
+          fields: [newExtractionField(0), newExtractionField(1)],
           maxTurns: 6,
           completeTransition: "next_node",
           promptMode: "llm" as const,
@@ -375,16 +480,19 @@ function WorkflowTab() {
 
   const [originalNodes] = useState(() => sampleNodes());
   const [originalEdges] = useState(() => sampleEdges());
+  const [originalMeta] = useState<FlowMeta>(DEFAULT_FLOW_META);
   const dirty =
     nodes.length !== originalNodes.length ||
     edges.length !== originalEdges.length ||
     JSON.stringify(nodes.map((n) => n.data)) !== JSON.stringify(originalNodes.map((n) => n.data)) ||
-    JSON.stringify(edges.map((e) => e.data)) !== JSON.stringify(originalEdges.map((e) => e.data));
+    JSON.stringify(edges.map((e) => e.data)) !== JSON.stringify(originalEdges.map((e) => e.data)) ||
+    JSON.stringify(flowMeta) !== JSON.stringify(originalMeta);
   const changes = dirty ? 1 : 0;
 
   function reset() {
     setNodes(sampleNodes());
     setEdges(sampleEdges());
+    setFlowMeta(DEFAULT_FLOW_META);
     setSelectedNodeId(null);
     setSelectedEdgeId(null);
   }
@@ -498,7 +606,12 @@ function WorkflowTab() {
               onClose={() => setSelectedEdgeId(null)}
             />
           ) : (
-            <EmptyInspector nodeCount={nodes.length} edgeCount={edges.length} />
+            <FlowSettingsInspector
+              meta={flowMeta}
+              onChange={setFlowMeta}
+              nodeCount={nodes.length}
+              edgeCount={edges.length}
+            />
           )}
         </aside>
       </div>
@@ -599,6 +712,45 @@ function NodeInspector({
                 className="font-mono text-[12px]"
               />
             </Field>
+            <Field>
+              <FieldLabel htmlFor={`ctx-${node.id}`}>Context strategy</FieldLabel>
+              <select
+                id={`ctx-${node.id}`}
+                value={node.data.contextStrategy ?? "append"}
+                onChange={(e) => onPatch({ contextStrategy: e.target.value as NodeData["contextStrategy"] })}
+                className="h-9 w-full rounded-md border bg-background px-2 font-mono text-[12px]"
+              >
+                <option value="append">append (carry full history)</option>
+                <option value="reset">reset (clear before this node)</option>
+                <option value="reset_with_summary">reset_with_summary</option>
+              </select>
+            </Field>
+            {node.data.contextStrategy === "reset_with_summary" && (
+              <Field>
+                <FieldLabel htmlFor={`summary-${node.id}`}>Summary prompt</FieldLabel>
+                <Textarea
+                  id={`summary-${node.id}`}
+                  value={node.data.summaryPrompt ?? ""}
+                  onChange={(e) => onPatch({ summaryPrompt: e.target.value })}
+                  className="min-h-[64px] text-[12px]"
+                  placeholder="How should we summarise the prior turns before this node sees them?"
+                />
+              </Field>
+            )}
+            <label className="flex cursor-pointer items-start gap-2 rounded-md border bg-background px-3 py-2 text-[12px]">
+              <input
+                type="checkbox"
+                checked={node.data.addGlobalPrompt !== false}
+                onChange={(e) => onPatch({ addGlobalPrompt: e.target.checked })}
+                className="mt-0.5 h-3.5 w-3.5 accent-primary"
+              />
+              <div>
+                <div className="font-medium">Prefix global flow prompt</div>
+                <div className="text-[11px] text-muted-foreground">
+                  Off → this node's prompt runs solo. On (default) → the flow's global prompt is prepended.
+                </div>
+              </div>
+            </label>
           </>
         )}
 
@@ -638,49 +790,10 @@ function NodeInspector({
 
         {node.data.kind === "extraction" && node.data.extraction && (
           <>
-            <Field>
-              <FieldLabel>Required fields</FieldLabel>
-              <div className="flex flex-wrap items-center gap-1.5">
-                {node.data.extraction.requiredFields.map((f) => (
-                  <Badge key={f} variant="outline" className="gap-1 font-mono text-[10px]">
-                    {f}
-                    <button
-                      aria-label={`Remove ${f}`}
-                      className="text-muted-foreground hover:text-destructive"
-                      onClick={() =>
-                        onPatchExtraction({
-                          requiredFields: node.data.extraction!.requiredFields.filter((x) => x !== f),
-                        })
-                      }
-                    >
-                      <X size={10} />
-                    </button>
-                  </Badge>
-                ))}
-                <button
-                  onClick={() =>
-                    onPatchExtraction({
-                      requiredFields: [
-                        ...node.data.extraction!.requiredFields,
-                        `field_${node.data.extraction!.requiredFields.length + 1}`,
-                      ],
-                    })
-                  }
-                  className="rounded-md border border-dashed px-2 py-0.5 text-[11px] text-muted-foreground hover:border-primary hover:text-primary"
-                >
-                  + add field
-                </button>
-              </div>
-            </Field>
-            <Field>
-              <FieldLabel htmlFor={`schema-${node.id}`}>Zod schema</FieldLabel>
-              <Textarea
-                id={`schema-${node.id}`}
-                value={node.data.extraction.schema}
-                onChange={(e) => onPatchExtraction({ schema: e.target.value })}
-                className="min-h-[120px] font-mono text-[11px]"
-              />
-            </Field>
+            <DataCollectionFields
+              fields={node.data.extraction.fields}
+              onChange={(fields) => onPatchExtraction({ fields })}
+            />
             <div className="grid grid-cols-2 gap-3">
               <Field>
                 <FieldLabel htmlFor={`maxturns-${node.id}`}>Max turns</FieldLabel>
@@ -719,6 +832,15 @@ function NodeInspector({
                 className="font-mono text-[12px]"
               />
             </Field>
+            <Field>
+              <FieldLabel>Generated Zod schema</FieldLabel>
+              <pre className="overflow-auto rounded-md border bg-muted/40 p-3 font-mono text-[11px] leading-relaxed">
+                {buildZodSchema(node.data.extraction.fields)}
+              </pre>
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                Auto-derived from the field list above. Edit the fields to change the schema.
+              </p>
+            </Field>
           </>
         )}
 
@@ -747,6 +869,22 @@ function NodeInspector({
               className="font-mono text-[12px]"
               placeholder={node.data.kind === "transfer-agent" ? "ag_a07" : "+1 206 555 0188"}
             />
+          </Field>
+        )}
+
+        {node.data.kind === "end" && (
+          <Field>
+            <FieldLabel htmlFor={`reason-${node.id}`}>End reason</FieldLabel>
+            <Input
+              id={`reason-${node.id}`}
+              value={node.data.endReason ?? ""}
+              onChange={(e) => onPatch({ endReason: e.target.value })}
+              className="font-mono text-[12px]"
+              placeholder="intake_completed"
+            />
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Tagged on the post-call webhook payload as <span className="font-mono">postActions[type=end].reason</span>.
+            </p>
           </Field>
         )}
 
@@ -832,27 +970,172 @@ function EdgeInspector({
   );
 }
 
-function EmptyInspector({ nodeCount, edgeCount }: { nodeCount: number; edgeCount: number }) {
+function DataCollectionFields({
+  fields,
+  onChange,
+}: {
+  fields: ExtractionField[];
+  onChange: (fields: ExtractionField[]) => void;
+}) {
+  const [dragId, setDragId] = useState<string | null>(null);
+
+  function patch(id: string, p: Partial<ExtractionField>) {
+    onChange(fields.map((f) => (f.id === id ? { ...f, ...p } : f)));
+  }
+  function remove(id: string) {
+    onChange(fields.filter((f) => f.id !== id));
+  }
+  function add() {
+    onChange([...fields, newExtractionField(fields.length)]);
+  }
+  function reorder(targetId: string) {
+    if (!dragId || dragId === targetId) return;
+    const from = fields.findIndex((f) => f.id === dragId);
+    const to = fields.findIndex((f) => f.id === targetId);
+    if (from < 0 || to < 0) return;
+    const next = fields.slice();
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved!);
+    onChange(next);
+  }
+
+  return (
+    <Field>
+      <FieldLabel className="flex items-center justify-between">
+        <span>Data collection fields</span>
+        <span className="font-normal text-[11px] text-muted-foreground">{fields.length}</span>
+      </FieldLabel>
+      <p className="-mt-1 mb-2 text-[12px] text-muted-foreground">
+        Gather structured responses from a list of configurable fields. Drag a row by its handle to reorder.
+      </p>
+      <div className="grid gap-1.5">
+        {fields.map((f) => (
+          <div
+            key={f.id}
+            draggable
+            onDragStart={() => setDragId(f.id)}
+            onDragOver={(e) => {
+              e.preventDefault();
+              reorder(f.id);
+            }}
+            onDragEnd={() => setDragId(null)}
+            className={cn(
+              "group grid grid-cols-[14px_1fr_120px_auto] items-center gap-2 rounded-md border bg-background px-2.5 py-1.5",
+              dragId === f.id && "opacity-60",
+            )}
+          >
+            <GripVertical
+              size={14}
+              className="cursor-grab text-muted-foreground opacity-50 group-hover:opacity-100 active:cursor-grabbing"
+            />
+            <input
+              value={f.name}
+              onChange={(e) => patch(f.id, { name: sanitiseFieldName(e.target.value) })}
+              className="bg-transparent font-mono text-[12px] tabular-nums outline-none placeholder:text-muted-foreground"
+              placeholder="field_name"
+            />
+            <select
+              value={f.type}
+              onChange={(e) => patch(f.id, { type: e.target.value as ExtractionFieldType })}
+              className="h-7 rounded border bg-card px-1.5 font-mono text-[10px] uppercase tracking-wide"
+            >
+              {(Object.keys(FIELD_TYPE_LABEL) as ExtractionFieldType[]).map((t) => (
+                <option key={t} value={t}>{FIELD_TYPE_LABEL[t]}</option>
+              ))}
+            </select>
+            <div className="flex items-center gap-1">
+              <button
+                aria-label={f.required ? "Mark optional" : "Mark required"}
+                onClick={() => patch(f.id, { required: !f.required })}
+                className={cn(
+                  "rounded border px-1.5 py-0.5 text-[10px] uppercase tracking-wide transition",
+                  f.required
+                    ? "border-primary/40 bg-primary/10 text-primary"
+                    : "border-border text-muted-foreground",
+                )}
+              >
+                {f.required ? "Required" : "Optional"}
+              </button>
+              <button
+                aria-label="Delete field"
+                onClick={() => remove(f.id)}
+                className="rounded p-1 text-muted-foreground hover:text-destructive"
+              >
+                <Trash2 size={12} />
+              </button>
+            </div>
+          </div>
+        ))}
+        <button
+          onClick={add}
+          className="inline-flex h-8 items-center gap-1 self-start rounded-md border border-dashed px-2.5 text-[12px] text-muted-foreground hover:border-primary hover:text-primary"
+        >
+          <Plus size={12} /> Add field
+        </button>
+      </div>
+    </Field>
+  );
+}
+
+function sanitiseFieldName(s: string): string {
+  return s.replace(/[^a-zA-Z0-9_]/g, "_").slice(0, 64);
+}
+
+function FlowSettingsInspector({
+  meta,
+  onChange,
+  nodeCount,
+  edgeCount,
+}: {
+  meta: FlowMeta;
+  onChange: (next: FlowMeta) => void;
+  nodeCount: number;
+  edgeCount: number;
+}) {
   return (
     <>
       <div className="border-b p-5">
-        <Eyebrow>Workflow</Eyebrow>
-        <h2 className="mt-1 font-display text-[18px] font-semibold">Graph editor</h2>
+        <Eyebrow>Flow settings</Eyebrow>
+        <h2 className="mt-1 font-display text-[18px] font-semibold">Global config</h2>
         <p className="mt-1 text-[12px] text-muted-foreground">
-          Click any node or edge to edit it. Drag from a node's right handle to wire a new edge.
+          Applies to every node unless an individual node opts out. Click any node or edge to edit it.
         </p>
       </div>
-      <div className="p-5">
-        <Eyebrow>Tip</Eyebrow>
-        <ul className="mt-2 grid gap-2 text-[12px] text-muted-foreground">
-          <li>· Click a node → edit prompt, LLM, tools, extraction schema.</li>
-          <li>· Click an edge → switch the condition (LLM / expression / none).</li>
-          <li>· Drag a node's right handle onto another node to connect.</li>
-          <li>· Use the toolbar (top-left) to add new nodes.</li>
-        </ul>
-        <div className="mt-5 grid gap-1 text-[11px]">
-          <div className="font-semibold text-foreground">Stats</div>
-          <div className="text-muted-foreground">
+      <div className="grid gap-4 p-5">
+        <Field>
+          <FieldLabel htmlFor="global-prompt">Global prompt</FieldLabel>
+          <Textarea
+            id="global-prompt"
+            value={meta.globalPrompt}
+            onChange={(e) => onChange({ ...meta, globalPrompt: e.target.value })}
+            className="min-h-[120px] text-[12px]"
+            placeholder="One sentence about the role / brand / tone the agent inhabits across every node."
+          />
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="flow-mode">Mode</FieldLabel>
+          <select
+            id="flow-mode"
+            value={meta.mode}
+            onChange={(e) => onChange({ ...meta, mode: e.target.value as FlowMeta["mode"] })}
+            className="h-9 w-full rounded-md border bg-background px-2 font-mono text-[12px]"
+          >
+            <option value="strict">strict — only allow declared transitions</option>
+            <option value="flexible">flexible — allow LLM-discovered detours</option>
+          </select>
+        </Field>
+        <div className="rounded-md border bg-background p-3 text-[12px] text-muted-foreground">
+          <div className="font-semibold text-foreground">Tips</div>
+          <ul className="mt-1 grid gap-1">
+            <li>· Click a node → edit prompt, LLM, tools, extraction schema, context strategy.</li>
+            <li>· Click an edge → switch its condition (LLM / expression / none).</li>
+            <li>· Drag a node's right handle onto another node to connect.</li>
+            <li>· Use the toolbar (top-left) to add new nodes.</li>
+          </ul>
+        </div>
+        <div className="rounded-md border bg-background p-3 text-[11px]">
+          <div className="font-semibold text-foreground">Graph stats</div>
+          <div className="mt-1 font-mono tabular-nums text-muted-foreground">
             {nodeCount} node{nodeCount === 1 ? "" : "s"} · {edgeCount} edge{edgeCount === 1 ? "" : "s"}
           </div>
         </div>
