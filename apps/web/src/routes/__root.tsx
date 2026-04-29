@@ -1,66 +1,46 @@
-import type { AppRouterClient } from "@kuralle/api/routers/index";
 import { Toaster } from "@kuralle/ui/components/sonner";
-import { createORPCClient } from "@orpc/client";
-import { createTanstackQueryUtils } from "@orpc/tanstack-query";
-import type { QueryClient } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { HeadContent, Outlet, createRootRouteWithContext } from "@tanstack/react-router";
+import { TooltipProvider } from "@kuralle/ui/components/tooltip";
+import { HeadContent, Outlet, createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import { useState } from "react";
 
-import Header from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
-import { link, orpc } from "@/utils/orpc";
+import { WorkspaceProvider } from "@/contexts/workspace";
 
 import "../index.css";
 
-export interface RouterAppContext {
-  orpc: typeof orpc;
-  queryClient: QueryClient;
-}
-
-export const Route = createRootRouteWithContext<RouterAppContext>()({
+export const Route = createRootRoute({
   component: RootComponent,
   head: () => ({
     meta: [
-      {
-        title: "kuralle",
-      },
-      {
-        name: "description",
-        content: "kuralle is a web application",
-      },
+      { title: "Kuralle" },
+      { name: "description", content: "Kuralle — operator-grade voice AI + unified inbox." },
     ],
-    links: [
-      {
-        rel: "icon",
-        href: "/favicon.ico",
-      },
-    ],
+    links: [{ rel: "icon", href: "/favicon.ico" }],
   }),
 });
 
 function RootComponent() {
-  const [client] = useState<AppRouterClient>(() => createORPCClient(link));
-  const [orpcUtils] = useState(() => createTanstackQueryUtils(client));
-
   return (
     <>
       <HeadContent />
       <ThemeProvider
         attribute="class"
-        defaultTheme="dark"
+        defaultTheme="light"
+        enableSystem={false}
         disableTransitionOnChange
-        storageKey="vite-ui-theme"
+        storageKey="kuralle-theme"
       >
-        <div className="grid grid-rows-[auto_1fr] h-svh">
-          <Header />
+        <TooltipProvider delayDuration={150}>
           <Outlet />
-        </div>
-        <Toaster richColors />
+          <Toaster richColors position="bottom-center" />
+        </TooltipProvider>
       </ThemeProvider>
       <TanStackRouterDevtools position="bottom-left" />
-      <ReactQueryDevtools position="bottom" buttonPosition="bottom-right" />
     </>
   );
+}
+
+export function RootProviders({ children }: { children: React.ReactNode }) {
+  // Wraps the app at main.tsx. Keeps __root focused on theme + tooltip + outlet.
+  return <WorkspaceProvider>{children}</WorkspaceProvider>;
 }
