@@ -68,12 +68,12 @@ function PhoneNumbersRoute() {
                     {n.provider.replace("twilio-", "Twilio ")}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-[12px] text-mute-slate">{n.region}</TableCell>
+                <TableCell className="text-[12px] text-muted-foreground">{n.region}</TableCell>
                 <TableCell className="text-[13px]">
                   {n.attachedAgentId ? (
                     agentsById.get(n.attachedAgentId)
                   ) : (
-                    <span className="text-mute-slate italic">Not attached</span>
+                    <span className="text-muted-foreground italic">Not attached</span>
                   )}
                 </TableCell>
                 <TableCell className="text-right">

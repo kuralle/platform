@@ -11,21 +11,21 @@ interface SparklineProps extends Omit<React.SVGProps<SVGSVGElement>, "stroke"> {
 }
 
 const TONE_STROKE: Record<NonNullable<SparklineProps["tone"]>, string> = {
-  signal: "stroke-signal-teal",
-  live: "stroke-live-cyan",
-  currency: "stroke-receipt-gold",
-  success: "stroke-booked-green",
-  warning: "stroke-compliance-amber",
-  danger: "stroke-risk-crimson",
+  signal: "stroke-primary",
+  live: "stroke-cyan-500",
+  currency: "stroke-foreground",
+  success: "stroke-emerald-500",
+  warning: "stroke-amber-500",
+  danger: "stroke-destructive",
 };
 
 const TONE_FILL: Record<NonNullable<SparklineProps["tone"]>, string> = {
-  signal: "fill-signal-teal/12",
-  live: "fill-live-cyan/12",
-  currency: "fill-receipt-gold/12",
-  success: "fill-booked-green/12",
-  warning: "fill-compliance-amber/12",
-  danger: "fill-risk-crimson/12",
+  signal: "fill-primary/12",
+  live: "fill-cyan-500/12",
+  currency: "fill-foreground/12",
+  success: "fill-emerald-500/12",
+  warning: "fill-amber-500/12",
+  danger: "fill-destructive/12",
 };
 
 export function Sparkline({

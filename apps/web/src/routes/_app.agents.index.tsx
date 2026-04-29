@@ -69,7 +69,7 @@ function AgentsListRoute() {
         actions={
           <>
             <div className="relative">
-              <Search size={14} className="absolute top-1/2 left-2.5 -translate-y-1/2 text-mute-slate" />
+              <Search size={14} className="absolute top-1/2 left-2.5 -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder="Search by name or ID"
                 className="h-9 w-[260px] pl-8"
@@ -132,21 +132,21 @@ function AgentsListRoute() {
                 <TableCell>
                   <div className="flex flex-col">
                     <span className="text-[14px] font-medium">{a.name}</span>
-                    <span className="font-mono text-[11px] tabular-nums text-mute-slate">{a.id}</span>
+                    <span className="font-mono text-[11px] tabular-nums text-muted-foreground">{a.id}</span>
                   </div>
                 </TableCell>
                 <TableCell>
                   <Badge variant="outline" className="font-mono text-[11px] uppercase tracking-wide">
                     {a.llmProvider}
                   </Badge>
-                  <div className="mt-0.5 font-mono text-[11px] text-mute-slate">{a.llmModel}</div>
+                  <div className="mt-0.5 font-mono text-[11px] text-muted-foreground">{a.llmModel}</div>
                 </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <VoicePreviewChip voiceId={a.voiceId} voiceName={a.voiceName} language={a.language} />
                 </TableCell>
                 <TableCell className="text-right font-mono tabular-nums">{a.calls7d}</TableCell>
                 <TableCell className="text-right font-mono tabular-nums">{formatPct(a.bookingRate)}</TableCell>
-                <TableCell className="text-right font-mono tabular-nums text-receipt-gold">
+                <TableCell className="text-right font-mono tabular-nums text-foreground">
                   {formatUsd(a.costPerCall, { precise: true })}
                 </TableCell>
                 <TableCell>
@@ -154,7 +154,7 @@ function AgentsListRoute() {
                     {a.status}
                   </StatusPill>
                 </TableCell>
-                <TableCell className="text-right text-[12px] text-mute-slate">{formatRelative(a.updatedAt)}</TableCell>
+                <TableCell className="text-right text-[12px] text-muted-foreground">{formatRelative(a.updatedAt)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -182,7 +182,7 @@ function SortHeader({
       <button
         type="button"
         onClick={onToggle}
-        className="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-mute-slate hover:text-foreground"
+        className="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground hover:text-foreground"
       >
         {label}
         {active && <ChevronDown size={12} className={dir === "asc" ? "rotate-180" : ""} />}

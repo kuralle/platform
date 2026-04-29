@@ -64,23 +64,23 @@ export function WelcomeModal({ open, onOpenChange }: WelcomeModalProps) {
                   aria-pressed={done}
                   onClick={() => setCompleted((c) => ({ ...c, [step.id]: !c[step.id] }))}
                   className={`flex size-7 shrink-0 items-center justify-center rounded-md border transition ${
-                    done ? "border-booked-green bg-booked-green/10 text-booked-green" : "border-border text-mute-slate hover:border-signal-teal hover:text-signal-teal"
+                    done ? "border-emerald-500 bg-emerald-500/10 text-emerald-500" : "border-border text-muted-foreground hover:border-primary hover:text-primary"
                   }`}
                 >
                   {done ? <Check size={14} /> : <step.icon size={14} />}
                 </button>
                 <div className="min-w-0 flex-1">
-                  <div className={`text-[14px] font-medium ${done ? "text-mute-slate line-through" : "text-foreground"}`}>
+                  <div className={`text-[14px] font-medium ${done ? "text-muted-foreground line-through" : "text-foreground"}`}>
                     {step.label}
                   </div>
-                  <div className="text-[12px] text-mute-slate">{step.description}</div>
+                  <div className="text-[12px] text-muted-foreground">{step.description}</div>
                 </div>
               </li>
             );
           })}
         </ul>
         <DialogFooter className="mt-2 flex items-center justify-between">
-          <span className="font-mono text-[12px] tabular-nums text-mute-slate">
+          <span className="font-mono text-[12px] tabular-nums text-muted-foreground">
             {STEPS.length - remaining} of {STEPS.length} complete
           </span>
           <Button onClick={() => onOpenChange(false)}>{remaining === 0 ? "Done" : "Got it"}</Button>

@@ -49,8 +49,9 @@ function LiveSupervisorRoute() {
   ]);
 
   useEffect(() => {
-    document.documentElement.setAttribute("data-mode", "mission-control");
-    return () => document.documentElement.removeAttribute("data-mode");
+    // Live supervisor flips to dark theme scope while mounted.
+    document.documentElement.classList.add("dark");
+    return () => document.documentElement.classList.remove("dark");
   }, []);
 
   useEffect(() => {
@@ -86,23 +87,23 @@ function LiveSupervisorRoute() {
   }
 
   return (
-    <div className="grid h-[calc(100svh-3.5rem)] grid-rows-[auto_1fr] bg-mission-black text-paper-white">
-      <div className="border-b border-mission-hairline bg-mission-black px-6 py-3">
-        <div className="flex items-center gap-2 text-[12px] text-whisper-slate">
-          <Link to="/conversations" className="inline-flex items-center gap-1 hover:text-paper-white">
+    <div className="grid h-[calc(100svh-3.5rem)] grid-rows-[auto_1fr] bg-background text-foreground">
+      <div className="border-b border-border bg-background px-6 py-3">
+        <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
+          <Link to="/conversations" className="inline-flex items-center gap-1 hover:text-foreground">
             <ChevronLeft size={12} /> Conversations
           </Link>
           <span>/</span>
-          <span className="font-mono tabular-nums text-paper-white">{conversation.id}</span>
+          <span className="font-mono tabular-nums text-foreground">{conversation.id}</span>
           <span>·</span>
           <span>Mission control</span>
         </div>
         <div className="mt-1.5 flex items-end justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <Eyebrow className="text-live-cyan">Live</Eyebrow>
+              <Eyebrow className="text-cyan-500">Live</Eyebrow>
               <LiveDot size={8} tone="live" />
-              <span className="font-mono text-[14px] tabular-nums text-whisper-slate">
+              <span className="font-mono text-[14px] tabular-nums text-muted-foreground">
                 {formatDuration(elapsed)}
               </span>
             </div>
@@ -117,33 +118,33 @@ function LiveSupervisorRoute() {
       </div>
 
       <div className="grid grid-cols-[1fr_320px] overflow-hidden">
-        <div className="flex flex-col overflow-hidden border-r border-mission-hairline">
+        <div className="flex flex-col overflow-hidden border-r border-border">
           <ScrollArea className="flex-1">
             <div className="flex flex-col gap-2 p-5">
               {transcript.map((t) => (
                 <div
                   key={t.id}
                   className={cn(
-                    "flex flex-col gap-1.5 rounded-md border border-mission-hairline bg-mission-slate p-3",
-                    t.speaker === "caller" && "ml-auto max-w-[80%] bg-mission-slate/80",
+                    "flex flex-col gap-1.5 rounded-md border border-border bg-card p-3",
+                    t.speaker === "caller" && "ml-auto max-w-[80%] bg-card/60",
                     t.speaker === "agent" && "mr-auto max-w-[80%]",
                   )}
                 >
-                  <div className="flex items-center gap-2 text-[11px] text-whisper-slate">
-                    <Eyebrow className="text-[10px] text-whisper-slate">{t.speaker}</Eyebrow>
+                  <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                    <Eyebrow className="text-[10px] text-muted-foreground">{t.speaker}</Eyebrow>
                     <span className="font-mono tabular-nums">{formatDuration(t.timestampSec)}</span>
                   </div>
-                  <div className="text-[13px] leading-relaxed text-paper-white">{t.text}</div>
+                  <div className="text-[13px] leading-relaxed text-foreground">{t.text}</div>
                 </div>
               ))}
-              <div className="ml-auto flex items-center gap-2 self-start text-[11px] text-whisper-slate">
+              <div className="ml-auto flex items-center gap-2 self-start text-[11px] text-muted-foreground">
                 <LiveDot size={6} tone="live" />
                 streaming…
               </div>
             </div>
           </ScrollArea>
 
-          <div className="border-t border-mission-hairline bg-mission-black p-4">
+          <div className="border-t border-border bg-background p-4">
             <WaveformPlayer
               durationSec={Math.max(elapsed + 5, 60)}
               positionSec={elapsed}
@@ -171,7 +172,7 @@ function LiveSupervisorRoute() {
                 value={composer}
                 onChange={(e) => setComposer(e.target.value)}
                 placeholder="Inject text for the agent to read…"
-                className="h-9 border-mission-hairline bg-mission-slate text-paper-white"
+                className="h-9 border-border bg-card text-foreground"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") injectAgent();
                 }}
@@ -185,23 +186,23 @@ function LiveSupervisorRoute() {
 
         <ScrollArea>
           <div className="flex flex-col gap-4 p-5">
-            <Card className="border-mission-hairline bg-mission-slate p-4">
-              <Eyebrow className="text-whisper-slate">Caller</Eyebrow>
+            <Card className="border-border bg-card p-4">
+              <Eyebrow className="text-muted-foreground">Caller</Eyebrow>
               <div className="mt-2 grid gap-1 text-[13px]">
                 <div className="font-medium">{conversation.callerName ?? "Unknown"}</div>
-                <div className="font-mono text-[12px] tabular-nums text-whisper-slate">{conversation.callerId}</div>
+                <div className="font-mono text-[12px] tabular-nums text-muted-foreground">{conversation.callerId}</div>
               </div>
-              <Button variant="destructive" className="mt-4 w-full gap-2 bg-risk-crimson/15 text-risk-crimson hover:bg-risk-crimson/30">
+              <Button variant="destructive" className="mt-4 w-full gap-2 bg-destructive/15 text-destructive hover:bg-destructive/30">
                 <Siren size={14} /> Panic
               </Button>
             </Card>
-            <Card className="border-mission-hairline bg-mission-slate p-4">
-              <Eyebrow className="text-whisper-slate">Audit log</Eyebrow>
+            <Card className="border-border bg-card p-4">
+              <Eyebrow className="text-muted-foreground">Audit log</Eyebrow>
               <ul className="mt-2 grid gap-1.5 font-mono text-[11px] tabular-nums">
                 {audit.current.map((row, i) => (
-                  <li key={i} className="grid grid-cols-[44px_1fr] gap-3 text-whisper-slate">
+                  <li key={i} className="grid grid-cols-[44px_1fr] gap-3 text-muted-foreground">
                     <span>{row.at}</span>
-                    <span className="text-paper-white">{row.event}</span>
+                    <span className="text-foreground">{row.event}</span>
                   </li>
                 ))}
               </ul>
@@ -229,8 +230,8 @@ function ToolButton({
       type="button"
       onClick={onClick}
       className={cn(
-        "flex h-9 items-center gap-2 rounded-md border border-mission-hairline bg-mission-slate px-3 text-[12px] text-paper-white transition hover:border-signal-teal/50 hover:bg-mission-slate/80",
-        tone === "danger" && "border-risk-crimson/40 text-risk-crimson hover:border-risk-crimson hover:bg-risk-crimson/10",
+        "flex h-9 items-center gap-2 rounded-md border border-border bg-card px-3 text-[12px] text-foreground transition hover:border-primary/50 hover:bg-card/60",
+        tone === "danger" && "border-destructive/40 text-destructive hover:border-destructive hover:bg-destructive/10",
       )}
     >
       <Icon size={14} />

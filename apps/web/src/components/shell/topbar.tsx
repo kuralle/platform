@@ -36,7 +36,7 @@ export function Topbar({ onCommandOpen }: TopbarProps) {
       <button
         type="button"
         onClick={onCommandOpen}
-        className="ml-3 flex h-8 min-w-[280px] items-center gap-2 rounded-md border bg-background px-2 text-[13px] text-mute-slate transition hover:border-signal-teal/40 hover:text-foreground"
+        className="ml-3 flex h-8 min-w-[280px] items-center gap-2 rounded-md border bg-background px-2 text-[13px] text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
       >
         <Search size={14} />
         <span className="flex-1 text-left">Jump to a screen, agent, or conversation…</span>
@@ -64,7 +64,7 @@ export function Topbar({ onCommandOpen }: TopbarProps) {
           render={
             <Button variant="ghost" className="h-9 gap-2 px-2">
               <Avatar className="size-7">
-                <AvatarFallback className="bg-foreground text-paper-white text-[11px] font-semibold">
+                <AvatarFallback className="bg-foreground text-card text-[11px] font-semibold">
                   RJ
                 </AvatarFallback>
               </Avatar>
@@ -73,7 +73,7 @@ export function Topbar({ onCommandOpen }: TopbarProps) {
           }
         />
         <DropdownMenuContent align="end" className="w-60">
-          <DropdownMenuLabel className="text-mute-slate">{workspace.name}</DropdownMenuLabel>
+          <DropdownMenuLabel className="text-muted-foreground">{workspace.name}</DropdownMenuLabel>
           <DropdownMenuItem render={<Link to="/workspace/settings" />}>
             Workspace settings
           </DropdownMenuItem>

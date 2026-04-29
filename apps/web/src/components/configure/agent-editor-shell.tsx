@@ -48,7 +48,7 @@ export function AgentEditorShell({
   return (
     <div className="flex h-[calc(100svh-3.5rem)] flex-col">
       <div className="border-b bg-card px-8 py-4">
-        <div className="flex items-center gap-2 text-[12px] text-mute-slate">
+        <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
           <Link to="/agents" className="inline-flex items-center gap-1 hover:text-foreground">
             <ChevronLeft size={12} /> Agents
           </Link>
@@ -89,11 +89,11 @@ export function AgentEditorShell({
                 href={href}
                 className={cn(
                   "relative flex h-10 items-center px-3 text-[13px] font-medium transition",
-                  active ? "text-foreground" : "text-mute-slate hover:text-foreground",
+                  active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {t.label}
-                {active && <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-signal-teal" />}
+                {active && <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary" />}
               </Link>
             );
           })}

@@ -12,7 +12,7 @@ export function Eyebrow({ children, className, ...rest }: EyebrowProps) {
   return (
     <span
       className={cn(
-        "text-[11px] font-semibold uppercase tracking-[0.08em] text-mute-slate",
+        "text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground",
         className,
       )}
       {...rest}

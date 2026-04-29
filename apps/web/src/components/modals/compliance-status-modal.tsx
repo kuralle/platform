@@ -90,15 +90,15 @@ export function ComplianceStatusModal({ open, onOpenChange }: ComplianceStatusMo
                 {reg.requirements.map((req) => (
                   <li key={req.label} className="flex items-center gap-2 text-[12px]">
                     {req.met === true && (
-                      <Check size={12} className="shrink-0 text-booked-green" />
+                      <Check size={12} className="shrink-0 text-emerald-500" />
                     )}
                     {req.met === false && (
-                      <X size={12} className="shrink-0 text-risk-crimson" />
+                      <X size={12} className="shrink-0 text-destructive" />
                     )}
                     {req.met === "n/a" && (
-                      <Minus size={12} className="shrink-0 text-whisper-slate" />
+                      <Minus size={12} className="shrink-0 text-muted-foreground" />
                     )}
-                    <span className={req.met === "n/a" ? "text-whisper-slate" : "text-operator-slate"}>
+                    <span className={req.met === "n/a" ? "text-muted-foreground" : "text-foreground"}>
                       {req.label}
                     </span>
                   </li>

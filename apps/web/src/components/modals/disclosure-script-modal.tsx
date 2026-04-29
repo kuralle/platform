@@ -94,9 +94,9 @@ export function DisclosureScriptModal({ open, onOpenChange }: DisclosureScriptMo
                   <li key={it.label} className="flex items-center gap-2 text-[12px]">
                     <CheckCircle2
                       size={12}
-                      className={it.ok ? "text-booked-green" : "text-whisper-slate"}
+                      className={it.ok ? "text-emerald-500" : "text-muted-foreground"}
                     />
-                    <span className={it.ok ? "text-foreground" : "text-mute-slate"}>{it.label}</span>
+                    <span className={it.ok ? "text-foreground" : "text-muted-foreground"}>{it.label}</span>
                   </li>
                 ))}
               </ul>

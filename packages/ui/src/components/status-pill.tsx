@@ -12,21 +12,17 @@ interface StatusPillProps extends React.HTMLAttributes<HTMLSpanElement> {
 }
 
 const TONE_RING: Record<StatusPillTone, string> = {
-  live:    "border-live-cyan/40 bg-live-cyan/10 text-mission-black",
-  success: "border-booked-green/30 bg-booked-green/8 text-booked-green",
-  warning: "border-compliance-amber/30 bg-compliance-amber/8 text-compliance-amber",
-  danger:  "border-risk-crimson/40 bg-risk-crimson/8 text-risk-crimson",
-  neutral: "border-border bg-soft-hairline text-operator-slate",
-  info:    "border-audit-indigo/30 bg-audit-indigo/8 text-audit-indigo",
+  live:    "border-cyan-500/40 bg-cyan-500/10 text-cyan-700 dark:text-cyan-300",
+  success: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+  warning: "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400",
+  danger:  "border-destructive/40 bg-destructive/10 text-destructive",
+  neutral: "border-border bg-muted text-foreground",
+  info:    "border-indigo-500/30 bg-indigo-500/10 text-indigo-700 dark:text-indigo-400",
 };
 
-const TONE_DOT: Record<StatusPillTone, React.ComponentProps<typeof LiveDot>["tone"] | "neutral" | "info"> = {
-  live: "live",
-  success: "success",
-  warning: "warning",
-  danger: "danger",
-  neutral: "neutral",
-  info: "info",
+const TONE_DOT_OVERRIDE: Partial<Record<StatusPillTone, string>> = {
+  neutral: "bg-muted-foreground",
+  info: "bg-indigo-500",
 };
 
 /**
@@ -44,10 +40,14 @@ export function StatusPill({ tone, hideDot, children, className, ...rest }: Stat
       )}
       {...rest}
     >
-      {!hideDot && <LiveDot size={6} tone={TONE_DOT[tone] === "live" ? "live" : (TONE_DOT[tone] === "success" || TONE_DOT[tone] === "warning" || TONE_DOT[tone] === "danger") ? (TONE_DOT[tone] as "success") : "success"} static={tone !== "live"} className={
-        tone === "neutral" ? "bg-whisper-slate" :
-        tone === "info" ? "bg-audit-indigo" : undefined
-      } />}
+      {!hideDot && (
+        <LiveDot
+          size={6}
+          tone={tone === "live" ? "live" : tone === "warning" ? "warning" : tone === "danger" ? "danger" : "success"}
+          static={tone !== "live"}
+          className={TONE_DOT_OVERRIDE[tone]}
+        />
+      )}
       {children}
     </span>
   );

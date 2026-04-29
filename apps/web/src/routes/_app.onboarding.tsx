@@ -32,7 +32,7 @@ function OnboardingRoute() {
       <div className="mb-6 flex flex-col items-center text-center">
         <Eyebrow>Onboarding</Eyebrow>
         <h1 className="mt-2 font-display text-[28px] font-semibold tracking-tight">Set up your workspace.</h1>
-        <p className="mt-1 max-w-md text-[14px] text-mute-slate">
+        <p className="mt-1 max-w-md text-[14px] text-muted-foreground">
           Five steps. Each takes under a minute. We'll have your first agent live in under eight.
         </p>
       </div>
@@ -68,20 +68,20 @@ function OnboardingRoute() {
                           onClick={() => setVertical(v)}
                           className={cn(
                             "flex items-start gap-3 rounded-md border bg-background p-4 text-left transition",
-                            active ? "border-signal-teal bg-signal-teal/5" : "hover:border-signal-teal/40",
+                            active ? "border-primary bg-primary/5" : "hover:border-primary/40",
                           )}
                         >
                           <span
                             className={cn(
                               "grid size-9 place-items-center rounded-md border",
-                              active ? "border-signal-teal/60 bg-signal-teal/10 text-signal-teal" : "text-mute-slate",
+                              active ? "border-primary/60 bg-primary/10 text-primary" : "text-muted-foreground",
                             )}
                           >
                             <Icon size={18} />
                           </span>
                           <div className="min-w-0 flex-1">
                             <div className="text-[14px] font-medium">{VERTICAL_LABEL[v]}</div>
-                            <div className="mt-1 text-[12px] text-mute-slate">{VERTICAL_DESCRIPTION[v]}</div>
+                            <div className="mt-1 text-[12px] text-muted-foreground">{VERTICAL_DESCRIPTION[v]}</div>
                           </div>
                         </button>
                       );
@@ -105,7 +105,7 @@ function OnboardingRoute() {
                 title: "Voice",
                 description: "Pick a default voice. You can change per-agent on the C4 Voice tab.",
                 render: () => (
-                  <Card className="p-4 text-[13px] text-mute-slate">
+                  <Card className="p-4 text-[13px] text-muted-foreground">
                     Defaults to the vertical-recommended voice (Aurora for HS, Lyra for Education, Marin for Medical).
                   </Card>
                 ),
@@ -117,7 +117,7 @@ function OnboardingRoute() {
                 render: () => (
                   <Card className="p-6 text-center">
                     <p className="font-display text-[18px] font-semibold">All set.</p>
-                    <p className="mt-1 text-[13px] text-mute-slate">
+                    <p className="mt-1 text-[13px] text-muted-foreground">
                       Your workspace inherits {VERTICAL_LABEL[workspace.vertical]} defaults. We'll be in your dashboard in
                       a moment.
                     </p>

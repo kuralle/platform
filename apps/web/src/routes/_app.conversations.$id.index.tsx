@@ -38,7 +38,7 @@ function ConversationDetailRoute() {
   return (
     <div className="flex h-[calc(100svh-3.5rem)] flex-col">
       <div className="border-b bg-card px-6 py-3">
-        <div className="flex items-center gap-2 text-[12px] text-mute-slate">
+        <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
           <Link to="/conversations" className="inline-flex items-center gap-1 hover:text-foreground">
             <ChevronLeft size={12} /> Conversations
           </Link>
@@ -85,14 +85,14 @@ function ConversationDetailRoute() {
                       onClick={() => setPosition(turn.timestampSec)}
                       className={cn(
                         "flex flex-col gap-1.5 rounded-md border bg-background p-3 text-left transition",
-                        active && "border-signal-teal/60 bg-signal-teal/5",
-                        turn.speaker === "caller" && "ml-auto max-w-[85%] bg-soft-hairline/60",
+                        active && "border-primary/60 bg-primary/5",
+                        turn.speaker === "caller" && "ml-auto max-w-[85%] bg-muted/60",
                         turn.speaker === "agent" && "mr-auto max-w-[85%]",
                       )}
                     >
                       <div className="flex items-center gap-2">
                         <Eyebrow className="text-[10px]">{turn.speaker}</Eyebrow>
-                        <span className="font-mono text-[10px] tabular-nums text-mute-slate">
+                        <span className="font-mono text-[10px] tabular-nums text-muted-foreground">
                           {formatDuration(turn.timestampSec)}
                         </span>
                         {turn.evalVerdict && (
@@ -111,9 +111,9 @@ function ConversationDetailRoute() {
                           {turn.toolCalls.map((tc) => (
                             <Collapsible
                               key={tc.id}
-                              className="rounded-md border border-dashed bg-soft-hairline px-2 py-1.5"
+                              className="rounded-md border border-dashed bg-muted px-2 py-1.5"
                             >
-                              <CollapsibleTrigger className="flex w-full items-center gap-1.5 text-[11px] text-mute-slate">
+                              <CollapsibleTrigger className="flex w-full items-center gap-1.5 text-[11px] text-muted-foreground">
                                 <Wrench size={11} />
                                 <span className="font-mono">{tc.name}</span>
                                 <span className="ml-auto font-mono tabular-nums">{tc.durationMs}ms</span>
@@ -121,12 +121,12 @@ function ConversationDetailRoute() {
                               </CollapsibleTrigger>
                               <CollapsibleContent className="mt-1.5 grid gap-1 font-mono text-[10px]">
                                 <div>
-                                  <span className="text-mute-slate">in:</span>{" "}
+                                  <span className="text-muted-foreground">in:</span>{" "}
                                   {JSON.stringify(tc.input)}
                                 </div>
                                 {tc.output && (
                                   <div>
-                                    <span className="text-mute-slate">out:</span>{" "}
+                                    <span className="text-muted-foreground">out:</span>{" "}
                                     {JSON.stringify(tc.output)}
                                   </div>
                                 )}
@@ -150,14 +150,14 @@ function ConversationDetailRoute() {
                   <div className="mt-2 font-mono text-[24px] tabular-nums">
                     {conversation.evalsPassed}/{conversation.evalsTotal}
                   </div>
-                  <div className="mt-1 text-[12px] text-mute-slate">passed</div>
+                  <div className="mt-1 text-[12px] text-muted-foreground">passed</div>
                 </Card>
                 <Card className="p-4">
                   <Eyebrow>Extracted fields</Eyebrow>
                   <ul className="mt-2 grid gap-1.5 text-[12px]">
                     {conversation.extractedFields.map((f) => (
                       <li key={f.label} className="grid grid-cols-[100px_1fr] gap-3">
-                        <span className="font-mono text-mute-slate">{f.label}</span>
+                        <span className="font-mono text-muted-foreground">{f.label}</span>
                         <span className="font-mono">{f.value}</span>
                       </li>
                     ))}
@@ -185,15 +185,15 @@ function ConversationDetailRoute() {
                   <div className="mt-2 grid gap-1 text-[13px]">
                     <div className="font-medium">{conversation.callerName ?? "Unknown"}</div>
                     <div className="font-mono text-[12px] tabular-nums">{conversation.callerId}</div>
-                    <div className="text-[12px] text-mute-slate">Started {formatRelative(conversation.startedAt)}</div>
+                    <div className="text-[12px] text-muted-foreground">Started {formatRelative(conversation.startedAt)}</div>
                   </div>
                 </Card>
                 <Card className="p-4">
                   <Eyebrow>Cost</Eyebrow>
-                  <div className="mt-2 font-mono text-[20px] tabular-nums text-receipt-gold">
+                  <div className="mt-2 font-mono text-[20px] tabular-nums text-foreground">
                     {formatUsd(conversation.costUsd, { precise: true })}
                   </div>
-                  <div className="mt-0.5 text-[12px] text-mute-slate">total · this call</div>
+                  <div className="mt-0.5 text-[12px] text-muted-foreground">total · this call</div>
                 </Card>
                 <Card className="p-4">
                   <Eyebrow>Direction</Eyebrow>

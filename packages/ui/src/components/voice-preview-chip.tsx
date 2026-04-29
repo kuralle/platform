@@ -62,22 +62,22 @@ export function VoicePreviewChip({
       onClick={toggle}
       className={cn(
         "group inline-flex h-8 items-center gap-2 rounded-lg border bg-card px-2 pr-3",
-        "transition hover:border-signal-teal/50 hover:bg-signal-teal/5",
-        playing && "border-signal-teal/60 bg-signal-teal/5",
+        "transition hover:border-primary/50 hover:bg-primary/5",
+        playing && "border-primary/60 bg-primary/5",
         className,
       )}
     >
       <span
         className={cn(
-          "flex size-6 items-center justify-center rounded-md text-mute-slate",
-          "group-hover:text-signal-teal",
-          playing && "text-signal-teal",
+          "flex size-6 items-center justify-center rounded-md text-muted-foreground",
+          "group-hover:text-primary",
+          playing && "text-primary",
         )}
       >
         {playing ? <Pause size={14} /> : <Play size={14} />}
       </span>
-      <span className="text-[13px] font-medium text-operator-slate">{voiceName}</span>
-      <span className="rounded-md bg-audit-indigo/10 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.04em] text-audit-indigo">
+      <span className="text-[13px] font-medium text-foreground">{voiceName}</span>
+      <span className="rounded-md bg-indigo-500/10 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.04em] text-indigo-500">
         {language}
       </span>
       <PreviewWaveform playing={playing} />
@@ -94,8 +94,8 @@ function PreviewWaveform({ playing }: { playing: boolean }) {
           key={i}
           aria-hidden
           className={cn(
-            "block w-[2px] rounded-full bg-signal-teal/40 transition-all",
-            playing && "bg-signal-teal animate-pulse",
+            "block w-[2px] rounded-full bg-primary/40 transition-all",
+            playing && "bg-primary animate-pulse",
           )}
           style={{
             height: `${30 + ((i * 41) % 70)}%`,

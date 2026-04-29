@@ -3,17 +3,17 @@ import { cn } from "@kuralle/ui/lib/utils";
 interface LiveDotProps extends React.HTMLAttributes<HTMLSpanElement> {
   /** Size in px. Default 8. */
   size?: number;
-  /** Colour token — `live-cyan` for streaming, `booked-green` for pulse-success. */
+  /** Colour token — `cyan-500` for streaming, `emerald-500` for pulse-success. */
   tone?: "live" | "success" | "warning" | "danger";
   /** Disable the pulse animation. */
   static?: boolean;
 }
 
 const TONE_CLASS: Record<NonNullable<LiveDotProps["tone"]>, string> = {
-  live: "bg-live-cyan",
-  success: "bg-booked-green",
-  warning: "bg-compliance-amber",
-  danger: "bg-risk-crimson",
+  live: "bg-cyan-500",
+  success: "bg-emerald-500",
+  warning: "bg-amber-500",
+  danger: "bg-destructive",
 };
 
 /**

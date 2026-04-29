@@ -35,7 +35,7 @@ function SignInScreen() {
       <div className="w-full max-w-[440px]">
         <div className="mb-8 flex flex-col items-center gap-3">
           <Wordmark className="text-[20px]" />
-          <p className="text-center text-[13px] text-mute-slate">
+          <p className="text-center text-[13px] text-muted-foreground">
             Operator-grade voice AI + unified inbox.
             <br />
             Sign in to your workspace.
@@ -44,7 +44,7 @@ function SignInScreen() {
 
         <div className="rounded-[14px] border bg-card p-6 shadow-[0_18px_48px_rgba(11,18,32,0.06)]">
           <h1 className="mb-1 font-display text-[20px] font-semibold tracking-tight">Sign in to Kuralle</h1>
-          <p className="mb-6 text-[13px] text-mute-slate">SSO is the recommended path for SOC 2 workspaces.</p>
+          <p className="mb-6 text-[13px] text-muted-foreground">SSO is the recommended path for SOC 2 workspaces.</p>
 
           <div className="grid gap-2">
             <Button
@@ -78,7 +78,7 @@ function SignInScreen() {
 
           <div className="my-6 flex items-center gap-3">
             <Separator className="flex-1" />
-            <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-mute-slate">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
               or magic link
             </span>
             <Separator className="flex-1" />
@@ -118,7 +118,7 @@ function SignInScreen() {
           <ComplianceChip label="EU AI Act" state="action-required" />
         </div>
 
-        <p className="mt-6 text-center text-[12px] text-mute-slate">
+        <p className="mt-6 text-center text-[12px] text-muted-foreground">
           By signing in, you agree to our{" "}
           <a className="underline-offset-2 hover:underline" href="#">Terms</a> and{" "}
           <a className="underline-offset-2 hover:underline" href="#">Acceptable Use Policy</a>.

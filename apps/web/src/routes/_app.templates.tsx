@@ -63,11 +63,11 @@ function TemplatesRoute() {
       </Tabs>
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {templates.map((t) => (
-          <Card key={t.id} className="flex flex-col gap-3 p-5 transition hover:border-signal-teal/40">
+          <Card key={t.id} className="flex flex-col gap-3 p-5 transition hover:border-primary/40">
             <Eyebrow>Template</Eyebrow>
             <div>
               <div className="font-display text-[16px] font-semibold">{t.name}</div>
-              <p className="mt-1 text-[13px] text-mute-slate">{t.sub}</p>
+              <p className="mt-1 text-[13px] text-muted-foreground">{t.sub}</p>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {t.tags.map((tag) => (

@@ -121,16 +121,16 @@ function ComplianceRoute() {
                 <div className="font-display text-[16px] font-semibold">{reg.title}</div>
                 <ComplianceChip label={reg.title} state={reg.state} />
               </div>
-              <div className="mt-2 font-mono text-[12px] tabular-nums text-mute-slate">
+              <div className="mt-2 font-mono text-[12px] tabular-nums text-muted-foreground">
                 {passed}/{total} requirements · {formatPct(passed / total)}
               </div>
               <ul className="mt-3 grid gap-1.5 text-[12px]">
                 {reg.reqs.map((r) => (
                   <li key={r.label} className="flex items-center gap-2">
-                    {r.met === true && <CircleCheck size={12} className="shrink-0 text-booked-green" />}
-                    {r.met === false && <X size={12} className="shrink-0 text-risk-crimson" />}
-                    {r.met === "n/a" && <Minus size={12} className="shrink-0 text-whisper-slate" />}
-                    <span className={r.met === "n/a" ? "text-whisper-slate" : "text-operator-slate"}>{r.label}</span>
+                    {r.met === true && <CircleCheck size={12} className="shrink-0 text-emerald-500" />}
+                    {r.met === false && <X size={12} className="shrink-0 text-destructive" />}
+                    {r.met === "n/a" && <Minus size={12} className="shrink-0 text-muted-foreground" />}
+                    <span className={r.met === "n/a" ? "text-muted-foreground" : "text-foreground"}>{r.label}</span>
                   </li>
                 ))}
               </ul>
@@ -155,7 +155,7 @@ function ComplianceRoute() {
           <TableBody>
             {AUDIT_TRAIL.map((row, i) => (
               <TableRow key={i}>
-                <TableCell className="font-mono text-[12px] tabular-nums text-mute-slate">
+                <TableCell className="font-mono text-[12px] tabular-nums text-muted-foreground">
                   {formatRelative(row.at)}
                 </TableCell>
                 <TableCell className="font-mono text-[12px] tabular-nums">{row.actor}</TableCell>

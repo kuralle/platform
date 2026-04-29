@@ -2,10 +2,13 @@
 
 This document explains how the front-end is wired. Read it once before you start adding screens.
 
-The product name is **Kuralle**. The internal design language is **Vokari** — the
-operator-grade aesthetic codified in `.stitch/DESIGN.md`. CSS tokens carry the
-`--vokari-*` prefix; user-visible chrome (titles, wordmarks, descriptions) says
-Kuralle.
+The design layer is the stock shadcn `base-lyra` neutral palette. Primary
+actions use `--primary`; semantic states pull from Tailwind defaults
+(`emerald` for success, `amber` for warning, `destructive` for danger,
+`cyan` for live, `indigo` for info / scope chips). Type stack is Geist for
+headings, Inter for UI, JetBrains Mono for numerics / IDs / currency. The
+F3 live-supervisor route is the only place that toggles dark mode (it adds
+`dark` to `<html>` on mount).
 
 ---
 
@@ -83,7 +86,7 @@ Every route under `_app.*` inherits the TopBar + LeftRail chrome.
 | C10 | drawer on agent editor | global Sheet |
 | F1 | `/conversations` | URL-state filters |
 | F2 ★ | `/conversations/:id` | 3-pane resizable, transcript ↔ playhead |
-| F3 | `/conversations/:id/live` | Mission Black scope, intervention toolbar |
+| F3 | `/conversations/:id/live` | Dark scope (toggles `dark` on `<html>`), intervention toolbar |
 | G1 | `/batches` | per-row pie ring chart |
 | G2 | `/batches/new` | WizardShell |
 | D1 | `/telephony` | connector card grid |
@@ -100,32 +103,31 @@ their parent routes.
 
 ## Design tokens
 
-`packages/ui/src/styles/globals.css` is the single source of truth for colour
-tokens. Three layers:
+`packages/ui/src/styles/globals.css` is the stock shadcn `base-lyra` neutral
+palette. Two layers:
 
-1. **Vokari named tokens** — `--vokari-signal-teal`, `--vokari-receipt-gold`,
-   etc. — direct hex values from `.stitch/DESIGN.md`.
-2. **shadcn semantic aliases** — `--background`, `--primary`, `--foreground`,
-   etc. — mapped from Vokari tokens.
-3. **Tailwind v4 `@theme inline` block** — exposes both as utility classes
-   (`bg-signal-teal`, `text-receipt-gold`).
+1. **shadcn semantic tokens** — `--background`, `--primary`, `--foreground`,
+   `--muted`, `--destructive`, `--ring`, `--card`, etc.
+2. **Tailwind v4 `@theme inline` block** — exposes them as utility classes
+   (`bg-primary`, `text-muted-foreground`, etc.) plus the font stack
+   (`font-sans` Inter / `font-display` Geist / `font-mono` JetBrains Mono).
 
-Three theme scopes:
+Two theme scopes:
 
-- **light** (default · the operator workday) — Hush Mist canvas, Signal Teal
-  brand.
-- **dark** — togglable via `next-themes`. Uses Mission Black tokens.
-- **`[data-mode="mission-control"]`** — applied only on the F3 live-supervisor
-  route. Forces Mission Black tokens regardless of theme.
+- **light** (default).
+- **dark** — togglable via `next-themes`, also auto-applied while the F3
+  live-supervisor route is mounted.
 
-Strict colour rules (from DESIGN.md, enforced by code review):
+Conventions inside components:
 
-- **Signal Teal** is primary action only — one teal element per viewport.
-- **Live Cyan** is reserved for streaming UI — `LiveDot`, live KPI tiles,
-  live-row indicators in tables. Never used statically.
-- **Receipt Gold** is currency only. Every `$` value flows through `formatUsd()`
-  and renders with `text-receipt-gold`.
-- **Mission Black** is only for the F3 live-supervisor scope.
+- **Primary action** uses `bg-primary` / `text-primary` / `border-primary`.
+- **Live indicators** use Tailwind `cyan-500` plus the `live-pulse` keyframe
+  (defined in `globals.css`). The `LiveDot` primitive is the canonical wrapper.
+- **Semantic state colours** use Tailwind defaults: `emerald-500` for success,
+  `amber-500` for warning, `destructive` for danger, `indigo-500` for info /
+  scope chips.
+- **Currency values** render in plain `text-foreground` with `font-mono`
+  + `tabular-nums`. Every `$` value flows through `formatUsd()`.
 
 ---
 

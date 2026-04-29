@@ -55,10 +55,10 @@ function WorkspaceSettingsRoute() {
               onClick={() => setActive(s.id)}
               className={cn(
                 "flex h-9 items-center gap-2 rounded-md px-2 text-[13px] font-medium transition",
-                active === s.id ? "bg-soft-hairline text-foreground" : "text-operator-slate hover:bg-soft-hairline",
+                active === s.id ? "bg-muted text-foreground" : "text-foreground hover:bg-muted",
               )}
             >
-              <s.icon size={14} className={active === s.id ? "text-signal-teal" : ""} />
+              <s.icon size={14} className={active === s.id ? "text-primary" : ""} />
               {s.label}
             </button>
           ))}
@@ -111,7 +111,7 @@ function WorkspaceSettingsRoute() {
               <Card className="p-6">
                 <Eyebrow>SSO</Eyebrow>
                 <h2 className="mt-1 font-display text-[18px] font-semibold">Require SSO for sign-in</h2>
-                <p className="mt-1 text-[13px] text-mute-slate">
+                <p className="mt-1 text-[13px] text-muted-foreground">
                   Drops magic-link sign-in. SOC 2 workspaces should keep this on.
                 </p>
                 <div className="mt-4 flex items-center justify-between">
@@ -122,7 +122,7 @@ function WorkspaceSettingsRoute() {
               <Card className="p-6">
                 <Eyebrow>2FA</Eyebrow>
                 <h2 className="mt-1 font-display text-[18px] font-semibold">Two-factor for non-SSO operators</h2>
-                <p className="mt-1 text-[13px] text-mute-slate">
+                <p className="mt-1 text-[13px] text-muted-foreground">
                   TOTP via authenticator app. Enforced after the next sign-in.
                 </p>
                 <div className="mt-4 flex items-center justify-between">
@@ -160,7 +160,7 @@ function WorkspaceSettingsRoute() {
               <Card className="p-6">
                 <Eyebrow>Default retention window</Eyebrow>
                 <h2 className="mt-1 font-display text-[18px] font-semibold">{retention} days</h2>
-                <p className="mt-1 text-[13px] text-mute-slate">
+                <p className="mt-1 text-[13px] text-muted-foreground">
                   Workspace-level default. Each agent's compliance tab can override.
                 </p>
                 <Slider
@@ -179,13 +179,13 @@ function WorkspaceSettingsRoute() {
               <Card className="p-6">
                 <Eyebrow>Plan</Eyebrow>
                 <h2 className="mt-1 font-display text-[18px] font-semibold">Pro · $799 / mo</h2>
-                <p className="mt-1 text-[13px] text-mute-slate">
+                <p className="mt-1 text-[13px] text-muted-foreground">
                   Includes unlimited agents, HIPAA / FERPA add-ons, SSO, audit log retention 6 yrs.
                 </p>
                 <div className="mt-4 grid gap-2 text-[13px]">
                   <Row label="Calls (May)" value="3,184" />
-                  <Row label="Cost YTD" value={<span className="font-mono tabular-nums text-receipt-gold">$3,996</span>} />
-                  <Row label="Recovered YTD" value={<span className="font-mono tabular-nums text-receipt-gold">$182,400</span>} />
+                  <Row label="Cost YTD" value={<span className="font-mono tabular-nums text-foreground">$3,996</span>} />
+                  <Row label="Recovered YTD" value={<span className="font-mono tabular-nums text-foreground">$182,400</span>} />
                 </div>
               </Card>
             </div>
@@ -195,7 +195,7 @@ function WorkspaceSettingsRoute() {
               <Card className="p-6">
                 <Eyebrow>Model Context Protocol</Eyebrow>
                 <h2 className="mt-1 font-display text-[18px] font-semibold">Expose agents via MCP</h2>
-                <p className="mt-1 text-[13px] text-mute-slate">
+                <p className="mt-1 text-[13px] text-muted-foreground">
                   Lets internal LLM tooling call your agents as MCP tools. Off by default.
                 </p>
                 <div className="mt-4 flex items-center justify-between">
@@ -224,7 +224,7 @@ function WorkspaceSettingsRoute() {
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="grid grid-cols-[140px_1fr] gap-3">
-      <span className="text-[12px] text-mute-slate">{label}</span>
+      <span className="text-[12px] text-muted-foreground">{label}</span>
       <span>{value}</span>
     </div>
   );

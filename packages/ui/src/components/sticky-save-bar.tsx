@@ -26,7 +26,7 @@ export function StickySaveBar({ changes, onDiscard, onSave, isSaving, className 
       <span
         className={cn(
           "text-[12px]",
-          clean ? "text-booked-green" : "text-mute-slate",
+          clean ? "text-emerald-500" : "text-muted-foreground",
         )}
       >
         {clean

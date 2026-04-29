@@ -8,8 +8,10 @@ shadcn/ui (`base-lyra` style), Hono + oRPC (server, not integrated yet),
 Drizzle + Turso (db, not integrated yet), Better-Auth (not integrated yet),
 Cloudflare Workers via Alchemy, Turborepo + Bun.
 
-The product name is **Kuralle**. The internal design language is the **Vokari**
-operator-grade aesthetic codified in `.stitch/DESIGN.md` (parent repo).
+**Design language:** stock shadcn `base-lyra` neutral palette. Primary action
+in `--primary`, semantic states via Tailwind (`emerald` / `amber` / `cyan` /
+`indigo` / `destructive`). Geist for headings, Inter for UI, JetBrains Mono
+for numerics.
 
 ---
 
@@ -52,9 +54,12 @@ and backed by deterministic mocks.
 
 ### Foundations
 
-- **Vokari design tokens** — full palette wired into `packages/ui/src/styles/globals.css`
-  (Signal Teal, Live Cyan, Receipt Gold, Mission Black, Audit Indigo, etc.).
-  Geist + Inter + JetBrains Mono fonts loaded from Google Fonts.
+- **Stock shadcn theme** in `packages/ui/src/styles/globals.css` — the original
+  `base-lyra` neutral palette plus a font stack (Geist headings, Inter UI,
+  JetBrains Mono numerics) loaded from Google Fonts. Live indicators use
+  `cyan-500` with a `live-pulse` keyframe; success/warning/danger pull from
+  Tailwind defaults; the F3 live supervisor toggles `dark` on `<html>` while
+  mounted.
 - **App shell (`A2`)** — TopBar (Kuralle wordmark + env / region scope chips +
   ⌘K command palette + bell + avatar dropdown) + collapsible LeftRail with
   4 sections (Configure / Operate / Distribute / Workspace) + 12 nav links.

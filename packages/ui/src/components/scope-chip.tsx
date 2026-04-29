@@ -14,8 +14,8 @@ export function ScopeChip({ label, tone = "indigo", className, ...rest }: ScopeC
     <span
       className={cn(
         "inline-flex h-6 items-center rounded-md border px-2 font-mono text-[11px] uppercase tracking-[0.04em]",
-        tone === "indigo" && "border-audit-indigo/30 bg-audit-indigo/8 text-audit-indigo",
-        tone === "neutral" && "border-border bg-soft-hairline text-mute-slate",
+        tone === "indigo" && "border-indigo-500/30 bg-indigo-500/8 text-indigo-500",
+        tone === "neutral" && "border-border bg-muted text-muted-foreground",
         className,
       )}
       {...rest}

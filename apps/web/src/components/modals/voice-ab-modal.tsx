@@ -52,22 +52,22 @@ export function VoiceAbModal({ open, onOpenChange }: VoiceAbModalProps) {
               onClick={() => setPick(side)}
               className={cn(
                 "flex flex-col gap-3 rounded-md border bg-background p-4 text-left transition",
-                pick === side ? "border-signal-teal bg-signal-teal/5" : "hover:border-signal-teal/40",
+                pick === side ? "border-primary bg-primary/5" : "hover:border-primary/40",
               )}
             >
               <div className="flex items-center justify-between">
-                <span className="font-display text-[14px] font-semibold uppercase tracking-[0.06em] text-mute-slate">
+                <span className="font-display text-[14px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
                   Side {side.toUpperCase()}
                 </span>
                 <span
                   className={cn(
                     "size-3 rounded-full border-2",
-                    pick === side ? "border-signal-teal bg-signal-teal" : "border-border",
+                    pick === side ? "border-primary bg-primary" : "border-border",
                   )}
                 />
               </div>
               <VoicePreviewChip voiceId={voice.id} voiceName={voice.name} language={voice.language} />
-              <Card className="bg-soft-hairline/40 p-3">
+              <Card className="bg-muted/40 p-3">
                 <Sparkline
                   data={Array.from({ length: 32 }, () => Math.random())}
                   width={260}

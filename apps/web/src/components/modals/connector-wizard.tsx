@@ -42,7 +42,7 @@ export function ConnectorWizard({ open, onOpenChange, vertical }: ConnectorWizar
       <DialogContent className="sm:max-w-[680px] p-0 overflow-hidden">
         <DialogHeader className="px-6 pt-5">
           <DialogTitle className="flex items-center gap-3 font-display text-[20px]">
-            <span className="grid size-9 place-items-center rounded-md bg-soft-hairline text-[18px]">
+            <span className="grid size-9 place-items-center rounded-md bg-muted text-[18px]">
               {conn.logo}
             </span>
             Connect {conn.name}
@@ -88,8 +88,8 @@ export function ConnectorWizard({ open, onOpenChange, vertical }: ConnectorWizar
                     ].map((row) => (
                       <div key={row.ours} className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 rounded-md border bg-background p-3 text-[13px]">
                         <span className="font-mono text-[12px] tabular-nums">{row.ours}</span>
-                        <span className="text-mute-slate">→</span>
-                        <span className="font-mono text-[12px] tabular-nums text-mute-slate">{row.theirs}</span>
+                        <span className="text-muted-foreground">→</span>
+                        <span className="font-mono text-[12px] tabular-nums text-muted-foreground">{row.theirs}</span>
                       </div>
                     ))}
                   </div>
@@ -105,7 +105,7 @@ export function ConnectorWizard({ open, onOpenChange, vertical }: ConnectorWizar
                       <div key={toolName} className="flex items-center justify-between rounded-md border bg-background px-3 py-2">
                         <div>
                           <div className="font-mono text-[13px] tabular-nums">{toolName}</div>
-                          <div className="text-[12px] text-mute-slate">
+                          <div className="text-[12px] text-muted-foreground">
                             {toolName === "create_job"
                               ? "Create a new job in the operator's queue."
                               : toolName === "update_job"
@@ -130,9 +130,9 @@ export function ConnectorWizard({ open, onOpenChange, vertical }: ConnectorWizar
                 description: `Run a synthetic call that exercises ${conn.testCallTopic}.`,
                 render: () => (
                   <Card className="p-6 text-center">
-                    <Check size={32} className="mx-auto text-booked-green" />
+                    <Check size={32} className="mx-auto text-emerald-500" />
                     <p className="mt-3 text-[14px] font-medium">All systems go.</p>
-                    <p className="mt-1 text-[12px] text-mute-slate">
+                    <p className="mt-1 text-[12px] text-muted-foreground">
                       Test call resolved in 2.4s with 4 tool round-trips. Connector status: Live.
                     </p>
                   </Card>

@@ -16,7 +16,7 @@ describe("LiveDot", () => {
   it("renders with the live tone and pulse class", () => {
     render(<LiveDot />);
     const dot = screen.getByRole("status");
-    expect(dot).toHaveClass("bg-live-cyan");
+    expect(dot).toHaveClass("bg-cyan-500");
     expect(dot).toHaveClass("live-pulse");
   });
 
@@ -29,7 +29,7 @@ describe("LiveDot", () => {
 describe("StatusPill", () => {
   it("emits the correct tone class", () => {
     render(<StatusPill tone="success">Booked</StatusPill>);
-    expect(screen.getByText("Booked").closest("span")).toHaveClass("bg-booked-green/8");
+    expect(screen.getByText("Booked").closest("span")).toHaveClass("bg-emerald-500/10");
   });
 
   it("hides the dot when hideDot=true", () => {
@@ -42,7 +42,7 @@ describe("ScopeChip", () => {
   it("renders the label inside an indigo pill by default", () => {
     render(<ScopeChip label="prod" />);
     const el = screen.getByText("prod");
-    expect(el).toHaveClass("text-audit-indigo");
+    expect(el).toHaveClass("text-indigo-500");
   });
 });
 
@@ -68,18 +68,18 @@ describe("Eyebrow", () => {
 });
 
 describe("KpiTile", () => {
-  it("renders a currency value in receipt-gold and a positive delta chip", () => {
+  it("renders a currency value in foreground and a positive delta chip", () => {
     const { container } = render(
       <KpiTile label="Recovered revenue" value="$47,200" delta={0.18} currency spark={[1, 2, 3, 4, 5]} />,
     );
-    expect(screen.getByText("$47,200")).toHaveClass("text-receipt-gold");
-    const chip = container.querySelector(".bg-booked-green\\/10")!;
+    expect(screen.getByText("$47,200")).toHaveClass("text-foreground");
+    const chip = container.querySelector(".bg-emerald-500\\/10")!;
     expect(chip.textContent?.replace(/\s+/g, "")).toBe("↑+18%");
   });
 
-  it("renders a negative delta in risk-crimson", () => {
+  it("renders a negative delta in destructive", () => {
     const { container } = render(<KpiTile label="p95 latency" value="412ms" delta={-0.06} />);
-    const chip = container.querySelector(".bg-risk-crimson\\/10")!;
+    const chip = container.querySelector(".bg-destructive\\/10")!;
     expect(chip).toBeTruthy();
     expect(chip.textContent?.replace(/\s+/g, "")).toBe("↓6%");
   });
@@ -89,7 +89,7 @@ describe("Sparkline", () => {
   it("renders SVG path with the picked tone class", () => {
     const { container } = render(<Sparkline data={[1, 2, 3, 4]} tone="currency" />);
     expect(container.querySelector("svg")).toBeInTheDocument();
-    expect(container.querySelector("path.stroke-receipt-gold")).toBeTruthy();
+    expect(container.querySelector("path.stroke-foreground")).toBeTruthy();
   });
 });
 

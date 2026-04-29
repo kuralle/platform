@@ -65,7 +65,7 @@ function VoiceTab() {
     >
       <div className="mx-auto flex max-w-5xl flex-col gap-6">
         {multilingual && (
-          <Alert className="border-compliance-amber/30 bg-compliance-amber/8 text-foreground">
+          <Alert className="border-amber-500/30 bg-amber-500/8 text-foreground">
             <Languages />
             <AlertTitle>Switching language requires retraining your eval set.</AlertTitle>
             <AlertDescription>
@@ -80,7 +80,7 @@ function VoiceTab() {
               <Eyebrow>Voice library</Eyebrow>
               <h2 className="mt-1 font-display text-[18px] font-semibold">Pick a voice</h2>
             </div>
-            <span className="inline-flex items-center gap-1 text-[12px] text-mute-slate">
+            <span className="inline-flex items-center gap-1 text-[12px] text-muted-foreground">
               <Globe size={12} /> 6 multilingual voices
             </span>
           </div>
@@ -95,16 +95,16 @@ function VoiceTab() {
                     onClick={() => setVoiceId(v.id)}
                     className={cn(
                       "flex w-[220px] flex-col gap-2 rounded-md border p-3 text-left transition",
-                      active ? "border-signal-teal bg-signal-teal/5" : "border-border bg-background hover:border-signal-teal/40",
+                      active ? "border-primary bg-primary/5" : "border-border bg-background hover:border-primary/40",
                     )}
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-[14px] font-medium">{v.name}</span>
-                      <span className="rounded-md bg-audit-indigo/10 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.04em] text-audit-indigo">
+                      <span className="rounded-md bg-indigo-500/10 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.04em] text-indigo-500">
                         {v.language}
                       </span>
                     </div>
-                    <div className="text-[12px] text-mute-slate">{v.style}</div>
+                    <div className="text-[12px] text-muted-foreground">{v.style}</div>
                     <div onClick={(e) => e.stopPropagation()}>
                       <VoicePreviewChip voiceId={v.id} voiceName={v.name} language={v.language} />
                     </div>

@@ -41,35 +41,35 @@ function WidgetRoute() {
       <div className="border-b bg-card px-8 py-4">
         <Eyebrow>Distribute</Eyebrow>
         <h1 className="mt-1 font-display text-[24px] font-semibold tracking-tight">Widget customizer</h1>
-        <p className="mt-1 max-w-2xl text-[14px] text-mute-slate">
+        <p className="mt-1 max-w-2xl text-[14px] text-muted-foreground">
           Live preview on the left, customization on the right. Embed anywhere with a single script tag.
         </p>
       </div>
       <ResizablePanelGroup direction="horizontal">
         <ResizablePanel defaultSize={60} minSize={40}>
-          <div className="flex h-full items-center justify-center bg-soft-hairline/60 p-8">
-            <div className="relative h-full w-full max-w-[720px] rounded-lg border bg-paper-white shadow-[0_24px_60px_rgba(11,18,32,0.06)]">
+          <div className="flex h-full items-center justify-center bg-muted/60 p-8">
+            <div className="relative h-full w-full max-w-[720px] rounded-lg border bg-card shadow-[0_24px_60px_rgba(11,18,32,0.06)]">
               <div className="grid h-full grid-rows-[auto_1fr_auto]">
                 <div className="border-b px-6 py-4">
                   <div className="font-display text-[16px] font-semibold">calderonhvac.com / preview</div>
                 </div>
-                <div className="flex items-center justify-center text-mute-slate text-[12px]">
+                <div className="flex items-center justify-center text-muted-foreground text-[12px]">
                   Page content shown by your CMS
                 </div>
-                <div className="absolute right-4 bottom-4 flex w-[300px] flex-col gap-3 rounded-lg border bg-paper-white p-4 shadow-[0_18px_40px_rgba(11,18,32,0.12)]">
+                <div className="absolute right-4 bottom-4 flex w-[300px] flex-col gap-3 rounded-lg border bg-card p-4 shadow-[0_18px_40px_rgba(11,18,32,0.12)]">
                   <div className="flex items-center gap-2">
                     <span
-                      className="grid size-9 place-items-center rounded-full text-paper-white"
+                      className="grid size-9 place-items-center rounded-full text-card"
                       style={{ background: accent }}
                     >
                       <Bot size={16} />
                     </span>
                     <div className="min-w-0 flex-1">
                       <div className="text-[13px] font-medium">Calderon HVAC</div>
-                      <div className="text-[11px] text-mute-slate">Online · replies in seconds</div>
+                      <div className="text-[11px] text-muted-foreground">Online · replies in seconds</div>
                     </div>
                   </div>
-                  <div className="rounded-md bg-soft-hairline px-3 py-2 text-[13px]">{greeting}</div>
+                  <div className="rounded-md bg-muted px-3 py-2 text-[13px]">{greeting}</div>
                   <Button className="gap-2" style={{ background: accent }}>
                     {modality === "voice" ? <Mic size={14} /> : <Phone size={14} />}
                     {ctaLabel}
@@ -98,17 +98,17 @@ function WidgetRoute() {
                       onClick={() => setModality(m)}
                       className={cn(
                         "flex items-center gap-3 rounded-md border bg-background p-3 text-left text-[13px] transition",
-                        modality === m && "border-signal-teal bg-signal-teal/5",
+                        modality === m && "border-primary bg-primary/5",
                       )}
                     >
                       <span
                         className={cn(
                           "size-3 rounded-full border-2",
-                          modality === m ? "border-signal-teal bg-signal-teal" : "border-border",
+                          modality === m ? "border-primary bg-primary" : "border-border",
                         )}
                       />
                       <span className="font-medium capitalize">{m}</span>
-                      <span className="ml-auto text-[11px] text-mute-slate">
+                      <span className="ml-auto text-[11px] text-muted-foreground">
                         {m === "voice" ? "WebRTC + bridge to PSTN" : m === "chat" ? "Text-only" : "Voice + chat"}
                       </span>
                     </button>
@@ -150,14 +150,14 @@ function WidgetRoute() {
                   <Card className="flex items-center justify-between p-4">
                     <div>
                       <div className="text-[13px] font-medium">Show feedback prompt at end</div>
-                      <div className="text-[12px] text-mute-slate">Thumbs up/down + freeform.</div>
+                      <div className="text-[12px] text-muted-foreground">Thumbs up/down + freeform.</div>
                     </div>
                     <Switch checked={showFeedback} onCheckedChange={setShowFeedback} />
                   </Card>
                 </TabsContent>
                 {SECTIONS.filter((s) => !["modality", "theme", "strings", "feedback"].includes(s)).map((s) => (
                   <TabsContent key={s} value={s} className="mt-4">
-                    <Card className="p-4 text-[12px] text-mute-slate">
+                    <Card className="p-4 text-[12px] text-muted-foreground">
                       {s} configuration · placeholder. Each section can be deeply customized.
                     </Card>
                   </TabsContent>

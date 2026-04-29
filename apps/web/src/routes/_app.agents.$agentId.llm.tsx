@@ -76,7 +76,7 @@ function LlmTab() {
     >
       <div className="mx-auto flex max-w-4xl flex-col gap-6">
         {hipaaMode && (
-          <Alert variant="destructive" className="border-compliance-amber/30 bg-compliance-amber/8 text-foreground">
+          <Alert variant="destructive" className="border-amber-500/30 bg-amber-500/8 text-foreground">
             <ShieldAlert />
             <AlertTitle>HIPAA mode is active — model list is filtered.</AlertTitle>
             <AlertDescription>
@@ -89,7 +89,7 @@ function LlmTab() {
         <Card className="p-6">
           <Eyebrow>Pick a model</Eyebrow>
           <h2 className="mt-1 font-display text-[18px] font-semibold">Provider · model · capabilities</h2>
-          <p className="mt-1 text-[13px] text-mute-slate">
+          <p className="mt-1 text-[13px] text-muted-foreground">
             Pricing applies to inference only. Voice costs are billed separately on the Voice tab.
           </p>
 
@@ -106,14 +106,14 @@ function LlmTab() {
                         key={m.id}
                         className={cn(
                           "flex cursor-pointer items-center gap-4 rounded-md border bg-background p-4 transition",
-                          model === m.id && "border-signal-teal/60 bg-signal-teal/5",
+                          model === m.id && "border-primary/60 bg-primary/5",
                         )}
                       >
                         <RadioGroupItem value={m.id} className="shrink-0" />
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="text-[14px] font-medium">{m.label}</span>
-                            <span className="font-mono text-[11px] tabular-nums text-mute-slate">{m.id}</span>
+                            <span className="font-mono text-[11px] tabular-nums text-muted-foreground">{m.id}</span>
                           </div>
                           <div className="mt-1 flex flex-wrap gap-1.5">
                             {m.capabilities.map((c) => (
@@ -124,10 +124,10 @@ function LlmTab() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="font-mono text-[13px] tabular-nums text-receipt-gold">
-                            ${m.costPer1k.toFixed(4)}<span className="text-[10px] text-mute-slate">/1k tok</span>
+                          <div className="font-mono text-[13px] tabular-nums text-foreground">
+                            ${m.costPer1k.toFixed(4)}<span className="text-[10px] text-muted-foreground">/1k tok</span>
                           </div>
-                          <div className="font-mono text-[11px] tabular-nums text-mute-slate">
+                          <div className="font-mono text-[11px] tabular-nums text-muted-foreground">
                             ~{m.latencyMs}ms
                           </div>
                         </div>

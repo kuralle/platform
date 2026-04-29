@@ -113,7 +113,7 @@ export function LeftRail() {
         {SECTIONS.map((section) => (
           <div key={section.id} className="flex flex-col gap-0.5">
             {!collapsed && (
-              <div className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-mute-slate">
+              <div className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                 {section.label}
               </div>
             )}
@@ -130,8 +130,8 @@ export function LeftRail() {
                     "group relative flex h-9 items-center gap-2.5 rounded-md text-[13px] font-medium transition",
                     collapsed ? "size-9 justify-center px-0" : "px-2",
                     isActive
-                      ? "bg-soft-hairline text-foreground"
-                      : "text-operator-slate hover:bg-soft-hairline hover:text-foreground",
+                      ? "bg-muted text-foreground"
+                      : "text-foreground hover:bg-muted hover:text-foreground",
                   )}
                   aria-current={isActive ? "page" : undefined}
                   title={collapsed ? item.label : undefined}
@@ -139,14 +139,14 @@ export function LeftRail() {
                   {isActive && (
                     <span
                       aria-hidden
-                      className="absolute left-0 h-5 w-[3px] rounded-r bg-signal-teal"
+                      className="absolute left-0 h-5 w-[3px] rounded-r bg-primary"
                     />
                   )}
-                  <item.icon size={16} className={cn(isActive ? "text-signal-teal" : "")} />
+                  <item.icon size={16} className={cn(isActive ? "text-primary" : "")} />
                   {!collapsed && <span className="flex-1 truncate">{item.label}</span>}
                   {item.liveBadge && !collapsed && (
-                    <span className="ml-auto inline-flex items-center gap-1 rounded-md bg-live-cyan/12 px-1.5 py-0.5 font-mono text-[10px] tabular-nums text-mission-black">
-                      <span className="size-1.5 rounded-full bg-live-cyan live-pulse" />
+                    <span className="ml-auto inline-flex items-center gap-1 rounded-md bg-cyan-500/15 px-1.5 py-0.5 font-mono text-[10px] tabular-nums text-cyan-700 dark:text-cyan-300">
+                      <span className="size-1.5 rounded-full bg-cyan-500 live-pulse" />
                       {item.liveBadge}
                     </span>
                   )}
@@ -160,7 +160,7 @@ export function LeftRail() {
         type="button"
         onClick={toggle}
         className={cn(
-          "mt-auto flex h-10 items-center gap-2 border-t px-3 text-[12px] text-mute-slate transition hover:bg-soft-hairline hover:text-foreground",
+          "mt-auto flex h-10 items-center gap-2 border-t px-3 text-[12px] text-muted-foreground transition hover:bg-muted hover:text-foreground",
           collapsed && "justify-center px-0",
         )}
         aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}

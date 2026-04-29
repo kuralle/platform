@@ -43,9 +43,9 @@ export function AddDocumentModal({ open, onOpenChange }: AddDocumentModalProps) 
             <TabsTrigger value="text">Paste text</TabsTrigger>
           </TabsList>
           <TabsContent value="file" className="mt-4">
-            <Card className="border-dashed bg-soft-hairline/50 p-8 text-center">
-              <Upload size={28} className="mx-auto text-mute-slate" />
-              <p className="mt-3 text-[13px] text-mute-slate">
+            <Card className="border-dashed bg-muted/50 p-8 text-center">
+              <Upload size={28} className="mx-auto text-muted-foreground" />
+              <p className="mt-3 text-[13px] text-muted-foreground">
                 Drag-and-drop or <span className="cursor-pointer underline-offset-2 hover:underline">browse</span>.
                 <br />
                 PDF, DOCX, TXT, MD up to 25 MB.
@@ -73,14 +73,14 @@ export function AddDocumentModal({ open, onOpenChange }: AddDocumentModalProps) 
           <div className="flex items-center justify-between rounded-md border bg-background px-3 py-2">
             <div>
               <div className="text-[13px] font-medium">Auto-sync</div>
-              <div className="text-[12px] text-mute-slate">Re-index automatically when source changes.</div>
+              <div className="text-[12px] text-muted-foreground">Re-index automatically when source changes.</div>
             </div>
             <Switch checked={autoSync} onCheckedChange={setAutoSync} />
           </div>
           <div className="flex items-center justify-between rounded-md border bg-background px-3 py-2">
             <div>
               <div className="text-[13px] font-medium">Include in RAG retrieval</div>
-              <div className="text-[12px] text-mute-slate">Agents can reference this document during calls.</div>
+              <div className="text-[12px] text-muted-foreground">Agents can reference this document during calls.</div>
             </div>
             <Switch checked={rag} onCheckedChange={setRag} />
           </div>

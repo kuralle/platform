@@ -112,13 +112,13 @@ function ConversationsList() {
                   className={cn(
                     "flex w-full items-center gap-2 rounded-md border px-2.5 py-1.5 text-[12px] transition",
                     search.liveOnly
-                      ? "border-live-cyan/40 bg-live-cyan/8 text-mission-black"
-                      : "border-border bg-background hover:border-signal-teal/40",
+                      ? "border-cyan-500/40 bg-cyan-500/8 text-background"
+                      : "border-border bg-background hover:border-primary/40",
                   )}
                 >
                   <LiveDot size={6} tone="live" static={!search.liveOnly} />
                   Live only
-                  <span className="ml-auto font-mono text-[11px] tabular-nums text-mute-slate">2</span>
+                  <span className="ml-auto font-mono text-[11px] tabular-nums text-muted-foreground">2</span>
                 </button>
               </div>
             </div>
@@ -130,7 +130,7 @@ function ConversationsList() {
                     const checked = ((search[g.id as "outcomes" | "agents"] ?? []) as string[]).includes(opt);
                     return (
                       <li key={opt}>
-                        <label className="flex cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 text-[12px] hover:bg-soft-hairline">
+                        <label className="flex cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 text-[12px] hover:bg-muted">
                           <Checkbox
                             checked={checked}
                             onCheckedChange={() => toggle(g.id as "outcomes" | "agents", opt)}
@@ -157,7 +157,7 @@ function ConversationsList() {
             className="pb-0"
             actions={
               <div className="relative w-[320px]">
-                <Search size={14} className="absolute top-1/2 left-2.5 -translate-y-1/2 text-mute-slate" />
+                <Search size={14} className="absolute top-1/2 left-2.5 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   placeholder="Search by caller, ID, or agent"
                   className="h-9 pl-8"
@@ -175,7 +175,7 @@ function ConversationsList() {
                 <Badge
                   key={chip.id}
                   variant="outline"
-                  className="gap-1.5 border-signal-teal/30 bg-signal-teal/5 text-signal-teal"
+                  className="gap-1.5 border-primary/30 bg-primary/5 text-primary"
                 >
                   {chip.label}
                   <button onClick={chip.clear} aria-label={`Remove ${chip.label}`}>
@@ -183,7 +183,7 @@ function ConversationsList() {
                   </button>
                 </Badge>
               ))}
-              <button onClick={clearAll} className="text-[11px] text-mute-slate hover:text-foreground">
+              <button onClick={clearAll} className="text-[11px] text-muted-foreground hover:text-foreground">
                 Clear all
               </button>
             </div>
@@ -225,7 +225,7 @@ function ConversationsList() {
                     <TableCell className="text-[13px]">
                       <div className="flex flex-col">
                         <span className="font-mono tabular-nums">{c.callerId}</span>
-                        {c.callerName && <span className="text-[11px] text-mute-slate">{c.callerName}</span>}
+                        {c.callerName && <span className="text-[11px] text-muted-foreground">{c.callerName}</span>}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -238,10 +238,10 @@ function ConversationsList() {
                     <TableCell className="text-right font-mono text-[12px] tabular-nums">
                       {Math.floor(c.durationSec / 60)}:{String(c.durationSec % 60).padStart(2, "0")}
                     </TableCell>
-                    <TableCell className="text-right font-mono text-[12px] tabular-nums text-receipt-gold">
+                    <TableCell className="text-right font-mono text-[12px] tabular-nums text-foreground">
                       {formatUsd(c.costUsd, { precise: true })}
                     </TableCell>
-                    <TableCell className="text-right text-[12px] text-mute-slate">
+                    <TableCell className="text-right text-[12px] text-muted-foreground">
                       {formatRelative(c.startedAt)}
                     </TableCell>
                   </TableRow>

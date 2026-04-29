@@ -38,7 +38,7 @@ export function KpiTile({ label, value, delta, spark, currency, live, className 
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           {live && <LiveDot size={8} tone="live" />}
-          <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-mute-slate">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
             {label}
           </span>
         </div>
@@ -47,7 +47,7 @@ export function KpiTile({ label, value, delta, spark, currency, live, className 
         <span
           className={cn(
             "font-mono text-[32px] leading-9 font-medium tracking-tight",
-            currency ? "text-receipt-gold" : "text-foreground",
+            currency ? "text-foreground" : "text-foreground",
           )}
           style={{ fontVariantNumeric: "tabular-nums" }}
         >
@@ -67,12 +67,12 @@ export function KpiTile({ label, value, delta, spark, currency, live, className 
         <span
           className={cn(
             "rounded px-1.5 py-0.5 font-mono font-semibold tabular-nums",
-            positive ? "bg-booked-green/10 text-booked-green" : "bg-risk-crimson/10 text-risk-crimson",
+            positive ? "bg-emerald-500/10 text-emerald-500" : "bg-destructive/10 text-destructive",
           )}
         >
           {positive ? "↑" : "↓"} {deltaPct.replace("-", "")}
         </span>
-        <span className="text-mute-slate">vs last 7d</span>
+        <span className="text-muted-foreground">vs last 7d</span>
       </div>
     </div>
   );

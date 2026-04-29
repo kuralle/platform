@@ -57,7 +57,7 @@ function BehaviorTab() {
           <h2 className="mt-1 font-display text-[18px] font-semibold">
             What does the agent say when the call connects?
           </h2>
-          <p className="mt-1 text-[13px] text-mute-slate">
+          <p className="mt-1 text-[13px] text-muted-foreground">
             Keep it under 18 words. Lead with brand + action so the caller knows where they landed.
           </p>
           <Field className="mt-4">
@@ -76,7 +76,7 @@ function BehaviorTab() {
               <Eyebrow>System prompt</Eyebrow>
               <h2 className="mt-1 font-display text-[18px] font-semibold">Behaviour contract</h2>
             </div>
-            <span className="font-mono text-[12px] tabular-nums text-mute-slate">
+            <span className="font-mono text-[12px] tabular-nums text-muted-foreground">
               {systemPrompt.length.toLocaleString()} chars · ~{Math.ceil(systemPrompt.length / 4).toLocaleString()} tokens
             </span>
           </div>
@@ -85,7 +85,7 @@ function BehaviorTab() {
             onChange={(e) => setSystemPrompt(e.target.value)}
             className="mt-4 min-h-[260px] font-mono text-[13px]"
           />
-          <div className="mt-3 flex items-center justify-between text-[12px] text-mute-slate">
+          <div className="mt-3 flex items-center justify-between text-[12px] text-muted-foreground">
             <span>Markdown supported. Tool calls reference your enabled tools.</span>
             <Tooltip>
               <TooltipTrigger
@@ -96,7 +96,7 @@ function BehaviorTab() {
                 }
               />
               <TooltipContent>
-                ≈ <span className="font-mono tabular-nums text-receipt-gold">$0.024</span> per turn at this length, current model.
+                ≈ <span className="font-mono tabular-nums text-foreground">$0.024</span> per turn at this length, current model.
               </TooltipContent>
             </Tooltip>
           </div>
@@ -105,7 +105,7 @@ function BehaviorTab() {
         <Card className="p-6">
           <Eyebrow>Sampling</Eyebrow>
           <h2 className="mt-1 font-display text-[18px] font-semibold">Temperature</h2>
-          <p className="mt-1 text-[13px] text-mute-slate">
+          <p className="mt-1 text-[13px] text-muted-foreground">
             Lower is consistent. Higher is conversational. We recommend 0.4 for ops-style agents.
           </p>
           <div className="mt-5 flex items-center gap-4">

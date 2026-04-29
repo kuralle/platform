@@ -13,10 +13,10 @@ interface ComplianceChipProps extends React.HTMLAttributes<HTMLSpanElement> {
 }
 
 const STATE_RING: Record<ComplianceState, string> = {
-  active:            "border-booked-green/30 bg-booked-green/8 text-operator-slate",
-  "action-required": "border-compliance-amber/30 bg-compliance-amber/8 text-operator-slate",
-  violation:         "border-risk-crimson/40 bg-risk-crimson/8 text-risk-crimson",
-  inactive:          "border-border text-whisper-slate",
+  active:            "border-emerald-500/30 bg-emerald-500/8 text-foreground",
+  "action-required": "border-amber-500/30 bg-amber-500/8 text-foreground",
+  violation:         "border-destructive/40 bg-destructive/8 text-destructive",
+  inactive:          "border-border text-muted-foreground",
 };
 
 const STATE_DOT: Record<ComplianceState, React.ComponentProps<typeof LiveDot>["tone"]> = {
@@ -45,10 +45,10 @@ export function ComplianceChip({ label, state, suffix, className, ...rest }: Com
         size={6}
         tone={STATE_DOT[state]}
         static
-        className={state === "inactive" ? "bg-whisper-slate" : undefined}
+        className={state === "inactive" ? "bg-muted-foreground" : undefined}
       />
       <span>{label}</span>
-      {suffix && <span className="font-normal normal-case tracking-normal text-mute-slate">· {suffix}</span>}
+      {suffix && <span className="font-normal normal-case tracking-normal text-muted-foreground">· {suffix}</span>}
     </span>
   );
 }

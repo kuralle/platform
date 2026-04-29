@@ -78,7 +78,7 @@ export function AgentTestDrawer({ agentName }: AgentTestDrawerProps) {
               <TabsTrigger value="talk">Talk</TabsTrigger>
             </TabsList>
           </Tabs>
-          <span className="ml-auto font-mono text-[11px] tabular-nums text-mute-slate">
+          <span className="ml-auto font-mono text-[11px] tabular-nums text-muted-foreground">
             session · drv_test_{Math.round(Math.random() * 1000)}
           </span>
         </div>
@@ -95,7 +95,7 @@ export function AgentTestDrawer({ agentName }: AgentTestDrawerProps) {
                 className={`max-w-[80%] rounded-md border px-3 py-2 text-[13px] ${
                   t.role === "agent"
                     ? "bg-card text-foreground"
-                    : "bg-signal-teal/10 border-signal-teal/30 text-foreground"
+                    : "bg-primary/10 border-primary/30 text-foreground"
                 }`}
               >
                 <div className="mb-0.5 flex items-center gap-1.5">
@@ -112,8 +112,8 @@ export function AgentTestDrawer({ agentName }: AgentTestDrawerProps) {
                 </div>
                 <div className="whitespace-pre-wrap leading-relaxed">{t.text}</div>
                 {t.toolCall && (
-                  <Collapsible className="mt-2 rounded-md bg-soft-hairline px-2 py-1.5">
-                    <CollapsibleTrigger className="flex w-full items-center gap-1.5 text-[11px] text-mute-slate">
+                  <Collapsible className="mt-2 rounded-md bg-muted px-2 py-1.5">
+                    <CollapsibleTrigger className="flex w-full items-center gap-1.5 text-[11px] text-muted-foreground">
                       <Wrench size={11} />
                       <span className="font-mono">{t.toolCall.name}</span>
                       <span className="ml-auto font-mono tabular-nums">
@@ -121,7 +121,7 @@ export function AgentTestDrawer({ agentName }: AgentTestDrawerProps) {
                       </span>
                       <ChevronDown size={11} className="transition data-[state=open]:rotate-180" />
                     </CollapsibleTrigger>
-                    <CollapsibleContent className="mt-1.5 font-mono text-[10px] text-operator-slate">
+                    <CollapsibleContent className="mt-1.5 font-mono text-[10px] text-foreground">
                       {t.toolCall.output}
                     </CollapsibleContent>
                   </Collapsible>
@@ -148,8 +148,8 @@ export function AgentTestDrawer({ agentName }: AgentTestDrawerProps) {
             </Button>
           </div>
         ) : (
-          <div className="flex h-12 items-center justify-center gap-3 rounded-md border bg-background text-[12px] text-mute-slate">
-            <span className="size-2 rounded-full bg-live-cyan live-pulse" />
+          <div className="flex h-12 items-center justify-center gap-3 rounded-md border bg-background text-[12px] text-muted-foreground">
+            <span className="size-2 rounded-full bg-cyan-500 live-pulse" />
             <Mic size={14} />
             Voice mode is recording. Click again to stop.
           </div>

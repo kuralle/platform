@@ -5,143 +5,81 @@
 @source "../**/*.{ts,tsx}";
 
 @custom-variant dark (&:is(.dark *));
-@custom-variant mission (&:is([data-mode="mission-control"] *));
-
-/* ============================================================
-   Vokari design tokens · DESIGN.md is the source of truth
-   ============================================================ */
 
 :root {
-  /* Foundation — text + canvases */
-  --vokari-midnight-signal: #0B1220;
-  --vokari-operator-slate:  #1F2937;
-  --vokari-mute-slate:      #64748B;
-  --vokari-whisper-slate:   #94A3B8;
-  --vokari-hush-mist:       #F4F6FA;
-  --vokari-paper-white:     #FFFFFF;
-  --vokari-hairline:        #E2E6EF;
-  --vokari-soft-hairline:   #EEF1F6;
-
-  /* Brand + action */
-  --vokari-signal-teal:     #0EA5A6;
-  --vokari-deep-teal:       #0F7A7B;
-  --vokari-live-cyan:       #22D3EE;
-
-  /* Semantic states */
-  --vokari-booked-green:      #10B981;
-  --vokari-compliance-amber:  #F59E0B;
-  --vokari-risk-crimson:      #DC2626;
-  --vokari-audit-indigo:      #4F46E5;
-
-  /* Currency (highly restricted — $ only) */
-  --vokari-receipt-gold:      #B89A4A;
-  --vokari-receipt-gold-tint: #F5EFD9;
-
-  /* Mission control (F3 only) */
-  --vokari-mission-black:    #06080F;
-  --vokari-mission-slate:    #1A2030;
-  --vokari-mission-hairline: #2A3142;
-
-  /* ----- shadcn token mapping (light shell — the operator workday) ----- */
-  --background:           var(--vokari-hush-mist);
-  --foreground:           var(--vokari-midnight-signal);
-  --card:                 var(--vokari-paper-white);
-  --card-foreground:      var(--vokari-midnight-signal);
-  --popover:              var(--vokari-paper-white);
-  --popover-foreground:   var(--vokari-midnight-signal);
-  --primary:              var(--vokari-signal-teal);
-  --primary-foreground:   var(--vokari-paper-white);
-  --secondary:            var(--vokari-soft-hairline);
-  --secondary-foreground: var(--vokari-operator-slate);
-  --muted:                var(--vokari-soft-hairline);
-  --muted-foreground:     var(--vokari-mute-slate);
-  --accent:               var(--vokari-hush-mist);
-  --accent-foreground:    var(--vokari-operator-slate);
-  --destructive:          var(--vokari-risk-crimson);
-  --border:               var(--vokari-hairline);
-  --input:                var(--vokari-hairline);
-  --ring:                 var(--vokari-signal-teal);
-
-  --chart-1: var(--vokari-signal-teal);
-  --chart-2: var(--vokari-booked-green);
-  --chart-3: var(--vokari-compliance-amber);
-  --chart-4: var(--vokari-audit-indigo);
-  --chart-5: var(--vokari-receipt-gold);
-
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.58 0.22 27);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.809 0.105 251.813);
+  --chart-2: oklch(0.623 0.214 259.815);
+  --chart-3: oklch(0.546 0.245 262.881);
+  --chart-4: oklch(0.488 0.243 264.376);
+  --chart-5: oklch(0.424 0.199 265.638);
   --radius: 0.625rem;
-
-  --sidebar:                       var(--vokari-paper-white);
-  --sidebar-foreground:            var(--vokari-operator-slate);
-  --sidebar-primary:               var(--vokari-signal-teal);
-  --sidebar-primary-foreground:    var(--vokari-paper-white);
-  --sidebar-accent:                var(--vokari-hush-mist);
-  --sidebar-accent-foreground:     var(--vokari-operator-slate);
-  --sidebar-border:                var(--vokari-hairline);
-  --sidebar-ring:                  var(--vokari-signal-teal);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
 }
 
-/* Dark theme — used by ModeToggle + the F3 supervisor scope */
 .dark {
-  --background:           var(--vokari-mission-black);
-  --foreground:           var(--vokari-paper-white);
-  --card:                 var(--vokari-mission-slate);
-  --card-foreground:      var(--vokari-paper-white);
-  --popover:              var(--vokari-mission-slate);
-  --popover-foreground:   var(--vokari-paper-white);
-  --primary:              var(--vokari-signal-teal);
-  --primary-foreground:   var(--vokari-paper-white);
-  --secondary:            var(--vokari-mission-slate);
-  --secondary-foreground: var(--vokari-paper-white);
-  --muted:                var(--vokari-mission-slate);
-  --muted-foreground:     var(--vokari-whisper-slate);
-  --accent:               var(--vokari-mission-slate);
-  --accent-foreground:    var(--vokari-paper-white);
-  --destructive:          var(--vokari-risk-crimson);
-  --border:               var(--vokari-mission-hairline);
-  --input:                var(--vokari-mission-hairline);
-  --ring:                 var(--vokari-signal-teal);
-
-  --sidebar:                       var(--vokari-mission-black);
-  --sidebar-foreground:            var(--vokari-paper-white);
-  --sidebar-primary:               var(--vokari-signal-teal);
-  --sidebar-primary-foreground:    var(--vokari-paper-white);
-  --sidebar-accent:                var(--vokari-mission-slate);
-  --sidebar-accent-foreground:     var(--vokari-paper-white);
-  --sidebar-border:                var(--vokari-mission-hairline);
-  --sidebar-ring:                  var(--vokari-signal-teal);
-}
-
-/* Mission Control scope — applies dark tokens regardless of theme.
-   Use on the F3 live-supervisor route only. */
-[data-mode="mission-control"] {
-  color-scheme: dark;
-  --background:           var(--vokari-mission-black);
-  --foreground:           var(--vokari-paper-white);
-  --card:                 var(--vokari-mission-slate);
-  --card-foreground:      var(--vokari-paper-white);
-  --popover:              var(--vokari-mission-slate);
-  --popover-foreground:   var(--vokari-paper-white);
-  --primary:              var(--vokari-signal-teal);
-  --primary-foreground:   var(--vokari-paper-white);
-  --secondary:            var(--vokari-mission-slate);
-  --secondary-foreground: var(--vokari-paper-white);
-  --muted:                var(--vokari-mission-slate);
-  --muted-foreground:     var(--vokari-whisper-slate);
-  --accent:               var(--vokari-mission-slate);
-  --accent-foreground:    var(--vokari-paper-white);
-  --destructive:          var(--vokari-risk-crimson);
-  --border:               var(--vokari-mission-hairline);
-  --input:                var(--vokari-mission-hairline);
-  --ring:                 var(--vokari-signal-teal);
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.87 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.371 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.809 0.105 251.813);
+  --chart-2: oklch(0.623 0.214 259.815);
+  --chart-3: oklch(0.546 0.245 262.881);
+  --chart-4: oklch(0.488 0.243 264.376);
+  --chart-5: oklch(0.424 0.199 265.638);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
 }
 
 @theme inline {
-  /* Type stack — Geist for headings, Inter for body, JetBrains Mono for numerics/IDs/$. */
   --font-sans: "Inter", "Inter Variable", system-ui, sans-serif;
   --font-display: "Geist", "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
 
-  /* shadcn aliases */
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -173,29 +111,6 @@
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
-
-  /* Vokari named utilities — `bg-signal-teal`, `text-receipt-gold`, etc. */
-  --color-midnight-signal:    var(--vokari-midnight-signal);
-  --color-operator-slate:     var(--vokari-operator-slate);
-  --color-mute-slate:         var(--vokari-mute-slate);
-  --color-whisper-slate:      var(--vokari-whisper-slate);
-  --color-hush-mist:          var(--vokari-hush-mist);
-  --color-paper-white:        var(--vokari-paper-white);
-  --color-hairline:           var(--vokari-hairline);
-  --color-soft-hairline:      var(--vokari-soft-hairline);
-  --color-signal-teal:        var(--vokari-signal-teal);
-  --color-deep-teal:          var(--vokari-deep-teal);
-  --color-live-cyan:          var(--vokari-live-cyan);
-  --color-booked-green:       var(--vokari-booked-green);
-  --color-compliance-amber:   var(--vokari-compliance-amber);
-  --color-risk-crimson:       var(--vokari-risk-crimson);
-  --color-audit-indigo:       var(--vokari-audit-indigo);
-  --color-receipt-gold:       var(--vokari-receipt-gold);
-  --color-receipt-gold-tint:  var(--vokari-receipt-gold-tint);
-  --color-mission-black:      var(--vokari-mission-black);
-  --color-mission-slate:      var(--vokari-mission-slate);
-  --color-mission-hairline:   var(--vokari-mission-hairline);
-
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -211,7 +126,6 @@
   }
   body {
     @apply font-sans bg-background text-foreground antialiased;
-    font-feature-settings: "cv11", "ss01", "ss03";
   }
   html {
     @apply font-sans;
@@ -222,12 +136,12 @@
   [data-numeric] {
     font-variant-numeric: tabular-nums;
   }
-  /* Live-indicator pulse used by Live Cyan dots throughout the app. */
-  @keyframes vokari-live-pulse {
-    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 var(--vokari-live-cyan); }
-    50%      { opacity: 0.65; box-shadow: 0 0 0 6px transparent; }
+  /* Generic live-indicator pulse. Used by `LiveDot` and inline live badges. */
+  @keyframes kuralle-live-pulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.5; }
   }
   .live-pulse {
-    animation: vokari-live-pulse 1.6s ease-in-out infinite;
+    animation: kuralle-live-pulse 1.6s ease-in-out infinite;
   }
 }

@@ -74,19 +74,19 @@ function TelephonyRoute() {
               {c.status === "coming-soon" && <StatusPill tone="info">Coming soon</StatusPill>}
             </div>
             <div className="flex items-center gap-3">
-              <div className="grid size-10 place-items-center rounded-md bg-foreground text-paper-white font-mono text-[13px] font-semibold">
+              <div className="grid size-10 place-items-center rounded-md bg-foreground text-card font-mono text-[13px] font-semibold">
                 {c.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
               </div>
               <div className="min-w-0">
                 <div className="font-display text-[15px] font-semibold">{c.name}</div>
                 {c.badge && (
-                  <Badge variant="outline" className="mt-0.5 border-signal-teal/30 text-[10px] uppercase tracking-wide text-signal-teal">
+                  <Badge variant="outline" className="mt-0.5 border-primary/30 text-[10px] uppercase tracking-wide text-primary">
                     {c.badge}
                   </Badge>
                 )}
               </div>
             </div>
-            <p className="text-[13px] text-mute-slate">{c.description}</p>
+            <p className="text-[13px] text-muted-foreground">{c.description}</p>
             <div className="flex flex-wrap gap-1.5">
               {c.capabilities.map((cap) => (
                 <Badge key={cap} variant="outline" className="text-[10px] uppercase tracking-wide">

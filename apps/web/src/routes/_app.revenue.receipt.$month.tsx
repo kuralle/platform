@@ -32,10 +32,10 @@ function RoiReceiptRoute() {
   }
 
   return (
-    <div className="min-h-[calc(100svh-3.5rem)] bg-soft-hairline/60 print:bg-paper-white">
+    <div className="min-h-[calc(100svh-3.5rem)] bg-muted/60 print:bg-card">
       <div className="mx-auto max-w-[920px] px-8 py-8 print:p-0">
         <div className="mb-4 flex items-center justify-between print:hidden">
-          <Link to="/home" className="inline-flex items-center gap-1 text-[12px] text-mute-slate hover:text-foreground">
+          <Link to="/home" className="inline-flex items-center gap-1 text-[12px] text-muted-foreground hover:text-foreground">
             <ChevronLeft size={12} /> Back to home
           </Link>
           <div className="flex items-center gap-2">
@@ -49,7 +49,7 @@ function RoiReceiptRoute() {
         </div>
 
         <article
-          className="mx-auto bg-paper-white p-12 shadow-[0_24px_64px_rgba(11,18,32,0.06)] print:shadow-none"
+          className="mx-auto bg-card p-12 shadow-[0_24px_64px_rgba(11,18,32,0.06)] print:shadow-none"
           style={{ aspectRatio: "794 / 1123", maxHeight: 1123 }}
         >
           <header className="flex items-start justify-between border-b pb-6">
@@ -58,23 +58,23 @@ function RoiReceiptRoute() {
               <h1 className="mt-2 font-display text-[28px] font-semibold tracking-tight">
                 Calderon HVAC
               </h1>
-              <p className="mt-1 text-[12px] text-mute-slate">
+              <p className="mt-1 text-[12px] text-muted-foreground">
                 Voice agent operations summary · prepared by Kuralle on{" "}
                 <span className="font-mono tabular-nums">2026-04-30</span>.
               </p>
             </div>
             <div className="text-right">
-              <div className="font-mono text-[11px] tabular-nums text-mute-slate">RCT-2026-04-001</div>
-              <div className="font-mono text-[11px] tabular-nums text-mute-slate">workspace · ws_calderon_hvac</div>
+              <div className="font-mono text-[11px] tabular-nums text-muted-foreground">RCT-2026-04-001</div>
+              <div className="font-mono text-[11px] tabular-nums text-muted-foreground">workspace · ws_calderon_hvac</div>
             </div>
           </header>
 
-          <section className="mt-8 rounded-md bg-receipt-gold-tint px-8 py-10 text-center">
+          <section className="mt-8 rounded-md bg-amber-50 px-8 py-10 text-center">
             <Eyebrow>Recovered revenue · {receipt.month}</Eyebrow>
-            <div className="mt-3 font-mono text-[64px] font-medium leading-none tracking-tight text-receipt-gold tabular-nums">
+            <div className="mt-3 font-mono text-[64px] font-medium leading-none tracking-tight text-foreground tabular-nums">
               {formatUsd(receipt.recoveredRevenueUsd)}
             </div>
-            <div className="mt-3 inline-flex items-center gap-3 rounded-full border border-receipt-gold/30 bg-paper-white px-4 py-1.5 font-mono text-[13px] tabular-nums text-receipt-gold">
+            <div className="mt-3 inline-flex items-center gap-3 rounded-full border border-foreground/30 bg-card px-4 py-1.5 font-mono text-[13px] tabular-nums text-foreground">
               {receipt.roiMultiplier}× ROI · cost {formatUsd(receipt.costUsd)}
             </div>
           </section>
@@ -95,15 +95,15 @@ function RoiReceiptRoute() {
                   <TableRow key={row.agentName}>
                     <TableCell>
                       <div className="text-[13px] font-medium">{row.agentName}</div>
-                      <div className="mt-1 h-1.5 w-full rounded-full bg-soft-hairline">
+                      <div className="mt-1 h-1.5 w-full rounded-full bg-muted">
                         <div
-                          className="h-1.5 rounded-full bg-receipt-gold"
+                          className="h-1.5 rounded-full bg-foreground"
                           style={{ width: `${(row.recovered / maxRecovered) * 100}%` }}
                         />
                       </div>
                     </TableCell>
                     <TableCell className="text-right font-mono tabular-nums">{row.calls}</TableCell>
-                    <TableCell className="text-right font-mono tabular-nums text-receipt-gold">
+                    <TableCell className="text-right font-mono tabular-nums text-foreground">
                       {formatUsd(row.recovered)}
                     </TableCell>
                     <TableCell className="text-right font-mono tabular-nums">
@@ -118,28 +118,28 @@ function RoiReceiptRoute() {
           <section className="mt-8 grid grid-cols-3 gap-4">
             <Card className="p-4">
               <Eyebrow>vs last month</Eyebrow>
-              <div className="mt-1 font-mono text-[20px] tabular-nums text-booked-green">
+              <div className="mt-1 font-mono text-[20px] tabular-nums text-emerald-500">
                 +{formatPct(receipt.comparisonDeltaPct)}
               </div>
-              <div className="mt-0.5 text-[11px] text-mute-slate">recovered revenue</div>
+              <div className="mt-0.5 text-[11px] text-muted-foreground">recovered revenue</div>
             </Card>
             <Card className="p-4">
               <Eyebrow>Cost</Eyebrow>
-              <div className="mt-1 font-mono text-[20px] tabular-nums text-receipt-gold">
+              <div className="mt-1 font-mono text-[20px] tabular-nums text-foreground">
                 {formatUsd(receipt.costUsd)}
               </div>
-              <div className="mt-0.5 text-[11px] text-mute-slate">platform + voice</div>
+              <div className="mt-0.5 text-[11px] text-muted-foreground">platform + voice</div>
             </Card>
             <Card className="p-4">
               <Eyebrow>Net impact</Eyebrow>
-              <div className="mt-1 font-mono text-[20px] tabular-nums text-receipt-gold">
+              <div className="mt-1 font-mono text-[20px] tabular-nums text-foreground">
                 {formatUsd(receipt.recoveredRevenueUsd - receipt.costUsd)}
               </div>
-              <div className="mt-0.5 text-[11px] text-mute-slate">of recovered minus cost</div>
+              <div className="mt-0.5 text-[11px] text-muted-foreground">of recovered minus cost</div>
             </Card>
           </section>
 
-          <footer className="mt-10 border-t pt-4 text-[10px] text-mute-slate">
+          <footer className="mt-10 border-t pt-4 text-[10px] text-muted-foreground">
             Prepared by Kuralle for Calderon HVAC. Recovered revenue = bookings closed via Kuralle that
             would otherwise have been missed (no-answer / after-hours / abandoned). Methodology in
             <span className="ml-1 font-mono">/workspace/compliance#methodology</span>.

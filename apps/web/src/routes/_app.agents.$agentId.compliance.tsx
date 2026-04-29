@@ -89,7 +89,7 @@ function ComplianceTab() {
         <Card className="p-6">
           <Eyebrow>Compliance mode</Eyebrow>
           <h2 className="mt-1 font-display text-[20px] font-semibold">Pick the regulation that governs this agent.</h2>
-          <p className="mt-1 text-[13px] text-mute-slate">
+          <p className="mt-1 text-[13px] text-muted-foreground">
             Mode flips the available LLM providers, redaction defaults, retention windows, and disclosure script. Switching after
             the agent has logged calls preserves the original posture for those calls.
           </p>
@@ -105,10 +105,10 @@ function ComplianceTab() {
                 value={m}
                 className={cn(
                   "h-20 flex-col gap-2 rounded-md border bg-background text-[13px] font-medium transition",
-                  mode === m ? "border-signal-teal/60 bg-signal-teal/5" : "hover:border-signal-teal/40",
+                  mode === m ? "border-primary/60 bg-primary/5" : "hover:border-primary/40",
                 )}
               >
-                <ShieldCheck size={18} className={mode === m ? "text-signal-teal" : "text-mute-slate"} />
+                <ShieldCheck size={18} className={mode === m ? "text-primary" : "text-muted-foreground"} />
                 <span className="uppercase tracking-[0.06em]">{m === "none" ? "None" : m}</span>
               </ToggleGroupItem>
             ))}
@@ -127,10 +127,10 @@ function ComplianceTab() {
             <ul className="mt-4 grid gap-2">
               {requirements.map((req) => (
                 <li key={req.id} className="flex items-start gap-3 rounded-md border bg-background p-3">
-                  <CircleCheck size={16} className="mt-0.5 shrink-0 text-booked-green" />
+                  <CircleCheck size={16} className="mt-0.5 shrink-0 text-emerald-500" />
                   <div className="min-w-0 flex-1">
                     <div className="text-[13px] font-medium">{req.label}</div>
-                    <div className="text-[12px] text-mute-slate">{req.description}</div>
+                    <div className="text-[12px] text-muted-foreground">{req.description}</div>
                   </div>
                 </li>
               ))}
@@ -141,7 +141,7 @@ function ComplianceTab() {
         <Card className="p-6">
           <Eyebrow>Retention window</Eyebrow>
           <h2 className="mt-1 font-display text-[18px] font-semibold">{retentionDays} days</h2>
-          <p className="mt-1 text-[13px] text-mute-slate">
+          <p className="mt-1 text-[13px] text-muted-foreground">
             How long transcripts and recordings are retained before automatic deletion. HIPAA defaults to 0 days at provider
             (zero-retention) but workspace logs follow this window.
           </p>
@@ -163,13 +163,13 @@ function ComplianceTab() {
               <Badge
                 key={chip}
                 variant="outline"
-                className="gap-1.5 border-risk-crimson/30 bg-risk-crimson/5 text-risk-crimson"
+                className="gap-1.5 border-destructive/30 bg-destructive/5 text-destructive"
               >
                 {chip}
                 <button
                   onClick={() => setRedactionChips((cs) => cs.filter((c) => c !== chip))}
                   aria-label={`Remove ${chip}`}
-                  className="text-risk-crimson hover:text-risk-crimson/70"
+                  className="text-destructive hover:text-destructive/70"
                 >
                   <Trash2 size={11} />
                 </button>
@@ -177,7 +177,7 @@ function ComplianceTab() {
             ))}
             <button
               onClick={() => setRedactionChips((cs) => [...cs, `Custom #${cs.length + 1}`])}
-              className="rounded-md border border-dashed border-border px-2.5 py-0.5 text-[11px] text-mute-slate hover:border-signal-teal hover:text-signal-teal"
+              className="rounded-md border border-dashed border-border px-2.5 py-0.5 text-[11px] text-muted-foreground hover:border-primary hover:text-primary"
             >
               + add pattern
             </button>

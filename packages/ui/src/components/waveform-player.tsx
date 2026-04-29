@@ -83,8 +83,8 @@ export function WaveformPlayer({
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       className={cn(
-        "relative flex w-full cursor-pointer select-none items-end gap-[2px] rounded-md bg-soft-hairline px-2 py-1.5",
-        "outline-none focus-visible:ring-2 focus-visible:ring-signal-teal/50",
+        "relative flex w-full cursor-pointer select-none items-end gap-[2px] rounded-md bg-muted px-2 py-1.5",
+        "outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
         className,
       )}
       style={{ height }}
@@ -96,8 +96,8 @@ export function WaveformPlayer({
           className={cn(
             "block w-[2px] rounded-full",
             i < playedBars
-              ? live ? "bg-live-cyan" : "bg-signal-teal"
-              : "bg-whisper-slate/60",
+              ? live ? "bg-cyan-500" : "bg-primary"
+              : "bg-muted-foreground/60",
           )}
           style={{ height: `${20 + amp * 75}%` }}
         />
@@ -106,7 +106,7 @@ export function WaveformPlayer({
         aria-hidden
         className={cn(
           "absolute top-0 bottom-0 w-[2px]",
-          live ? "bg-live-cyan" : "bg-signal-teal",
+          live ? "bg-cyan-500" : "bg-primary",
         )}
         style={{ left: `${playedFraction * 100}%` }}
       />

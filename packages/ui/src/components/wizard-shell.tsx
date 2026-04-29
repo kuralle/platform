@@ -73,9 +73,9 @@ export function WizardShell({
                 aria-current={i === index ? "step" : undefined}
                 className={cn(
                   "flex h-7 w-7 items-center justify-center rounded-full border text-[12px] font-semibold transition",
-                  i < index && "border-signal-teal bg-signal-teal text-paper-white",
-                  i === index && "border-signal-teal text-signal-teal",
-                  i > index && "border-border text-mute-slate",
+                  i < index && "border-primary bg-primary text-card",
+                  i === index && "border-primary text-primary",
+                  i > index && "border-border text-muted-foreground",
                 )}
               >
                 {i < index ? "✓" : i + 1}
@@ -83,7 +83,7 @@ export function WizardShell({
               <span
                 className={cn(
                   "hidden text-[12px] font-medium uppercase tracking-[0.06em] sm:inline",
-                  i <= index ? "text-foreground" : "text-mute-slate",
+                  i <= index ? "text-foreground" : "text-muted-foreground",
                 )}
               >
                 {s.title}
@@ -92,7 +92,7 @@ export function WizardShell({
                 <span
                   className={cn(
                     "h-px w-8",
-                    i < index ? "bg-signal-teal" : "bg-border",
+                    i < index ? "bg-primary" : "bg-border",
                   )}
                 />
               )}
@@ -103,7 +103,7 @@ export function WizardShell({
 
       <div className="flex-1 overflow-auto bg-background p-6">
         {step.description && (
-          <p className="mb-4 text-[14px] text-mute-slate">{step.description}</p>
+          <p className="mb-4 text-[14px] text-muted-foreground">{step.description}</p>
         )}
         {step.render({ goNext, goBack, index, total })}
       </div>
@@ -112,7 +112,7 @@ export function WizardShell({
         <Button variant="ghost" onClick={goBack} disabled={index === 0}>
           <ChevronLeft size={16} /> Back
         </Button>
-        <span className="font-mono text-[12px] text-mute-slate">
+        <span className="font-mono text-[12px] text-muted-foreground">
           Step {index + 1} of {total}
         </span>
         <Button onClick={goNext} disabled={step.isBlocked}>

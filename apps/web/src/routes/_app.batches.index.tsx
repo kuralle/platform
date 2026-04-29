@@ -68,9 +68,9 @@ function BatchesListRoute() {
                   </TableCell>
                   <TableCell className="text-[13px] font-medium">
                     {b.name}
-                    <div className="font-mono text-[11px] tabular-nums text-mute-slate">{b.id}</div>
+                    <div className="font-mono text-[11px] tabular-nums text-muted-foreground">{b.id}</div>
                   </TableCell>
-                  <TableCell className="text-[13px] text-mute-slate">{b.agentName}</TableCell>
+                  <TableCell className="text-[13px] text-muted-foreground">{b.agentName}</TableCell>
                   <TableCell>
                     <Badge variant="outline" className="text-[10px] uppercase tracking-wide">
                       {b.vertical.replace("-", " ")}
@@ -78,14 +78,14 @@ function BatchesListRoute() {
                   </TableCell>
                   <TableCell className="text-right font-mono tabular-nums">
                     <div>{b.completed.toLocaleString()}</div>
-                    <div className="text-[11px] text-mute-slate">/{b.totalRecipients.toLocaleString()}</div>
+                    <div className="text-[11px] text-muted-foreground">/{b.totalRecipients.toLocaleString()}</div>
                   </TableCell>
                   <TableCell className="text-right font-mono tabular-nums">{b.booked.toLocaleString()}</TableCell>
                   <TableCell className="text-right font-mono tabular-nums">{formatPct(bookedPct)}</TableCell>
-                  <TableCell className="text-right font-mono tabular-nums text-receipt-gold">
+                  <TableCell className="text-right font-mono tabular-nums text-foreground">
                     {formatUsd(b.costUsd, { precise: true })}
                   </TableCell>
-                  <TableCell className="text-right font-mono tabular-nums text-receipt-gold">
+                  <TableCell className="text-right font-mono tabular-nums text-foreground">
                     {formatUsd(b.recoveredRevenueUsd)}
                   </TableCell>
                 </TableRow>
@@ -120,11 +120,11 @@ function StatusPie({
   let offset = 0;
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" aria-label={`${completed}/${total} complete`}>
-      <circle cx="12" cy="12" r={r} className="fill-none stroke-soft-hairline" strokeWidth="3" />
+      <circle cx="12" cy="12" r={r} className="fill-none stroke-muted" strokeWidth="3" />
       {[
-        { len: bookedLen, color: "stroke-booked-green" },
-        { len: failedLen, color: "stroke-risk-crimson" },
-        { len: otherLen, color: "stroke-signal-teal" },
+        { len: bookedLen, color: "stroke-emerald-500" },
+        { len: failedLen, color: "stroke-destructive" },
+        { len: otherLen, color: "stroke-primary" },
       ].map((seg, i) => {
         if (seg.len <= 0) return null;
         const dasharray = `${seg.len.toFixed(2)} ${(c - seg.len).toFixed(2)}`;

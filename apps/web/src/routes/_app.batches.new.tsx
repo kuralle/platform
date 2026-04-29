@@ -34,7 +34,7 @@ function NewBatchRoute() {
     <div className="mx-auto max-w-3xl px-8 py-8">
       <Eyebrow>Operate</Eyebrow>
       <h1 className="mt-2 font-display text-[28px] font-semibold tracking-tight">New outbound batch</h1>
-      <p className="mt-1 max-w-2xl text-[14px] text-mute-slate">
+      <p className="mt-1 max-w-2xl text-[14px] text-muted-foreground">
         Five steps. We'll TCPA-vet the recipient list and confirm window before any call goes out.
       </p>
 
@@ -86,12 +86,12 @@ function NewBatchRoute() {
                 title: "Recipients",
                 description: "Upload a CSV with phone numbers. We'll DNC-scrub before sending.",
                 render: () => (
-                  <Card className="border-dashed bg-soft-hairline/50 p-8 text-center">
-                    <Upload size={28} className="mx-auto text-mute-slate" />
-                    <p className="mt-3 text-[13px] text-mute-slate">
+                  <Card className="border-dashed bg-muted/50 p-8 text-center">
+                    <Upload size={28} className="mx-auto text-muted-foreground" />
+                    <p className="mt-3 text-[13px] text-muted-foreground">
                       Drop a CSV or <span className="cursor-pointer underline-offset-2 hover:underline">browse</span>.
                     </p>
-                    <p className="mt-2 font-mono text-[11px] tabular-nums text-mute-slate">
+                    <p className="mt-2 font-mono text-[11px] tabular-nums text-muted-foreground">
                       {recipients} recipients loaded · 12 invalid · 4 DNC scrubbed
                     </p>
                   </Card>
@@ -108,7 +108,7 @@ function NewBatchRoute() {
                         type="radio"
                         checked={scheduleNow}
                         onChange={() => setScheduleNow(true)}
-                        className="h-4 w-4 accent-signal-teal"
+                        className="h-4 w-4 accent-primary"
                       />
                       <span className="text-[13px]">Send as soon as TCPA-vet completes</span>
                     </label>
@@ -117,7 +117,7 @@ function NewBatchRoute() {
                         type="radio"
                         checked={!scheduleNow}
                         onChange={() => setScheduleNow(false)}
-                        className="h-4 w-4 accent-signal-teal"
+                        className="h-4 w-4 accent-primary"
                       />
                       <span className="text-[13px]">Schedule for…</span>
                       <Input className="ml-auto h-8 w-[180px]" defaultValue="2026-05-01 10:00" />
@@ -149,7 +149,7 @@ function NewBatchRoute() {
                         className="flex-1"
                       />
                     </div>
-                    <p className="text-[12px] text-mute-slate">
+                    <p className="text-[12px] text-muted-foreground">
                       ETA at this concurrency: ~{Math.ceil(recipients / concurrency / 4)} minutes.
                     </p>
                   </div>
@@ -173,7 +173,7 @@ function NewBatchRoute() {
                         <Row
                           label="Cost estimate"
                           value={
-                            <span className="font-mono tabular-nums text-receipt-gold">
+                            <span className="font-mono tabular-nums text-foreground">
                               {formatUsd(parseFloat(estCost), { precise: true })}
                             </span>
                           }
@@ -203,7 +203,7 @@ function NewBatchRoute() {
 function Row({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="grid grid-cols-[140px_1fr] gap-2">
-      <span className="text-[12px] text-mute-slate">{label}</span>
+      <span className="text-[12px] text-muted-foreground">{label}</span>
       <span className="text-[13px]">{value}</span>
     </div>
   );

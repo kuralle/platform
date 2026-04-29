@@ -44,14 +44,14 @@ function HomeRoute() {
   if (empty) {
     return (
       <div className="mx-auto flex min-h-[calc(100svh-3.5rem)] max-w-3xl flex-col items-center justify-center gap-6 px-8 py-16 text-center">
-        <div className="grid size-16 place-items-center rounded-full bg-soft-hairline">
-          <BookOpen size={28} className="text-mute-slate" />
+        <div className="grid size-16 place-items-center rounded-full bg-muted">
+          <BookOpen size={28} className="text-muted-foreground" />
         </div>
         <div className="grid gap-2">
           <h1 className="font-display text-[28px] font-semibold tracking-tight">
             You don't have an agent yet.
           </h1>
-          <p className="max-w-md text-[14px] text-mute-slate">
+          <p className="max-w-md text-[14px] text-muted-foreground">
             Let's build one in 5 minutes. Pick a template, pick a voice, run a test call. It'll
             sound and behave like a real dispatcher in your vertical.
           </p>
@@ -120,7 +120,7 @@ function HomeRoute() {
             </div>
             <div className="flex items-center gap-2">
               <LiveDot size={8} tone="live" />
-              <span className="text-[12px] text-mute-slate">2 calls in flight</span>
+              <span className="text-[12px] text-muted-foreground">2 calls in flight</span>
             </div>
           </div>
           <Sparkline
@@ -198,7 +198,7 @@ function HomeRoute() {
                 <TableCell className="text-[13px]">
                   <div className="flex flex-col">
                     <span className="font-mono tabular-nums">{c.callerId}</span>
-                    {c.callerName && <span className="text-[11px] text-mute-slate">{c.callerName}</span>}
+                    {c.callerName && <span className="text-[11px] text-muted-foreground">{c.callerName}</span>}
                   </div>
                 </TableCell>
                 <TableCell>
@@ -211,10 +211,10 @@ function HomeRoute() {
                 <TableCell className="text-right font-mono text-[12px] tabular-nums">
                   {Math.floor(c.durationSec / 60)}:{String(c.durationSec % 60).padStart(2, "0")}
                 </TableCell>
-                <TableCell className="text-right font-mono text-[12px] tabular-nums text-receipt-gold">
+                <TableCell className="text-right font-mono text-[12px] tabular-nums text-foreground">
                   {formatUsd(c.costUsd, { precise: true })}
                 </TableCell>
-                <TableCell className="text-right text-[12px] text-mute-slate">
+                <TableCell className="text-right text-[12px] text-muted-foreground">
                   {formatRelative(c.startedAt)}
                 </TableCell>
               </TableRow>

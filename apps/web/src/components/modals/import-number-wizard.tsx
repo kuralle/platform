@@ -59,13 +59,13 @@ export function ImportNumberWizard({ open, onOpenChange }: ImportNumberWizardPro
                         key={t.id}
                         className={cn(
                           "flex cursor-pointer items-start gap-3 rounded-md border bg-background p-4 transition",
-                          transport === t.id && "border-signal-teal bg-signal-teal/5",
+                          transport === t.id && "border-primary bg-primary/5",
                         )}
                       >
                         <RadioGroupItem value={t.id} className="mt-0.5" />
                         <div>
                           <div className="text-[14px] font-medium">{t.label}</div>
-                          <div className="text-[12px] text-mute-slate">{t.description}</div>
+                          <div className="text-[12px] text-muted-foreground">{t.description}</div>
                         </div>
                       </label>
                     ))}
@@ -95,7 +95,7 @@ export function ImportNumberWizard({ open, onOpenChange }: ImportNumberWizardPro
                         </li>
                       ))}
                     </ul>
-                    <div className="mt-3 text-[12px] text-mute-slate">{total} selected</div>
+                    <div className="mt-3 text-[12px] text-muted-foreground">{total} selected</div>
                   </Card>
                 ),
               },
@@ -105,7 +105,7 @@ export function ImportNumberWizard({ open, onOpenChange }: ImportNumberWizardPro
                 description: "We'll attach these numbers to the workspace's default agent.",
                 render: () => (
                   <Card className="p-6 text-center">
-                    <Check size={28} className="mx-auto text-booked-green" />
+                    <Check size={28} className="mx-auto text-emerald-500" />
                     <p className="mt-3 text-[14px] font-medium">Imported {total || 0} numbers.</p>
                   </Card>
                 ),
