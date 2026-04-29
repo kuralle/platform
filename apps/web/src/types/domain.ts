@@ -29,6 +29,12 @@ export interface Agent {
   firstMessage: string;
   systemPrompt: string;
   temperature: number;
+  /** Short description — used when this agent is consumed by another agent
+   *  via `agent.asTool()`, or surfaced in the Triage / Workflow picker. */
+  description: string;
+  /** Maximum tool-call iterations before the agent must yield to the user.
+   *  Maps to AriaFlow's `Agent.maxSteps`. */
+  maxSteps: number;
 }
 
 export type ConversationOutcome =

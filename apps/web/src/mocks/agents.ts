@@ -63,6 +63,9 @@ export function makeAgents(count = 10, vertical = "home-services"): Agent[] {
       systemPrompt:
         "You are a calm, professional dispatcher for an HVAC operator-owned business. Triage each call into one of four buckets: (1) emergency no-heat / no-AC, (2) routine maintenance booking, (3) quote follow-up, (4) general info. Always confirm zip code and preferred service window. Never quote pricing. If the caller is hostile, escalate to a human in under 30 seconds.",
       temperature: 0.4,
+      description:
+        "Inbound dispatcher for HVAC operators. Triages emergency / routine / quote / info calls; books service windows; escalates to a human when a caller turns hostile.",
+      maxSteps: 6,
     } satisfies Agent;
   });
 }

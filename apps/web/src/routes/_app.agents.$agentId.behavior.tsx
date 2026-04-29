@@ -25,21 +25,29 @@ function BehaviorTab() {
   const [firstMessage, setFirstMessage] = useState(seed.firstMessage);
   const [systemPrompt, setSystemPrompt] = useState(seed.systemPrompt);
   const [temperature, setTemperature] = useState(seed.temperature);
+  const [description, setDescription] = useState(seed.description);
+  const [maxSteps, setMaxSteps] = useState(seed.maxSteps);
   const [originalSnapshot] = useState({
     firstMessage: seed.firstMessage,
     systemPrompt: seed.systemPrompt,
     temperature: seed.temperature,
+    description: seed.description,
+    maxSteps: seed.maxSteps,
   });
 
   const changes =
     (firstMessage !== originalSnapshot.firstMessage ? 1 : 0) +
     (systemPrompt !== originalSnapshot.systemPrompt ? 1 : 0) +
-    (Math.abs(temperature - originalSnapshot.temperature) > 0.001 ? 1 : 0);
+    (Math.abs(temperature - originalSnapshot.temperature) > 0.001 ? 1 : 0) +
+    (description !== originalSnapshot.description ? 1 : 0) +
+    (maxSteps !== originalSnapshot.maxSteps ? 1 : 0);
 
   function reset() {
     setFirstMessage(originalSnapshot.firstMessage);
     setSystemPrompt(originalSnapshot.systemPrompt);
     setTemperature(originalSnapshot.temperature);
+    setDescription(originalSnapshot.description);
+    setMaxSteps(originalSnapshot.maxSteps);
   }
 
   return (
@@ -53,12 +61,11 @@ function BehaviorTab() {
     >
       <div className="mx-auto grid max-w-3xl gap-6">
         <Card className="p-6">
-          <Eyebrow>First message</Eyebrow>
-          <h2 className="mt-1 font-display text-[18px] font-semibold">
-            What does the agent say when the call connects?
-          </h2>
+          <Eyebrow>Identity</Eyebrow>
+          <h2 className="mt-1 font-display text-[18px] font-semibold">First message + description</h2>
           <p className="mt-1 text-[13px] text-muted-foreground">
-            Keep it under 18 words. Lead with brand + action so the caller knows where they landed.
+            The first utterance the agent reads, plus a short description used when this agent is consumed by another
+            (via <span className="font-mono text-[12px]">agent.asTool()</span>) or surfaced in the workflow picker.
           </p>
           <Field className="mt-4">
             <FieldLabel htmlFor="first-message">First message</FieldLabel>
@@ -66,6 +73,16 @@ function BehaviorTab() {
               id="first-message"
               value={firstMessage}
               onChange={(e) => setFirstMessage(e.target.value)}
+            />
+          </Field>
+          <Field className="mt-3">
+            <FieldLabel htmlFor="description">Description</FieldLabel>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="min-h-[72px] text-[13px]"
+              placeholder="One sentence: what does this agent do, and when should another agent consult it?"
             />
           </Field>
         </Card>
@@ -116,6 +133,26 @@ function BehaviorTab() {
               step={0.05}
               value={[temperature]}
               onValueChange={([v]) => v !== undefined && setTemperature(v)}
+              className="flex-1"
+            />
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <Eyebrow>Tool-call loop</Eyebrow>
+          <h2 className="mt-1 font-display text-[18px] font-semibold">Max steps · {maxSteps}</h2>
+          <p className="mt-1 text-[13px] text-muted-foreground">
+            Maximum tool-call iterations the agent may take per turn before yielding to the user. Mirrors the AriaFlow{" "}
+            <span className="font-mono text-[12px]">Agent.maxSteps</span> primitive.
+          </p>
+          <div className="mt-5 flex items-center gap-4">
+            <span className="font-mono text-[24px] tabular-nums text-foreground">{maxSteps}</span>
+            <Slider
+              min={1}
+              max={20}
+              step={1}
+              value={[maxSteps]}
+              onValueChange={([v]) => v !== undefined && setMaxSteps(v)}
               className="flex-1"
             />
           </div>
