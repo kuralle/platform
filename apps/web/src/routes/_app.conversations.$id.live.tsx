@@ -81,7 +81,7 @@ function LiveSupervisorRoute() {
   }
 
   return (
-    <div className="dark grid h-[calc(100svh-3.5rem)] grid-rows-[auto_1fr] bg-background text-foreground">
+    <div className="grid h-[calc(100svh-3.5rem)] grid-rows-[auto_1fr] bg-background text-foreground">
       <div className="border-b border-border bg-background px-6 py-3">
         <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
           <Link to="/conversations" className="inline-flex items-center gap-1 hover:text-foreground">
