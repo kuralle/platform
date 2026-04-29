@@ -1,0 +1,24 @@
+{
+  "name": "@kuralle/auth",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@kuralle/db": "workspace:*",
+    "@kuralle/env": "workspace:*",
+    "better-auth": "catalog:",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@kuralle/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}
