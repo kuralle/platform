@@ -10,6 +10,7 @@ import {
 import { useNavigate } from "@tanstack/react-router";
 import {
   Activity,
+  BookOpen,
   CircleDollarSign,
   Headset,
   LayoutDashboard,
@@ -55,6 +56,7 @@ export function CommandPalette() {
   const navItems: CommandItemDef[] = [
     { id: "home", label: "Today dashboard", icon: LayoutDashboard, action: go("/home") },
     { id: "agents", label: "Agents", icon: Users, action: go("/agents") },
+    { id: "knowledge", label: "Knowledge base", icon: BookOpen, action: go("/knowledge") },
     { id: "convs", label: "Conversations", icon: Headset, action: go("/conversations") },
     { id: "batches", label: "Outbound batches", icon: ListChecks, action: go("/batches") },
     { id: "telephony", label: "Telephony connectors", icon: Workflow, action: go("/telephony") },

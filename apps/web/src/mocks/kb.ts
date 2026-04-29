@@ -80,6 +80,16 @@ export function makeKbDocuments(count = 8): KbDocument[] {
   });
 }
 
+/** Documents currently attached to a given agent. Mock relation: every agent
+ *  inherits a deterministic 4-doc subset of the workspace KB. */
+export function makeAttachedKbDocuments(agentId: string, all = makeKbDocuments(8)): KbDocument[] {
+  const seed = agentId.split("").reduce((s, c) => s + c.charCodeAt(0), 0);
+  const rng = createRng(seed * 0x9e37);
+  const indices = new Set<number>();
+  while (indices.size < Math.min(4, all.length)) indices.add(Math.floor(rng() * all.length));
+  return Array.from(indices).map((i) => all[i]!);
+}
+
 export function formatBytes(n: number) {
   if (n < 1024) return `${n} B`;
   if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;

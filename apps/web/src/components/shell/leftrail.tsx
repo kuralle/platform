@@ -2,28 +2,20 @@ import { cn } from "@kuralle/ui/lib/utils";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Activity,
-  BarChart3,
-  Book,
+  BookOpen,
   ChevronsLeft,
   ChevronsRight,
   CircleDollarSign,
   Compass,
-  CreditCard,
   Headset,
   Home,
-  KeyRound,
   LayoutTemplate,
   ListChecks,
-  Mic,
   Phone,
-  Plug,
-  Radio,
   Settings,
   ShieldCheck,
-  TerminalSquare,
   Users,
   Workflow,
-  Wrench,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -47,6 +39,7 @@ const SECTIONS: NavSection[] = [
     label: "Configure",
     items: [
       { to: "/agents", label: "Agents", icon: Users },
+      { to: "/knowledge", label: "Knowledge base", icon: BookOpen },
       { to: "/templates", label: "Templates", icon: LayoutTemplate },
       { to: "/onboarding", label: "Onboarding", icon: Compass },
     ],
