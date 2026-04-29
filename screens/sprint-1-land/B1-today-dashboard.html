@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vokari Dashboard - Today</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #F4F6FA;
+      color: #1F2937;
+    }
+    .font-headline { font-family: 'Geist', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      vertical-align: middle;
+    }
+    .small-caps {
+      font-variant: all-small-caps;
+    }
+    @keyframes pulse-live {
+      0% { opacity: 0.12; }
+      50% { opacity: 1; }
+      100% { opacity: 0.12; }
+    }
+    .animate-pulse-live {
+      animation: pulse-live 1.6s ease-in-out infinite;
+    }
+  </style>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            midnight: "#0B1220",
+            operator: "#1F2937",
+            mute: "#64748B",
+            whisper: "#94A3B8",
+            hush: "#F4F6FA",
+            hairline: "#E2E6EF",
+            soft: "#EEF1F6",
+            signal: "#0EA5A6",
+            deep: "#0F7A7B",
+            live: "#22D3EE",
+            booked: "#10B981",
+            compliance: "#F59E0B",
+            risk: "#DC2626",
+            audit: "#4F46E5",
+            receipt: "#B89A4A",
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            headline: ["Geist"],
+            display: ["Geist"],
+            body: ["Inter"],
+            label: ["Inter"]
+          }
+        },
+      },
+    }
+  </script>
+</head>
+<body class="bg-hush text-operator antialiased">
+<!-- TopNavBar (Fixed) -->
+<header class="fixed top-0 w-full h-14 z-50 bg-white border-b border-hairline flex justify-between items-center px-8 w-full">
+<div class="flex items-center gap-4">
+<span class="text-xl font-bold tracking-[-1.5%] text-midnight">Vokari</span>
+<div class="flex items-center gap-2 px-2 py-1 bg-audit/5 text-audit rounded text-[11px] font-semibold tracking-wide uppercase">
+        Production
+      </div>
+</div>
+<div class="flex-1 max-w-md px-8">
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-mute text-lg">search</span>
+<input class="w-full bg-hush border-none rounded-lg py-1.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-signal/15" placeholder="Search agents, calls, or ROI..." type="text"/>
+<div class="absolute right-3 flex items-center gap-1 text-[10px] text-mute font-mono border border-hairline rounded px-1.5 bg-white">
+<span>⌘</span><span>K</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-mute hover:bg-hush p-1.5 rounded-lg transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-mute hover:bg-hush p-1.5 rounded-lg transition-colors">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-soft overflow-hidden border border-hairline">
+<img alt="Profile" data-alt="professional headshot of a middle-aged man with short dark hair in a clean corporate style with soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBq5tO6fUAq20of9wLVx3p36_g2AysskM_hvZSiCFUu5lOx8APqqcjeiPtn0zt4VS7h_AYIJYjVgtp7yk8RHakwq7R1mgElIykQqCUN9hdX7ga9lxgQNABffCcuMrzPzJipIPEmY6cv7uPE2QryKAkEWm9mRcEcxuLeyYBZHBekPfy9s8Dp-0kVyJoV0U6redmmfYxFV3UmBUThClh5L-diQQwvn6euJ2wtFZ3Ng0UB9CqEy0J_r48R52_TUdRfm3TBtuxjru2P5qLT"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar (Fixed) -->
+<aside class="fixed left-0 top-14 h-[calc(100vh-56px)] w-56 bg-white border-r border-hairline flex flex-col py-6 gap-2">
+<div class="px-6 mb-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-midnight rounded-lg flex items-center justify-center text-white font-bold">V</div>
+<div>
+<p class="text-sm font-semibold text-midnight">Operator Console</p>
+<p class="text-[11px] text-mute">Vokari HQ</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-3 space-y-1">
+<div class="text-[11px] font-semibold text-mute uppercase tracking-widest px-3 mb-2">Platform</div>
+<a class="flex items-center gap-3 px-3 py-2 text-sm text-mute hover:bg-hush rounded-lg transition-all group">
+<span class="material-symbols-outlined text-xl">settings</span>
+<span class="font-medium">Configure</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm border-l-4 border-signal bg-hush text-midnight font-semibold transition-all">
+<span class="material-symbols-outlined text-xl text-signal">call</span>
+<span>Operate</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm text-mute hover:bg-hush rounded-lg transition-all group">
+<span class="material-symbols-outlined text-xl">share</span>
+<span class="font-medium">Distribute</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm text-mute hover:bg-hush rounded-lg transition-all group">
+<span class="material-symbols-outlined text-xl">dashboard</span>
+<span class="font-medium">Workspace</span>
+</a>
+</nav>
+<div class="px-3 mt-auto pt-6 border-t border-soft">
+<button class="w-full bg-signal hover:bg-deep text-white text-sm font-semibold py-2 rounded-lg transition-colors mb-4 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-lg">add</span>
+        New Agent
+      </button>
+<a class="flex items-center gap-3 px-3 py-2 text-sm text-mute hover:bg-hush rounded-lg transition-all">
+<span class="material-symbols-outlined text-xl">tune</span>
+<span>Settings</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm text-mute hover:bg-hush rounded-lg transition-all">
+<span class="material-symbols-outlined text-xl">contact_support</span>
+<span>Support</span>
+</a>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-56 mt-14 p-8 min-h-[calc(100vh-56px)]">
+<!-- Header -->
+<div class="flex justify-between items-end mb-8">
+<div>
+<h1 class="text-[28px] font-headline font-semibold text-midnight leading-tight tracking-tight">Today</h1>
+<p class="text-sm text-mute font-body">Wednesday, April 29 · all agents · all branches</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-2 px-3 py-2 bg-white border border-hairline rounded-lg text-sm font-medium text-operator cursor-pointer hover:bg-soft transition-colors">
+<span class="material-symbols-outlined text-lg text-mute">calendar_today</span>
+          Last 24 hours
+          <span class="material-symbols-outlined text-lg text-whisper">expand_more</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-2 bg-audit/5 border border-audit/20 rounded-lg text-sm font-semibold text-audit cursor-pointer hover:bg-audit/10 transition-colors">
+<span class="material-symbols-outlined text-lg">home_repair_service</span>
+          Home Services
+          <span class="material-symbols-outlined text-lg">expand_more</span>
+</div>
+</div>
+</div>
+<!-- KPI Row -->
+<div class="grid grid-cols-5 gap-4 mb-8">
+<!-- Active Calls -->
+<div class="bg-white border border-hairline rounded-xl p-6 h-[140px] flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="text-[11px] font-semibold text-mute tracking-widest small-caps">Active Calls</span>
+<div class="w-2 h-2 rounded-full bg-live animate-pulse-live"></div>
+</div>
+<div>
+<span class="text-[32px] font-mono font-medium text-operator">3</span>
+</div>
+<div class="h-4">
+<div class="flex items-end gap-1 h-full">
+<div class="w-1 bg-signal/20 h-2"></div>
+<div class="w-1 bg-signal/40 h-4"></div>
+<div class="w-1 bg-signal h-3"></div>
+<div class="w-1 bg-signal/30 h-1"></div>
+<div class="w-1 bg-signal/60 h-2"></div>
+</div>
+</div>
+</div>
+<!-- Today's Calls -->
+<div class="bg-white border border-hairline rounded-xl p-6 h-[140px] flex flex-col justify-between">
+<span class="text-[11px] font-semibold text-mute tracking-widest small-caps">Today's Calls</span>
+<div class="flex items-baseline justify-between">
+<span class="text-[32px] font-mono font-medium text-operator">147</span>
+<span class="text-xs font-semibold text-booked flex items-center">
+<span class="material-symbols-outlined text-sm">arrow_upward</span> 12%
+          </span>
+</div>
+<div class="h-4 opacity-40">
+<svg class="w-[60px] h-4 stroke-signal fill-none stroke-[1.5]" viewbox="0 0 60 16">
+<path d="M0,14 C10,12 15,4 25,6 C35,8 45,2 60,4"></path>
+</svg>
+</div>
+</div>
+<!-- Booking Rate -->
+<div class="bg-white border border-hairline rounded-xl p-6 h-[140px] flex flex-col justify-between">
+<span class="text-[11px] font-semibold text-mute tracking-widest small-caps">Booking Rate</span>
+<div class="flex items-baseline justify-between">
+<span class="text-[32px] font-mono font-medium text-operator">68%</span>
+<span class="text-xs font-semibold text-booked flex items-center">
+<span class="material-symbols-outlined text-sm">arrow_upward</span> 4%
+          </span>
+</div>
+<div class="h-4 opacity-40">
+<svg class="w-[60px] h-4 stroke-signal fill-none stroke-[1.5]" viewbox="0 0 60 16">
+<path d="M0,8 L10,6 L20,10 L30,4 L40,6 L50,2 L60,5"></path>
+</svg>
+</div>
+</div>
+<!-- Recovered Revenue -->
+<div class="bg-white border border-hairline rounded-xl p-6 h-[140px] flex flex-col justify-between">
+<span class="text-[11px] font-semibold text-mute tracking-widest small-caps">Recovered Revenue</span>
+<div class="flex items-baseline justify-between">
+<span class="text-[32px] font-mono font-medium text-receipt">$12,840</span>
+<span class="text-xs font-semibold text-booked flex items-center">
+<span class="material-symbols-outlined text-sm">arrow_upward</span> 22%
+          </span>
+</div>
+<div class="h-4 opacity-40">
+<svg class="w-[60px] h-4 stroke-receipt fill-none stroke-[1.5]" viewbox="0 0 60 16">
+<path d="M0,12 Q15,2 30,10 T60,2"></path>
+</svg>
+</div>
+</div>
+<!-- Latency -->
+<div class="bg-white border border-hairline rounded-xl p-6 h-[140px] flex flex-col justify-between">
+<span class="text-[11px] font-semibold text-mute tracking-widest small-caps">P95 Latency</span>
+<div class="flex items-baseline justify-between">
+<span class="text-[32px] font-mono font-medium text-operator">740ms</span>
+<span class="text-xs font-semibold text-booked flex items-center">
+<span class="material-symbols-outlined text-sm">arrow_downward</span> 15ms
+          </span>
+</div>
+<div class="h-4 opacity-40">
+<svg class="w-[60px] h-4 stroke-signal fill-none stroke-[1.5]" viewbox="0 0 60 16">
+<path d="M0,2 L20,4 L40,12 L60,10"></path>
+</svg>
+</div>
+</div>
+</div>
+<!-- Middle Section -->
+<div class="grid grid-cols-12 gap-4 mb-8">
+<!-- Chart Area -->
+<div class="col-span-8 bg-white border border-hairline rounded-xl p-6">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-lg font-headline font-semibold text-midnight">Calls over last 14 days</h3>
+<div class="flex gap-4">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-signal"></div>
+<span class="text-[11px] font-semibold text-mute small-caps">Inbound</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-audit"></div>
+<span class="text-[11px] font-semibold text-mute small-caps">Outbound</span>
+</div>
+</div>
+</div>
+<div class="h-[280px] w-full relative">
+<!-- Chart Mockup -->
+<div class="absolute inset-0 flex flex-col justify-between pointer-events-none">
+<div class="w-full border-t border-soft"></div>
+<div class="w-full border-t border-soft"></div>
+<div class="w-full border-t border-soft"></div>
+<div class="w-full border-t border-soft"></div>
+<div class="w-full border-t border-soft"></div>
+</div>
+<svg class="w-full h-full" viewbox="0 0 800 280">
+<defs>
+<lineargradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#0EA5A6" stop-opacity="0.12"></stop>
+<stop offset="100%" stop-color="#0EA5A6" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<path d="M0,200 L50,180 L100,210 L150,140 L200,160 L250,100 L300,130 L350,90 L400,120 L450,60 L500,80 L550,40 L600,70 L650,30 L700,50 L750,20 L800,45 V280 H0 Z" fill="url(#chartGradient)"></path>
+<path d="M0,200 L50,180 L100,210 L150,140 L200,160 L250,100 L300,130 L350,90 L400,120 L450,60 L500,80 L550,40 L600,70 L650,30 L700,50 L750,20 L800,45" fill="none" stroke="#0EA5A6" stroke-width="2"></path>
+</svg>
+<div class="flex justify-between mt-4">
+<span class="text-[11px] text-mute font-medium">Apr 15</span>
+<span class="text-[11px] text-mute font-medium">Apr 18</span>
+<span class="text-[11px] text-mute font-medium">Apr 22</span>
+<span class="text-[11px] text-mute font-medium">Apr 25</span>
+<span class="text-[11px] text-mute font-medium">Today</span>
+</div>
+</div>
+</div>
+<!-- Compliance Posture -->
+<div class="col-span-4 bg-white border border-hairline rounded-xl p-6 flex flex-col">
+<h3 class="text-lg font-headline font-semibold text-midnight mb-6">Compliance posture</h3>
+<div class="space-y-3 flex-1">
+<!-- HIPAA -->
+<div class="flex items-center justify-between px-3 py-2 rounded-lg border border-booked/30 bg-booked/5">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-booked"></div>
+<span class="text-[11px] font-semibold text-operator tracking-widest small-caps">HIPAA</span>
+</div>
+<span class="text-[10px] font-bold text-booked uppercase tracking-tight">Active</span>
+</div>
+<!-- FERPA -->
+<div class="flex items-center justify-between px-3 py-2 rounded-lg border border-hairline bg-white opacity-60">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-whisper"></div>
+<span class="text-[11px] font-semibold text-mute tracking-widest small-caps">FERPA</span>
+</div>
+<span class="text-[10px] font-bold text-whisper uppercase tracking-tight">Inactive</span>
+</div>
+<!-- TCPA -->
+<div class="flex items-center justify-between px-3 py-2 rounded-lg border border-compliance/30 bg-compliance/5">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-compliance"></div>
+<span class="text-[11px] font-semibold text-operator tracking-widest small-caps">TCPA</span>
+</div>
+<span class="text-[10px] font-bold text-compliance uppercase tracking-tight">Action required</span>
+</div>
+<!-- EU-AI-ACT -->
+<div class="flex items-center justify-between px-3 py-2 rounded-lg border border-hairline bg-white opacity-60">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-whisper"></div>
+<span class="text-[11px] font-semibold text-mute tracking-widest small-caps">EU-AI-ACT</span>
+</div>
+<span class="text-[10px] font-bold text-whisper uppercase tracking-tight">Inactive</span>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-soft">
+<p class="text-[12px] text-mute flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">info</span>
+            Click any chip to expand requirements
+          </p>
+</div>
+</div>
+</div>
+<!-- Recent Conversations -->
+<div class="bg-white border border-hairline rounded-xl overflow-hidden">
+<div class="px-6 py-4 flex items-center justify-between border-b border-hairline">
+<h3 class="text-lg font-headline font-semibold text-midnight">Recent conversations</h3>
+<a class="text-sm font-semibold text-signal hover:text-deep transition-colors" href="#">View all</a>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-hush text-[12px] small-caps text-mute font-semibold tracking-wider">
+<tr>
+<th class="px-6 h-8 align-middle">Call ID</th>
+<th class="px-6 h-8 align-middle">Agent</th>
+<th class="px-6 h-8 align-middle">Duration</th>
+<th class="px-6 h-8 align-middle">Verdict</th>
+<th class="px-6 h-8 align-middle">Top Topic</th>
+<th class="px-6 h-8 align-middle">Cost</th>
+<th class="px-6 h-8 align-middle"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-soft">
+<!-- Row 1 -->
+<tr class="h-11 hover:bg-hush transition-colors cursor-pointer group">
+<td class="px-6 font-mono text-xs text-mute">VK-92831</td>
+<td class="px-6">
+<span class="px-2 py-0.5 bg-soft rounded text-[11px] font-medium">Front Desk Zoe</span>
+</td>
+<td class="px-6 font-mono text-xs text-operator">3m 42s</td>
+<td class="px-6">
+<div class="flex items-center gap-1 text-booked text-xs font-semibold">
+<span class="material-symbols-outlined text-sm">check_circle</span> booked
+                </div>
+</td>
+<td class="px-6 text-xs text-operator">HVAC Emergency Repair</td>
+<td class="px-6 font-mono text-xs text-receipt font-medium">$0.043</td>
+<td class="px-6 text-right">
+<span class="material-symbols-outlined text-mute opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="h-11 hover:bg-hush transition-colors cursor-pointer group">
+<td class="px-6 font-mono text-xs text-mute">VK-92830</td>
+<td class="px-6">
+<span class="px-2 py-0.5 bg-soft rounded text-[11px] font-medium">Scheduling Sam</span>
+</td>
+<td class="px-6 font-mono text-xs text-operator">1m 12s</td>
+<td class="px-6">
+<div class="flex items-center gap-1 text-risk text-xs font-semibold">
+<span class="material-symbols-outlined text-sm">cancel</span> no-show
+                </div>
+</td>
+<td class="px-6 text-xs text-operator">Rescheduling Appointment</td>
+<td class="px-6 font-mono text-xs text-receipt font-medium">$0.018</td>
+<td class="px-6 text-right">
+<span class="material-symbols-outlined text-mute opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="h-11 hover:bg-hush transition-colors cursor-pointer group">
+<td class="px-6 font-mono text-xs text-mute">VK-92829</td>
+<td class="px-6">
+<span class="px-2 py-0.5 bg-soft rounded text-[11px] font-medium">Front Desk Zoe</span>
+</td>
+<td class="px-6 font-mono text-xs text-operator">5m 04s</td>
+<td class="px-6">
+<div class="flex items-center gap-1 text-booked text-xs font-semibold">
+<span class="material-symbols-outlined text-sm">check_circle</span> booked
+                </div>
+</td>
+<td class="px-6 text-xs text-operator">Full AC Installation</td>
+<td class="px-6 font-mono text-xs text-receipt font-medium">$0.082</td>
+<td class="px-6 text-right">
+<span class="material-symbols-outlined text-mute opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="h-11 hover:bg-hush transition-colors cursor-pointer group">
+<td class="px-6 font-mono text-xs text-mute">VK-92828</td>
+<td class="px-6">
+<span class="px-2 py-0.5 bg-soft rounded text-[11px] font-medium">Support Lin</span>
+</td>
+<td class="px-6 font-mono text-xs text-operator">2m 45s</td>
+<td class="px-6">
+<div class="flex items-center gap-1 text-mute text-xs font-semibold">
+<span class="material-symbols-outlined text-sm">pending</span> unresolved
+                </div>
+</td>
+<td class="px-6 text-xs text-operator">Billing Question</td>
+<td class="px-6 font-mono text-xs text-receipt font-medium">$0.031</td>
+<td class="px-6 text-right">
+<span class="material-symbols-outlined text-mute opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="h-11 hover:bg-hush transition-colors cursor-pointer group">
+<td class="px-6 font-mono text-xs text-mute">VK-92827</td>
+<td class="px-6">
+<span class="px-2 py-0.5 bg-soft rounded text-[11px] font-medium">Front Desk Zoe</span>
+</td>
+<td class="px-6 font-mono text-xs text-operator">0m 58s</td>
+<td class="px-6">
+<div class="flex items-center gap-1 text-risk text-xs font-semibold">
+<span class="material-symbols-outlined text-sm">call_missed</span> hangup
+                </div>
+</td>
+<td class="px-6 text-xs text-operator">General Inquiry</td>
+<td class="px-6 font-mono text-xs text-receipt font-medium">$0.012</td>
+<td class="px-6 text-right">
+<span class="material-symbols-outlined text-mute opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+</td>
+</tr>
+<!-- Row 6 -->
+<tr class="h-11 hover:bg-hush transition-colors cursor-pointer group">
+<td class="px-6 font-mono text-xs text-mute">VK-92826</td>
+<td class="px-6">
+<span class="px-2 py-0.5 bg-soft rounded text-[11px] font-medium">Front Desk Zoe</span>
+</td>
+<td class="px-6 font-mono text-xs text-operator">4m 12s</td>
+<td class="px-6">
+<div class="flex items-center gap-1 text-booked text-xs font-semibold">
+<span class="material-symbols-outlined text-sm">check_circle</span> booked
+                </div>
+</td>
+<td class="px-6 text-xs text-operator">Duct Cleaning</td>
+<td class="px-6 font-mono text-xs text-receipt font-medium">$0.051</td>
+<td class="px-6 text-right">
+<span class="material-symbols-outlined text-mute opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+</td>
+</tr>
+<!-- Row 7 -->
+<tr class="h-11 hover:bg-hush transition-colors cursor-pointer group">
+<td class="px-6 font-mono text-xs text-mute">VK-92825</td>
+<td class="px-6">
+<span class="px-2 py-0.5 bg-soft rounded text-[11px] font-medium">Scheduling Sam</span>
+</td>
+<td class="px-6 font-mono text-xs text-operator">2m 20s</td>
+<td class="px-6">
+<div class="flex items-center gap-1 text-booked text-xs font-semibold">
+<span class="material-symbols-outlined text-sm">check_circle</span> booked
+                </div>
+</td>
+<td class="px-6 text-xs text-operator">Maintenance Plan</td>
+<td class="px-6 font-mono text-xs text-receipt font-medium">$0.029</td>
+<td class="px-6 text-right">
+<span class="material-symbols-outlined text-mute opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+</td>
+</tr>
+<!-- Row 8 -->
+<tr class="h-11 hover:bg-hush transition-colors cursor-pointer group">
+<td class="px-6 font-mono text-xs text-mute">VK-92824</td>
+<td class="px-6">
+<span class="px-2 py-0.5 bg-soft rounded text-[11px] font-medium">Front Desk Zoe</span>
+</td>
+<td class="px-6 font-mono text-xs text-operator">3m 33s</td>
+<td class="px-6">
+<div class="flex items-center gap-1 text-booked text-xs font-semibold">
+<span class="material-symbols-outlined text-sm">check_circle</span> booked
+                </div>
+</td>
+<td class="px-6 text-xs text-operator">Emergency Repair</td>
+<td class="px-6 font-mono text-xs text-receipt font-medium">$0.045</td>
+<td class="px-6 text-right">
+<span class="material-symbols-outlined text-mute opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</main>
+</body></html>

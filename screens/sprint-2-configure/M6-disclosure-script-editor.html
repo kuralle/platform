@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;550;600&amp;family=Geist:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        'midnight-signal': '#0B1220',
+                        'operator-slate': '#1F2937',
+                        'mute-slate': '#64748B',
+                        'whisper-slate': '#94A3B8',
+                        'hush-mist': '#F4F6FA',
+                        'paper-white': '#FFFFFF',
+                        'hairline': '#E2E6EF',
+                        'soft-hairline': '#EEF1F6',
+                        'signal-teal': '#0EA5A6',
+                        'deep-teal': '#0F7A7B',
+                        'live-cyan': '#22D3EE',
+                        'booked-green': '#10B981',
+                        'compliance-amber': '#F59E0B',
+                        'risk-crimson': '#DC2626',
+                        'audit-indigo': '#4F46E5',
+                        'receipt-gold': '#B89A4A'
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.25rem',
+                        'lg': '0.5rem',
+                        'xl': '0.75rem',
+                        '2xl': '1rem',
+                        'full': '9999px'
+                    },
+                    fontFamily: {
+                        'headline': ['Geist', 'sans-serif'],
+                        'display': ['Geist', 'sans-serif'],
+                        'body': ['Inter', 'sans-serif'],
+                        'label': ['Inter', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-hush-mist min-h-screen">
+<!-- TopNavBar (Shared Component) -->
+<nav class="bg-[#0B1220] dark:bg-[#06080F] flex justify-between items-center px-6 w-full z-50 fixed top-0 h-[56px] border-b border-[#E2E6EF]/10">
+<div class="flex items-center gap-4">
+<span class="text-xl font-bold tracking-tight text-white font-['Geist']">Vokari</span>
+<div class="hidden md:flex items-center px-2 py-1 rounded bg-audit-indigo/20 border border-audit-indigo/30">
+<span class="text-[10px] font-semibold text-audit-indigo uppercase tracking-wider">Production v2.4</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative flex items-center bg-white/10 rounded-md px-3 py-1.5 w-64">
+<span class="material-symbols-outlined text-[#94A3B8] text-sm mr-2" data-icon="search">search</span>
+<span class="text-[#94A3B8] text-xs font-['Geist'] font-semibold">Search operators...</span>
+<span class="ml-auto text-[#94A3B8] text-[10px] border border-white/20 rounded px-1">⌘K</span>
+</div>
+<button class="text-[#94A3B8] hover:bg-white/5 transition-colors p-1.5 rounded-md">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="h-8 w-8 rounded-full overflow-hidden border border-white/20">
+<img class="h-full w-full object-cover" data-alt="Portrait of a male operations director in a professional setting with soft office lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUE0stOf1kcTIgoqg3SgzPrzhnAO8rvkQzJv7HwpczLA2bYmYxeLWL92az9okml9SGz4Eh_H7RG4e0Ef8xzzBoljtShQl7wW4rX7JeLt4rw7ZLdPN7soHi5fVg2mQRm-R74Cm7k6bibpRxxl-vk5mpkuN9QlL5Fex8j1IygSSg1rV95Oav634y6xfyVy2gTBMdoxrq1jJBjVIXBGdFBshyaXr3wJ0gT8OBmFsMT1ad1EmXM_X9QqOJ7IReJqpMKreRUBlSbPwpEteV"/>
+</div>
+</div>
+</nav>
+<!-- SideNavBar (Shared Component) -->
+<aside class="bg-white dark:bg-[#0B1220] fixed left-0 top-0 h-full w-[224px] flex flex-col pt-[56px] z-40 border-r border-[#E2E6EF] dark:border-[#2A3142] hidden md:flex">
+<div class="flex flex-col p-4 gap-1">
+<div class="px-3 py-2 flex flex-col mb-4">
+<span class="font-['Geist'] font-semibold text-[#0B1220] dark:text-white">Vokari Ops</span>
+<span class="text-[12px] text-mute-slate">Configuration Suite</span>
+</div>
+<a class="bg-[#F4F6FA] dark:bg-[#1A2030] text-[#1F2937] dark:text-white border-l-4 border-[#0EA5A6] font-[550] flex items-center gap-3 px-3 py-2.5 rounded-r transition-all duration-180 ease-out" href="#">
+<span class="material-symbols-outlined text-signal-teal" data-icon="settings_input_component">settings_input_component</span>
+<span class="font-['Inter'] text-[14px]">Configure</span>
+</a>
+<a class="text-[#64748B] dark:text-[#94A3B8] hover:bg-[#F4F6FA] dark:hover:bg-[#1A2030] flex items-center gap-3 px-3 py-2.5 rounded transition-all duration-180 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+<span class="font-['Inter'] text-[14px]">Operate</span>
+</a>
+<a class="text-[#64748B] dark:text-[#94A3B8] hover:bg-[#F4F6FA] dark:hover:bg-[#1A2030] flex items-center gap-3 px-3 py-2.5 rounded transition-all duration-180 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="share">share</span>
+<span class="font-['Inter'] text-[14px]">Distribute</span>
+</a>
+<a class="text-[#64748B] dark:text-[#94A3B8] hover:bg-[#F4F6FA] dark:hover:bg-[#1A2030] flex items-center gap-3 px-3 py-2.5 rounded transition-all duration-180 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="font-['Inter'] text-[14px]">Workspace</span>
+</a>
+</div>
+<div class="mt-auto flex flex-col p-4 gap-1 border-t border-hairline">
+<a class="text-[#64748B] dark:text-[#94A3B8] hover:bg-[#F4F6FA] flex items-center gap-3 px-3 py-2 rounded" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="help_outline">help_outline</span>
+<span class="font-['Inter'] text-[14px]">Support</span>
+</a>
+<a class="text-[#64748B] dark:text-[#94A3B8] hover:bg-[#F4F6FA] flex items-center gap-3 px-3 py-2 rounded" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="settings">settings</span>
+<span class="font-['Inter'] text-[14px]">Settings</span>
+</a>
+</div>
+</aside>
+<!-- Modal Backdrop -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-midnight-signal/60 backdrop-blur-sm px-4">
+<!-- Modal Shell (M6 Disclosure script editor modal) -->
+<div class="w-full max-w-[720px] bg-paper-white rounded-2xl border border-hairline shadow-[0_12px_32px_rgba(11,18,32,0.08)] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
+<!-- Header -->
+<div class="px-6 py-6 border-b border-hairline flex justify-between items-start">
+<div>
+<h2 class="font-headline text-[22px] font-semibold text-operator-slate leading-[28px] tracking-[-1%]">Disclosure script</h2>
+<p class="font-body text-[12px] text-mute-slate mt-1">What the agent reads at the start of every regulated call.</p>
+</div>
+<button class="text-whisper-slate hover:text-operator-slate transition-colors">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+<!-- Body -->
+<div class="px-6 py-6 overflow-y-auto max-h-[calc(100vh-240px)] flex flex-col gap-8">
+<!-- Section 1: Template -->
+<div class="flex flex-col gap-2">
+<label class="font-headline text-[11px] font-semibold text-mute-slate tracking-[8%] uppercase">Template</label>
+<div class="relative">
+<select class="w-full h-[36px] px-3 bg-paper-white border border-hairline rounded-lg text-operator-slate text-[14px] font-body appearance-none focus:outline-none focus:border-signal-teal focus:ring-1 focus:ring-signal-teal/15">
+<option>TCPA-compliant outbound (US)</option>
+<option>HIPAA-compliant inbound (US)</option>
+<option>EU-AI-ACT disclosure</option>
+</select>
+<div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-mute-slate text-[18px]" data-icon="unfold_more">unfold_more</span>
+</div>
+</div>
+</div>
+<!-- Section 2: Script Editor -->
+<div class="flex flex-col gap-2">
+<label class="font-headline text-[11px] font-semibold text-mute-slate tracking-[8%] uppercase">Script</label>
+<div class="h-[280px] bg-hush-mist border border-hairline rounded-lg flex overflow-hidden">
+<!-- Gutter -->
+<div class="w-10 bg-soft-hairline border-r border-hairline flex flex-col py-4 items-center text-[11px] font-mono text-whisper-slate leading-[20px] select-none">
+<span>01</span>
+<span>02</span>
+<span>03</span>
+<span>04</span>
+<span>05</span>
+</div>
+<!-- Editor Text -->
+<div class="flex-1 p-4 font-mono text-[13px] text-operator-slate leading-[20px] whitespace-pre-wrap overflow-y-auto">This call is being made on behalf of <span class="inline-flex items-center px-1.5 py-0.5 rounded-full bg-audit-indigo/10 text-audit-indigo font-semibold text-[11px] uppercase tracking-wider mx-0.5 border border-audit-indigo/20">{{business_name}}</span>. Per the Telephone Consumer Protection Act, do you consent to receive this call? You may say 'no' or hang up at any time.</div>
+</div>
+</div>
+<!-- Section 3: Required Elements -->
+<div class="flex flex-col gap-3">
+<label class="font-headline text-[11px] font-semibold text-mute-slate tracking-[8%] uppercase">Required Elements</label>
+<div class="flex flex-col gap-1">
+<!-- Item 1 -->
+<div class="flex items-center justify-between py-2 border-b border-soft-hairline">
+<span class="font-body text-[13px] text-operator-slate font-[450]">Identifies the caller (business name)</span>
+<span class="material-symbols-outlined text-booked-green text-[18px]" data-icon="check_circle" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center justify-between py-2 border-b border-soft-hairline">
+<span class="font-body text-[13px] text-operator-slate font-[450]">Identifies as a recorded/AI call</span>
+<span class="material-symbols-outlined text-booked-green text-[18px]" data-icon="check_circle" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<!-- Item 3 -->
+<div class="flex items-center justify-between py-2 border-b border-soft-hairline">
+<span class="font-body text-[13px] text-operator-slate font-[450]">Offers opt-out</span>
+<span class="material-symbols-outlined text-booked-green text-[18px]" data-icon="check_circle" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<!-- Item 4 -->
+<div class="flex flex-col py-2">
+<div class="flex items-center justify-between">
+<span class="font-body text-[13px] text-operator-slate font-[450]">Cites legal basis</span>
+<div class="w-4 h-4 bg-compliance-amber rounded-full"></div>
+</div>
+<p class="text-[12px] text-compliance-amber mt-1 font-body">Recommended but missing — add 'Per the TCPA…'</p>
+</div>
+</div>
+</div>
+<!-- Section 4: Settings -->
+<div class="grid grid-cols-2 gap-8">
+<!-- Left -->
+<div class="flex flex-col gap-2">
+<label class="font-headline text-[11px] font-semibold text-mute-slate tracking-[8%] uppercase">Mode</label>
+<div class="h-[32px] bg-hush-mist p-1 rounded-lg flex gap-1">
+<button class="flex-1 bg-paper-white border border-hairline shadow-sm rounded-md text-operator-slate text-[12px] font-semibold">Verbal</button>
+<button class="flex-1 text-mute-slate text-[12px] font-[450] hover:text-operator-slate transition-colors">Written</button>
+</div>
+</div>
+<!-- Right -->
+<div class="flex flex-col gap-2">
+<label class="font-headline text-[11px] font-semibold text-mute-slate tracking-[8%] uppercase">Injection</label>
+<div class="h-[32px] bg-hush-mist p-1 rounded-lg flex gap-1">
+<button class="flex-1 bg-paper-white border border-hairline shadow-sm rounded-md text-operator-slate text-[12px] font-semibold">On</button>
+<button class="flex-1 text-mute-slate text-[12px] font-[450] hover:text-operator-slate transition-colors">Off</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<div class="px-4 py-4 border-t border-hairline flex justify-between items-center bg-soft-hairline/30">
+<button class="px-4 py-2 font-body text-[14px] font-semibold text-operator-slate hover:bg-hush-mist rounded-md transition-colors">Cancel</button>
+<button class="h-[36px] px-5 bg-signal-teal hover:bg-deep-teal transition-colors text-white font-body text-[14px] font-semibold rounded-[6px] shadow-sm">Save disclosure</button>
+</div>
+</div>
+</div>
+<!-- Main Content Background (Simulated) -->
+<main class="ml-0 md:ml-[224px] pt-[56px] p-8">
+<div class="max-w-4xl mx-auto space-y-8 blur-sm select-none">
+<div class="flex items-center justify-between">
+<h1 class="font-headline text-28px font-semibold text-midnight-signal">Agent Builder</h1>
+<div class="flex gap-3">
+<button class="bg-paper-white border border-hairline px-4 py-2 rounded-md">Discard</button>
+<button class="bg-signal-teal text-white px-4 py-2 rounded-md">Save Changes</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-paper-white border border-hairline p-6 rounded-xl aspect-video"></div>
+<div class="bg-paper-white border border-hairline p-6 rounded-xl aspect-video"></div>
+<div class="bg-paper-white border border-hairline p-6 rounded-xl aspect-video"></div>
+</div>
+</div>
+</main>
+</body></html>

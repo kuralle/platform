@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&amp;family=Inter:wght@400;450;550;600&amp;family=JetBrains+Mono:wght@400;500&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        'midnight-signal': '#0B1220',
+                        'operator-slate': '#1F2937',
+                        'mute-slate': '#64748B',
+                        'whisper-slate': '#94A3B8',
+                        'hush-mist': '#F4F6FA',
+                        'paper-white': '#FFFFFF',
+                        'hairline': '#E2E6EF',
+                        'soft-hairline': '#EEF1F6',
+                        'signal-teal': '#0EA5A6',
+                        'deep-teal': '#0F7A7B',
+                        'live-cyan': '#22D3EE',
+                        'booked-green': '#10B981',
+                        'compliance-amber': '#F59E0B',
+                        'risk-crimson': '#DC2626',
+                        'audit-indigo': '#4F46E5',
+                        'receipt-gold': '#B89A4A',
+                        'receipt-gold-tint': '#F5EFD9',
+                        'mission-black': '#06080F',
+                        'mission-slate': '#1A2030',
+                        'mission-hairline': '#2A3142'
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        "headline": ["Geist", "sans-serif"],
+                        "display": ["Geist", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: #F4F6FA; }
+        h1, h2, h3 { font-family: 'Geist', sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .tab-active { border-bottom: 2px solid #0EA5A6; color: #1F2937; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #E2E6EF; border-radius: 10px; }
+    </style>
+</head>
+<body class="text-operator-slate antialiased">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center h-[56px] px-8 w-full sticky top-0 z-50 bg-white border-b border-[#E2E6EF] font-['Geist'] text-sm font-semibold tracking-tight">
+<div class="flex items-center gap-6">
+<span class="text-xl font-bold text-[#0B1220] tracking-[-1.5%]">Vokari</span>
+<div class="flex items-center gap-4 ml-4">
+<span class="text-[#64748B] hover:text-[#1F2937] transition-colors duration-180 cursor-pointer">Configure</span>
+<span class="text-[#0EA5A6] border-b-2 border-[#0EA5A6] pb-4">Operate</span>
+<span class="text-[#64748B] hover:text-[#1F2937] transition-colors duration-180 cursor-pointer">Distribute</span>
+<span class="text-[#64748B] hover:text-[#1F2937] transition-colors duration-180 cursor-pointer">Workspace</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 px-3 py-1 bg-audit-indigo/5 rounded-full text-audit-indigo text-[11px] font-semibold tracking-wider">
+<span class="material-symbols-outlined text-[14px]">terminal</span> PROD
+            </div>
+<span class="material-symbols-outlined text-mute-slate cursor-pointer hover:text-operator-slate">search</span>
+<span class="material-symbols-outlined text-mute-slate cursor-pointer hover:text-operator-slate">notifications</span>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-hush-mist border border-hairline">
+<img alt="User avatar" data-alt="professional male headshot against a neutral studio background with soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtMf-b2T-DzXWvnJOwTAEL8pVP64vsy3VeSAuZkLCax30gE9PPoiVgAyGx486zqwS9gGEuqiKiQzyrAT_YgE-qazynci4SugbJdB29SJXlH64duNSTXlMAkhTweeq44Kv8aHz3H1ybJtkUBVR9rHmSXv0Oc3zE7-y-sS3COHpZSAvueNOvdQXe_t2DRQ_ojQzlmgl0cyazJgLGsoZpVobb5gT5xLvfRYlk1Ny3szfV2stVLA08oxOySBLQTHLTj6dhwARs0Gstc3gU"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-[56px] bottom-0 flex flex-col z-40 overflow-y-auto bg-white border-r border-[#E2E6EF] w-[224px] font-['Inter'] text-[14px] font-[450]">
+<div class="p-5 border-b border-hairline">
+<h2 class="text-lg font-semibold text-[#0B1220]">Agent Editor</h2>
+<p class="text-[11px] font-mono text-mute-slate">v2.4.0-prod</p>
+</div>
+<div class="flex-1 py-4 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-2 text-[#64748B] hover:bg-[#F4F6FA] hover:text-[#1F2937] transition-all duration-180" href="#">
+<span class="material-symbols-outlined">psychology</span> LLM
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 bg-[#F4F6FA] text-[#1F2937] font-[550] border-l-4 border-[#0EA5A6]" href="#">
+<span class="material-symbols-outlined">record_voice_over</span> Voice
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-[#64748B] hover:bg-[#F4F6FA] hover:text-[#1F2937]" href="#">
+<span class="material-symbols-outlined">smart_toy</span> Behavior
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-[#64748B] hover:bg-[#F4F6FA] hover:text-[#1F2937]" href="#">
+<span class="material-symbols-outlined">database</span> Knowledge Base
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-[#64748B] hover:bg-[#F4F6FA] hover:text-[#1F2937]" href="#">
+<span class="material-symbols-outlined">construction</span> Tools
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-[#64748B] hover:bg-[#F4F6FA] hover:text-[#1F2937]" href="#">
+<span class="material-symbols-outlined">person_edit</span> Personalization
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-[#64748B] hover:bg-[#F4F6FA] hover:text-[#1F2937]" href="#">
+<span class="material-symbols-outlined">gavel</span> Compliance
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-[#64748B] hover:bg-[#F4F6FA] hover:text-[#1F2937]" href="#">
+<span class="material-symbols-outlined">analytics</span> Analysis
+            </a>
+</div>
+<div class="p-4 border-t border-hairline flex flex-col gap-3">
+<button class="w-full bg-signal-teal text-white py-2 rounded-lg font-semibold text-sm hover:bg-deep-teal transition-colors">
+                Test Agent
+            </button>
+<div class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-2 py-1 text-[#64748B] text-xs hover:text-operator-slate" href="#">
+<span class="material-symbols-outlined text-sm">help</span> Documentation
+                </a>
+<a class="flex items-center gap-3 px-2 py-1 text-[#64748B] text-xs hover:text-operator-slate" href="#">
+<span class="material-symbols-outlined text-sm">support_agent</span> Support
+                </a>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="ml-[224px] pt-8 px-8 pb-32">
+<div class="max-w-[1280px] mx-auto">
+<div class="flex items-end justify-between mb-8 border-b border-hairline">
+<div class="flex gap-8">
+<button class="pb-3 text-sm font-semibold text-mute-slate hover:text-operator-slate">Overview</button>
+<button class="pb-3 text-sm font-semibold tab-active">Voice Settings</button>
+<button class="pb-3 text-sm font-semibold text-mute-slate hover:text-operator-slate">Training</button>
+<button class="pb-3 text-sm font-semibold text-mute-slate hover:text-operator-slate">History</button>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-8">
+<!-- LEFT COLUMN -->
+<div class="col-span-8 space-y-10">
+<!-- Voice Library -->
+<section>
+<div class="flex justify-between items-baseline mb-4">
+<h3 class="text-[18px] font-semibold font-headline tracking-tight">Voice library</h3>
+<a class="text-[13px] font-medium text-signal-teal hover:underline" href="#">Browse all 5,000+ voices</a>
+</div>
+<div class="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
+<!-- Card 1: Selected -->
+<div class="flex-shrink-0 w-[220px] h-[160px] bg-paper-white border-2 border-signal-teal rounded-[10px] p-4 relative group cursor-pointer">
+<div class="absolute top-2 right-2 flex items-center gap-1 px-2 py-0.5 bg-booked-green/10 text-booked-green text-[10px] font-bold rounded-full uppercase tracking-wider">
+<span class="w-1.5 h-1.5 rounded-full bg-booked-green"></span>
+                                    Selected
+                                </div>
+<div class="w-12 h-12 rounded-full mb-3 bg-gradient-to-br from-signal-teal to-audit-indigo flex items-center justify-center">
+<img class="w-11 h-11 rounded-full object-cover border-2 border-white" data-alt="close-up of a friendly woman's face with a warm smile, soft natural lighting, studio portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMRlBUEuenYwF_ifbRIXLjrz6u_FQNm-NMua2ju5KrKgjW2YpkYr3doiAawJaDNIl6-5heOpRl-aOSTs-daBp0KdJdF6LOSqmQbDb6VXj4pdHOCVKZAukB7p8nVRWsKKRRF1cda9IUz34qCiEVmcgOvZpwdjIUthVg3C4MZ0ohsiQzL_keznG89RWYDR5Qk8L06LGvbRZNUU_hiDKB9ZbEvbnXzXxXsWWJMLNsOWUX-gEa36Z68qexXCHZpeRZEjrvg8js53oLld1j"/>
+</div>
+<h4 class="text-base font-semibold font-headline">Maya</h4>
+<p class="text-xs text-mute-slate mb-3">32 · warm · bilingual</p>
+<div class="flex items-center justify-between">
+<div class="flex gap-1">
+<span class="px-1.5 py-0.5 bg-audit-indigo/10 text-audit-indigo text-[10px] font-bold rounded">EN</span>
+<span class="px-1.5 py-0.5 bg-audit-indigo/10 text-audit-indigo text-[10px] font-bold rounded">ES</span>
+</div>
+<span class="material-symbols-outlined text-signal-teal text-xl">play_circle</span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="flex-shrink-0 w-[220px] h-[160px] bg-paper-white border border-hairline rounded-[10px] p-4 hover:border-signal-teal/50 transition-all cursor-pointer group">
+<div class="w-12 h-12 rounded-full mb-3 bg-gradient-to-br from-orange-400 to-rose-400 p-0.5">
+<img class="w-full h-full rounded-full object-cover border-2 border-white" data-alt="middle-aged man with a friendly expression, professional business casual attire, soft background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQTweFfi4TUivipjfVjefs2oiJyUHDoyE6R-PgK8QZs9watVeyqbc0wM9IF7wpIvjwGUI5BzuF3XRW7CJRzzhk8S23ufLGR7jeiQXM6rxjNVw3uDxUJ24ZMRZ_d5n8zaSoXAjahAJpWsquYx51EMJ4k9lvfrEnYUtxuDt-yI-sE2UHQe_65D2J13dJU8AZ4Q1tZd-sOw6U9PayMCEWkLqAk8uwaYhxcEoODC0cgdmQr2_ktRrTnPEISqutNNWl-D3mLM9fKfitT0vA"/>
+</div>
+<h4 class="text-base font-semibold font-headline">Julian</h4>
+<p class="text-xs text-mute-slate mb-3">41 · deep · authoritative</p>
+<div class="flex items-center justify-between">
+<div class="flex gap-1">
+<span class="px-1.5 py-0.5 bg-audit-indigo/10 text-audit-indigo text-[10px] font-bold rounded">EN</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-[11px] text-signal-teal font-medium opacity-0 group-hover:opacity-100 transition-opacity">Use voice</span>
+<span class="material-symbols-outlined text-mute-slate group-hover:text-signal-teal text-xl">play_circle</span>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="flex-shrink-0 w-[220px] h-[160px] bg-paper-white border border-hairline rounded-[10px] p-4 hover:border-signal-teal/50 transition-all cursor-pointer group">
+<div class="w-12 h-12 rounded-full mb-3 bg-gradient-to-br from-emerald-400 to-teal-400 p-0.5">
+<img class="w-full h-full rounded-full object-cover border-2 border-white" data-alt="young woman with glasses, smart and professional look, soft focus office background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBoblPnQTquuTBi45QpbosafWmVAHUyB-p1hZFJ3AyBIEq9BydYD1aDFAtxsVdToggRrmz4AYtpsiJxg0ldIVoEZQwxKhx-SnM4eo7kRCvwjJ4vtnstzXibxHMKyJOeapaUd-2TaZU5iEUyXeBAYsWZSeR1n8pEu3Rl9Nert55zgCfBesfhjwJ1QZc88nA_RIiIAMEhrcB6zvRr0N68UuggRvj9e9uVZxxsSDj12rFmo2dekf_W3SV5I28JMQYFXg0bWZ9KFWku_Kic"/>
+</div>
+<h4 class="text-base font-semibold font-headline">Elena</h4>
+<p class="text-xs text-mute-slate mb-3">28 · energetic · clear</p>
+<div class="flex items-center justify-between">
+<div class="flex gap-1">
+<span class="px-1.5 py-0.5 bg-audit-indigo/10 text-audit-indigo text-[10px] font-bold rounded">EN</span>
+<span class="px-1.5 py-0.5 bg-audit-indigo/10 text-audit-indigo text-[10px] font-bold rounded">ES</span>
+</div>
+<span class="material-symbols-outlined text-mute-slate group-hover:text-signal-teal text-xl">play_circle</span>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="flex-shrink-0 w-[220px] h-[160px] bg-paper-white border border-hairline rounded-[10px] p-4 hover:border-signal-teal/50 transition-all cursor-pointer group">
+<div class="w-12 h-12 rounded-full mb-3 bg-gradient-to-br from-indigo-400 to-purple-400 p-0.5">
+<img class="w-full h-full rounded-full object-cover border-2 border-white" data-alt="mature professional man, gray hair, confident expression, neutral gray background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQ99qjL0yA6SyP9c4zcWMUWHKaS1ZoR2LzyfYS0tatfQbXGWHpT_khuBz8Y4JXDN2TU5Ke9ihb_zZSASlhMUZk9B8G3KY7aKcI2hm6Fj97OHIq9Qce_a6lJdZOz6uEBSeP5WaHhs2nY0Y00jmNsTorhZBGYzScN0qXlBt3THU2hWLgyv7P6tLtqyPHw5fUEaxF9_077s1csOr1TowRfqTxWZQ402-_QfH-uc28pULXR3n7vCR_34uetkxn2KfHKL8rYa5W9AItbY3A"/>
+</div>
+<h4 class="text-base font-semibold font-headline">Marcus</h4>
+<p class="text-xs text-mute-slate mb-3">52 · calm · executive</p>
+<div class="flex items-center justify-between">
+<div class="flex gap-1">
+<span class="px-1.5 py-0.5 bg-audit-indigo/10 text-audit-indigo text-[10px] font-bold rounded">EN</span>
+</div>
+<span class="material-symbols-outlined text-mute-slate group-hover:text-signal-teal text-xl">play_circle</span>
+</div>
+</div>
+</div>
+</section>
+<!-- A/B Comparator -->
+<section class="bg-paper-white border border-hairline rounded-[10px] p-6 flex items-center justify-between">
+<div>
+<h3 class="text-[18px] font-semibold font-headline tracking-tight mb-1">A/B comparator</h3>
+<p class="text-[14px] text-mute-slate">Hear two voices read the same phrase, side by side.</p>
+</div>
+<button class="px-4 py-2 border border-hairline rounded-lg text-sm font-semibold text-operator-slate hover:bg-hush-mist transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">compare_arrows</span>
+                            Compare voices
+                        </button>
+</section>
+<!-- Banner Alert -->
+<section class="bg-compliance-amber/10 border border-compliance-amber/30 rounded-lg p-4 flex gap-3 items-start">
+<span class="material-symbols-outlined text-compliance-amber mt-0.5">warning</span>
+<div class="text-[13px] text-operator-slate leading-relaxed">
+<span class="font-semibold">Language change detected:</span> Adding Spanish triggers an automatic swap to the Multilingual-v2.5 voice model. This may slightly alter the tone of existing English prompts. 
+                            <a class="text-signal-teal font-medium ml-1 hover:underline" href="#">Learn more</a>
+</div>
+</section>
+<!-- Language Matrix -->
+<section>
+<h3 class="text-[18px] font-semibold font-headline tracking-tight mb-4">Language matrix</h3>
+<div class="bg-paper-white border border-hairline rounded-lg overflow-hidden">
+<table class="w-full text-sm">
+<thead class="bg-hush-mist h-[32px]">
+<tr class="text-[12px] font-semibold text-mute-slate uppercase tracking-wider">
+<th class="text-left px-6">Language</th>
+<th class="text-right px-6">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-hairline">
+<tr class="h-[56px]">
+<td class="px-6 font-medium flex items-center gap-2">
+                                            English
+                                            <span class="material-symbols-outlined text-[16px] text-mute-slate">lock</span>
+</td>
+<td class="px-6 text-right">
+<div class="inline-flex items-center gap-2 px-2 py-1 bg-booked-green/5 text-booked-green text-[11px] font-bold rounded uppercase">
+<span class="w-1.5 h-1.5 bg-booked-green rounded-full"></span> Active
+                                            </div>
+</td>
+</tr>
+<tr class="h-[56px]">
+<td class="px-6 font-medium">Spanish</td>
+<td class="px-6 text-right">
+<div class="inline-block relative w-10 h-5 align-middle select-none transition duration-200 ease-in">
+<input checked="" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 border-signal-teal appearance-none cursor-pointer right-0" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-5 rounded-full bg-signal-teal cursor-pointer"></label>
+</div>
+</td>
+</tr>
+<tr class="h-[56px] opacity-40">
+<td class="px-6 font-medium text-mute-slate">Mandarin</td>
+<td class="px-6 text-right">
+<div class="inline-block relative w-10 h-5 align-middle select-none">
+<div class="block w-10 h-5 rounded-full bg-whisper-slate"></div>
+<div class="absolute block w-5 h-5 rounded-full bg-white left-0 border-4 border-whisper-slate"></div>
+</div>
+</td>
+</tr>
+<tr class="h-[56px] opacity-40">
+<td class="px-6 font-medium text-mute-slate">Arabic</td>
+<td class="px-6 text-right">
+<div class="inline-block relative w-10 h-5 align-middle select-none">
+<div class="block w-10 h-5 rounded-full bg-whisper-slate"></div>
+<div class="absolute block w-5 h-5 rounded-full bg-white left-0 border-4 border-whisper-slate"></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Voice Tuning -->
+<section>
+<h3 class="text-[18px] font-semibold font-headline tracking-tight mb-6">Voice tuning</h3>
+<div class="grid grid-cols-2 gap-x-12 gap-y-8">
+<div class="space-y-3">
+<div class="flex justify-between items-center">
+<label class="text-[13px] font-semibold">Stability</label>
+<span class="font-mono text-xs text-signal-teal">0.72</span>
+</div>
+<div class="relative w-full h-1 bg-hairline rounded-full">
+<div class="absolute h-full bg-signal-teal rounded-full" style="width: 72%"></div>
+<div class="absolute w-4 h-4 bg-white border border-hairline shadow-sm rounded-full -top-1.5 cursor-pointer" style="left: 72%"></div>
+</div>
+<p class="text-[11px] text-mute-slate leading-tight">Controls consistency. Higher values reduce variation but may sound robotic.</p>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center">
+<label class="text-[13px] font-semibold">Similarity</label>
+<span class="font-mono text-xs text-signal-teal">0.85</span>
+</div>
+<div class="relative w-full h-1 bg-hairline rounded-full">
+<div class="absolute h-full bg-signal-teal rounded-full" style="width: 85%"></div>
+<div class="absolute w-4 h-4 bg-white border border-hairline shadow-sm rounded-full -top-1.5 cursor-pointer" style="left: 85%"></div>
+</div>
+<p class="text-[11px] text-mute-slate leading-tight">Match to original voice sample. High values strictly adhere to the model.</p>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center">
+<label class="text-[13px] font-semibold">Style</label>
+<span class="font-mono text-xs text-signal-teal">0.45</span>
+</div>
+<div class="relative w-full h-1 bg-hairline rounded-full">
+<div class="absolute h-full bg-signal-teal rounded-full" style="width: 45%"></div>
+<div class="absolute w-4 h-4 bg-white border border-hairline shadow-sm rounded-full -top-1.5 cursor-pointer" style="left: 45%"></div>
+</div>
+<p class="text-[11px] text-mute-slate leading-tight">Influences emotional range. Lower values are calmer and more professional.</p>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center">
+<label class="text-[13px] font-semibold">Speed</label>
+<span class="font-mono text-xs text-signal-teal">1.05</span>
+</div>
+<div class="relative w-full h-1 bg-hairline rounded-full">
+<div class="absolute h-full bg-signal-teal rounded-full" style="width: 55%"></div>
+<div class="absolute w-4 h-4 bg-white border border-hairline shadow-sm rounded-full -top-1.5 cursor-pointer" style="left: 55%"></div>
+</div>
+<p class="text-[11px] text-mute-slate leading-tight">Word per minute scalar. 1.0 is the natural speaking cadence.</p>
+</div>
+</div>
+</section>
+</div>
+<!-- RIGHT COLUMN (Sticky) -->
+<div class="col-span-4">
+<div class="sticky top-[80px] bg-paper-white border border-hairline rounded-[10px] p-6 space-y-6">
+<div class="flex items-center justify-between">
+<h3 class="text-base font-semibold font-headline">Preview</h3>
+<div class="bg-hush-mist p-1 rounded-lg flex gap-1">
+<button class="px-3 py-1 text-[11px] font-bold rounded-md bg-paper-white shadow-sm border border-hairline text-operator-slate">EN</button>
+<button class="px-3 py-1 text-[11px] font-bold rounded-md text-mute-slate hover:text-operator-slate">ES</button>
+</div>
+</div>
+<div class="space-y-4">
+<textarea class="w-full h-32 p-4 text-sm font-body border border-hairline rounded-lg focus:ring-2 focus:ring-signal-teal/15 focus:border-signal-teal resize-none bg-hush-mist/30" placeholder="Enter preview text...">Hi, this is Maya from Calderon Cooling. How can I help today?</textarea>
+<button class="w-full h-[36px] bg-signal-teal text-white rounded-lg font-semibold text-sm flex items-center justify-center gap-2 hover:bg-deep-teal transition-all">
+<span class="material-symbols-outlined text-[20px]">play_arrow</span>
+                                Play preview
+                            </button>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between items-center">
+<span class="text-[11px] font-semibold text-mute-slate uppercase tracking-wider">Live Output</span>
+<span class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 bg-live-cyan rounded-full animate-pulse"></span>
+<span class="text-[10px] font-mono text-live-cyan">STREAMING</span>
+</span>
+</div>
+<!-- Visual Waveform -->
+<div class="h-16 bg-midnight-signal rounded-lg overflow-hidden flex items-center justify-center relative">
+<div class="flex items-end gap-[2px] h-8">
+<div class="w-[3px] bg-live-cyan rounded-full" style="height: 40%"></div>
+<div class="w-[3px] bg-live-cyan rounded-full" style="height: 60%"></div>
+<div class="w-[3px] bg-live-cyan rounded-full" style="height: 30%"></div>
+<div class="w-[3px] bg-live-cyan rounded-full" style="height: 80%"></div>
+<div class="w-[3px] bg-live-cyan rounded-full" style="height: 50%"></div>
+<div class="w-[3px] bg-live-cyan rounded-full" style="height: 90%"></div>
+<div class="w-[3px] bg-live-cyan rounded-full" style="height: 40%"></div>
+<div class="w-[3px] bg-live-cyan rounded-full" style="height: 70%"></div>
+<div class="w-[3px] bg-live-cyan rounded-full" style="height: 20%"></div>
+<div class="w-[3px] bg-live-cyan rounded-full" style="height: 60%"></div>
+<div class="w-[3px] bg-live-cyan rounded-full" style="height: 40%"></div>
+<div class="w-[3px] bg-live-cyan rounded-full" style="height: 80%"></div>
+<div class="w-[3px] bg-live-cyan rounded-full" style="height: 30%"></div>
+<div class="w-[3px] bg-live-cyan rounded-full" style="height: 90%"></div>
+<div class="w-[3px] bg-live-cyan rounded-full" style="height: 50%"></div>
+<div class="w-[3px] bg-live-cyan rounded-full" style="height: 70%"></div>
+</div>
+</div>
+<div class="flex justify-between font-mono text-[10px] text-mute-slate px-1">
+<span>0:00</span>
+<span>0:04</span>
+</div>
+</div>
+<div class="pt-4 border-t border-hairline">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-receipt-gold text-[20px]">monetization_on</span>
+<div>
+<p class="text-[11px] font-semibold text-operator-slate">Preview cost</p>
+<p class="text-xs text-mute-slate">Est. <span class="text-receipt-gold font-mono">$0.004</span> / 12 tokens</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Sticky Save Bar -->
+<div class="fixed bottom-0 left-[224px] right-0 h-16 bg-white border-t border-hairline flex items-center justify-between px-8 z-50">
+<div class="text-[12px] text-mute-slate">
+            Unsaved changes — <span class="font-semibold text-operator-slate">3 fields</span> modified
+        </div>
+<div class="flex gap-3">
+<button class="px-4 py-2 text-sm font-semibold text-operator-slate hover:bg-hush-mist rounded-lg transition-colors">Discard</button>
+<button class="px-6 py-2 bg-signal-teal text-white rounded-lg font-semibold text-sm hover:bg-deep-teal transition-all shadow-lg shadow-signal-teal/10">Save changes</button>
+</div>
+</div>
+</body></html>

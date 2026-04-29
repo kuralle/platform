@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        'midnight-signal': '#0B1220',
+                        'operator-slate': '#1F2937',
+                        'mute-slate': '#64748B',
+                        'whisper-slate': '#94A3B8',
+                        'hush-mist': '#F4F6FA',
+                        'paper-white': '#FFFFFF',
+                        'hairline': '#E2E6EF',
+                        'soft-hairline': '#EEF1F6',
+                        'signal-teal': '#0EA5A6',
+                        'deep-teal': '#0F7A7B',
+                        'live-cyan': '#22D3EE',
+                        'booked-green': '#10B981',
+                        'compliance-amber': '#F59E0B',
+                        'risk-crimson': '#DC2626',
+                        'audit-indigo': '#4F46E5'
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.25rem',
+                        'lg': '0.5rem',
+                        'xl': '0.75rem',
+                        'full': '9999px',
+                        'card': '10px',
+                        'btn': '6px',
+                        'pill': '999px'
+                    },
+                    fontFamily: {
+                        'headline': ['Geist', 'sans-serif'],
+                        'display': ['Geist', 'sans-serif'],
+                        'body': ['Inter', 'sans-serif'],
+                        'label': ['Inter', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .small-caps {
+            font-variant: all-small-caps;
+        }
+    </style>
+</head>
+<body class="bg-hush-mist font-body text-operator-slate">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full h-14 z-40 bg-white dark:bg-[#0B1220] border-b border-[#E2E6EF] dark:border-[#2A3142] flex items-center justify-between px-6 w-full">
+<div class="flex items-center gap-4">
+<span class="text-xl font-bold text-[#0B1220] dark:text-white font-headline tracking-tight">Vokari</span>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded-full bg-audit-indigo/10 text-audit-indigo text-[11px] font-semibold small-caps tracking-wider">US-East-1</span>
+<span class="px-2 py-0.5 rounded-full bg-booked-green/10 text-booked-green text-[11px] font-semibold small-caps tracking-wider">Production</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-mute-slate text-sm">search</span>
+<input class="h-9 w-64 pl-9 pr-4 rounded-btn border-hairline bg-hush-mist text-sm focus:ring-1 focus:ring-signal-teal focus:border-signal-teal" placeholder="Search templates..." type="text"/>
+</div>
+<button class="p-2 text-mute-slate hover:bg-[#F4F6FA] rounded-btn transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-hairline overflow-hidden border border-hairline">
+<img alt="Operator Avatar" class="h-full w-full object-cover" data-alt="professional portrait of a system operator in soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuj8JDT9BeqdvcVrn6k7o4CSn6h5r6Qi-kIqFW4auiVRxGCW0MpzJvW2UT-AFRO9aJ3oIclCEq6eVo-dVZ010PUT5ZB7JJMuDi3nxY0VATXOdR_y7Wltn47b0BC_1d8I1I6bS-gFNJRueMlkY21wbBWbY64TxIZBcZ3jjov9_qJlPP-xmNoE_mksi0k_ij8OcAoaWg2sFzgdtJDo7Of4dNnoK78iJFg5Bsc88011o4RMprolt_eqPJZY2MsJ6BKasDWMueN9ZKM1h9"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full w-[224px] z-50 bg-white dark:bg-[#06080F] border-r border-[#E2E6EF] dark:border-[#2A3142] flex flex-col py-6">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-signal-teal flex items-center justify-center text-white">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+</div>
+<div>
+<p class="text-sm font-bold text-midnight-signal dark:text-white leading-tight">Vokari</p>
+<p class="text-[11px] text-mute-slate font-medium">Operator Console</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-3 space-y-1">
+<div class="text-[11px] font-semibold text-mute-slate small-caps tracking-[0.08em] px-3 mb-2">Main Menu</div>
+<a class="flex items-center gap-3 px-3 py-2 rounded-btn transition-all duration-180 bg-[#F4F6FA] dark:bg-[#1A2030] text-[#1F2937] dark:text-white border-l-4 border-[#0EA5A6] font-medium text-sm" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="settings_input_component">settings_input_component</span>
+<span>Configure</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-btn transition-all duration-180 text-[#64748B] dark:text-[#94A3B8] hover:bg-[#F4F6FA] dark:hover:bg-[#1A2030] hover:text-[#1F2937] font-medium text-sm" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="forum">forum</span>
+<span>Operate</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-btn transition-all duration-180 text-[#64748B] dark:text-[#94A3B8] hover:bg-[#F4F6FA] dark:hover:bg-[#1A2030] hover:text-[#1F2937] font-medium text-sm" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="ios_share">ios_share</span>
+<span>Distribute</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-btn transition-all duration-180 text-[#64748B] dark:text-[#94A3B8] hover:bg-[#F4F6FA] dark:hover:bg-[#1A2030] hover:text-[#1F2937] font-medium text-sm" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="grid_view">grid_view</span>
+<span>Workspace</span>
+</a>
+</nav>
+<div class="px-3 mt-auto space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-btn transition-all duration-180 text-[#64748B] dark:text-[#94A3B8] hover:bg-[#F4F6FA] dark:hover:bg-[#1A2030] font-medium text-sm" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="description">description</span>
+<span>Docs</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-btn transition-all duration-180 text-[#64748B] dark:text-[#94A3B8] hover:bg-[#F4F6FA] dark:hover:bg-[#1A2030] font-medium text-sm" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-[224px] pt-14 min-h-screen">
+<div class="max-w-[1280px] mx-auto px-8 py-10">
+<!-- Header Section -->
+<div class="flex justify-between items-start mb-8">
+<div>
+<h1 class="text-[28px] font-headline font-semibold text-midnight-signal leading-tight tracking-tight mb-2">Start from a template</h1>
+<p class="text-sm font-body text-mute-slate max-w-xl">Each template is pre-loaded with prompt, tools, voices, and compliance defaults for your vertical.</p>
+</div>
+<button class="h-9 px-4 bg-paper-white border border-hairline rounded-btn text-operator-slate text-sm font-semibold hover:bg-hush-mist transition-colors">
+                    Start from blank
+                </button>
+</div>
+<!-- Controls: Segmented Control -->
+<div class="mb-10">
+<div class="inline-flex p-1 bg-hush-mist rounded-lg gap-1 border border-hairline/50 shadow-inner">
+<button class="px-4 py-1.5 rounded-btn text-sm font-semibold transition-all bg-paper-white border border-hairline shadow-sm text-operator-slate">
+                        Home Services
+                    </button>
+<button class="px-4 py-1.5 rounded-btn text-sm font-semibold transition-all text-mute-slate hover:text-operator-slate">
+                        Appointment Services
+                    </button>
+<button class="px-4 py-1.5 rounded-btn text-sm font-semibold transition-all text-mute-slate hover:text-operator-slate">
+                        Education
+                    </button>
+</div>
+</div>
+<!-- Template Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+<!-- Card 1 -->
+<article class="h-[280px] bg-paper-white border border-hairline rounded-card p-6 flex flex-col justify-between hover:border-signal-teal/30 transition-all group">
+<div>
+<span class="block text-[11px] font-semibold text-mute-slate small-caps tracking-[0.08em] mb-3">HVAC · COOLING · PLUMBING</span>
+<h3 class="text-lg font-headline font-semibold text-midnight-signal mb-2 group-hover:text-signal-teal transition-colors">HVAC Inbound Receptionist</h3>
+<p class="text-[13px] font-body text-operator-slate leading-relaxed line-clamp-2">Optimized for dispatching emergency calls, booking seasonal maintenance, and verifying customer locations.</p>
+</div>
+<div>
+<div class="flex gap-2 mb-6">
+<span class="px-2 py-1 bg-hush-mist text-[11px] font-medium text-mute-slate border border-hairline rounded-pill">2 voices</span>
+<span class="px-2 py-1 bg-hush-mist text-[11px] font-medium text-mute-slate border border-hairline rounded-pill">EN + ES</span>
+<span class="px-2 py-1 bg-hush-mist text-[11px] font-medium text-mute-slate border border-hairline rounded-pill">6 tools</span>
+</div>
+<div class="flex items-center justify-between mt-auto">
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-pill bg-compliance-amber/10 border border-compliance-amber/20">
+<div class="w-1.5 h-1.5 rounded-full bg-compliance-amber"></div>
+<span class="text-[10px] font-bold text-compliance-amber small-caps tracking-wider">TCPA</span>
+</div>
+<div class="flex gap-3 items-center">
+<a class="text-[13px] font-semibold text-mute-slate hover:text-operator-slate transition-colors" href="#">Preview</a>
+<button class="h-9 px-4 bg-signal-teal text-white rounded-btn text-[13px] font-semibold hover:bg-deep-teal transition-colors">Use template</button>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 2 -->
+<article class="h-[280px] bg-paper-white border border-hairline rounded-card p-6 flex flex-col justify-between hover:border-signal-teal/30 transition-all group">
+<div>
+<span class="block text-[11px] font-semibold text-mute-slate small-caps tracking-[0.08em] mb-3">RESIDENTIAL · PLUMBING</span>
+<h3 class="text-lg font-headline font-semibold text-midnight-signal mb-2 group-hover:text-signal-teal transition-colors">Plumbing Inbound</h3>
+<p class="text-[13px] font-body text-operator-slate leading-relaxed line-clamp-2">Equipped with a custom diagnostic tree for leaks, blockages, and water heater failures.</p>
+</div>
+<div>
+<div class="flex gap-2 mb-6">
+<span class="px-2 py-1 bg-hush-mist text-[11px] font-medium text-mute-slate border border-hairline rounded-pill">1 voice</span>
+<span class="px-2 py-1 bg-hush-mist text-[11px] font-medium text-mute-slate border border-hairline rounded-pill">EN</span>
+<span class="px-2 py-1 bg-hush-mist text-[11px] font-medium text-mute-slate border border-hairline rounded-pill">4 tools</span>
+</div>
+<div class="flex items-center justify-between mt-auto">
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-pill bg-compliance-amber/10 border border-compliance-amber/20">
+<div class="w-1.5 h-1.5 rounded-full bg-compliance-amber"></div>
+<span class="text-[10px] font-bold text-compliance-amber small-caps tracking-wider">TCPA</span>
+</div>
+<div class="flex gap-3 items-center">
+<a class="text-[13px] font-semibold text-mute-slate hover:text-operator-slate transition-colors" href="#">Preview</a>
+<button class="h-9 px-4 bg-signal-teal text-white rounded-btn text-[13px] font-semibold hover:bg-deep-teal transition-colors">Use template</button>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 3 -->
+<article class="h-[280px] bg-paper-white border border-hairline rounded-card p-6 flex flex-col justify-between hover:border-signal-teal/30 transition-all group">
+<div>
+<span class="block text-[11px] font-semibold text-mute-slate small-caps tracking-[0.08em] mb-3">COMMERCIAL · ELECTRICAL</span>
+<h3 class="text-lg font-headline font-semibold text-midnight-signal mb-2 group-hover:text-signal-teal transition-colors">Electrical Inbound</h3>
+<p class="text-[13px] font-body text-operator-slate leading-relaxed line-clamp-2">Handles commercial electrical intake with ServiceTitan and Housecall Pro direct integrations.</p>
+</div>
+<div>
+<div class="flex gap-2 mb-6">
+<span class="px-2 py-1 bg-hush-mist text-[11px] font-medium text-mute-slate border border-hairline rounded-pill">3 voices</span>
+<span class="px-2 py-1 bg-hush-mist text-[11px] font-medium text-mute-slate border border-hairline rounded-pill">EN + ES</span>
+<span class="px-2 py-1 bg-hush-mist text-[11px] font-medium text-mute-slate border border-hairline rounded-pill">8 tools</span>
+</div>
+<div class="flex items-center justify-between mt-auto">
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-pill bg-compliance-amber/10 border border-compliance-amber/20">
+<div class="w-1.5 h-1.5 rounded-full bg-compliance-amber"></div>
+<span class="text-[10px] font-bold text-compliance-amber small-caps tracking-wider">TCPA</span>
+</div>
+<div class="flex gap-3 items-center">
+<a class="text-[13px] font-semibold text-mute-slate hover:text-operator-slate transition-colors" href="#">Preview</a>
+<button class="h-9 px-4 bg-signal-teal text-white rounded-btn text-[13px] font-semibold hover:bg-deep-teal transition-colors">Use template</button>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 4 -->
+<article class="h-[280px] bg-paper-white border border-hairline rounded-card p-6 flex flex-col justify-between hover:border-signal-teal/30 transition-all group">
+<div>
+<span class="block text-[11px] font-semibold text-mute-slate small-caps tracking-[0.08em] mb-3">GENERAL · SMALL BUSINESS</span>
+<h3 class="text-lg font-headline font-semibold text-midnight-signal mb-2 group-hover:text-signal-teal transition-colors">Generic Service Receptionist</h3>
+<p class="text-[13px] font-body text-operator-slate leading-relaxed line-clamp-2">A balanced agent for general appointment booking, FAQ handling, and lead qualification.</p>
+</div>
+<div>
+<div class="flex gap-2 mb-6">
+<span class="px-2 py-1 bg-hush-mist text-[11px] font-medium text-mute-slate border border-hairline rounded-pill">4 voices</span>
+<span class="px-2 py-1 bg-hush-mist text-[11px] font-medium text-mute-slate border border-hairline rounded-pill">EN + DE + FR</span>
+<span class="px-2 py-1 bg-hush-mist text-[11px] font-medium text-mute-slate border border-hairline rounded-pill">3 tools</span>
+</div>
+<div class="flex items-center justify-between mt-auto">
+<!-- No compliance chip as specified -->
+<div class="h-[22px]"></div>
+<div class="flex gap-3 items-center">
+<a class="text-[13px] font-semibold text-mute-slate hover:text-operator-slate transition-colors" href="#">Preview</a>
+<button class="h-9 px-4 bg-signal-teal text-white rounded-btn text-[13px] font-semibold hover:bg-deep-teal transition-colors">Use template</button>
+</div>
+</div>
+</div>
+</article>
+</div>
+<!-- Page Footer / Pagination (Optional based on design system tier 1 logic) -->
+<div class="mt-12 pt-8 border-t border-hairline flex items-center justify-between">
+<p class="text-xs text-mute-slate">Displaying 4 templates in Home Services</p>
+<div class="flex gap-2">
+<button class="w-8 h-8 flex items-center justify-center border border-hairline rounded-btn text-mute-slate hover:bg-paper-white transition-colors">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center border border-hairline rounded-btn text-mute-slate hover:bg-paper-white transition-colors">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</body></html>

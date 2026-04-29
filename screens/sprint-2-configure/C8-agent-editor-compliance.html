@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vokari Agent Editor - Compliance</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            midnight: "#0B1220",
+                            operator: "#1F2937",
+                            mute: "#64748B",
+                            whisper: "#94A3B8",
+                            mist: "#F4F6FA",
+                            white: "#FFFFFF",
+                            hairline: "#E2E6EF",
+                            soft: "#EEF1F6",
+                            teal: "#0EA5A6",
+                            deepTeal: "#0F7A7B",
+                            liveCyan: "#22D3EE",
+                            green: "#10B981",
+                            amber: "#F59E0B",
+                            crimson: "#DC2626",
+                            indigo: "#4F46E5",
+                            gold: "#B89A4A"
+                        }
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        headline: ["Geist", "sans-serif"],
+                        display: ["Geist", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                        label: ["Inter", "sans-serif"],
+                        mono: ["JetBrains Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .compliance-chip {
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+    </style>
+</head>
+<body class="bg-brand-mist font-body text-brand-operator antialiased">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center h-[56px] px-6 w-full sticky top-0 z-50 bg-white dark:bg-[#0B1220] border-b border-brand-hairline">
+<div class="flex items-center gap-4">
+<span class="text-xl font-semibold text-brand-midnight dark:text-white font-headline tracking-tight">Vokari</span>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-brand-indigo/10 text-brand-indigo uppercase">Production</span>
+<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-brand-soft text-brand-mute uppercase">US-EAST-1</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative">
+<span class="material-symbols-outlined text-brand-mute">notifications</span>
+<div class="absolute top-0 right-0 w-2 h-2 bg-brand-crimson rounded-full border-2 border-white"></div>
+</div>
+<span class="material-symbols-outlined text-brand-mute">account_circle</span>
+</div>
+</header>
+<div class="flex">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full flex flex-col pt-[56px] w-56 border-r border-brand-hairline bg-white dark:bg-[#0B1220] z-40">
+<nav class="flex-1 px-3 py-4 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium transition-all duration-180 bg-brand-mist dark:bg-[#1A2030] text-brand-midnight dark:text-white border-l-4 border-brand-teal" href="#">
+<span class="material-symbols-outlined text-brand-teal">settings_input_component</span>
+<span>Configure</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-brand-mute hover:bg-brand-mist hover:text-brand-midnight transition-all" href="#">
+<span class="material-symbols-outlined">play_circle</span>
+<span>Operate</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-brand-mute hover:bg-brand-mist hover:text-brand-midnight transition-all" href="#">
+<span class="material-symbols-outlined">share</span>
+<span>Distribute</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-brand-mute hover:bg-brand-mist hover:text-brand-midnight transition-all" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span>Workspace</span>
+</a>
+</nav>
+<div class="p-3 border-t border-brand-hairline">
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-brand-mute hover:bg-brand-mist transition-all" href="#">
+<span class="material-symbols-outlined">help</span>
+<span>Support</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-brand-mute hover:bg-brand-mist transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 ml-56 min-h-screen pb-24">
+<!-- Breadcrumb and Page Header -->
+<div class="bg-white px-8 pt-6 border-b border-brand-hairline">
+<div class="max-w-[1280px] mx-auto">
+<nav class="flex items-center gap-2 text-xs font-medium text-brand-mute mb-2 uppercase tracking-wider">
+<span>Agents</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-brand-operator">Calderon HVAC Inbound</span>
+</nav>
+<div class="flex justify-between items-end pb-6">
+<div class="flex items-center gap-4">
+<h2 class="text-[28px] font-semibold font-headline tracking-tight text-brand-midnight leading-none">Calderon HVAC Inbound</h2>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-soft text-brand-mute border border-brand-hairline uppercase tracking-widest">DRAFT</span>
+</div>
+<div class="flex gap-3">
+<button class="h-9 px-4 rounded-lg border border-brand-hairline font-medium text-brand-operator text-sm hover:bg-brand-mist transition-colors">Test agent</button>
+<button class="h-9 px-4 rounded-lg bg-brand-teal font-medium text-white text-sm hover:bg-brand-deepTeal transition-colors">Save</button>
+</div>
+</div>
+<!-- Sub-navigation Tabs -->
+<div class="flex gap-8 overflow-x-auto no-scrollbar">
+<a class="pb-3 text-sm font-medium text-brand-mute hover:text-brand-operator transition-colors whitespace-nowrap" href="#">LLM</a>
+<a class="pb-3 text-sm font-medium text-brand-mute hover:text-brand-operator transition-colors whitespace-nowrap" href="#">Voice</a>
+<a class="pb-3 text-sm font-medium text-brand-mute hover:text-brand-operator transition-colors whitespace-nowrap" href="#">Behavior</a>
+<a class="pb-3 text-sm font-medium text-brand-mute hover:text-brand-operator transition-colors whitespace-nowrap" href="#">Knowledge Base</a>
+<a class="pb-3 text-sm font-medium text-brand-mute hover:text-brand-operator transition-colors whitespace-nowrap" href="#">Tools</a>
+<a class="pb-3 text-sm font-medium text-brand-mute hover:text-brand-operator transition-colors whitespace-nowrap" href="#">Personalization</a>
+<a class="pb-3 text-sm font-medium text-brand-operator border-b-2 border-brand-teal whitespace-nowrap" href="#">Compliance</a>
+<a class="pb-3 text-sm font-medium text-brand-mute hover:text-brand-operator transition-colors whitespace-nowrap" href="#">Analysis</a>
+</div>
+</div>
+</div>
+<!-- Content Area Section -->
+<div class="max-w-[880px] mx-auto px-8 py-8 space-y-8">
+<!-- Top Warning Banner -->
+<div class="bg-brand-amber/10 border border-brand-amber/30 p-3 rounded-lg flex items-start gap-3">
+<span class="material-symbols-outlined text-brand-amber text-[20px] mt-0.5">warning</span>
+<div class="text-sm text-brand-operator">
+                        Compliance mode is currently <span class="font-bold">OFF</span>. This agent will not enforce regulated retention, redaction, or disclosure rules. 
+                        <a class="text-brand-teal hover:underline ml-1" href="#">Learn what enforcement does</a>
+</div>
+</div>
+<!-- Hero Compliance Card -->
+<div class="bg-white border border-brand-hairline rounded-[16px] p-8 shadow-sm space-y-8">
+<div class="flex justify-between items-center">
+<h2 class="text-[22px] font-semibold font-headline text-brand-midnight">Compliance mode</h2>
+<div class="bg-brand-mist p-1 rounded-lg flex items-center gap-1 border border-brand-hairline">
+<button class="px-4 py-1.5 text-xs font-semibold rounded-md text-brand-mute">None</button>
+<button class="px-4 py-1.5 text-xs font-semibold rounded-md bg-white shadow-sm border border-brand-hairline text-brand-operator">HIPAA</button>
+<button class="px-4 py-1.5 text-xs font-semibold rounded-md text-brand-mute">FERPA</button>
+<button class="px-4 py-1.5 text-xs font-semibold rounded-md text-brand-mute">TCPA</button>
+</div>
+</div>
+<!-- HIPAA Checklist -->
+<div class="grid grid-cols-2 gap-y-4 gap-x-12 border-t border-brand-soft pt-8">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-brand-green text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-sm font-medium">Zero-Retention LLM</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-brand-green text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-sm font-medium">Audio recording disabled</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-brand-green text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-sm font-medium">Transcript redaction enabled</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-brand-green text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-sm font-medium">Disclosure script auto-injected</span>
+</div>
+<div class="flex items-center gap-3 opacity-40">
+<span class="material-symbols-outlined text-brand-crimson text-[20px]">cancel</span>
+<span class="text-sm font-medium">Identity-verification step required (FERPA only)</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-brand-green text-[20px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-sm font-medium">BAA on file with vendor</span>
+</div>
+</div>
+</div>
+<!-- Retention Section -->
+<div class="space-y-4">
+<h3 class="text-lg font-semibold font-headline text-brand-midnight">Retention</h3>
+<div class="bg-white border border-brand-hairline rounded-xl p-6 space-y-6">
+<div class="flex justify-between items-end">
+<div class="space-y-1">
+<label class="text-xs font-semibold text-brand-operator uppercase tracking-wider">Duration</label>
+<div class="text-2xl font-mono text-brand-teal">30 days</div>
+</div>
+<span class="text-[11px] font-semibold text-brand-mute uppercase tracking-widest">Regulatory Limit: 7 Years</span>
+</div>
+<div class="relative w-full h-1 bg-brand-hairline rounded-full">
+<div class="absolute left-0 top-0 h-1 bg-brand-teal rounded-full" style="width: 8%"></div>
+<div class="absolute left-[8%] top-1/2 -translate-y-1/2 w-4 h-4 bg-white border border-brand-hairline rounded-full shadow-sm cursor-pointer"></div>
+</div>
+<p class="text-xs text-brand-mute leading-relaxed">
+                            Data will be permanently scrubbed from Vokari servers after the specified period. Logs required for compliance audits will be archived in an encrypted, non-voice format.
+                        </p>
+</div>
+</div>
+<!-- Redaction Categories -->
+<div class="space-y-4">
+<h3 class="text-lg font-semibold font-headline text-brand-midnight">Redaction categories</h3>
+<div class="flex flex-wrap gap-2">
+<div class="compliance-chip border border-brand-hairline bg-white">
+<div class="w-2 h-2 rounded-full bg-brand-green"></div>
+<span class="text-brand-operator">Names</span>
+</div>
+<div class="compliance-chip border border-brand-hairline bg-white">
+<div class="w-2 h-2 rounded-full bg-brand-green"></div>
+<span class="text-brand-operator">Addresses</span>
+</div>
+<div class="compliance-chip border border-brand-hairline bg-white">
+<div class="w-2 h-2 rounded-full bg-brand-green"></div>
+<span class="text-brand-operator">Phone numbers</span>
+</div>
+<div class="compliance-chip border border-brand-hairline bg-white">
+<div class="w-2 h-2 rounded-full bg-brand-green"></div>
+<span class="text-brand-operator">Email addresses</span>
+</div>
+<div class="compliance-chip border border-brand-hairline bg-white">
+<div class="w-2 h-2 rounded-full bg-brand-green"></div>
+<span class="text-brand-operator">Card numbers</span>
+</div>
+<div class="compliance-chip border border-brand-hairline bg-white">
+<div class="w-2 h-2 rounded-full bg-brand-green"></div>
+<span class="text-brand-operator">SSN</span>
+</div>
+</div>
+</div>
+<!-- Disclosure Script Section -->
+<div class="space-y-4">
+<h3 class="text-lg font-semibold font-headline text-brand-midnight">Disclosure script</h3>
+<div class="bg-white border border-brand-hairline rounded-xl p-6 space-y-6">
+<div class="bg-brand-soft border border-brand-hairline rounded-lg p-4 font-mono text-[13px] text-brand-operator leading-relaxed">
+                            "This call is being recorded for quality assurance. To ensure HIPAA compliance, sensitive health information will be redacted from our transcripts. By continuing, you agree to these terms."
+                        </div>
+<div class="flex justify-between items-center">
+<a class="text-sm font-medium text-brand-teal hover:underline" href="#">Edit script →</a>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-3">
+<span class="text-xs font-semibold text-brand-mute uppercase tracking-wider">Verbal</span>
+<div class="w-9 h-5 bg-brand-teal rounded-full relative cursor-pointer">
+<div class="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow-sm"></div>
+</div>
+<span class="text-xs font-semibold text-brand-operator uppercase tracking-wider">Written</span>
+</div>
+<div class="h-4 w-px bg-brand-hairline"></div>
+<div class="flex items-center gap-3">
+<span class="text-xs font-semibold text-brand-operator uppercase tracking-wider">Auto-inject on every call</span>
+<div class="w-9 h-5 bg-brand-teal rounded-full relative cursor-pointer">
+<div class="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow-sm"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Identity Verification Section (Dimmed) -->
+<div class="space-y-4 opacity-50">
+<h3 class="text-lg font-semibold font-headline text-brand-midnight">Identity verification</h3>
+<div class="flex items-center gap-2">
+<div class="compliance-chip border border-brand-hairline bg-brand-mist">
+<div class="w-2 h-2 rounded-full bg-brand-whisper"></div>
+<span class="text-brand-mute">Caller name</span>
+</div>
+<span class="material-symbols-outlined text-brand-whisper text-[16px]">arrow_forward</span>
+<div class="compliance-chip border border-brand-hairline bg-brand-mist">
+<div class="w-2 h-2 rounded-full bg-brand-whisper"></div>
+<span class="text-brand-mute">Caller DOB</span>
+</div>
+<span class="material-symbols-outlined text-brand-whisper text-[16px]">arrow_forward</span>
+<div class="compliance-chip border border-brand-hairline bg-brand-mist">
+<div class="w-2 h-2 rounded-full bg-brand-whisper"></div>
+<span class="text-brand-mute">Last 4 of student ID</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Sticky Save Bar -->
+<div class="fixed bottom-0 left-56 right-0 h-16 bg-brand-amber/5 border-t border-brand-amber/20 flex items-center justify-between px-8 z-50 backdrop-blur-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-brand-amber text-[18px]">info</span>
+<span class="text-xs font-medium text-brand-mute">Unsaved changes — 3 fields modified in Compliance settings</span>
+</div>
+<div class="flex gap-3">
+<button class="h-9 px-4 rounded-lg font-medium text-brand-mute text-sm hover:bg-brand-amber/10 transition-colors">Discard changes</button>
+<button class="h-9 px-4 rounded-lg bg-brand-teal font-medium text-white text-sm hover:bg-brand-deepTeal shadow-sm transition-colors">Save changes</button>
+</div>
+</div>
+</body></html>

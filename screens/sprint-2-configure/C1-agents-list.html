@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Agents | Vokari Intelligence</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;550;600&amp;family=Geist:wght@600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        'midnight-signal': '#0B1220',
+                        'operator-slate': '#1F2937',
+                        'mute-slate': '#64748B',
+                        'whisper-slate': '#94A3B8',
+                        'hush-mist': '#F4F6FA',
+                        'paper-white': '#FFFFFF',
+                        'hairline': '#E2E6EF',
+                        'soft-hairline': '#EEF1F6',
+                        'signal-teal': '#0EA5A6',
+                        'deep-teal': '#0F7A7B',
+                        'live-cyan': '#22D3EE',
+                        'booked-green': '#10B981',
+                        'compliance-amber': '#F59E0B',
+                        'risk-crimson': '#DC2626',
+                        'audit-indigo': '#4F46E5',
+                        'receipt-gold': '#B89A4A',
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.25rem',
+                        'lg': '0.5rem',
+                        'xl': '0.75rem',
+                        'full': '9999px',
+                        'card': '10px',
+                        'input': '8px',
+                        'btn': '6px',
+                    },
+                    fontFamily: {
+                        'headline': ['Geist', 'sans-serif'],
+                        'display': ['Geist', 'sans-serif'],
+                        'body': ['Inter', 'sans-serif'],
+                        'label': ['Inter', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace'],
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #F4F6FA; }
+        .font-headline { font-family: 'Geist', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .small-caps { font-variant: small-caps; text-transform: lowercase; }
+    </style>
+</head>
+<body class="text-operator-slate antialiased">
+<!-- TopNavBar Shell -->
+<header class="fixed top-0 w-full z-50 h-[56px] flex items-center justify-between px-6 bg-white dark:bg-[#0B1220] border-b border-[#E2E6EF] dark:border-[#2A3142]">
+<div class="flex items-center gap-4">
+<span class="text-xl font-semibold tracking-tight text-[#0B1220] dark:text-white">Vokari</span>
+<div class="hidden md:flex items-center px-2 py-0.5 rounded bg-audit-indigo/10 text-audit-indigo text-[11px] font-semibold uppercase tracking-wider">Production</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="relative hidden md:block">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center text-mute-slate">
+<span class="material-symbols-outlined text-[18px]">search</span>
+</span>
+<input class="bg-hush-mist border-none rounded-input h-9 w-64 pl-10 text-sm focus:ring-2 focus:ring-signal-teal/15 transition-all" placeholder="Search anything... (Cmd+K)" type="text"/>
+</div>
+<button class="w-9 h-9 flex items-center justify-center text-mute-slate hover:bg-hush-mist rounded-btn transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="w-9 h-9 flex items-center justify-center text-mute-slate hover:bg-hush-mist rounded-btn transition-colors">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="h-8 w-8 rounded-full overflow-hidden border border-hairline ml-2">
+<img alt="User profile avatar" data-alt="Professional user profile headshot with neutral background and soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBtywBMInQaD6WicxdsbZbH1nPP4PSRj3KROyhD8dkEeQB0rocllEQo3zSg8p_3HOFS2kOMsb4RcIc5U6u_9ndWq_M8mOW1BqJ8UDdH6QJIS-uMjnppmlew4ZFyKe_ZZ7LsxCOVOo_K4j0NuuYa0JHi1xLeh8_0yEv5CDe8D7qJC26xnhtaaw0ULPX8j9QbuR9CTsItR8F-4vcemLKfJyr-01ow1wkEyrpeRiqdlD0LqHESAGaa7tIkY1b7v2qHne3XvpDVfTk-oML0"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar Shell -->
+<aside class="fixed left-0 top-[56px] h-[calc(100vh-56px)] w-[224px] bg-white dark:bg-[#0B1220] border-r border-[#E2E6EF] dark:border-[#2A3142] overflow-y-auto flex flex-col py-4 z-40">
+<div class="px-6 mb-6">
+<div class="text-[11px] uppercase font-semibold tracking-widest text-mute-slate mb-4">Configure</div>
+<nav class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-[14px] text-mute-slate hover:bg-hush-mist rounded-md transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">home</span>
+                    Home
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-[14px] bg-[#F4F6FA] dark:bg-[#1F2937] text-operator-slate dark:text-white border-l-4 border-signal-teal font-semibold scale-[0.99] transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">smart_toy</span>
+                    Agents
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-[14px] text-mute-slate hover:bg-hush-mist rounded-md transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">database</span>
+                    Knowledge
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-[14px] text-mute-slate hover:bg-hush-mist rounded-md transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">construction</span>
+                    Tools
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-[14px] text-mute-slate hover:bg-hush-mist rounded-md transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">settings_voice</span>
+                    Voices
+                </a>
+</nav>
+</div>
+<div class="px-6 mb-6">
+<div class="text-[11px] uppercase font-semibold tracking-widest text-mute-slate mb-4">Operate</div>
+<nav class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-[14px] text-mute-slate hover:bg-hush-mist rounded-md transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">chat</span>
+                    Conversations
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-[14px] text-mute-slate hover:bg-hush-mist rounded-md transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">settings_input_component</span>
+                    Live Calls
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-[14px] text-mute-slate hover:bg-hush-mist rounded-md transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">batch_prediction</span>
+                    Batches
+                </a>
+</nav>
+</div>
+<div class="mt-auto px-6 pt-4 border-t border-hairline">
+<nav class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-[14px] text-mute-slate hover:bg-hush-mist rounded-md transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+                    Settings
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-[14px] text-mute-slate hover:bg-hush-mist rounded-md transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">help</span>
+                    Help
+                </a>
+</nav>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-[224px] mt-[56px] min-h-[calc(100vh-56px)] p-8 bg-hush-mist">
+<!-- Header Section -->
+<div class="flex items-end justify-between mb-8">
+<div>
+<h1 class="text-[28px] font-semibold font-headline text-midnight-signal leading-tight -tracking-[1.5%]">Agents</h1>
+<p class="text-[14px] text-mute-slate mt-1">12 agents · 4 active · 8 paused</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="h-9 px-4 bg-paper-white border border-hairline rounded-btn text-[14px] font-[550] text-operator-slate hover:bg-hush-mist transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">upload_file</span>
+                    Import from JSON
+                </button>
+<button class="h-9 px-4 bg-signal-teal text-paper-white rounded-btn text-[14px] font-[550] hover:bg-deep-teal transition-colors flex items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                    + New agent
+                </button>
+</div>
+</div>
+<!-- Toolbar Section -->
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-3">
+<div class="relative">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center text-mute-slate pointer-events-none">
+<span class="material-symbols-outlined text-[18px]">search</span>
+</span>
+<input class="h-9 w-[320px] bg-paper-white border-hairline rounded-input pl-10 text-[14px] focus:ring-signal-teal/15 focus:border-signal-teal transition-all" placeholder="Search agents by name or ID..." type="text"/>
+</div>
+<div class="flex items-center gap-2">
+<button class="h-6 px-3 bg-paper-white border border-hairline rounded-full flex items-center gap-1.5 text-[12px] font-medium text-mute-slate hover:bg-hush-mist transition-colors">
+                        Status <span class="material-symbols-outlined text-[14px]">expand_more</span>
+</button>
+<button class="h-6 px-3 bg-paper-white border border-hairline rounded-full flex items-center gap-1.5 text-[12px] font-medium text-mute-slate hover:bg-hush-mist transition-colors">
+                        Vertical <span class="material-symbols-outlined text-[14px]">expand_more</span>
+</button>
+<button class="h-6 px-3 bg-paper-white border border-hairline rounded-full flex items-center gap-1.5 text-[12px] font-medium text-mute-slate hover:bg-hush-mist transition-colors">
+                        Branch <span class="material-symbols-outlined text-[14px]">expand_more</span>
+</button>
+<button class="h-6 px-3 bg-paper-white border border-hairline rounded-full flex items-center gap-1.5 text-[12px] font-medium text-mute-slate hover:bg-hush-mist transition-colors">
+                        Compliance mode <span class="material-symbols-outlined text-[14px]">expand_more</span>
+</button>
+</div>
+</div>
+<button class="p-2 text-mute-slate hover:bg-white rounded-btn transition-colors">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+</div>
+<!-- Data Table Card -->
+<div class="bg-paper-white rounded-card border border-hairline overflow-hidden shadow-sm">
+<table class="w-full border-collapse">
+<thead>
+<tr class="h-8 bg-hush-mist">
+<th class="w-12 px-4 text-left">
+<input class="rounded-[4px] border-hairline text-signal-teal focus:ring-signal-teal/20 h-4 w-4" type="checkbox"/>
+</th>
+<th class="text-[11px] font-semibold small-caps tracking-[8%] text-mute-slate text-left px-4 uppercase">Name</th>
+<th class="text-[11px] font-semibold small-caps tracking-[8%] text-mute-slate text-left px-4 uppercase">Primary LLM</th>
+<th class="text-[11px] font-semibold small-caps tracking-[8%] text-mute-slate text-left px-4 uppercase">Primary Voice</th>
+<th class="text-[11px] font-semibold small-caps tracking-[8%] text-mute-slate text-left px-4 uppercase">Last Call</th>
+<th class="text-[11px] font-semibold small-caps tracking-[8%] text-mute-slate text-right px-4 uppercase">Calls 7d</th>
+<th class="text-[11px] font-semibold small-caps tracking-[8%] text-mute-slate text-left px-4 uppercase">Status</th>
+<th class="w-12 px-4"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-soft-hairline">
+<!-- Row 1 -->
+<tr class="h-[56px] hover:bg-hush-mist group transition-colors">
+<td class="px-4">
+<input class="rounded-[4px] border-hairline text-signal-teal focus:ring-signal-teal/20 h-4 w-4" type="checkbox"/>
+</td>
+<td class="px-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-hush-mist flex items-center justify-center">
+<span class="material-symbols-outlined text-mute-slate text-[20px]">support_agent</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[14px] font-medium text-operator-slate">HVAC Overnight Dispatcher</span>
+<span class="text-[12px] font-mono text-whisper-slate">AGENT_88219</span>
+</div>
+</div>
+</td>
+<td class="px-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-operator-slate">neurology</span>
+<span class="text-[13px] text-operator-slate">GPT-4o</span>
+<span class="px-1.5 py-0.5 rounded-sm bg-audit-indigo/10 text-audit-indigo text-[10px] font-semibold small-caps tracking-widest">HIPAA-pruned</span>
+</div>
+</td>
+<td class="px-4">
+<div class="flex items-center gap-2 px-2 py-1 bg-paper-white border border-hairline rounded-lg w-fit h-8">
+<span class="material-symbols-outlined text-signal-teal text-[18px]">play_arrow</span>
+<span class="text-[13px] font-medium text-operator-slate">Ava</span>
+<span class="text-[10px] font-semibold px-1 bg-audit-indigo/10 text-audit-indigo rounded">EN</span>
+<div class="w-12 h-4 overflow-hidden relative ml-1">
+<div class="absolute inset-0 bg-gradient-to-r from-transparent via-signal-teal/20 to-transparent flex items-end gap-[1px]">
+<div class="h-2 w-[2px] bg-signal-teal"></div><div class="h-3 w-[2px] bg-signal-teal"></div><div class="h-1 w-[2px] bg-signal-teal"></div><div class="h-4 w-[2px] bg-signal-teal"></div><div class="h-2 w-[2px] bg-signal-teal"></div><div class="h-3 w-[2px] bg-signal-teal"></div><div class="h-1 w-[2px] bg-signal-teal"></div>
+</div>
+</div>
+</div>
+</td>
+<td class="px-4 text-[13px] text-mute-slate">12 mins ago</td>
+<td class="px-4 text-right text-[13px] font-mono text-operator-slate">1,242</td>
+<td class="px-4">
+<div class="flex items-center gap-1.5">
+<div class="w-2 h-2 rounded-full bg-booked-green"></div>
+<span class="text-[12px] font-medium text-operator-slate">Active</span>
+</div>
+</td>
+<td class="px-4">
+<button class="w-8 h-8 flex items-center justify-center text-whisper-slate hover:text-operator-slate hover:bg-soft-hairline rounded-btn transition-all">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 (Zebra) -->
+<tr class="h-[56px] bg-soft-hairline/50 hover:bg-hush-mist group transition-colors">
+<td class="px-4">
+<input class="rounded-[4px] border-hairline text-signal-teal focus:ring-signal-teal/20 h-4 w-4" type="checkbox"/>
+</td>
+<td class="px-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-hush-mist flex items-center justify-center">
+<span class="material-symbols-outlined text-mute-slate text-[20px]">school</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[14px] font-medium text-operator-slate">Admissions Assistant</span>
+<span class="text-[12px] font-mono text-whisper-slate">AGENT_11420</span>
+</div>
+</div>
+</td>
+<td class="px-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-operator-slate">memory</span>
+<span class="text-[13px] text-operator-slate">Claude 3.5 Sonnet</span>
+</div>
+</td>
+<td class="px-4">
+<div class="flex items-center gap-2 px-2 py-1 bg-paper-white border border-hairline rounded-lg w-fit h-8">
+<span class="material-symbols-outlined text-signal-teal text-[18px]">play_arrow</span>
+<span class="text-[13px] font-medium text-operator-slate">Daniel</span>
+<span class="text-[10px] font-semibold px-1 bg-audit-indigo/10 text-audit-indigo rounded">EN</span>
+<div class="w-12 h-4 overflow-hidden relative ml-1 opacity-40">
+<div class="absolute inset-0 flex items-end gap-[1px]">
+<div class="h-1 w-[2px] bg-mute-slate"></div><div class="h-1 w-[2px] bg-mute-slate"></div><div class="h-1 w-[2px] bg-mute-slate"></div><div class="h-1 w-[2px] bg-mute-slate"></div><div class="h-1 w-[2px] bg-mute-slate"></div>
+</div>
+</div>
+</div>
+</td>
+<td class="px-4 text-[13px] text-mute-slate">Yesterday</td>
+<td class="px-4 text-right text-[13px] font-mono text-operator-slate">458</td>
+<td class="px-4">
+<div class="flex items-center gap-1.5">
+<div class="w-2 h-2 rounded-full bg-compliance-amber"></div>
+<span class="text-[12px] font-medium text-operator-slate">Paused</span>
+</div>
+</td>
+<td class="px-4">
+<button class="w-8 h-8 flex items-center justify-center text-whisper-slate hover:text-operator-slate hover:bg-soft-hairline rounded-btn transition-all">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="h-[56px] hover:bg-hush-mist group transition-colors">
+<td class="px-4">
+<input class="rounded-[4px] border-hairline text-signal-teal focus:ring-signal-teal/20 h-4 w-4" type="checkbox"/>
+</td>
+<td class="px-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-hush-mist flex items-center justify-center">
+<span class="material-symbols-outlined text-mute-slate text-[20px]">calendar_today</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[14px] font-medium text-operator-slate">Appointment Concierge</span>
+<span class="text-[12px] font-mono text-whisper-slate">AGENT_77231</span>
+</div>
+</div>
+</td>
+<td class="px-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-operator-slate">neurology</span>
+<span class="text-[13px] text-operator-slate">GPT-4 Turbo</span>
+</div>
+</td>
+<td class="px-4">
+<div class="flex items-center gap-2 px-2 py-1 bg-paper-white border border-hairline rounded-lg w-fit h-8">
+<span class="material-symbols-outlined text-signal-teal text-[18px]">play_arrow</span>
+<span class="text-[13px] font-medium text-operator-slate">Elena</span>
+<span class="text-[10px] font-semibold px-1 bg-audit-indigo/10 text-audit-indigo rounded">ES</span>
+<div class="w-12 h-4 overflow-hidden relative ml-1">
+<div class="absolute inset-0 bg-gradient-to-r from-transparent via-signal-teal/20 to-transparent flex items-end gap-[1px]">
+<div class="h-2 w-[2px] bg-signal-teal"></div><div class="h-3 w-[2px] bg-signal-teal"></div><div class="h-1 w-[2px] bg-signal-teal"></div><div class="h-4 w-[2px] bg-signal-teal"></div><div class="h-2 w-[2px] bg-signal-teal"></div>
+</div>
+</div>
+</div>
+</td>
+<td class="px-4 text-[13px] text-mute-slate">4 hours ago</td>
+<td class="px-4 text-right text-[13px] font-mono text-operator-slate">3,112</td>
+<td class="px-4">
+<div class="flex items-center gap-1.5">
+<div class="w-2 h-2 rounded-full bg-booked-green"></div>
+<span class="text-[12px] font-medium text-operator-slate">Active</span>
+</div>
+</td>
+<td class="px-4">
+<button class="w-8 h-8 flex items-center justify-center text-whisper-slate hover:text-operator-slate hover:bg-soft-hairline rounded-btn transition-all">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 (Draft) -->
+<tr class="h-[56px] bg-soft-hairline/50 hover:bg-hush-mist group transition-colors">
+<td class="px-4">
+<input class="rounded-[4px] border-hairline text-signal-teal focus:ring-signal-teal/20 h-4 w-4" type="checkbox"/>
+</td>
+<td class="px-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-hush-mist flex items-center justify-center">
+<span class="material-symbols-outlined text-mute-slate text-[20px]">edit_note</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[14px] font-medium text-operator-slate">Outbound Campaign v2</span>
+<span class="text-[12px] font-mono text-whisper-slate">AGENT_90012</span>
+</div>
+</div>
+</td>
+<td class="px-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-operator-slate">memory</span>
+<span class="text-[13px] text-operator-slate">Claude 3 Haiku</span>
+</div>
+</td>
+<td class="px-4">
+<div class="flex items-center gap-2 px-2 py-1 bg-paper-white border border-hairline rounded-lg w-fit h-8 opacity-50">
+<span class="material-symbols-outlined text-mute-slate text-[18px]">play_arrow</span>
+<span class="text-[13px] font-medium text-operator-slate">Marcus</span>
+<span class="text-[10px] font-semibold px-1 bg-audit-indigo/10 text-audit-indigo rounded">EN</span>
+</div>
+</td>
+<td class="px-4 text-[13px] text-mute-slate">—</td>
+<td class="px-4 text-right text-[13px] font-mono text-operator-slate">0</td>
+<td class="px-4">
+<div class="flex items-center gap-1.5">
+<div class="w-2 h-2 rounded-full bg-whisper-slate"></div>
+<span class="text-[12px] font-medium text-operator-slate">Draft</span>
+</div>
+</td>
+<td class="px-4">
+<button class="w-8 h-8 flex items-center justify-center text-whisper-slate hover:text-operator-slate hover:bg-soft-hairline rounded-btn transition-all">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 5-8 placeholder for visual density -->
+<tr class="h-[56px] hover:bg-hush-mist group transition-colors">
+<td class="px-4 text-[12px] text-whisper-slate italic text-center" colspan="8">Additional 4 agents hidden in preview...</td>
+</tr>
+</tbody>
+</table>
+<!-- Pagination -->
+<div class="h-12 border-t border-hairline flex items-center justify-between px-6 bg-paper-white">
+<span class="text-[13px] text-mute-slate">Showing 1–8 of 12 agents</span>
+<div class="flex items-center gap-2">
+<button class="w-8 h-8 flex items-center justify-center border border-hairline rounded-btn text-mute-slate hover:bg-hush-mist disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="h-8 px-3 border border-hairline rounded-btn text-[13px] font-medium bg-hush-mist text-operator-slate">1</button>
+<button class="h-8 px-3 border border-hairline rounded-btn text-[13px] font-medium text-mute-slate hover:bg-hush-mist">2</button>
+<button class="w-8 h-8 flex items-center justify-center border border-hairline rounded-btn text-mute-slate hover:bg-hush-mist">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Compliance Gravity Element (I4 Context) -->
+<div class="mt-8 p-6 bg-paper-white rounded-card border border-hairline flex items-start justify-between gap-6 overflow-hidden relative">
+<div class="absolute top-0 right-0 w-32 h-32 bg-audit-indigo/5 rounded-full -mr-16 -mt-16"></div>
+<div class="max-w-[520px]">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-booked-green">verified_user</span>
+<h3 class="text-[18px] font-semibold text-midnight-signal font-headline">Compliance Posture: Excellent</h3>
+</div>
+<p class="text-[14px] text-mute-slate mb-4 leading-relaxed">Your active agents are currently running with **HIPAA Zero-Retention** and **TCPA Disclosure** scripts enabled. No violations detected in the last 30 days.</p>
+<div class="flex gap-2">
+<div class="h-6 px-3 py-1 rounded-full border border-booked-green/20 bg-booked-green/5 text-booked-green text-[10px] font-semibold small-caps tracking-widest flex items-center gap-1.5">
+<div class="w-1.5 h-1.5 rounded-full bg-booked-green"></div> HIPAA COMPLIANT
+                    </div>
+<div class="h-6 px-3 py-1 rounded-full border border-booked-green/20 bg-booked-green/5 text-booked-green text-[10px] font-semibold small-caps tracking-widest flex items-center gap-1.5">
+<div class="w-1.5 h-1.5 rounded-full bg-booked-green"></div> FERPA READY
+                    </div>
+</div>
+</div>
+<button class="px-4 py-2 bg-paper-white border border-hairline rounded-btn text-[13px] font-semibold text-operator-slate hover:bg-hush-mist transition-colors self-center z-10">
+                View detailed audit log
+            </button>
+</div>
+</main>
+</body></html>

@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        'midnight-signal': '#0B1220',
+                        'operator-slate': '#1F2937',
+                        'mute-slate': '#64748B',
+                        'whisper-slate': '#94A3B8',
+                        'hush-mist': '#F4F6FA',
+                        'paper-white': '#FFFFFF',
+                        'hairline': '#E2E6EF',
+                        'soft-hairline': '#EEF1F6',
+                        'signal-teal': '#0EA5A6',
+                        'deep-teal': '#0F7A7B',
+                        'live-cyan': '#22D3EE',
+                        'booked-green': '#10B981',
+                        'compliance-amber': '#F59E0B',
+                        'risk-crimson': '#DC2626',
+                        'audit-indigo': '#4F46E5',
+                        'receipt-gold': '#B89A4A',
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.25rem',
+                        'lg': '0.5rem',
+                        'xl': '0.75rem',
+                        'full': '9999px'
+                    },
+                    fontFamily: {
+                        headline: ["Geist", "sans-serif"],
+                        display: ["Geist", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                        label: ["Inter", "sans-serif"],
+                        mono: ["JetBrains Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-size: 20px;
+        }
+        .small-caps {
+            font-variant: all-small-caps;
+        }
+    </style>
+</head>
+<body class="bg-hush-mist font-body text-operator-slate antialiased">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full h-[56px] border-b bg-white dark:bg-[#0B1220] border-[#E2E6EF] dark:border-[#2A3142] flex justify-between items-center px-6 z-50">
+<div class="flex items-center gap-4">
+<span class="text-lg font-semibold text-[#0B1220] dark:text-white font-headline tracking-tight">Vokari</span>
+<div class="flex items-center gap-2 px-2 py-0.5 bg-audit-indigo/10 rounded-full border border-audit-indigo/20">
+<span class="text-[10px] font-bold text-audit-indigo tracking-wider uppercase">Production</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-hush-mist rounded-lg border border-hairline text-mute-slate">
+<span class="material-symbols-outlined text-[18px]" data-icon="search">search</span>
+<span class="text-sm font-medium">Search commands...</span>
+<span class="text-[10px] font-mono border border-hairline px-1 rounded bg-white ml-2">⌘K</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="text-[#64748B] hover:bg-[#F4F6FA] p-2 rounded-lg transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-[#64748B] hover:bg-[#F4F6FA] p-2 rounded-lg transition-colors">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<button class="flex items-center gap-2 ml-2">
+<img alt="User avatar" class="w-8 h-8 rounded-full border border-hairline" data-alt="Close-up professional portrait of a tech workspace administrator with a neutral expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB27DcRTcEAnuGx_4LwIgkKV3mZ4T3KR4EjvIHTXy50F_BUhYQT81X4246snXJ_mqOr4Tlistl7-jooOauqfGCXK473-9R38-U1OqjoS_nF8DRT6THVwgcLj-AoUElCtQWzJZoq07ohl0Kk00vu7z4pPWLXS2CiAazHdLhyyFrAJVWKv-R3GRJCR_UM9zJaN_o1pzCC_b6bcpa52RJbVZDOrW8dqBfTw1onkoHD485mUpKHKdZvPIn5XEUguT0FHdfgFsaXYBnVT_Qr"/>
+<span class="material-symbols-outlined text-[#64748B]" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full w-56 border-r bg-white dark:bg-[#0B1220] border-[#E2E6EF] dark:border-[#2A3142] flex flex-col py-6 space-y-1 z-40 mt-[56px]">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-signal-teal rounded flex items-center justify-center text-white font-bold">V</div>
+<div>
+<div class="text-[14px] font-bold text-operator-slate">Workspace</div>
+<div class="text-[11px] text-mute-slate">Home Services</div>
+</div>
+</div>
+</div>
+<div class="px-3 mb-2">
+<span class="text-[11px] font-semibold text-mute-slate uppercase tracking-[0.08em] px-3">Operate</span>
+</div>
+<a class="text-[#64748B] px-4 py-2 mx-3 rounded-lg flex items-center gap-3 hover:bg-hush-mist hover:text-operator-slate transition-all group" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-medium text-[14px]">Dashboard</span>
+</a>
+<a class="text-[#64748B] px-4 py-2 mx-3 rounded-lg flex items-center gap-3 hover:bg-hush-mist hover:text-operator-slate transition-all group" href="#">
+<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
+<span class="font-medium text-[14px]">Agents</span>
+</a>
+<a class="text-[#64748B] px-4 py-2 mx-3 rounded-lg flex items-center gap-3 hover:bg-hush-mist hover:text-operator-slate transition-all group" href="#">
+<span class="material-symbols-outlined" data-icon="all_inbox">all_inbox</span>
+<span class="font-medium text-[14px]">Inbox</span>
+</a>
+<div class="px-3 mt-6 mb-2">
+<span class="text-[11px] font-semibold text-mute-slate uppercase tracking-[0.08em] px-3">Distribute</span>
+</div>
+<a class="bg-hush-mist text-operator-slate border-l-4 border-signal-teal px-4 py-2 mx-3 flex items-center gap-3 transition-all" href="#">
+<span class="material-symbols-outlined text-signal-teal" data-icon="call">call</span>
+<span class="font-medium text-[14px]">Phone Numbers</span>
+</a>
+<a class="text-[#64748B] px-4 py-2 mx-3 rounded-lg flex items-center gap-3 hover:bg-hush-mist hover:text-operator-slate transition-all group" href="#">
+<span class="material-symbols-outlined" data-icon="campaign">campaign</span>
+<span class="font-medium text-[14px]">Campaigns</span>
+</a>
+<div class="mt-auto pt-6">
+<a class="text-[#64748B] px-4 py-2 mx-3 rounded-lg flex items-center gap-3 hover:bg-hush-mist transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-medium text-[14px]">Settings</span>
+</a>
+<a class="text-[#64748B] px-4 py-2 mx-3 rounded-lg flex items-center gap-3 hover:bg-hush-mist transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span class="font-medium text-[14px]">Documentation</span>
+</a>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="ml-56 mt-[56px] p-8 max-w-[1280px]">
+<!-- Header -->
+<header class="flex justify-between items-end mb-8">
+<div>
+<h1 class="text-[28px] font-semibold font-headline text-midnight-signal leading-[32px] tracking-[-1.5%] mb-1">Phone numbers</h1>
+<p class="text-[14px] text-mute-slate font-body">8 numbers · 5 attached to agents · 3 idle</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="h-9 px-4 bg-white border border-hairline rounded-lg text-operator-slate text-sm font-medium hover:bg-hush-mist transition-colors">
+                    Import from CSV
+                </button>
+<button class="h-9 px-4 bg-signal-teal text-white rounded-lg text-sm font-medium hover:bg-deep-teal transition-transform active:scale-95 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]" data-icon="add">add</span>
+                    Import number
+                </button>
+</div>
+</header>
+<!-- Toolbar -->
+<div class="flex flex-wrap items-center gap-3 mb-6">
+<div class="relative w-[320px]">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-mute-slate text-[18px]" data-icon="search">search</span>
+<input class="w-full h-9 pl-10 pr-4 bg-white border border-hairline rounded-lg text-sm focus:ring-4 focus:ring-signal-teal/15 focus:border-signal-teal outline-none transition-all placeholder:text-whisper-slate" placeholder="Search numbers or tags..." type="text"/>
+</div>
+<div class="flex items-center gap-2">
+<button class="h-6 px-3 bg-hush-mist border border-hairline rounded-full flex items-center gap-1.5 text-[12px] font-medium text-operator-slate hover:bg-hairline transition-colors">
+                    Status <span class="material-symbols-outlined text-[14px]" data-icon="expand_more">expand_more</span>
+</button>
+<button class="h-6 px-3 bg-hush-mist border border-hairline rounded-full flex items-center gap-1.5 text-[12px] font-medium text-operator-slate hover:bg-hairline transition-colors">
+                    Provider <span class="material-symbols-outlined text-[14px]" data-icon="expand_more">expand_more</span>
+</button>
+<button class="h-6 px-3 bg-hush-mist border border-hairline rounded-full flex items-center gap-1.5 text-[12px] font-medium text-operator-slate hover:bg-hairline transition-colors">
+                    Region <span class="material-symbols-outlined text-[14px]" data-icon="expand_more">expand_more</span>
+</button>
+<button class="h-6 px-3 bg-hush-mist border border-hairline rounded-full flex items-center gap-1.5 text-[12px] font-medium text-operator-slate hover:bg-hairline transition-colors">
+                    Branch <span class="material-symbols-outlined text-[14px]" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+</div>
+<!-- Data Table -->
+<div class="bg-paper-white border border-hairline rounded-[10px] overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="h-8 bg-hush-mist border-b border-hairline">
+<th class="px-4 text-[11px] font-semibold text-mute-slate uppercase tracking-[0.08em] small-caps">Number</th>
+<th class="px-4 text-[11px] font-semibold text-mute-slate uppercase tracking-[0.08em] small-caps">Provider</th>
+<th class="px-4 text-[11px] font-semibold text-mute-slate uppercase tracking-[0.08em] small-caps">Region</th>
+<th class="px-4 text-[11px] font-semibold text-mute-slate uppercase tracking-[0.08em] small-caps">Attached Agent</th>
+<th class="px-4 text-[11px] font-semibold text-mute-slate uppercase tracking-[0.08em] small-caps">Recording</th>
+<th class="px-4 text-[11px] font-semibold text-mute-slate uppercase tracking-[0.08em] small-caps">Last Call</th>
+<th class="px-4 text-[11px] font-semibold text-mute-slate uppercase tracking-[0.08em] small-caps w-16 text-center">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-soft-hairline">
+<!-- Row 1 -->
+<tr class="h-[56px] hover:bg-hush-mist transition-colors group">
+<td class="px-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-mute-slate" data-icon="flag">flag</span>
+<span class="font-mono text-[14px] text-operator-slate">+1 (480) 555-0173</span>
+</div>
+</td>
+<td class="px-4">
+<div class="inline-flex items-center gap-1.5 px-2 py-1 bg-booked-green/10 border border-booked-green/20 rounded-full">
+<span class="w-1.5 h-1.5 rounded-full bg-booked-green"></span>
+<span class="text-[11px] font-semibold text-booked-green small-caps">Twilio</span>
+</div>
+</td>
+<td class="px-4 text-[13px] text-operator-slate font-medium">US-Phoenix</td>
+<td class="px-4">
+<div class="flex items-center gap-3">
+<div class="w-7 h-7 bg-hush-mist border border-hairline rounded-md flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Stylized 3D character headshot of a female virtual assistant with short hair and glasses" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5jDTMiQjBhSjOZzRmZLCNn8sy75zhPd5gqkbgbDsDeSrMd82fbldP9tAsTiNP1xk308KBRNeXPQDcm2Tth-yHcc1R5_nMp8kkz0jkOHhzFma2VKGdL7OyVVnhElyvgfiNzzBKku0rV_fi7m7m3JWoEGwSUzoapVKrUGuCCOw-4gpdysCro22FBApHJSGKLWKjn9FOpR0ljtZ0EiGvGMTxqx58NH7NcE0a6fogyBhO9hW8qCAlD-1Jnh7vMfYP1fjs3ZWchOBx0lhY"/>
+</div>
+<div>
+<div class="text-[13px] font-semibold text-operator-slate leading-none mb-1">Support Lexi</div>
+<div class="flex items-center gap-1.5">
+<div class="bg-audit-indigo/10 px-1.5 py-0.5 rounded text-[10px] text-audit-indigo font-bold tracking-wider uppercase">EN-US</div>
+<div class="h-2 w-12 bg-hairline rounded-full relative overflow-hidden">
+<div class="absolute inset-y-0 left-0 bg-signal-teal w-2/3"></div>
+</div>
+</div>
+</div>
+</div>
+</td>
+<td class="px-4">
+<button class="relative w-[36px] h-[20px] bg-signal-teal rounded-full transition-colors flex items-center px-1">
+<div class="w-3.5 h-3.5 bg-white rounded-full shadow-sm translate-x-[14px]"></div>
+</button>
+</td>
+<td class="px-4 text-[13px] text-mute-slate">2m ago</td>
+<td class="px-4">
+<div class="flex justify-center">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-hairline transition-colors">
+<span class="material-symbols-outlined text-mute-slate" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="h-[56px] bg-soft-hairline hover:bg-hush-mist transition-colors group">
+<td class="px-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-mute-slate" data-icon="flag">flag</span>
+<span class="font-mono text-[14px] text-operator-slate">+1 (602) 555-8812</span>
+</div>
+</td>
+<td class="px-4">
+<div class="inline-flex items-center gap-1.5 px-2 py-1 bg-compliance-amber/10 border border-compliance-amber/20 rounded-full">
+<span class="w-1.5 h-1.5 rounded-full bg-compliance-amber"></span>
+<span class="text-[11px] font-semibold text-compliance-amber small-caps">BYO-Twilio</span>
+</div>
+</td>
+<td class="px-4 text-[13px] text-operator-slate font-medium">US-Tempe</td>
+<td class="px-4">
+<span class="text-[13px] text-whisper-slate">Not attached</span>
+</td>
+<td class="px-4">
+<button class="relative w-[36px] h-[20px] bg-whisper-slate rounded-full transition-colors flex items-center px-1">
+<div class="w-3.5 h-3.5 bg-white rounded-full shadow-sm"></div>
+</button>
+</td>
+<td class="px-4 text-[13px] text-mute-slate">1h ago</td>
+<td class="px-4">
+<div class="flex justify-center">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-hairline transition-colors">
+<span class="material-symbols-outlined text-mute-slate" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="h-[56px] hover:bg-hush-mist transition-colors group">
+<td class="px-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-mute-slate" data-icon="flag">flag</span>
+<span class="font-mono text-[14px] text-operator-slate">+1 (520) 555-9011</span>
+</div>
+</td>
+<td class="px-4">
+<div class="inline-flex items-center gap-1.5 px-2 py-1 bg-audit-indigo/10 border border-audit-indigo/20 rounded-full">
+<span class="w-1.5 h-1.5 rounded-full bg-audit-indigo"></span>
+<span class="text-[11px] font-semibold text-audit-indigo small-caps">SIP</span>
+</div>
+</td>
+<td class="px-4 text-[13px] text-operator-slate font-medium">US-Tucson</td>
+<td class="px-4">
+<div class="flex items-center gap-3">
+<div class="w-7 h-7 bg-hush-mist border border-hairline rounded-md flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Vibrant 3D render of a male help desk avatar with a friendly demeanor and orange tech attire" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAd1K5-rQJNV9lFdw5DUj0FL6v7XNpQUhqTq9vgBy90EOejVGhlAOlgN1ewd2sIP5_GkMrTHwXNrS_3E83BY0G8jpbKZHOGXvqlPGfCJh56z9ViDKmeKwIpB10QwMJKiqO5nmTQ36K95HYWN_B6FKm8106Miea7vpxgJbn7HMi5YOiOqXWRpoPZaOkl-W7eQHFJp2QcJqrD57hTJJJRoGORznnUZM3C8woNSBJQT7JHRu-m_XpX_h9BlMYf1H1JA2Ssa0gZVpGJh7E4"/>
+</div>
+<div>
+<div class="text-[13px] font-semibold text-operator-slate leading-none mb-1">Billing Max</div>
+<div class="flex items-center gap-1.5">
+<div class="bg-audit-indigo/10 px-1.5 py-0.5 rounded text-[10px] text-audit-indigo font-bold tracking-wider uppercase">ES-MX</div>
+<div class="h-2 w-12 bg-hairline rounded-full relative overflow-hidden">
+<div class="absolute inset-y-0 left-0 bg-signal-teal w-1/3"></div>
+</div>
+</div>
+</div>
+</div>
+</td>
+<td class="px-4">
+<button class="relative w-[36px] h-[20px] bg-signal-teal rounded-full transition-colors flex items-center px-1">
+<div class="w-3.5 h-3.5 bg-white rounded-full shadow-sm translate-x-[14px]"></div>
+</button>
+</td>
+<td class="px-4 text-[13px] text-mute-slate">14m ago</td>
+<td class="px-4">
+<div class="flex justify-center">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-hairline transition-colors">
+<span class="material-symbols-outlined text-mute-slate" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="h-[56px] bg-soft-hairline hover:bg-hush-mist transition-colors group">
+<td class="px-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-mute-slate" data-icon="flag">flag</span>
+<span class="font-mono text-[14px] text-operator-slate">+1 (480) 555-4421</span>
+</div>
+</td>
+<td class="px-4">
+<div class="inline-flex items-center gap-1.5 px-2 py-1 bg-booked-green/10 border border-booked-green/20 rounded-full">
+<span class="w-1.5 h-1.5 rounded-full bg-booked-green"></span>
+<span class="text-[11px] font-semibold text-booked-green small-caps">Twilio</span>
+</div>
+</td>
+<td class="px-4 text-[13px] text-operator-slate font-medium">US-Scottsdale</td>
+<td class="px-4">
+<div class="flex items-center gap-3">
+<div class="w-7 h-7 bg-hush-mist border border-hairline rounded-md flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close-up 3D avatar of a professional AI voice agent with a sleek minimalist headset" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqXaZd6qrdhZ407ilZn04uUgLIba4a1OrgaVi6SPM0nNxKHjrLjLyTmJhfNr_6SHbCJjAnY_OdKVSH49AfoHdwoiIIkU2NT-Yu5Q1le-VJTGfTZ6zMRlDKCNAGB3X_M_epLk2mTT6k79Z2jH7SoqVmstnrRbO6CUz7D615kuZRTvcd84TNUDE7aUP4t_OAxoB2Jg0sZIZdN-HMkCM1cCoDSdBG3d0UyoY_fy5DqrjmuVAlSJnMJszUu1Kpu7ZCChSk7YojMJTAQ02a"/>
+</div>
+<div>
+<div class="text-[13px] font-semibold text-operator-slate leading-none mb-1">Scheduling Ava</div>
+<div class="flex items-center gap-1.5">
+<div class="bg-audit-indigo/10 px-1.5 py-0.5 rounded text-[10px] text-audit-indigo font-bold tracking-wider uppercase">EN-US</div>
+<div class="h-2 w-12 bg-hairline rounded-full relative overflow-hidden">
+<div class="absolute inset-y-0 left-0 bg-signal-teal w-5/6"></div>
+</div>
+</div>
+</div>
+</div>
+</td>
+<td class="px-4">
+<button class="relative w-[36px] h-[20px] bg-signal-teal rounded-full transition-colors flex items-center px-1">
+<div class="w-3.5 h-3.5 bg-white rounded-full shadow-sm translate-x-[14px]"></div>
+</button>
+</td>
+<td class="px-4 text-[13px] text-mute-slate">Just now</td>
+<td class="px-4">
+<div class="flex justify-center">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-hairline transition-colors">
+<span class="material-symbols-outlined text-mute-slate" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="h-[56px] hover:bg-hush-mist transition-colors group">
+<td class="px-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-mute-slate" data-icon="flag">flag</span>
+<span class="font-mono text-[14px] text-operator-slate">+1 (480) 555-3200</span>
+</div>
+</td>
+<td class="px-4">
+<div class="inline-flex items-center gap-1.5 px-2 py-1 bg-booked-green/10 border border-booked-green/20 rounded-full">
+<span class="w-1.5 h-1.5 rounded-full bg-booked-green"></span>
+<span class="text-[11px] font-semibold text-booked-green small-caps">Twilio</span>
+</div>
+</td>
+<td class="px-4 text-[13px] text-operator-slate font-medium">US-Gilbert</td>
+<td class="px-4">
+<span class="text-[13px] text-whisper-slate">Not attached</span>
+</td>
+<td class="px-4">
+<button class="relative w-[36px] h-[20px] bg-whisper-slate rounded-full transition-colors flex items-center px-1">
+<div class="w-3.5 h-3.5 bg-white rounded-full shadow-sm"></div>
+</button>
+</td>
+<td class="px-4 text-[13px] text-mute-slate">4d ago</td>
+<td class="px-4">
+<div class="flex justify-center">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-hairline transition-colors">
+<span class="material-symbols-outlined text-mute-slate" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 6 -->
+<tr class="h-[56px] bg-soft-hairline hover:bg-hush-mist transition-colors group">
+<td class="px-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-mute-slate" data-icon="flag">flag</span>
+<span class="font-mono text-[14px] text-operator-slate">+1 (623) 555-7701</span>
+</div>
+</td>
+<td class="px-4">
+<div class="inline-flex items-center gap-1.5 px-2 py-1 bg-booked-green/10 border border-booked-green/20 rounded-full">
+<span class="w-1.5 h-1.5 rounded-full bg-booked-green"></span>
+<span class="text-[11px] font-semibold text-booked-green small-caps">Twilio</span>
+</div>
+</td>
+<td class="px-4 text-[13px] text-operator-slate font-medium">US-Peoria</td>
+<td class="px-4">
+<div class="flex items-center gap-3">
+<div class="w-7 h-7 bg-hush-mist border border-hairline rounded-md flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Sophisticated 3D headshot of an executive AI persona in corporate attire for high-level business interactions" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-EZ_c5MIF5xQtOlMIVRzHgv6FECT9AxkH7W8xItlidauD9zsUzy-zp6uaXCIBZaicYgUwzlSvi2M0iVOcaIVWX2vtb4hFtcwTmZzcIBfFtOSgvTahFN-2Ke5sjkP1viWS8OlFPMw_wswHpzm4KNPFB-MtTZoRNjNqTBb81E-F_qjvPnUuV_IOsphn8VrqD9oCZDGnHc42YhCGwQ2NQHxtEQpwKGAuUOOVMPerr3VI7YuyPzEiwLWsU-_qHuN2Z0s2WCQZWvNTn5j0"/>
+</div>
+<div>
+<div class="text-[13px] font-semibold text-operator-slate leading-none mb-1">Sales Sam</div>
+<div class="flex items-center gap-1.5">
+<div class="bg-audit-indigo/10 px-1.5 py-0.5 rounded text-[10px] text-audit-indigo font-bold tracking-wider uppercase">EN-GB</div>
+<div class="h-2 w-12 bg-hairline rounded-full relative overflow-hidden">
+<div class="absolute inset-y-0 left-0 bg-signal-teal w-1/2"></div>
+</div>
+</div>
+</div>
+</div>
+</td>
+<td class="px-4">
+<button class="relative w-[36px] h-[20px] bg-signal-teal rounded-full transition-colors flex items-center px-1">
+<div class="w-3.5 h-3.5 bg-white rounded-full shadow-sm translate-x-[14px]"></div>
+</button>
+</td>
+<td class="px-4 text-[13px] text-mute-slate">48m ago</td>
+<td class="px-4">
+<div class="flex justify-center">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-hairline transition-colors">
+<span class="material-symbols-outlined text-mute-slate" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 7 -->
+<tr class="h-[56px] hover:bg-hush-mist transition-colors group">
+<td class="px-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-mute-slate" data-icon="flag">flag</span>
+<span class="font-mono text-[14px] text-operator-slate">+1 (480) 555-1199</span>
+</div>
+</td>
+<td class="px-4">
+<div class="inline-flex items-center gap-1.5 px-2 py-1 bg-audit-indigo/10 border border-audit-indigo/20 rounded-full">
+<span class="w-1.5 h-1.5 rounded-full bg-audit-indigo"></span>
+<span class="text-[11px] font-semibold text-audit-indigo small-caps">SIP</span>
+</div>
+</td>
+<td class="px-4 text-[13px] text-operator-slate font-medium">US-Chandler</td>
+<td class="px-4">
+<span class="text-[13px] text-whisper-slate">Not attached</span>
+</td>
+<td class="px-4">
+<button class="relative w-[36px] h-[20px] bg-whisper-slate rounded-full transition-colors flex items-center px-1">
+<div class="w-3.5 h-3.5 bg-white rounded-full shadow-sm"></div>
+</button>
+</td>
+<td class="px-4 text-[13px] text-mute-slate">Never</td>
+<td class="px-4">
+<div class="flex justify-center">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-hairline transition-colors">
+<span class="material-symbols-outlined text-mute-slate" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 8 -->
+<tr class="h-[56px] bg-soft-hairline hover:bg-hush-mist transition-colors group">
+<td class="px-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-mute-slate" data-icon="flag">flag</span>
+<span class="font-mono text-[14px] text-operator-slate">+1 (623) 555-0909</span>
+</div>
+</td>
+<td class="px-4">
+<div class="inline-flex items-center gap-1.5 px-2 py-1 bg-booked-green/10 border border-booked-green/20 rounded-full">
+<span class="w-1.5 h-1.5 rounded-full bg-booked-green"></span>
+<span class="text-[11px] font-semibold text-booked-green small-caps">Twilio</span>
+</div>
+</td>
+<td class="px-4 text-[13px] text-operator-slate font-medium">US-Glendale</td>
+<td class="px-4">
+<div class="flex items-center gap-3">
+<div class="w-7 h-7 bg-hush-mist border border-hairline rounded-md flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Warm and approachable 3D male avatar design for home services customer support interactions" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWH5Sl56mrMyup50UAYFP3rNV1Me3MmD7PTsyoHjlW4CTM9i2vbpCzXNyuTfwKN8vRXPpcjTSuwN_Rz_S4T7MJh3JW3_2pwrIaJkvTpwQ1doG2HsCFo9RyQzSpwTSPXzZ3TN9HgS68BZ9PLs8xvXJ24ojAjyOXzGkSfu8aW20KRdFfyP6RkxFywohTKPTjF3huh3df6qwbT5W67im4505gf06MloG1X3jD8B8z3UPICx7GHW4NY9MLhr91I1GhmjaPWQ2ywGzD8x2r"/>
+</div>
+<div>
+<div class="text-[13px] font-semibold text-operator-slate leading-none mb-1">Dispatch Dan</div>
+<div class="flex items-center gap-1.5">
+<div class="bg-audit-indigo/10 px-1.5 py-0.5 rounded text-[10px] text-audit-indigo font-bold tracking-wider uppercase">EN-US</div>
+<div class="h-2 w-12 bg-hairline rounded-full relative overflow-hidden">
+<div class="absolute inset-y-0 left-0 bg-signal-teal w-1/4"></div>
+</div>
+</div>
+</div>
+</div>
+</td>
+<td class="px-4">
+<button class="relative w-[36px] h-[20px] bg-signal-teal rounded-full transition-colors flex items-center px-1">
+<div class="w-3.5 h-3.5 bg-white rounded-full shadow-sm translate-x-[14px]"></div>
+</button>
+</td>
+<td class="px-4 text-[13px] text-mute-slate">5m ago</td>
+<td class="px-4">
+<div class="flex justify-center">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-hairline transition-colors">
+<span class="material-symbols-outlined text-mute-slate" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<!-- Footer -->
+<div class="px-4 h-10 border-t border-hairline flex items-center justify-between bg-white">
+<span class="text-[12px] text-mute-slate font-medium">Showing 1–8 of 8</span>
+<div class="flex items-center gap-2">
+<button class="w-6 h-6 rounded flex items-center justify-center text-whisper-slate hover:bg-hush-mist disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-6 h-6 rounded flex items-center justify-center text-operator-slate hover:bg-hush-mist">
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</body></html>

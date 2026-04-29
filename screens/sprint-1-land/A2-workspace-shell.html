@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vokari - Operator-grade Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;550;600&amp;family=Geist:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            signal: "#0EA5A6",
+                            deep: "#0F7A7B",
+                            live: "#22D3EE",
+                        },
+                        foundation: {
+                            midnight: "#0B1220",
+                            operator: "#1F2937",
+                            mute: "#64748B",
+                            whisper: "#94A3B8",
+                            hush: "#F4F6FA",
+                            paper: "#FFFFFF",
+                            hairline: "#E2E6EF",
+                            soft: "#EEF1F6",
+                        },
+                        semantic: {
+                            booked: "#10B981",
+                            compliance: "#F59E0B",
+                            risk: "#DC2626",
+                            audit: "#4F46E5",
+                        },
+                        receipt: {
+                            gold: "#B89A4A",
+                            goldTint: "#F5EFD9",
+                        }
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        headline: ["Geist", "sans-serif"],
+                        display: ["Geist", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                        label: ["Inter", "sans-serif"],
+                        mono: ["JetBrains Mono", "monospace"],
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-size: 20px;
+        }
+        .small-caps {
+            font-variant: small-caps;
+        }
+    </style>
+</head>
+<body class="bg-foundation-hush font-body text-foundation-operator antialiased">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full h-[56px] z-50 bg-foundation-paper border-b border-foundation-hairline flex justify-between items-center px-8">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<div class="flex items-center text-brand-signal">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">graphic_eq</span>
+</div>
+<span class="text-xl font-semibold tracking-tighter text-foundation-midnight font-headline">Vokari</span>
+</div>
+<div class="flex items-center gap-2">
+<!-- Environment Chip -->
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-semantic-audit/10 text-semantic-audit text-[11px] font-semibold tracking-wider small-caps">
+<div class="w-1.5 h-1.5 rounded-full bg-semantic-audit"></div>
+                    Production
+                </div>
+<!-- Region Chip -->
+<div class="px-2.5 py-1 rounded-full bg-foundation-hush border border-foundation-hairline text-foundation-mute text-[11px] font-semibold tracking-wider small-caps">
+                    US-East
+                </div>
+</div>
+</div>
+<div class="flex-1 max-w-[480px] px-8">
+<div class="relative group">
+<div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-foundation-whisper">
+<span class="material-symbols-outlined">search</span>
+</div>
+<div class="w-full h-9 bg-foundation-hush border border-foundation-hairline rounded-lg pl-10 pr-4 flex items-center justify-between text-foundation-mute text-sm transition-all group-hover:border-foundation-whisper cursor-pointer">
+<span>Search agents, conversations, customers</span>
+<div class="flex items-center gap-1 px-1.5 py-0.5 border border-foundation-hairline rounded bg-foundation-paper text-[10px] font-mono text-foundation-whisper">
+                        ⌘K
+                    </div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="relative w-8 h-8 flex items-center justify-center rounded-lg text-foundation-mute hover:bg-foundation-hush transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-semantic-risk rounded-full border-2 border-foundation-paper"></span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg text-foundation-mute hover:bg-foundation-hush transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="h-6 w-px bg-foundation-hairline mx-1"></div>
+<button class="flex items-center gap-2 p-1 pl-1 pr-2 rounded-lg hover:bg-foundation-hush transition-colors border border-transparent active:scale-[0.98]">
+<div class="w-7 h-7 rounded-full overflow-hidden bg-foundation-hairline">
+<img alt="User avatar" class="w-full h-full object-cover" data-alt="Portrait of a professional man in a business casual environment with soft natural lighting and a neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAk1_JD8JsZgHcL6YKs4X-p_aY9h1fdzksaDYsiAosVtB1BntZlmg1JJIWBHik2TfMQHHb8Ggi6_aP6qFgM05796Ok3ffhl5oRKTutK9egfd_4g5OP6awrVmpmXIZKwUcWx2igVCvMS1mg-OD5-AnktJR94HKOgW4AHHl4JmpCfjaLAgsCzZ0jXlvpgFt26av2EflmDlSY7R-PMQaCPgnjxWVPbQMTCef8ZfIfQiD-tn7n44FfhMn1jTxp3BzbyCbBTCtee-K5KhhtJ"/>
+</div>
+<span class="material-symbols-outlined text-foundation-whisper">expand_more</span>
+</button>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full w-[224px] pt-[56px] z-40 bg-foundation-paper border-r border-foundation-hairline overflow-y-auto">
+<div class="flex flex-col h-full py-6 gap-6">
+<!-- Section: Configure -->
+<section>
+<div class="px-6 mb-2">
+<span class="text-[11px] font-semibold text-foundation-mute uppercase tracking-[0.08em] small-caps">Configure</span>
+</div>
+<div class="flex flex-col">
+<a class="flex items-center gap-3 h-9 px-6 text-foundation-whisper hover:text-foundation-operator hover:bg-foundation-hush transition-all group" href="#">
+<span class="material-symbols-outlined">smart_toy</span>
+<span class="text-[14px] font-[450] text-foundation-mute group-hover:text-foundation-operator">Agents</span>
+</a>
+<a class="flex items-center gap-3 h-9 px-6 text-foundation-whisper hover:text-foundation-operator hover:bg-foundation-hush transition-all group" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="text-[14px] font-[450] text-foundation-mute group-hover:text-foundation-operator">Knowledge</span>
+</a>
+<a class="flex items-center gap-3 h-9 px-6 text-foundation-whisper hover:text-foundation-operator hover:bg-foundation-hush transition-all group" href="#">
+<span class="material-symbols-outlined">build</span>
+<span class="text-[14px] font-[450] text-foundation-mute group-hover:text-foundation-operator">Tools</span>
+</a>
+<a class="flex items-center gap-3 h-9 px-6 text-foundation-whisper hover:text-foundation-operator hover:bg-foundation-hush transition-all group" href="#">
+<span class="material-symbols-outlined">record_voice_over</span>
+<span class="text-[14px] font-[450] text-foundation-mute group-hover:text-foundation-operator">Voices</span>
+</a>
+</div>
+</section>
+<!-- Section: Operate -->
+<section>
+<div class="px-6 mb-2">
+<span class="text-[11px] font-semibold text-foundation-mute uppercase tracking-[0.08em] small-caps">Operate</span>
+</div>
+<div class="flex flex-col">
+<!-- Active State for Home -->
+<a class="flex items-center gap-3 h-9 px-6 bg-foundation-hush text-foundation-operator relative group" href="#">
+<div class="absolute left-0 top-0 bottom-0 w-[3px] bg-brand-signal"></div>
+<span class="material-symbols-outlined text-brand-signal" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="text-[14px] font-[550]">Home</span>
+</a>
+<a class="flex items-center gap-3 h-9 px-6 text-foundation-whisper hover:text-foundation-operator hover:bg-foundation-hush transition-all group" href="#">
+<span class="material-symbols-outlined">forum</span>
+<span class="text-[14px] font-[450] text-foundation-mute group-hover:text-foundation-operator">Conversations</span>
+</a>
+<a class="flex items-center gap-3 h-9 px-6 text-foundation-whisper hover:text-foundation-operator hover:bg-foundation-hush transition-all group" href="#">
+<span class="material-symbols-outlined">sensors</span>
+<span class="text-[14px] font-[450] text-foundation-mute group-hover:text-foundation-operator">Live Calls</span>
+</a>
+<a class="flex items-center gap-3 h-9 px-6 text-foundation-whisper hover:text-foundation-operator hover:bg-foundation-hush transition-all group" href="#">
+<span class="material-symbols-outlined">layers</span>
+<span class="text-[14px] font-[450] text-foundation-mute group-hover:text-foundation-operator">Batches</span>
+</a>
+<a class="flex items-center gap-3 h-9 px-6 text-foundation-whisper hover:text-foundation-operator hover:bg-foundation-hush transition-all group" href="#">
+<span class="material-symbols-outlined">search_insights</span>
+<span class="text-[14px] font-[450] text-foundation-mute group-hover:text-foundation-operator">Search</span>
+</a>
+</div>
+</section>
+<!-- Section: Distribute -->
+<section>
+<div class="px-6 mb-2">
+<span class="text-[11px] font-semibold text-foundation-mute uppercase tracking-[0.08em] small-caps">Distribute</span>
+</div>
+<div class="flex flex-col">
+<a class="flex items-center gap-3 h-9 px-6 text-foundation-whisper hover:text-foundation-operator hover:bg-foundation-hush transition-all group" href="#">
+<span class="material-symbols-outlined">call</span>
+<span class="text-[14px] font-[450] text-foundation-mute group-hover:text-foundation-operator">Phone Numbers</span>
+</a>
+<a class="flex items-center gap-3 h-9 px-6 text-foundation-whisper hover:text-foundation-operator hover:bg-foundation-hush transition-all group" href="#">
+<span class="material-symbols-outlined">widgets</span>
+<span class="text-[14px] font-[450] text-foundation-mute group-hover:text-foundation-operator">Widget</span>
+</a>
+<a class="flex items-center gap-3 h-9 px-6 text-foundation-whisper hover:text-foundation-operator hover:bg-foundation-hush transition-all group" href="#">
+<span class="material-symbols-outlined">extension</span>
+<span class="text-[14px] font-[450] text-foundation-mute group-hover:text-foundation-operator">Integrations</span>
+</a>
+</div>
+</section>
+<!-- Section: Workspace -->
+<section class="mb-8">
+<div class="px-6 mb-2">
+<span class="text-[11px] font-semibold text-foundation-mute uppercase tracking-[0.08em] small-caps">Workspace</span>
+</div>
+<div class="flex flex-col">
+<a class="flex items-center gap-3 h-9 px-6 text-foundation-whisper hover:text-foundation-operator hover:bg-foundation-hush transition-all group" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[14px] font-[450] text-foundation-mute group-hover:text-foundation-operator">Settings</span>
+</a>
+<a class="flex items-center gap-3 h-9 px-6 text-foundation-whisper hover:text-foundation-operator hover:bg-foundation-hush transition-all group" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="text-[14px] font-[450] text-foundation-mute group-hover:text-foundation-operator">Members</span>
+</a>
+<a class="flex items-center gap-3 h-9 px-6 text-foundation-whisper hover:text-foundation-operator hover:bg-foundation-hush transition-all group" href="#">
+<span class="material-symbols-outlined">key</span>
+<span class="text-[14px] font-[450] text-foundation-mute group-hover:text-foundation-operator">Secrets</span>
+</a>
+<a class="flex items-center gap-3 h-9 px-6 text-foundation-whisper hover:text-foundation-operator hover:bg-foundation-hush transition-all group" href="#">
+<span class="material-symbols-outlined">verified_user</span>
+<span class="text-[14px] font-[450] text-foundation-mute group-hover:text-foundation-operator">Compliance</span>
+</a>
+<a class="flex items-center gap-3 h-9 px-6 text-foundation-whisper hover:text-foundation-operator hover:bg-foundation-hush transition-all group" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="text-[14px] font-[450] text-foundation-mute group-hover:text-foundation-operator">Help</span>
+</a>
+</div>
+</section>
+</div>
+</aside>
+<!-- Main Content Pane -->
+<main class="pl-[224px] pt-[56px] min-h-screen">
+<div class="w-full min-h-[calc(100vh-56px)] flex items-center justify-center p-8">
+<div class="max-w-2xl w-full text-center space-y-4">
+<div class="flex flex-col items-center">
+<div class="w-16 h-16 rounded-2xl bg-foundation-paper border border-foundation-hairline flex items-center justify-center mb-6 text-foundation-whisper">
+<span class="material-symbols-outlined !text-4xl opacity-20">grid_view</span>
+</div>
+<span class="text-foundation-whisper font-mono text-sm tracking-tight">[ main pane content here ]</span>
+</div>
+<!-- Subliminal Branding/Status -->
+<div class="mt-8 pt-8 border-t border-foundation-hairline/50 flex flex-col items-center gap-6">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-xl">
+<div class="p-4 rounded-xl border border-foundation-hairline bg-foundation-paper/50 backdrop-blur-sm flex flex-col items-start gap-1">
+<span class="text-[10px] font-semibold text-foundation-mute uppercase tracking-widest small-caps">System Latency</span>
+<span class="text-lg font-mono font-medium text-foundation-operator">142ms</span>
+</div>
+<div class="p-4 rounded-xl border border-foundation-hairline bg-foundation-paper/50 backdrop-blur-sm flex flex-col items-start gap-1">
+<span class="text-[10px] font-semibold text-foundation-mute uppercase tracking-widest small-caps">Active Nodes</span>
+<span class="text-lg font-mono font-medium text-foundation-operator">US-E1_3</span>
+</div>
+<div class="p-4 rounded-xl border border-foundation-hairline bg-foundation-paper/50 backdrop-blur-sm flex flex-col items-start gap-1">
+<span class="text-[10px] font-semibold text-foundation-mute uppercase tracking-widest small-caps">API Status</span>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-semantic-booked shadow-[0_0_8px_rgba(16,185,129,0.4)]"></div>
+<span class="text-lg font-mono font-medium text-foundation-operator">Operational</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer pattern - Minimal for shells -->
+<footer class="fixed bottom-0 left-[224px] right-0 h-10 border-t border-foundation-hairline/30 bg-foundation-hush/80 backdrop-blur-sm flex items-center justify-between px-6 z-30 pointer-events-none">
+<div class="flex items-center gap-4 text-[11px] font-medium text-foundation-whisper small-caps tracking-wide">
+<span>© 2024 Vokari</span>
+<span>·</span>
+<span>Workspace: 8df4-2a1c</span>
+</div>
+<div class="flex items-center gap-4 text-[11px] font-medium text-foundation-whisper small-caps tracking-wide">
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-semantic-booked"></span>
+                Voice Core v2.4.1
+            </div>
+</div>
+</footer>
+</body></html>

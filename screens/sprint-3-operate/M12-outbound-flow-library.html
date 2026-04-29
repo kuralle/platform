@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vokari - Outbound Flow Library</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;550;600&amp;family=Geist:wght@600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            midnight: "#0B1220",
+                            operator: "#1F2937",
+                            mute: "#64748B",
+                            whisper: "#94A3B8",
+                            hush: "#F4F6FA",
+                            paper: "#FFFFFF",
+                            hairline: "#E2E6EF",
+                            softHairline: "#EEF1F6",
+                            teal: "#0EA5A6",
+                            deepTeal: "#0F7A7B",
+                            cyan: "#22D3EE",
+                            green: "#10B981",
+                            amber: "#F59E0B",
+                            crimson: "#DC2626",
+                            indigo: "#4F46E5",
+                            gold: "#B89A4A"
+                        }
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.25rem',
+                        'lg': '0.5rem',
+                        'xl': '0.75rem',
+                        'modal': '16px',
+                        'card': '10px',
+                        'button': '6px',
+                        'full': '9999px'
+                    },
+                    fontFamily: {
+                        headline: ["Geist", "sans-serif"],
+                        display: ["Geist", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                        label: ["Inter", "sans-serif"],
+                        mono: ["JetBrains Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .tabular { font-variant-numeric: tabular-nums; }
+    </style>
+</head>
+<body class="bg-brand-hush font-body text-brand-operator antialiased">
+<!-- Modal Backdrop (60% Midnight Signal) -->
+<div class="fixed inset-0 bg-brand-midnight/60 z-[60] flex items-center justify-center p-4">
+<!-- Modal Container (880px Wide) -->
+<div class="bg-brand-paper w-full max-w-[880px] rounded-modal border border-brand-hairline shadow-[0_12px_32px_rgba(11,18,32,0.08)] flex flex-col overflow-hidden">
+<!-- Modal Header -->
+<div class="px-8 pt-8 pb-6 flex justify-between items-start">
+<div class="space-y-1">
+<h2 class="text-[22px] font-headline font-semibold text-brand-midnight leading-[28px] tracking-[-1%]">Outbound flow library</h2>
+<p class="text-xs font-body text-brand-mute leading-[16px]">Vertical-tuned templates — prompt + tools + cadence + disclosure preset.</p>
+</div>
+<button class="text-brand-mute hover:text-brand-midnight transition-colors p-1">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<!-- Modal Body -->
+<div class="px-8 pb-8 space-y-6">
+<!-- Segmented Control -->
+<div class="inline-flex h-[32px] bg-brand-hush p-[2px] rounded-button items-center">
+<button class="px-4 py-1.5 text-sm font-label font-medium bg-brand-paper rounded-button border border-brand-hairline shadow-sm text-brand-operator">
+                        Home Services
+                    </button>
+<button class="px-4 py-1.5 text-sm font-label font-medium text-brand-mute hover:text-brand-operator transition-colors">
+                        Appointment Services
+                    </button>
+<button class="px-4 py-1.5 text-sm font-label font-medium text-brand-mute hover:text-brand-operator transition-colors">
+                        Education
+                    </button>
+</div>
+<!-- 2-Column Grid of Cards -->
+<div class="grid grid-cols-2 gap-4">
+<!-- Card 1: Win-back -->
+<div class="bg-brand-paper border border-brand-hairline rounded-card p-5 flex flex-col justify-between hover:border-brand-teal/40 transition-colors">
+<div class="space-y-3">
+<div>
+<span class="text-[11px] font-headline font-semibold text-brand-mute tracking-[0.08em] uppercase">HVAC · WIN-BACK</span>
+<h3 class="text-[18px] font-headline font-semibold text-brand-midnight leading-[24px] tracking-[-0.5%] mt-1">Win-back lapsed customer</h3>
+<p class="text-[13px] font-body text-brand-operator leading-[18px] mt-1">6mo+ since last service · personalized re-engagement</p>
+</div>
+<!-- Chips Row -->
+<div class="flex flex-wrap gap-1.5">
+<span class="h-6 px-2.5 flex items-center rounded-full bg-brand-amber/10 border border-brand-amber/20 text-[10px] font-semibold tracking-wider text-brand-amber uppercase">TCPA</span>
+<span class="h-6 px-2.5 flex items-center rounded-full bg-brand-green/10 border border-brand-green/20 text-[10px] font-semibold tracking-wider text-brand-green uppercase">8AM-9PM</span>
+<span class="h-6 px-2.5 flex items-center rounded-full bg-brand-green/10 border border-brand-green/20 text-[10px] font-semibold tracking-wider text-brand-green uppercase">DNC scrubbed</span>
+<span class="h-6 px-2.5 flex items-center rounded-full bg-brand-hush border border-brand-hairline text-[10px] font-mono font-medium text-brand-mute">≈ 2.3 min</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-6">
+<a class="text-sm font-label font-medium text-brand-teal hover:text-brand-deepTeal transition-colors" href="#">Preview script</a>
+<button class="h-[36px] px-4 bg-brand-teal text-white text-sm font-label font-medium rounded-button hover:bg-brand-deepTeal transition-all active:scale-[0.98]">Use this flow</button>
+</div>
+</div>
+<!-- Card 2: Quote-rebooking -->
+<div class="bg-brand-paper border border-brand-hairline rounded-card p-5 flex flex-col justify-between hover:border-brand-teal/40 transition-colors">
+<div class="space-y-3">
+<div>
+<span class="text-[11px] font-headline font-semibold text-brand-mute tracking-[0.08em] uppercase">HVAC · STALLED-QUOTES</span>
+<h3 class="text-[18px] font-headline font-semibold text-brand-midnight leading-[24px] tracking-[-0.5%] mt-1">Quote-rebooking</h3>
+<p class="text-[13px] font-body text-brand-operator leading-[18px] mt-1">Stalled estimates 48h+ · price-locked rebook offer</p>
+</div>
+<!-- Chips Row -->
+<div class="flex flex-wrap gap-1.5">
+<span class="h-6 px-2.5 flex items-center rounded-full bg-brand-amber/10 border border-brand-amber/20 text-[10px] font-semibold tracking-wider text-brand-amber uppercase">TCPA</span>
+<span class="h-6 px-2.5 flex items-center rounded-full bg-brand-green/10 border border-brand-green/20 text-[10px] font-semibold tracking-wider text-brand-green uppercase">8AM-9PM</span>
+<span class="h-6 px-2.5 flex items-center rounded-full bg-brand-green/10 border border-brand-green/20 text-[10px] font-semibold tracking-wider text-brand-green uppercase">DNC scrubbed</span>
+<span class="h-6 px-2.5 flex items-center rounded-full bg-brand-hush border border-brand-hairline text-[10px] font-mono font-medium text-brand-mute">≈ 2.3 min</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-6">
+<a class="text-sm font-label font-medium text-brand-teal hover:text-brand-deepTeal transition-colors" href="#">Preview script</a>
+<button class="h-[36px] px-4 bg-brand-teal text-white text-sm font-label font-medium rounded-button hover:bg-brand-deepTeal transition-all active:scale-[0.98]">Use this flow</button>
+</div>
+</div>
+<!-- Card 3: Missed-call -->
+<div class="bg-brand-paper border border-brand-hairline rounded-card p-5 flex flex-col justify-between hover:border-brand-teal/40 transition-colors">
+<div class="space-y-3">
+<div>
+<span class="text-[11px] font-headline font-semibold text-brand-mute tracking-[0.08em] uppercase">HVAC · MISSED-CALL</span>
+<h3 class="text-[18px] font-headline font-semibold text-brand-midnight leading-[24px] tracking-[-0.5%] mt-1">Missed-call rescue</h3>
+<p class="text-[13px] font-body text-brand-operator leading-[18px] mt-1">Within 60 seconds of missed call · auto-trigger via Speed-to-Lead</p>
+</div>
+<!-- Chips Row -->
+<div class="flex flex-wrap gap-1.5">
+<span class="h-6 px-2.5 flex items-center rounded-full bg-brand-amber/10 border border-brand-amber/20 text-[10px] font-semibold tracking-wider text-brand-amber uppercase">TCPA</span>
+<span class="h-6 px-2.5 flex items-center rounded-full bg-brand-green/10 border border-brand-green/20 text-[10px] font-semibold tracking-wider text-brand-green uppercase">8AM-9PM</span>
+<span class="h-6 px-2.5 flex items-center rounded-full bg-brand-green/10 border border-brand-green/20 text-[10px] font-semibold tracking-wider text-brand-green uppercase">DNC scrubbed</span>
+<span class="h-6 px-2.5 flex items-center rounded-full bg-brand-hush border border-brand-hairline text-[10px] font-mono font-medium text-brand-mute">≈ 2.3 min</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-6">
+<a class="text-sm font-label font-medium text-brand-teal hover:text-brand-deepTeal transition-colors" href="#">Preview script</a>
+<button class="h-[36px] px-4 bg-brand-teal text-white text-sm font-label font-medium rounded-button hover:bg-brand-deepTeal transition-all active:scale-[0.98]">Use this flow</button>
+</div>
+</div>
+<!-- Card 4: Maintenance -->
+<div class="bg-brand-paper border border-brand-hairline rounded-card p-5 flex flex-col justify-between hover:border-brand-teal/40 transition-colors">
+<div class="space-y-3">
+<div>
+<span class="text-[11px] font-headline font-semibold text-brand-mute tracking-[0.08em] uppercase">HVAC · MAINTENANCE</span>
+<h3 class="text-[18px] font-headline font-semibold text-brand-midnight leading-[24px] tracking-[-0.5%] mt-1">Service-anniversary nudge</h3>
+<p class="text-[13px] font-body text-brand-operator leading-[18px] mt-1">Annual maintenance reminder · seasonal swap-in</p>
+</div>
+<!-- Chips Row -->
+<div class="flex flex-wrap gap-1.5">
+<span class="h-6 px-2.5 flex items-center rounded-full bg-brand-amber/10 border border-brand-amber/20 text-[10px] font-semibold tracking-wider text-brand-amber uppercase">TCPA</span>
+<span class="h-6 px-2.5 flex items-center rounded-full bg-brand-green/10 border border-brand-green/20 text-[10px] font-semibold tracking-wider text-brand-green uppercase">8AM-9PM</span>
+<span class="h-6 px-2.5 flex items-center rounded-full bg-brand-green/10 border border-brand-green/20 text-[10px] font-semibold tracking-wider text-brand-green uppercase">DNC scrubbed</span>
+<span class="h-6 px-2.5 flex items-center rounded-full bg-brand-hush border border-brand-hairline text-[10px] font-mono font-medium text-brand-mute">≈ 2.3 min</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-6">
+<a class="text-sm font-label font-medium text-brand-teal hover:text-brand-deepTeal transition-colors" href="#">Preview script</a>
+<button class="h-[36px] px-4 bg-brand-teal text-white text-sm font-label font-medium rounded-button hover:bg-brand-deepTeal transition-all active:scale-[0.98]">Use this flow</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Modal Footer -->
+<div class="px-8 py-6 bg-brand-hush/30 border-t border-brand-hairline flex items-center justify-between">
+<button class="text-sm font-label font-medium text-brand-operator px-4 py-2 hover:bg-brand-hush rounded-button transition-colors">
+                    Cancel
+                </button>
+<a class="flex items-center gap-1.5 text-sm font-label font-medium text-brand-teal hover:text-brand-deepTeal transition-colors" href="#">
+                    Build a custom flow
+                    <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+<!-- Hidden Background Shell (Semantic Shell Rule) -->
+<header class="fixed top-0 w-full h-[56px] z-50 flex items-center justify-between px-8 bg-white border-b border-brand-hairline">
+<div class="flex items-center gap-8">
+<h1 class="text-xl font-headline font-bold text-brand-midnight">Vokari</h1>
+<nav class="hidden md:flex gap-6">
+<a class="text-sm font-label text-brand-mute hover:text-brand-teal transition-colors" href="#">Dashboard</a>
+<a class="text-sm font-label text-brand-teal border-b-2 border-brand-teal" href="#">Outbound</a>
+<a class="text-sm font-label text-brand-mute hover:text-brand-teal transition-colors" href="#">Agents</a>
+<a class="text-sm font-label text-brand-mute hover:text-brand-teal transition-colors" href="#">Analytics</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-brand-mute">notifications</span>
+<div class="w-8 h-8 rounded-full bg-brand-hush border border-brand-hairline flex items-center justify-center">
+<span class="material-symbols-outlined text-brand-mute text-[20px]">account_circle</span>
+</div>
+</div>
+</header>
+</body></html>

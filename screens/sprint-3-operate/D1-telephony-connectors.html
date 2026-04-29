@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Telephony Connectors | Vokari</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        midnight: "#0B1220",
+                        operator: "#1F2937",
+                        mute: "#64748B",
+                        whisper: "#94A3B8",
+                        hush: "#F4F6FA",
+                        hairline: "#E2E6EF",
+                        soft: "#EEF1F6",
+                        signal: "#0EA5A6",
+                        deep: "#0F7A7B",
+                        live: "#22D3EE",
+                        booked: "#10B981",
+                        amber: "#F59E0B",
+                        risk: "#DC2626",
+                        indigo: "#4F46E5",
+                        gold: "#B89A4A",
+                        goldtint: "#F5EFD9"
+                    },
+                    fontFamily: {
+                        headline: ["Geist", "sans-serif"],
+                        display: ["Geist", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                        label: ["Inter", "sans-serif"],
+                        mono: ["JetBrains Mono", "monospace"]
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.25rem",
+                        'lg': "0.5rem",
+                        'xl': "0.75rem",
+                        'full': "9999px"
+                    },
+                    spacing: {
+                        '4': '4px', '8': '8px', '12': '12px', '16': '16px', '20': '20px', '24': '24px', '32': '32px', '48': '48px', '64': '64px'
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Geist', sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+    </style>
+</head>
+<body class="bg-[#F4F6FA] text-operator antialiased">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full h-14 bg-white border-b border-[#E2E6EF] flex justify-between items-center px-6 z-50">
+<div class="flex items-center gap-4">
+<span class="text-xl font-bold text-[#0B1220]">Vokari</span>
+<span class="bg-indigo/10 text-indigo text-[11px] font-semibold tracking-wider px-2 py-0.5 rounded-full uppercase">Production</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden md:block">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-mute text-sm">search</span>
+<input class="bg-hush border-none rounded-lg py-1.5 pl-9 pr-4 text-sm w-64 focus:ring-2 focus:ring-signal/15" placeholder="Search..." type="text"/>
+</div>
+<button class="material-symbols-outlined text-mute hover:text-operator transition-colors">notifications</button>
+<div class="w-8 h-8 rounded-full bg-hush border border-hairline overflow-hidden">
+<img alt="User avatar" class="w-full h-full object-cover" data-alt="Professional headshot of a person for a user profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbLbHoeGonA2gDJLVEJwQosvUWwJFUllhwVLVFwhWPKtl0mtbku_64_6H71L8MPqiVg90ZJp82S5LdLSgDuAgSobgUJUbElVEXeEJs6LFmdMcGwQzqr0JLFR8y8LXav7j3ZxY4zMoF7rGhT6fItQ0uJSYXXKIgv7VNTn2fvkfzNgUXJsoVH74BVLP70lBsmHg-PJJRznSBXsBoB21_wQud0u44iZwQfjxGdWfxPe4gmkjNed0zGz7tOnSStMx0JB_EZQfELIRt-2SQ"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full w-56 bg-white border-r border-[#E2E6EF] flex flex-col pt-14 z-40">
+<div class="p-4 border-b border-hairline flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-midnight flex items-center justify-center">
+<span class="material-symbols-outlined text-signal text-lg">voice_chat</span>
+</div>
+<div>
+<div class="text-sm font-bold text-midnight leading-tight">Vokari</div>
+<div class="text-[11px] text-mute leading-tight">US-East-1</div>
+</div>
+</div>
+<nav class="flex-1 px-3 py-4 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-mute hover:bg-hush hover:text-operator rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+<span class="text-sm font-medium">Configure</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-mute hover:bg-hush hover:text-operator rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">play_circle</span>
+<span class="text-sm font-medium">Operate</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 bg-hush text-signal border-l-4 border-signal rounded-r-lg font-semibold transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">share</span>
+<span class="text-sm">Distribute</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-mute hover:bg-hush hover:text-operator rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">phone</span>
+<span class="text-sm font-medium">Phone Numbers</span>
+</a>
+</nav>
+<div class="p-3 border-t border-hairline space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-mute hover:bg-hush hover:text-operator rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">help</span>
+<span class="text-sm font-medium">Support</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-mute hover:bg-hush hover:text-operator rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-56 pt-14 p-8 min-h-screen">
+<div class="max-w-6xl mx-auto space-y-8">
+<!-- Header Section -->
+<section class="space-y-1">
+<h1 class="text-[28px] font-semibold text-midnight tracking-tight leading-none">Telephony</h1>
+<p class="text-sm text-mute font-body">Bring your own carrier or use Vokari's Twilio account.</p>
+</section>
+<!-- Main Connectors Grid -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-16">
+<!-- Twilio Native -->
+<div class="bg-white border border-hairline rounded-[10px] p-6 flex flex-col h-full hover:border-signal/30 transition-colors">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-[#F22F46]/10 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-[#F22F46] text-3xl">hub</span>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-booked/10 text-booked">
+<span class="w-2 h-2 rounded-full bg-booked"></span>
+<span class="text-[11px] font-bold uppercase tracking-wider">Connected</span>
+</div>
+</div>
+<h3 class="text-lg font-semibold text-midnight mb-2">Twilio Native</h3>
+<p class="text-[13px] text-operator leading-relaxed mb-6">Seamless integration with Vokari managed Twilio infrastructure. Optimized for voice AI low latency.</p>
+<div class="flex flex-wrap gap-2 mb-8">
+<span class="px-2 py-0.5 rounded-lg bg-hush text-mute text-[11px] font-semibold uppercase tracking-wider border border-hairline">SMS support</span>
+<span class="px-2 py-0.5 rounded-lg bg-hush text-mute text-[11px] font-semibold uppercase tracking-wider border border-hairline">Recording</span>
+<span class="px-2 py-0.5 rounded-lg bg-hush text-mute text-[11px] font-semibold uppercase tracking-wider border border-hairline">International</span>
+</div>
+<div class="mt-auto pt-6 border-t border-hairline flex items-center justify-between">
+<div>
+<p class="text-[12px] text-mute mono">12 numbers attached</p>
+</div>
+<button class="bg-signal hover:bg-deep text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all">Manage</button>
+</div>
+</div>
+<!-- BYO Twilio -->
+<div class="bg-white border border-hairline rounded-[10px] p-6 flex flex-col h-full">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-hush rounded-lg flex items-center justify-center grayscale">
+<span class="material-symbols-outlined text-mute text-3xl">key</span>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-hush text-whisper">
+<span class="text-[11px] font-bold uppercase tracking-wider">Not connected</span>
+</div>
+</div>
+<h3 class="text-lg font-semibold text-midnight mb-2">BYO Twilio</h3>
+<p class="text-[13px] text-operator leading-relaxed mb-6">Connect your own Twilio account. Use your existing credits, logs, and compliance bundles.</p>
+<div class="mt-auto pt-6 border-t border-hairline flex items-center justify-between">
+<span class="text-[12px] text-mute">Legacy migration ready</span>
+<button class="bg-white border border-hairline hover:bg-hush text-operator px-4 py-2 rounded-lg text-sm font-semibold transition-all">Set up</button>
+</div>
+</div>
+<!-- SIP Trunk -->
+<div class="bg-white border border-hairline rounded-[10px] p-6 flex flex-col h-full">
+<div class="flex justify-between items-start mb-4">
+<div class="w-12 h-12 bg-hush rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-mute text-3xl">router</span>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-hush text-whisper">
+<span class="text-[11px] font-bold uppercase tracking-wider">Not connected</span>
+</div>
+</div>
+<h3 class="text-lg font-semibold text-midnight mb-2">SIP trunk</h3>
+<p class="text-[13px] text-operator leading-relaxed mb-6">Supports Vonage / Telnyx / Plivo / Genesys. High-volume enterprise routing with custom SDC.</p>
+<div class="mt-auto pt-6 border-t border-hairline flex items-center justify-between">
+<span class="text-[12px] text-mute">Enterprise only</span>
+<button class="bg-white border border-hairline hover:bg-hush text-operator px-4 py-2 rounded-lg text-sm font-semibold transition-all">Set up</button>
+</div>
+</div>
+</section>
+<!-- Recommendation Banner -->
+<section class="bg-amber/5 border border-amber/20 rounded-xl p-4 flex items-center gap-3">
+<span class="material-symbols-outlined text-amber text-lg">info</span>
+<p class="text-[13px] text-operator font-body">
+                    Vokari recommends <span class="font-semibold">Twilio Native</span> for optimal performance. Third-party SIP trunks may introduce up to 400ms additional latency in voice processing.
+                </p>
+</section>
+<!-- Coming Soon Section -->
+<section class="space-y-4">
+<div class="flex items-center gap-4">
+<h2 class="text-[11px] font-semibold text-mute uppercase tracking-[0.08em] whitespace-nowrap">Coming soon</h2>
+<div class="h-px w-full bg-hairline"></div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-16">
+<div class="h-[120px] bg-white border border-hairline rounded-lg flex flex-col items-center justify-center grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all cursor-default p-4 group">
+<div class="text-sm font-bold text-operator mb-2">Vonage</div>
+<a class="text-[11px] text-signal font-semibold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity" href="#">Notify me</a>
+</div>
+<div class="h-[120px] bg-white border border-hairline rounded-lg flex flex-col items-center justify-center grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all cursor-default p-4 group">
+<div class="text-sm font-bold text-operator mb-2">Telnyx</div>
+<a class="text-[11px] text-signal font-semibold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity" href="#">Notify me</a>
+</div>
+<div class="h-[120px] bg-white border border-hairline rounded-lg flex flex-col items-center justify-center grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all cursor-default p-4 group">
+<div class="text-sm font-bold text-operator mb-2">Plivo</div>
+<a class="text-[11px] text-signal font-semibold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity" href="#">Notify me</a>
+</div>
+<div class="h-[120px] bg-white border border-hairline rounded-lg flex flex-col items-center justify-center grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all cursor-default p-4 group">
+<div class="text-sm font-bold text-operator mb-2">Genesys</div>
+<a class="text-[11px] text-signal font-semibold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity" href="#">Notify me</a>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Contextual Toast Area (Optional decoration) -->
+<div class="fixed bottom-8 left-1/2 -translate-x-1/2 pointer-events-none">
+<!-- Toast would render here -->
+</div>
+</body></html>

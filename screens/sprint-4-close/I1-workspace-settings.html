@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vokari - Workspace Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;550;600&amp;family=Geist:wght@600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-size: 20px;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F4F6FA;
+        }
+        .font-headline { font-family: 'Geist', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Custom scrollbar for clean UI */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #E2E6EF; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        'midnight': '#0B1220',
+                        'operator-slate': '#1F2937',
+                        'mute-slate': '#64748B',
+                        'whisper-slate': '#94A3B8',
+                        'hush-mist': '#F4F6FA',
+                        'paper-white': '#FFFFFF',
+                        'hairline': '#E2E6EF',
+                        'signal-teal': '#0EA5A6',
+                        'deep-teal': '#0F7A7B',
+                        'live-cyan': '#22D3EE',
+                        'booked-green': '#10B981',
+                        'compliance-amber': '#F59E0B',
+                        'risk-crimson': '#DC2626',
+                        'audit-indigo': '#4F46E5',
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.25rem',
+                        'lg': '0.5rem',
+                        'xl': '0.75rem',
+                        'full': '9999px'
+                    },
+                    fontFamily: {
+                        'headline': ['Geist'],
+                        'display': ['Geist'],
+                        'body': ['Inter'],
+                        'label': ['Inter']
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-hush-mist text-operator-slate antialiased">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full h-14 bg-slate-50 dark:bg-[#0B1220] border-b border-[#E2E6EF] dark:border-[#2A3142] flex justify-between items-center px-8 z-50">
+<div class="flex items-center gap-4">
+<span class="text-xl font-bold text-[#0B1220] dark:text-white font-headline tracking-tight">Vokari</span>
+<div class="flex items-center gap-2 ml-4">
+<span class="bg-audit-indigo/10 text-audit-indigo text-[11px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider">Production</span>
+<span class="bg-slate-200/50 text-mute-slate text-[11px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider">US-East</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex items-center bg-white dark:bg-[#1A2030] border border-hairline dark:border-[#2A3142] rounded-lg px-3 py-1.5 w-64 justify-between">
+<div class="flex items-center gap-2 text-mute-slate">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+<span class="text-sm">Search</span>
+</div>
+<span class="text-[10px] font-medium text-whisper-slate border border-hairline px-1 rounded">Cmd+K</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-mute-slate hover:text-operator-slate cursor-pointer" data-icon="notifications">notifications</span>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-hairline">
+<img alt="User avatar" data-alt="A professional, minimalist headshot profile avatar for a technology platform user, styled with soft studio lighting and a clean neutral background to match a high-end SaaS aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPVVjrBipbwwVd8ntcXNCgavuZSdBJGZsthYd6jxFDc6UI3V_yQ5OlJOskTwYqj14Gj1lR6aIB-Hz1VkOCehBzHz4S0cTIGtraotWMQbIEXtRAqXA7BT3o7fLT-BUdbuNJsxgcW64ta4dg_brFr8XST-Ls0EEcr0VtUOtzUMWo_mIfxk7Gr2tX_xjs7ci68ceQs3nt8rSxntYJW0KQ__gJSuFpToNKcnfBrcxBdb_daVLpg4ahPlPp-2BdTCltDBzOh-Pib9sIydSU"/>
+</div>
+</div>
+</div>
+</header>
+<!-- SideNavBar (Operator Mode) -->
+<nav class="fixed left-0 top-14 h-[calc(100vh-56px)] w-56 bg-white dark:bg-[#0B1220] border-r border-[#E2E6EF] dark:border-[#2A3142] flex flex-col py-4 z-40">
+<div class="px-6 mb-6">
+<p class="text-[11px] font-bold text-mute-slate uppercase tracking-[0.08em]">Operator Mode</p>
+</div>
+<div class="flex flex-col flex-1">
+<a class="flex items-center gap-3 px-6 py-2.5 text-[#64748B] dark:text-[#94A3B8] hover:bg-[#F4F6FA] dark:hover:bg-[#1A2030] transition-all duration-180 ease-out font-medium text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="settings_input_component">settings_input_component</span>
+<span>Configure</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-2.5 text-[#64748B] dark:text-[#94A3B8] hover:bg-[#F4F6FA] dark:hover:bg-[#1A2030] transition-all duration-180 ease-out font-medium text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="settings_remote">settings_remote</span>
+<span>Operate</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-2.5 text-[#64748B] dark:text-[#94A3B8] hover:bg-[#F4F6FA] dark:hover:bg-[#1A2030] transition-all duration-180 ease-out font-medium text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="send">send</span>
+<span>Distribute</span>
+</a>
+<a class="bg-[#F4F6FA] dark:bg-[#1A2030] text-[#1F2937] dark:text-white border-l-4 border-[#0EA5A6] flex items-center gap-3 px-[21px] py-2.5 transition-all duration-180 ease-out font-medium text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="hub">hub</span>
+<span>Workspace</span>
+</a>
+</div>
+<div class="px-4 mt-auto space-y-1">
+<a class="flex items-center gap-3 px-2 py-2 text-mute-slate hover:bg-hush-mist rounded-lg transition-colors text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span>Docs</span>
+</a>
+<a class="flex items-center gap-3 px-2 py-2 text-mute-slate hover:bg-hush-mist rounded-lg transition-colors text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span>Support</span>
+</a>
+</div>
+</nav>
+<!-- Main Pane -->
+<main class="pl-56 pt-14 pb-20 min-h-screen">
+<div class="flex">
+<!-- Secondary SideNav (Workspace Settings) -->
+<aside class="fixed left-56 top-14 h-[calc(100vh-56px)] w-48 bg-white dark:bg-[#0B1220] border-r border-[#E2E6EF] dark:border-[#2A3142] flex flex-col py-6 px-4 z-30">
+<nav class="space-y-1">
+<a class="flex items-center h-9 px-3 text-[#1F2937] dark:text-white font-semibold transition-colors duration-120 text-[13px] bg-hush-mist rounded-md" href="#general">
+                        General
+                    </a>
+<a class="flex items-center h-9 px-3 text-[#64748B] dark:text-[#94A3B8] hover:text-[#1F2937] dark:hover:text-white transition-colors duration-120 text-[13px]" href="#security">
+                        Security
+                    </a>
+<a class="flex items-center h-9 px-3 text-[#64748B] dark:text-[#94A3B8] hover:text-[#1F2937] dark:hover:text-white transition-colors duration-120 text-[13px]" href="#webhooks">
+                        Webhooks
+                    </a>
+<a class="flex items-center h-9 px-3 text-[#64748B] dark:text-[#94A3B8] hover:text-[#1F2937] dark:hover:text-white transition-colors duration-120 text-[13px]" href="#retention">
+                        Retention
+                    </a>
+<a class="flex items-center h-9 px-3 text-[#64748B] dark:text-[#94A3B8] hover:text-[#1F2937] dark:hover:text-white transition-colors duration-120 text-[13px]" href="#billing">
+                        Billing
+                    </a>
+<a class="flex items-center h-9 px-3 text-[#64748B] dark:text-[#94A3B8] hover:text-[#1F2937] dark:hover:text-white transition-colors duration-120 text-[13px]" href="#mcp">
+                        MCP
+                    </a>
+</nav>
+</aside>
+<!-- Content Area -->
+<div class="ml-48 flex-1">
+<!-- Header -->
+<div class="px-8 pt-8 pb-6 bg-white border-b border-hairline">
+<h1 class="text-[28px] font-headline font-semibold text-midnight leading-tight">Workspace settings</h1>
+<p class="text-sm font-body text-mute-slate mt-1">Calderon Cooling · Production · US-East</p>
+</div>
+<!-- Scrolling Section -->
+<div class="p-8 max-w-[720px] mx-auto space-y-12">
+<!-- Section 1: General -->
+<section class="space-y-6" id="general">
+<h2 class="text-[22px] font-headline font-semibold text-midnight">General</h2>
+<div class="space-y-4">
+<!-- Workspace Name -->
+<div class="grid grid-cols-[240px_1fr] items-center h-14">
+<label class="text-[13px] font-medium text-operator-slate">Workspace name</label>
+<input class="h-9 px-3 bg-white border border-hairline rounded-lg text-sm focus:ring-2 focus:ring-signal-teal/15 focus:border-signal-teal outline-none transition-all" type="text" value="Calderon Cooling Phoenix"/>
+</div>
+<!-- Vertical Preset -->
+<div class="grid grid-cols-[240px_1fr] items-center h-14">
+<label class="text-[13px] font-medium text-operator-slate">Vertical preset</label>
+<div class="h-8 p-1 bg-hush-mist rounded-lg flex gap-1 w-fit">
+<button class="px-3 text-[12px] font-semibold bg-white shadow-sm border border-hairline rounded-md text-operator-slate">Home Services</button>
+<button class="px-3 text-[12px] font-medium text-mute-slate hover:text-operator-slate">Appointment</button>
+<button class="px-3 text-[12px] font-medium text-mute-slate hover:text-operator-slate">Education</button>
+</div>
+</div>
+<!-- Region -->
+<div class="grid grid-cols-[240px_1fr] items-center h-14">
+<label class="text-[13px] font-medium text-operator-slate">Region</label>
+<select class="h-9 px-3 bg-white border border-hairline rounded-lg text-sm focus:ring-2 focus:ring-signal-teal/15 focus:border-signal-teal outline-none transition-all">
+<option>US-East (Virginia)</option>
+<option>US-West (Oregon)</option>
+<option>EU-Central (Frankfurt)</option>
+</select>
+</div>
+<!-- Timezone -->
+<div class="grid grid-cols-[240px_1fr] items-center h-14">
+<label class="text-[13px] font-medium text-operator-slate">Timezone</label>
+<select class="h-9 px-3 bg-white border border-hairline rounded-lg text-sm focus:ring-2 focus:ring-signal-teal/15 focus:border-signal-teal outline-none transition-all">
+<option>America/Phoenix</option>
+<option>America/New_York</option>
+<option>UTC</option>
+</select>
+</div>
+<!-- Default Branch -->
+<div class="grid grid-cols-[240px_1fr] items-center h-14">
+<label class="text-[13px] font-medium text-operator-slate">Default branch</label>
+<select class="h-9 px-3 bg-white border border-hairline rounded-lg text-sm focus:ring-2 focus:ring-signal-teal/15 focus:border-signal-teal outline-none transition-all">
+<option>Production</option>
+<option>Staging</option>
+<option>Development</option>
+</select>
+</div>
+</div>
+</section>
+<!-- Section 2: Security -->
+<section class="space-y-6" id="security">
+<h2 class="text-[22px] font-headline font-semibold text-midnight">Security</h2>
+<div class="space-y-4">
+<!-- Card 1 -->
+<div class="bg-white border border-hairline rounded-[10px] p-4 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-booked-green"></div>
+<span class="text-[14px] font-medium text-operator-slate">Workspace-global Zero-Retention LLM</span>
+</div>
+<div class="relative inline-flex h-5 w-10 items-center rounded-full bg-signal-teal cursor-pointer">
+<span class="translate-x-5 inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-sm transition"></span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-white border border-hairline rounded-[10px] p-4 space-y-3">
+<span class="text-[14px] font-medium text-operator-slate block">Compliance preset default</span>
+<div class="h-8 p-1 bg-hush-mist rounded-lg flex gap-1 w-full">
+<button class="flex-1 text-[11px] font-semibold text-mute-slate">NONE</button>
+<button class="flex-1 text-[11px] font-semibold text-mute-slate">HIPAA</button>
+<button class="flex-1 text-[11px] font-semibold text-mute-slate">FERPA</button>
+<button class="flex-1 text-[11px] font-semibold bg-white shadow-sm border border-hairline rounded-md text-operator-slate">TCPA</button>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-white border border-hairline rounded-[10px] p-4 flex items-center justify-between">
+<span class="text-[14px] font-medium text-operator-slate">SSO required for all members</span>
+<div class="relative inline-flex h-5 w-10 items-center rounded-full bg-whisper-slate cursor-pointer">
+<span class="translate-x-1 inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-sm transition"></span>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 3: Webhooks -->
+<section class="space-y-6" id="webhooks">
+<h2 class="text-[22px] font-headline font-semibold text-midnight">Webhooks</h2>
+<div class="space-y-6">
+<div class="space-y-2">
+<label class="text-[12px] font-semibold text-mute-slate uppercase tracking-wider">Target URL</label>
+<input class="w-[480px] h-9 px-3 bg-white border border-hairline rounded-lg text-sm" placeholder="https://api.calderon.com/vokari-webhook" type="url"/>
+</div>
+<div class="space-y-2">
+<label class="text-[12px] font-semibold text-mute-slate uppercase tracking-wider">Events</label>
+<div class="grid grid-cols-2 gap-x-12 gap-y-3">
+<label class="flex items-center gap-3 text-sm cursor-pointer">
+<input checked="" class="w-4 h-4 rounded border-hairline text-signal-teal focus:ring-signal-teal" type="checkbox"/>
+<span class="text-operator-slate">call_started</span>
+</label>
+<label class="flex items-center gap-3 text-sm cursor-pointer">
+<input checked="" class="w-4 h-4 rounded border-hairline text-signal-teal focus:ring-signal-teal" type="checkbox"/>
+<span class="text-operator-slate">call_ended</span>
+</label>
+<label class="flex items-center gap-3 text-sm cursor-pointer">
+<input class="w-4 h-4 rounded border-hairline text-signal-teal focus:ring-signal-teal" type="checkbox"/>
+<span class="text-operator-slate">transcript_ready</span>
+</label>
+<label class="flex items-center gap-3 text-sm cursor-pointer">
+<input checked="" class="w-4 h-4 rounded border-hairline text-signal-teal focus:ring-signal-teal" type="checkbox"/>
+<span class="text-operator-slate">action_required</span>
+</label>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-[12px] font-semibold text-mute-slate uppercase tracking-wider">HMAC Key</label>
+<div class="flex items-center gap-4">
+<div class="flex-1 max-w-[480px] h-9 px-3 bg-hush-mist border border-hairline rounded-lg flex items-center justify-between">
+<span class="text-xs font-mono text-mute-slate">••••••••••••••••••••••••••••••••</span>
+<span class="material-symbols-outlined text-whisper-slate cursor-pointer" data-icon="visibility">visibility</span>
+</div>
+<button class="text-xs font-semibold text-signal-teal hover:underline">Rotate</button>
+</div>
+</div>
+<div class="flex items-center gap-2 px-3 py-1.5 bg-booked-green/5 border border-booked-green/20 rounded-full w-fit">
+<div class="w-1.5 h-1.5 rounded-full bg-booked-green"></div>
+<span class="text-[12px] font-medium text-booked-green">Auto-disabled after 50 consecutive 5xx · last delivery 12 min ago</span>
+</div>
+</div>
+</section>
+<!-- Section 4: Retention defaults -->
+<section class="space-y-6" id="retention">
+<h2 class="text-[22px] font-headline font-semibold text-midnight">Retention defaults</h2>
+<div class="space-y-8">
+<!-- Slider 1 -->
+<div class="space-y-3">
+<div class="flex justify-between items-center">
+<label class="text-[13px] font-medium text-operator-slate">Audio storage</label>
+<span class="text-sm font-mono text-operator-slate">30 days</span>
+</div>
+<input class="w-full h-1 bg-hairline rounded-lg appearance-none cursor-pointer accent-signal-teal" max="365" min="0" type="range" value="30"/>
+</div>
+<!-- Slider 2 -->
+<div class="space-y-3">
+<div class="flex justify-between items-center">
+<label class="text-[13px] font-medium text-operator-slate">Transcripts</label>
+<span class="text-sm font-mono text-operator-slate">90 days</span>
+</div>
+<input class="w-full h-1 bg-hairline rounded-lg appearance-none cursor-pointer accent-signal-teal" max="365" min="0" type="range" value="90"/>
+</div>
+<!-- Slider 3 -->
+<div class="space-y-3">
+<div class="flex justify-between items-center">
+<label class="text-[13px] font-medium text-operator-slate">Customer memory</label>
+<span class="text-sm font-mono text-operator-slate">365 days</span>
+</div>
+<input class="w-full h-1 bg-hairline rounded-lg appearance-none cursor-pointer accent-signal-teal" max="365" min="0" type="range" value="365"/>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</main>
+<!-- Sticky Save Bar -->
+<div class="fixed bottom-0 right-0 left-56 h-16 bg-white border-t border-hairline px-8 flex items-center justify-between z-50">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-booked-green" data-icon="check_circle">check_circle</span>
+<span class="text-[13px] font-medium text-booked-green">All changes saved</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="h-9 px-4 text-sm font-medium text-operator-slate hover:bg-hush-mist rounded-lg transition-colors">Discard</button>
+<button class="h-9 px-4 text-sm font-medium bg-signal-teal text-white hover:bg-deep-teal rounded-lg transition-colors shadow-sm">Save changes</button>
+</div>
+</div>
+</body></html>

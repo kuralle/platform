@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vokari | Mission Control - Live Supervisor</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.cdnfonts.com/css/geist" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        @keyframes pulse-live {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.9); }
+        }
+        .animate-pulse-live {
+            animation: pulse-live 1.6s ease-in-out infinite;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #2A3142;
+            border-radius: 10px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        'midnight-signal': '#0B1220',
+                        'operator-slate': '#1F2937',
+                        'mute-slate': '#64748B',
+                        'whisper-slate': '#94A3B8',
+                        'hush-mist': '#F4F6FA',
+                        'paper-white': '#FFFFFF',
+                        'hairline': '#E2E6EF',
+                        'signal-teal': '#0EA5A6',
+                        'deep-teal': '#0F7A7B',
+                        'live-cyan': '#22D3EE',
+                        'booked-green': '#10B981',
+                        'compliance-amber': '#F59E0B',
+                        'risk-crimson': '#DC2626',
+                        'audit-indigo': '#4F46E5',
+                        'receipt-gold': '#B89A4A',
+                        'mission-black': '#06080F',
+                        'mission-slate': '#1A2030',
+                        'mission-hairline': '#2A3142'
+                    },
+                    fontFamily: {
+                        'headline': ['Geist', 'sans-serif'],
+                        'display': ['Geist', 'sans-serif'],
+                        'body': ['Inter', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace']
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.25rem',
+                        'lg': '0.5rem',
+                        'xl': '0.75rem',
+                        'full': '9999px'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-hush-mist font-body text-operator-slate">
+<!-- TopNavBar -->
+<header class="bg-white dark:bg-[#0B1220] text-[#0EA5A6] font-['Geist'] font-semibold text-sm tracking-tight docked full-width top-0 h-[56px] border-b border-[#E2E6EF] dark:border-[#2A3142] flex justify-between items-center px-6 w-full z-50 fixed">
+<div class="flex items-center gap-4">
+<span class="text-xl font-semibold tracking-[-1.5%] text-[#0B1220] dark:text-white">Vokari</span>
+<div class="flex items-center gap-2">
+<span class="bg-audit-indigo/10 text-audit-indigo px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">Production</span>
+<span class="bg-mute-slate/10 text-mute-slate px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">US-West-2</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-whisper-slate text-lg">search</span>
+<input class="pl-10 pr-4 py-1.5 bg-hush-mist border-none rounded-md text-xs w-64 focus:ring-1 focus:ring-signal-teal" placeholder="Search conversations (Cmd+K)" type="text"/>
+</div>
+<div class="flex items-center gap-3">
+<button class="material-symbols-outlined text-mute-slate hover:bg-[#F4F6FA] p-1 rounded transition-colors">notifications</button>
+<button class="material-symbols-outlined text-mute-slate hover:bg-[#F4F6FA] p-1 rounded transition-colors">apps</button>
+<button class="material-symbols-outlined text-mute-slate hover:bg-[#F4F6FA] p-1 rounded transition-colors">help</button>
+<div class="h-8 w-8 rounded-full bg-slate-200 overflow-hidden border border-hairline">
+<img class="h-full w-full object-cover" data-alt="professional male profile avatar in studio lighting with neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOg634zj3aCYi5flcOAbdQAPbzTd2XRa1n2Ov-VNAOj56ezQThK6kxjTIvWxfG58nNB-_VjKbfW53pp-xy-Ok-Ky_dUD2hjEUk3ScljaeqTxAOYR4OJJj0CqteCG3N40iY1agWUkYd1sm1JbNbSrQYSrEXNW6auj_uZOmnjEZbNnMM4YRbIvw33fq7AOq9TdiNCulTyZcSUuFKjChnNRJkT7KVI6FLdfY3DUAE08tK2HU7JFe71K6qEJBN2bGOWUjsozwT0ZtWUnu_"/>
+</div>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<nav class="bg-white dark:bg-[#0B1220] text-[#0EA5A6] font-['Inter'] text-[14px] font-[550] flex flex-col fixed left-0 top-0 h-full py-4 z-40 border-r border-[#E2E6EF] dark:border-[#2A3142] w-[224px] pt-20">
+<div class="flex-1 px-3 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-[#94A3B8] hover:bg-[#F4F6FA] rounded-md transition-all" href="#">
+<span class="material-symbols-outlined">settings_input_component</span>
+<span>Configure</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 bg-[#F4F6FA] dark:bg-[#1A2030] text-[#1F2937] border-l-[3px] border-[#0EA5A6] transition-all" href="#">
+<span class="material-symbols-outlined">settings_remote</span>
+<span>Operate</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#94A3B8] hover:bg-[#F4F6FA] rounded-md transition-all" href="#">
+<span class="material-symbols-outlined">hub</span>
+<span>Distribute</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#94A3B8] hover:bg-[#F4F6FA] rounded-md transition-all" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span>Workspace</span>
+</a>
+</div>
+<div class="px-3 pt-4 border-t border-hairline space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-[#94A3B8] hover:bg-[#F4F6FA] rounded-md transition-all" href="#">
+<span class="material-symbols-outlined">contact_support</span>
+<span>Support</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#94A3B8] hover:bg-[#F4F6FA] rounded-md transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area (Mission Control) -->
+<main class="pl-[224px] pt-[56px] min-h-screen bg-mission-black">
+<div class="p-8 max-w-[1600px] mx-auto">
+<!-- Header Section -->
+<div class="mb-8">
+<div class="flex items-center gap-3 mb-1">
+<div class="h-3 w-3 bg-live-cyan rounded-full animate-pulse-live"></div>
+<h1 class="text-[28px] font-semibold font-headline text-paper-white tracking-tight leading-tight">Live: cv_9b22m3</h1>
+</div>
+<p class="font-mono text-[13px] text-whisper-slate">
+                    Agent: Calderon HVAC Inbound <span class="mx-2 opacity-30">·</span> 
+                    Customer: +1 (480) 555-0143 <span class="mx-2 opacity-30">·</span> 
+                    Started 0:34 ago
+                </p>
+</div>
+<div class="flex gap-4">
+<!-- Left Section (Main Grid) -->
+<div class="flex-1 flex flex-col gap-4">
+<!-- Top Row: Transcript & Waveform -->
+<div class="flex gap-4 h-[240px]">
+<!-- Transcript Card -->
+<div class="flex-[3] bg-mission-slate border border-mission-hairline rounded-[10px] flex flex-col overflow-hidden">
+<div class="p-4 border-b border-mission-hairline flex justify-between items-center bg-mission-black/20">
+<span class="text-[11px] font-semibold text-mute-slate tracking-[0.08em] uppercase">Live Transcript Stream</span>
+<span class="text-[10px] font-mono text-live-cyan">REAL-TIME SYNCED</span>
+</div>
+<div class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+<div class="flex gap-3">
+<span class="font-mono text-[11px] text-mute-slate pt-1">22:04:01</span>
+<span class="bg-signal-teal text-white text-[10px] font-semibold h-fit px-2 py-0.5 rounded-full uppercase tracking-tight">Agent</span>
+<p class="text-[13px] text-paper-white leading-relaxed">Thank you for calling Calderon HVAC. This is Sam. How can I help you today?</p>
+</div>
+<div class="flex gap-3">
+<span class="font-mono text-[11px] text-mute-slate pt-1">22:04:08</span>
+<span class="bg-audit-indigo text-white text-[10px] font-semibold h-fit px-2 py-0.5 rounded-full uppercase tracking-tight">Customer</span>
+<p class="text-[13px] text-paper-white leading-relaxed">Hi, yeah, my AC unit just started making a loud rattling noise and it's 105 degrees out here.</p>
+</div>
+<div class="flex gap-3 border-l-2 border-live-cyan pl-3 bg-live-cyan/5 py-1">
+<span class="font-mono text-[11px] text-mute-slate pt-1">22:04:14</span>
+<span class="bg-signal-teal text-white text-[10px] font-semibold h-fit px-2 py-0.5 rounded-full uppercase tracking-tight">Agent</span>
+<p class="text-[13px] text-paper-white leading-relaxed">I completely understand the urgency given the temperature. I can definitely help schedule an emergency technician to look at that rattling unit...</p>
+</div>
+</div>
+</div>
+<!-- Waveform Card -->
+<div class="flex-[2] bg-mission-slate border border-mission-hairline rounded-[10px] p-4 flex flex-col justify-between">
+<div class="flex justify-between">
+<span class="text-[11px] font-semibold text-mute-slate tracking-[0.08em] uppercase">Voice Analysis</span>
+<div class="flex gap-4">
+<div class="flex items-center gap-1.5">
+<div class="w-1.5 h-1.5 rounded-full bg-signal-teal"></div>
+<span class="text-[10px] text-whisper-slate uppercase">Agent</span>
+</div>
+<div class="flex items-center gap-1.5">
+<div class="w-1.5 h-1.5 rounded-full bg-audit-indigo"></div>
+<span class="text-[10px] text-whisper-slate uppercase">User</span>
+</div>
+</div>
+</div>
+<div class="relative h-24 flex items-center justify-center">
+<!-- Mock Waveform SVG -->
+<svg class="w-full h-16" fill="none" viewbox="0 0 400 64" xmlns="http://www.w3.org/2000/svg">
+<path class="animate-pulse-live" d="M0 32H10L15 10L25 54L35 32H50L60 15L70 45L80 32H100L110 5L120 60L130 32H150L160 20L170 40L180 32H200L210 10L220 54L230 32H250L260 5L270 60L280 32H300L310 20L320 40L330 32H350L360 10L370 54L380 32H400" stroke="#22D3EE" stroke-width="2"></path>
+</svg>
+<div class="absolute bottom-0 w-full flex justify-between text-[9px] font-mono text-mute-slate border-t border-mission-hairline pt-1">
+<span>-30s</span>
+<span>-20s</span>
+<span>-10s</span>
+<span>Live</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-2 mt-2">
+<div class="bg-mission-black/40 p-2 rounded border border-mission-hairline">
+<p class="text-[9px] text-mute-slate uppercase font-semibold">Latency</p>
+<p class="font-mono text-xs text-paper-white">412ms</p>
+</div>
+<div class="bg-mission-black/40 p-2 rounded border border-mission-hairline">
+<p class="text-[9px] text-mute-slate uppercase font-semibold">Sentiment</p>
+<p class="font-mono text-xs text-booked-green">Neutral-Urgent</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Middle Row: Intervention Toolbar -->
+<div class="bg-mission-slate border border-mission-hairline rounded-[10px] h-20 flex items-stretch divide-x divide-mission-hairline">
+<button class="flex-1 flex flex-col items-center justify-center gap-1.5 group hover:bg-risk-crimson/10 transition-colors">
+<span class="material-symbols-outlined text-risk-crimson">call_end</span>
+<span class="text-[11px] font-medium text-paper-white uppercase tracking-wider">End call</span>
+</button>
+<button class="flex-1 flex flex-col items-center justify-center gap-1.5 group hover:bg-white/5 transition-colors">
+<div class="flex items-center">
+<span class="material-symbols-outlined text-paper-white">move_up</span>
+<span class="material-symbols-outlined text-paper-white text-xs">arrow_drop_down</span>
+</div>
+<span class="text-[11px] font-medium text-paper-white uppercase tracking-wider">Transfer</span>
+</button>
+<button class="flex-1 flex flex-col items-center justify-center gap-1.5 group hover:bg-audit-indigo/10 transition-colors">
+<span class="material-symbols-outlined text-audit-indigo">edit_note</span>
+<span class="text-[11px] font-medium text-paper-white uppercase tracking-wider">Update context</span>
+</button>
+<button class="flex-[1.5] flex flex-col items-center justify-center gap-1.5 group hover:bg-signal-teal/10 transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-signal-teal">person_add</span>
+<div class="w-8 h-4 bg-whisper-slate rounded-full relative p-0.5">
+<div class="w-3 h-3 bg-white rounded-full"></div>
+</div>
+</div>
+<span class="text-[11px] font-medium text-paper-white uppercase tracking-wider">Enable human takeover</span>
+</button>
+<button class="flex-1 flex flex-col items-center justify-center gap-1.5 group hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined text-paper-white">send_to_mobile</span>
+<span class="text-[11px] font-medium text-paper-white uppercase tracking-wider">Send message</span>
+</button>
+<button class="flex-1 flex flex-col items-center justify-center gap-1.5 group hover:bg-white/5 transition-colors">
+<span class="material-symbols-outlined text-paper-white">volume_off</span>
+<span class="text-[11px] font-medium text-paper-white uppercase tracking-wider">Mute agent</span>
+</button>
+</div>
+<!-- Bottom Row: Composer & Audit Log -->
+<div class="bg-mission-slate border border-mission-hairline rounded-[10px] flex-1 flex flex-col overflow-hidden min-h-[300px]">
+<div class="p-4 border-b border-mission-hairline bg-mission-black/20 flex justify-between items-center">
+<span class="text-[11px] font-semibold text-mute-slate tracking-[0.08em] uppercase">Human Takeover Composer</span>
+<span class="bg-risk-crimson/20 text-risk-crimson text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-widest">Override Mode Inactive</span>
+</div>
+<div class="p-4 flex gap-4">
+<div class="flex-1 flex flex-col gap-3">
+<div class="bg-mission-black border border-mission-hairline rounded-lg p-3 min-h-[100px] flex flex-col">
+<textarea class="flex-1 bg-transparent border-none focus:ring-0 text-paper-white text-[13px] placeholder-mute-slate resize-none" placeholder="Type a message to be spoken by the agent voice or sent via SMS..."></textarea>
+<div class="flex justify-end pt-2">
+<button class="bg-signal-teal text-white px-6 py-2 rounded-md font-semibold text-sm hover:bg-deep-teal transition-colors flex items-center gap-2">
+<span>Send Intervention</span>
+<span class="material-symbols-outlined text-sm">bolt</span>
+</button>
+</div>
+</div>
+</div>
+<div class="w-1/3 flex flex-col gap-2">
+<span class="text-[11px] font-semibold text-mute-slate tracking-[0.08em] uppercase">Intervention Audit Log</span>
+<div class="bg-mission-black/40 border border-mission-hairline rounded-lg flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar">
+<div class="flex justify-between items-start">
+<span class="font-mono text-[10px] text-mute-slate">22:04:02</span>
+<span class="text-[11px] text-paper-white">Session started</span>
+</div>
+<div class="flex justify-between items-start">
+<span class="font-mono text-[10px] text-mute-slate">22:04:15</span>
+<span class="text-[11px] text-paper-white">Context: High Urgency</span>
+</div>
+<div class="flex justify-between items-start">
+<span class="font-mono text-[10px] text-mute-slate">22:04:22</span>
+<span class="text-[11px] text-live-cyan">Supervisor joined</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Rail (Context) -->
+<aside class="w-[280px] flex flex-col gap-4">
+<div class="bg-mission-slate border border-mission-hairline rounded-[10px] p-5 flex-1 flex flex-col overflow-hidden">
+<span class="text-[11px] font-semibold text-mute-slate tracking-[0.08em] uppercase mb-6">Conversation Context</span>
+<!-- Customer Card -->
+<div class="mb-8">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 rounded-lg bg-mission-black border border-mission-hairline overflow-hidden">
+<img class="h-full w-full object-cover grayscale opacity-80" data-alt="close-up of middle-aged woman with warm smile, professional portrait lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMPr7wSrqu8ie6sfLq-HGnsg9gZW-z_XeTqp-rLxPps91Jn2qC7zvL6IqMZLN_DfBWh0TJkOp9uwKfBHl4WIjgwYPHbSwPP_E0_0vt3TKJSdfwM_U6PAL9CU8PLwUcbUiDZ2_r9YrRcQRLcHPof2_h2B55Huy4zHp51RoBHH9GvH8ACs8JeTWIILGjJCteQ2BGFi7N3qUF5XdxM8_QWPI7f8EIeIt50ITu75yXGpbWyBEBn4jzjXgma2HTVyaTMCiU5WnXBDWgwcbG"/>
+</div>
+<div>
+<h3 class="text-paper-white font-semibold font-headline leading-tight">Maria Hernandez</h3>
+<p class="font-mono text-[11px] text-whisper-slate">+14805550143</p>
+</div>
+</div>
+<div class="space-y-4">
+<div>
+<p class="text-[10px] text-mute-slate uppercase font-bold mb-2 tracking-wide">Historical Value</p>
+<p class="font-mono text-2xl text-receipt-gold">$1,840</p>
+</div>
+<div>
+<p class="text-[10px] text-mute-slate uppercase font-bold mb-2 tracking-wide">Recent History</p>
+<ul class="space-y-2">
+<li class="flex items-center justify-between text-[11px]">
+<span class="text-paper-white">AC Annual Service</span>
+<span class="text-mute-slate">Jun 12</span>
+</li>
+<li class="flex items-center justify-between text-[11px]">
+<span class="text-paper-white">Thermostat Install</span>
+<span class="text-mute-slate">Feb 04</span>
+</li>
+<li class="flex items-center justify-between text-[11px]">
+<span class="text-paper-white">Initial Consultation</span>
+<span class="text-mute-slate">Nov 22</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<!-- Live Eval Verdicts -->
+<div class="mb-8 space-y-4">
+<span class="text-[11px] font-semibold text-mute-slate tracking-[0.08em] uppercase block">Live Eval Verdicts</span>
+<div class="space-y-2">
+<div class="flex items-center justify-between p-2.5 bg-mission-black/40 border border-mission-hairline rounded-lg">
+<span class="text-[11px] text-paper-white font-mono">booking_confirmed</span>
+<span class="text-[10px] font-bold uppercase text-compliance-amber tracking-tighter">pending</span>
+</div>
+<div class="flex items-center justify-between p-2.5 bg-mission-black/40 border border-mission-hairline rounded-lg">
+<span class="text-[11px] text-paper-white font-mono">service_area_check</span>
+<span class="text-[10px] font-bold uppercase text-booked-green tracking-tighter">✓ Match</span>
+</div>
+<div class="flex items-center justify-between p-2.5 bg-mission-black/40 border border-mission-hairline rounded-lg">
+<span class="text-[11px] text-paper-white font-mono">caller_satisfied</span>
+<span class="text-[10px] font-bold uppercase text-compliance-amber tracking-tighter">pending</span>
+</div>
+</div>
+</div>
+<div class="mt-auto">
+<button class="w-full bg-risk-crimson/10 border border-risk-crimson text-risk-crimson py-3 rounded-lg font-semibold text-[13px] hover:bg-risk-crimson hover:text-white transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">emergency_home</span>
+                                Disconnect &amp; escalate to manager
+                            </button>
+</div>
+</div>
+</aside>
+</div>
+</div>
+</main>
+<!-- Visual Polish: F3 Mission Control Dark Canvas Effect -->
+<div class="fixed inset-0 pointer-events-none opacity-[0.03]" style="background-image: radial-gradient(#22D3EE 1px, transparent 1px); background-size: 24px 24px;"></div>
+</body></html>

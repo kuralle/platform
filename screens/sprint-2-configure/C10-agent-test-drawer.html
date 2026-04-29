@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vokari Ops - Agent Tester</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;550;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        midnight: "#0B1220",
+                        operator: "#1F2937",
+                        mute: "#64748B",
+                        whisper: "#94A3B8",
+                        hush: "#F4F6FA",
+                        paper: "#FFFFFF",
+                        hairline: "#E2E6EF",
+                        soft: "#EEF1F6",
+                        signal: "#0EA5A6",
+                        deep: "#0F7A7B",
+                        live: "#22D3EE",
+                        booked: "#10B981",
+                        compliance: "#F59E0B",
+                        risk: "#DC2626",
+                        audit: "#4F46E5",
+                        gold: "#B89A4A"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        headline: ["Geist", "sans-serif"],
+                        display: ["Geist", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                        label: ["Inter", "sans-serif"],
+                        mono: ["JetBrains Mono", "monospace"]
+                    }
+                }
+            }
+        };
+    </script>
+<style>
+        @font-face {
+            font-family: 'Geist';
+            src: url('https://cdn.jsdelivr.net/npm/geist@1.0.3/dist/fonts/geist-sans/Geist-Regular.woff2') format('woff2');
+            font-weight: 400;
+        }
+        @font-face {
+            font-family: 'Geist';
+            src: url('https://cdn.jsdelivr.net/npm/geist@1.0.3/dist/fonts/geist-sans/Geist-SemiBold.woff2') format('woff2');
+            font-weight: 600;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-hush text-midnight antialiased">
+<!-- TOP NAV BAR (Shared Component) -->
+<header class="fixed top-0 w-full h-[56px] z-50 bg-white border-b border-hairline flex justify-between items-center px-8">
+<div class="flex items-center gap-6">
+<span class="text-xl font-bold tracking-[-1.5%] text-midnight">Vokari</span>
+<div class="hidden md:flex gap-6 items-center">
+<a class="text-sm font-semibold text-mute hover:text-signal transition-colors" href="#">Configure</a>
+<a class="text-sm font-semibold text-midnight border-b-2 border-signal pb-4" href="#">Operate</a>
+<a class="text-sm font-semibold text-mute hover:text-signal transition-colors" href="#">Distribute</a>
+<a class="text-sm font-semibold text-mute hover:text-signal transition-colors" href="#">Workspace</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative">
+<span class="material-symbols-outlined text-mute hover:text-signal cursor-pointer">search</span>
+</div>
+<span class="material-symbols-outlined text-mute hover:text-signal cursor-pointer">notifications</span>
+<div class="w-8 h-8 rounded-full bg-hush overflow-hidden border border-hairline">
+<img class="w-full h-full object-cover" data-alt="Professional male avatar for system operator in corporate attire" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAd4h0u_TAqTvHRC2ogZPtAzWtrxlIsN3YEwmcIbozCpNY8eNnIbIZJjhvgML7D4kMCZYiilMOhIRRw9Eyb3NhLvUYyRy9uD_eGfsL674cILdFFkysZiS-6S9pUzo4ckX3oOR2pLXw3ZjjchEL74PNHS1FR1pEfM_-YfaJOopV1eivic1pJcSCCwpT6t4Fcu4N7__0i2Kr_M9ePHnz8o8DjCgRZk3nveSFvXY6Oz-hv4XvZ2emTa0f-BbPlRiWWKu_WG_PuTGIsLYMa"/>
+</div>
+</div>
+</header>
+<!-- SIDE NAV BAR (Shared Component) -->
+<aside class="fixed left-0 top-[56px] w-[224px] h-[calc(100vh-56px)] bg-white border-r border-hairline flex flex-col py-6">
+<div class="px-4 mb-8">
+<div class="flex items-center gap-3 mb-1">
+<div class="w-8 h-8 rounded-lg bg-midnight flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-sm" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+<div>
+<div class="text-sm font-semibold text-midnight">Vokari Ops</div>
+<div class="text-[11px] text-mute font-medium uppercase tracking-wider">Home Services v1.2</div>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-3 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-[14px] font-[550] bg-hush text-signal border-l-4 border-signal" href="#">
+<span class="material-symbols-outlined">smart_toy</span> Agents
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-[14px] font-[550] text-mute hover:bg-hush transition-all" href="#">
+<span class="material-symbols-outlined">forum</span> Conversations
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-[14px] font-[550] text-mute hover:bg-hush transition-all" href="#">
+<span class="material-symbols-outlined">bar_chart</span> Analytics
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-[14px] font-[550] text-mute hover:bg-hush transition-all" href="#">
+<span class="material-symbols-outlined">account_tree</span> Workflows
+            </a>
+</nav>
+<div class="px-3 mt-auto space-y-1 border-t border-hairline pt-4">
+<a class="flex items-center gap-3 px-3 py-2 text-[14px] font-[550] text-mute hover:bg-hush transition-all" href="#">
+<span class="material-symbols-outlined">settings</span> Settings
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-[14px] font-[550] text-mute hover:bg-hush transition-all" href="#">
+<span class="material-symbols-outlined">help</span> Support
+            </a>
+</div>
+</aside>
+<!-- MAIN CONTENT (DIMMED AGENT EDITOR) -->
+<main class="ml-[224px] mt-[56px] p-8 h-[calc(100vh-56px)] overflow-hidden relative">
+<!-- Backdrop -->
+<div class="absolute inset-0 bg-midnight/60 z-40"></div>
+<!-- Editor Content (Mockup behind backdrop) -->
+<div class="max-w-5xl mx-auto space-y-8 pointer-events-none">
+<div class="flex justify-between items-end border-b border-hairline pb-6">
+<div>
+<h1 class="text-2xl font-bold font-headline tracking-tight">Calderon HVAC Inbound</h1>
+<p class="text-mute text-sm mt-1">Configure your agent's core logic and behavioral guardrails.</p>
+</div>
+<div class="flex gap-3">
+<div class="bg-white px-4 py-2 border border-hairline rounded-lg text-sm font-medium">Test Agent</div>
+<div class="bg-signal px-4 py-2 rounded-lg text-white text-sm font-medium">Publish Draft</div>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-8">
+<div class="col-span-8 space-y-6">
+<div class="bg-white border border-hairline rounded-xl p-6">
+<div class="flex border-b border-hairline mb-6">
+<button class="px-4 py-2 text-sm font-semibold border-b-2 border-signal text-signal">Behavior</button>
+<button class="px-4 py-2 text-sm font-semibold text-mute">Knowledge</button>
+<button class="px-4 py-2 text-sm font-semibold text-mute">Voices</button>
+<button class="px-4 py-2 text-sm font-semibold text-mute">Safety</button>
+</div>
+<div class="space-y-4">
+<label class="block text-xs font-semibold text-operator uppercase tracking-wider">Primary System Prompt</label>
+<div class="w-full h-64 bg-hush rounded-lg border border-hairline p-4 font-mono text-sm text-operator overflow-hidden opacity-50">
+                                You are a professional dispatcher for Calderon HVAC. Your primary goal is to book appointments for air conditioning repair and maintenance...
+                            </div>
+</div>
+</div>
+</div>
+<div class="col-span-4 space-y-6">
+<div class="bg-white border border-hairline rounded-xl p-6">
+<h3 class="text-sm font-semibold mb-4">Compliance Status</h3>
+<div class="space-y-3">
+<div class="flex items-center justify-between p-2 rounded-lg border border-hairline bg-hush/50">
+<span class="text-xs font-semibold uppercase tracking-wider text-mute">HIPAA Mode</span>
+<div class="w-8 h-4 bg-booked rounded-full relative"><div class="absolute right-0.5 top-0.5 w-3 h-3 bg-white rounded-full"></div></div>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg border border-hairline bg-hush/50">
+<span class="text-xs font-semibold uppercase tracking-wider text-mute">Zero-Retention</span>
+<div class="w-8 h-4 bg-booked rounded-full relative"><div class="absolute right-0.5 top-0.5 w-3 h-3 bg-white rounded-full"></div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT DRAWER (C10 Agent Tester) -->
+<div class="fixed top-0 right-0 h-screen w-[560px] bg-white z-50 shadow-2xl border-l border-hairline flex flex-col">
+<!-- Header -->
+<header class="h-[56px] px-6 flex items-center justify-between border-b border-hairline shrink-0">
+<div class="flex items-center gap-3">
+<h2 class="text-[16px] font-semibold font-headline text-midnight">Calderon HVAC Inbound</h2>
+<span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-compliance/10 text-compliance rounded-full border border-compliance/20">Draft</span>
+</div>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-hush text-mute transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</header>
+<!-- Mode Selector -->
+<div class="px-6 py-4 border-b border-hairline shrink-0">
+<div class="w-full bg-hush p-1 rounded-lg flex items-center gap-1">
+<button class="flex-1 py-1.5 text-sm font-[550] rounded-md bg-white text-midnight shadow-sm">Type</button>
+<button class="flex-1 py-1.5 text-sm font-[550] rounded-md text-mute hover:bg-white/50 transition-colors">Talk</button>
+</div>
+</div>
+<!-- Body (Scrollable Transcript) -->
+<div class="flex-1 overflow-y-auto p-6 space-y-6">
+<!-- Customer Message -->
+<div class="flex flex-col items-end">
+<div class="max-w-[85%] bg-signal/10 text-operator p-3 rounded-2xl rounded-tr-none text-[13px] leading-relaxed border border-signal/5">
+                        Hi, I'm calling because my AC unit just stopped blowing cold air. It's about 95 degrees here in Scottsdale. Can someone come out today?
+                    </div>
+<span class="mt-1.5 text-[11px] text-mute font-mono">10:47:02 PM</span>
+</div>
+<!-- Agent Message -->
+<div class="flex flex-col items-start">
+<div class="max-w-[85%] bg-hush text-operator p-3 rounded-2xl rounded-tl-none text-[13px] leading-relaxed border border-hairline">
+                        I'm sorry to hear that, especially in this Scottsdale heat. I can definitely help you get a technician scheduled for today. Could you please provide your full address so I can check for the nearest available slot?
+                    </div>
+<!-- Evaluation Verdicts -->
+<div class="flex flex-wrap gap-2 mt-3">
+<div class="flex items-center gap-1 px-2 py-1 bg-booked/10 text-booked rounded-md border border-booked/20 text-[11px] font-semibold">
+<span class="material-symbols-outlined text-[14px]">check</span> booking_confirmed
+                        </div>
+<div class="flex items-center gap-1 px-2 py-1 bg-risk/10 text-risk rounded-md border border-risk/20 text-[11px] font-semibold">
+<span class="material-symbols-outlined text-[14px]">close</span> correct_service_area
+                        </div>
+</div>
+<span class="mt-1.5 text-[11px] text-mute font-mono">10:47:05 PM</span>
+</div>
+<!-- Customer Message -->
+<div class="flex flex-col items-end">
+<div class="max-w-[85%] bg-signal/10 text-operator p-3 rounded-2xl rounded-tr-none text-[13px] leading-relaxed border border-signal/5">
+                        Sure, I'm at 8422 North Cactus Road.
+                    </div>
+<span class="mt-1.5 text-[11px] text-mute font-mono">10:47:18 PM</span>
+</div>
+<!-- Tool Calls -->
+<div class="flex flex-col items-start space-y-2">
+<button class="text-signal text-[12px] font-semibold flex items-center gap-1 hover:underline">
+                        View tool calls <span class="material-symbols-outlined text-[16px]">arrow_drop_down</span>
+</button>
+<!-- Collapsible Monospace Block -->
+<div class="w-full bg-soft rounded-lg p-3 font-mono text-[11px] text-operator border border-hairline">
+<div class="text-mute mb-1">// check_service_availability</div>
+<div class="text-operator">
+                            {<br/>
+                              "address": "8422 North Cactus Road",<br/>
+                              "zip_code": "85250",<br/>
+                              "service_type": "emergency_repair"<br/>
+                            }
+                        </div>
+</div>
+</div>
+<!-- Agent Message -->
+<div class="flex flex-col items-start">
+<div class="max-w-[85%] bg-hush text-operator p-3 rounded-2xl rounded-tl-none text-[13px] leading-relaxed border border-hairline">
+                        Thank you. I've confirmed that we have a technician available in Scottsdale between 2 PM and 4 PM today. Would you like me to book that for you?
+                    </div>
+<span class="mt-1.5 text-[11px] text-mute font-mono">10:47:22 PM</span>
+</div>
+</div>
+<!-- Footer Config Row -->
+<div class="px-6 py-3 bg-hush/50 border-t border-hairline flex items-center justify-between gap-4">
+<div class="flex items-center gap-4 overflow-x-auto no-scrollbar">
+<div class="flex flex-col min-w-max">
+<span class="text-[10px] font-semibold text-mute uppercase tracking-tighter">LLM</span>
+<span class="text-[12px] font-medium text-operator">GPT-4o</span>
+</div>
+<div class="w-px h-6 bg-hairline"></div>
+<div class="flex flex-col min-w-max">
+<span class="text-[10px] font-semibold text-mute uppercase tracking-tighter">Voice</span>
+<span class="text-[12px] font-medium text-operator">Maya · EN/ES</span>
+</div>
+<div class="w-px h-6 bg-hairline"></div>
+<div class="flex flex-col min-w-max">
+<span class="text-[10px] font-semibold text-mute uppercase tracking-tighter">Compliance</span>
+<span class="text-[12px] font-medium text-operator">HIPAA</span>
+</div>
+</div>
+<div class="flex items-center gap-1 text-booked shrink-0">
+<div class="w-2 h-2 rounded-full bg-booked"></div>
+<span class="text-[11px] font-semibold">Live</span>
+</div>
+</div>
+<!-- Input Area -->
+<div class="p-6 border-t border-hairline bg-white">
+<div class="relative">
+<input class="w-full bg-white border border-hairline rounded-lg h-[44px] px-4 pr-12 text-[14px] focus:ring-2 focus:ring-signal/15 focus:border-signal outline-none transition-all placeholder:text-whisper" placeholder="Type a customer message..." type="text"/>
+<button class="absolute right-2 top-2 w-7 h-7 bg-signal text-white rounded-md flex items-center justify-center hover:bg-deep transition-all active:scale-95">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">arrow_upward</span>
+</button>
+</div>
+<div class="mt-4 flex items-center justify-between">
+<p class="text-[11px] text-mute italic">This conversation is sandboxed. No actual credits are charged.</p>
+<a class="text-[11px] font-semibold text-signal hover:underline" href="#">Convert this to a test →</a>
+</div>
+</div>
+</div>
+</main>
+</body></html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;550;600&amp;family=Geist:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        'midnight': '#0B1220',
+                        'operator-slate': '#1F2937',
+                        'mute-slate': '#64748B',
+                        'whisper-slate': '#94A3B8',
+                        'hush-mist': '#F4F6FA',
+                        'paper': '#FFFFFF',
+                        'hairline': '#E2E6EF',
+                        'soft-hairline': '#EEF1F6',
+                        'signal-teal': '#0EA5A6',
+                        'deep-teal': '#0F7A7B',
+                        'live-cyan': '#22D3EE',
+                        'booked-green': '#10B981',
+                        'compliance-amber': '#F59E0B',
+                        'risk-crimson': '#DC2626',
+                        'audit-indigo': '#4F46E5',
+                        'receipt-gold': '#B89A4A',
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.25rem',
+                        'lg': '0.5rem',
+                        'xl': '0.75rem',
+                        'full': '9999px',
+                    },
+                    fontFamily: {
+                        'headline': ['Geist', 'sans-serif'],
+                        'display': ['Geist', 'sans-serif'],
+                        'body': ['Inter', 'sans-serif'],
+                        'label': ['Inter', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace'],
+                    },
+                    fontSize: {
+                        'xs-caps': ['11px', { lineHeight: '16px', letterSpacing: '0.08em' }],
+                    },
+                    boxShadow: {
+                        'vokari-soft': '0 12px 32px rgba(11, 18, 32, 0.08)',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-size: 24px;
+        }
+        .step-line::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background-color: #E2E6EF;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body class="bg-hush-mist font-body text-operator-slate antialiased">
+<!-- TopNavBar from JSON Shell -->
+<header class="bg-white dark:bg-[#0B1220] border-b border-[#E2E6EF] dark:border-[#1F2937] flex justify-between items-center h-14 px-8 w-full z-50 fixed top-0 left-0">
+<div class="flex items-center gap-4">
+<span class="text-xl font-bold tracking-[-1.5%] text-[#0B1220] dark:text-white font-headline">Vokari</span>
+<div class="hidden md:flex items-center gap-2 ml-4">
+<span class="bg-audit-indigo/10 text-audit-indigo text-[10px] font-semibold px-2 py-0.5 rounded uppercase tracking-wider">Production</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="material-symbols-outlined text-mute-slate hover:bg-[#F4F6FA] p-1.5 rounded transition-colors" data-icon="help">help</button>
+<button class="material-symbols-outlined text-mute-slate hover:bg-[#F4F6FA] p-1.5 rounded transition-colors" data-icon="account_circle">account_circle</button>
+</div>
+</header>
+<main class="min-h-screen flex items-center justify-center p-6 pt-20">
+<!-- Onboarding Wizard Card -->
+<div class="w-full max-w-[720px] bg-paper rounded-[16px] shadow-vokari-soft overflow-hidden border border-hairline flex flex-col">
+<!-- Progress Header -->
+<div class="px-8 pt-8 pb-6 text-center">
+<div class="relative flex justify-between max-w-[240px] mx-auto mb-6 step-line">
+<div class="z-10 w-3 h-3 rounded-full bg-signal-teal border border-signal-teal"></div>
+<div class="z-10 w-3 h-3 rounded-full bg-paper border border-hairline"></div>
+<div class="z-10 w-3 h-3 rounded-full bg-paper border border-hairline"></div>
+<div class="z-10 w-3 h-3 rounded-full bg-paper border border-hairline"></div>
+<div class="z-10 w-3 h-3 rounded-full bg-paper border border-hairline"></div>
+</div>
+<div class="text-xs-caps font-semibold text-mute-slate uppercase tracking-[0.08em]">STEP 1 OF 5</div>
+</div>
+<!-- Content Area -->
+<div class="px-8 pb-10">
+<div class="mb-8">
+<h2 class="text-[22px] font-semibold font-headline text-midnight leading-tight mb-2">Pick your vertical</h2>
+<p class="text-sm text-mute-slate max-w-[480px]">Vokari ships pre-tuned templates per industry — pick the one closest to your business.</p>
+</div>
+<!-- Vertical Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<!-- Option 1: Home Services (Selected State) -->
+<button class="relative flex flex-col items-start text-left h-[220px] p-6 bg-paper border-2 border-signal-teal rounded-[10px] transition-all duration-180 hover:shadow-sm">
+<div class="absolute top-3 right-3 bg-booked-green text-white p-0.5 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined !text-[14px]" style="font-variation-settings: 'wght' 700;">check</span>
+</div>
+<div class="flex gap-2 mb-auto text-operator-slate">
+<span class="material-symbols-outlined !text-[20px]" data-icon="hvac">hvac</span>
+<span class="material-symbols-outlined !text-[20px]" data-icon="plumbing">plumbing</span>
+<span class="material-symbols-outlined !text-[20px]" data-icon="electrical_services">electrical_services</span>
+</div>
+<div>
+<div class="font-semibold text-operator-slate text-sm mb-1">Home Services</div>
+<p class="text-[12px] text-mute-slate leading-normal">HVAC, plumbing, electrical, and field operations.</p>
+</div>
+</button>
+<!-- Option 2: Appointment Services -->
+<button class="group flex flex-col items-start text-left h-[220px] p-6 bg-paper border border-hairline rounded-[10px] transition-all duration-180 hover:border-signal-teal hover:bg-hush-mist/30">
+<div class="flex gap-2 mb-auto text-operator-slate">
+<span class="material-symbols-outlined !text-[20px]" data-icon="dentistry">dentistry</span>
+<span class="material-symbols-outlined !text-[20px]" data-icon="spa">spa</span>
+<span class="material-symbols-outlined !text-[20px]" data-icon="pets">pets</span>
+</div>
+<div>
+<div class="font-semibold text-operator-slate text-sm mb-1">Appointment Services</div>
+<p class="text-[12px] text-mute-slate leading-normal">Dental, med-spa, veterinary, and clinic management.</p>
+</div>
+</button>
+<!-- Option 3: Education -->
+<button class="group flex flex-col items-start text-left h-[220px] p-6 bg-paper border border-hairline rounded-[10px] transition-all duration-180 hover:border-signal-teal hover:bg-hush-mist/30">
+<div class="flex gap-2 mb-auto text-operator-slate">
+<span class="material-symbols-outlined !text-[20px]" data-icon="school">school</span>
+<span class="material-symbols-outlined !text-[20px]" data-icon="account_balance">account_balance</span>
+<span class="material-symbols-outlined !text-[20px]" data-icon="history_edu">history_edu</span>
+</div>
+<div>
+<div class="font-semibold text-operator-slate text-sm mb-1">Education</div>
+<p class="text-[12px] text-mute-slate leading-normal">Admissions, K-12 administration, and bootcamps.</p>
+</div>
+</button>
+</div>
+</div>
+<!-- Footer -->
+<div class="mt-auto px-8 py-5 bg-soft-hairline/30 border-t border-hairline flex items-center justify-between">
+<a class="text-sm font-medium text-operator-slate hover:text-midnight transition-colors" href="#">Skip</a>
+<button class="h-9 px-6 bg-signal-teal hover:bg-deep-teal text-white font-medium text-sm rounded-[6px] transition-all active:scale-95">
+                    Continue
+                </button>
+</div>
+</div>
+</main>
+<!-- SideNavBar (Hidden/Suppressed based on Transactional Flow logic) -->
+<!-- The prompt implies a focused onboarding wizard context where we suppress global nav -->
+<!-- Empty footer space for visual balance -->
+<footer class="py-12 text-center">
+<p class="text-[11px] font-semibold text-whisper-slate tracking-widest uppercase">Vokari Intelligence Systems • Built for Operators</p>
+</footer>
+</body></html>

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vokari - Monthly ROI Receipt</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@400;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "midnight-signal": "#0B1220",
+                        "operator-slate": "#1F2937",
+                        "mute-slate": "#64748B",
+                        "whisper-slate": "#94A3B8",
+                        "hush-mist": "#F4F6FA",
+                        "paper-white": "#FFFFFF",
+                        "hairline": "#E2E6EF",
+                        "soft-hairline": "#EEF1F6",
+                        "signal-teal": "#0EA5A6",
+                        "deep-teal": "#0F7A7B",
+                        "live-cyan": "#22D3EE",
+                        "booked-green": "#10B981",
+                        "compliance-amber": "#F59E0B",
+                        "risk-crimson": "#DC2626",
+                        "audit-indigo": "#4F46E5",
+                        "receipt-gold": "#B89A4A",
+                        "receipt-gold-tint": "#F5EFD9"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        "headline": ["Geist", "sans-serif"],
+                        "display": ["Geist", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .receipt-artboard {
+            width: 794px;
+            min-height: 1123px;
+            box-shadow: 0 24px 48px rgba(11, 18, 32, 0.12);
+        }
+        @media print {
+            body { background: white; }
+            .no-print { display: none; }
+            .receipt-artboard { box-shadow: none; border: none; margin: 0; }
+        }
+    </style>
+</head>
+<body class="bg-hush-mist font-body text-operator-slate antialiased">
+<!-- TOP NAVIGATION SHELL (Transactional Filter Applied: Header persists, side-nav suppressed) -->
+<header class="flex justify-between items-center px-6 w-full sticky top-0 z-50 bg-[#F4F6FA] dark:bg-[#0B1220] h-14 border-b border-[#E2E6EF] dark:border-[#2A3142] no-print">
+<div class="flex items-center gap-4">
+<div class="flex flex-col">
+<span class="text-[12px] text-mute-slate font-medium">Revenue attribution / April 2026 receipt</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-3">
+<input class="h-9 w-64 rounded-lg border-hairline bg-white text-sm focus:ring-1 focus:ring-signal-teal focus:border-signal-teal" placeholder="billing@calderonhvac.com" type="email"/>
+<div class="flex items-center gap-2">
+<button aria-checked="false" class="relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none bg-whisper-slate" role="switch" type="button">
+<span class="translate-x-0 pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+</button>
+<span class="text-xs font-medium text-mute-slate">Schedule monthly auto-send</span>
+</div>
+</div>
+<button class="bg-signal-teal text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-deep-teal transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                Download PDF
+            </button>
+</div>
+</header>
+<!-- MAIN CONTENT CANVAS -->
+<main class="flex justify-center py-12 px-4">
+<!-- A4 ARTBOARD -->
+<article class="receipt-artboard bg-white p-12 flex flex-col gap-10">
+<!-- SECTION 1: HEADER -->
+<section class="flex justify-between items-start">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 bg-signal-teal flex items-center justify-center rounded">
+<span class="material-symbols-outlined text-white text-[20px]">graphic_eq</span>
+</div>
+<span class="font-headline font-bold text-xl tracking-tighter text-midnight-signal">Vokari</span>
+</div>
+<div class="text-right">
+<p class="text-[11px] font-semibold tracking-[0.08em] text-mute-slate uppercase">Monthly ROI Receipt</p>
+<p class="font-mono text-[18px] text-midnight-signal mt-1">April 2026</p>
+</div>
+</section>
+<hr class="border-hairline"/>
+<!-- SECTION 2: HERO STATS -->
+<section class="flex flex-col items-center justify-center bg-receipt-gold-tint rounded-xl h-[200px] border border-[#E5DEBC]">
+<div class="text-center">
+<h1 class="font-mono text-[56px] leading-tight font-medium text-receipt-gold">$47,200</h1>
+<p class="text-receipt-gold font-medium -mt-2">in confirmed revenue this month</p>
+</div>
+<div class="flex items-center gap-3 mt-6">
+<span class="font-mono text-[24px] font-medium text-receipt-gold">121x</span>
+<span class="text-mute-slate text-sm font-medium">return on $389 invested</span>
+</div>
+</section>
+<!-- SECTION 3: 'HOW WE GOT THERE' TABLE -->
+<section>
+<h3 class="text-[11px] font-semibold tracking-[0.08em] text-mute-slate uppercase mb-4">How we got there</h3>
+<div class="border border-hairline rounded-lg overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead class="bg-hush-mist">
+<tr>
+<th class="px-6 py-3 text-[11px] font-semibold text-mute-slate uppercase tracking-wider">Operational Metric</th>
+<th class="px-6 py-3 text-[11px] font-semibold text-mute-slate uppercase tracking-wider text-right">Count</th>
+<th class="px-6 py-3 text-[11px] font-semibold text-mute-slate uppercase tracking-wider text-right">Revenue Value</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-hairline">
+<tr class="hover:bg-soft-hairline transition-colors">
+<td class="px-6 py-4 text-[14px] text-operator-slate">Incoming Calls Handled</td>
+<td class="px-6 py-4 font-mono text-[14px] text-right">1,247</td>
+<td class="px-6 py-4 font-mono text-[14px] text-receipt-gold text-right">$24,140</td>
+</tr>
+<tr class="hover:bg-soft-hairline transition-colors">
+<td class="px-6 py-4 text-[14px] text-operator-slate">Appointments Booked</td>
+<td class="px-6 py-4 font-mono text-[14px] text-right">412</td>
+<td class="px-6 py-4 font-mono text-[14px] text-receipt-gold text-right">$18,420</td>
+</tr>
+<tr class="hover:bg-soft-hairline transition-colors">
+<td class="px-6 py-4 text-[14px] text-operator-slate">Recovered No-Shows / Cancellations</td>
+<td class="px-6 py-4 font-mono text-[14px] text-right">38</td>
+<td class="px-6 py-4 font-mono text-[14px] text-receipt-gold text-right">$8,420</td>
+</tr>
+<tr class="hover:bg-soft-hairline transition-colors">
+<td class="px-6 py-4 text-[14px] text-operator-slate">Speed-to-Lead Outbound Success</td>
+<td class="px-6 py-4 font-mono text-[14px] text-right">84</td>
+<td class="px-6 py-4 font-mono text-[14px] text-receipt-gold text-right">$3,220</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- SECTION 4: PER-AGENT BREAKDOWN -->
+<section>
+<h3 class="text-[11px] font-semibold tracking-[0.08em] text-mute-slate uppercase mb-6">Per-agent breakdown</h3>
+<div class="space-y-5">
+<!-- Bar 1 -->
+<div class="space-y-1.5">
+<div class="flex justify-between text-sm">
+<span class="font-medium text-operator-slate">Calderon HVAC Inbound</span>
+<span class="font-mono text-receipt-gold">$18,420</span>
+</div>
+<div class="w-full bg-soft-hairline rounded-full h-6 overflow-hidden">
+<div class="bg-signal-teal h-full" style="width: 100%;"></div>
+</div>
+</div>
+<!-- Bar 2 -->
+<div class="space-y-1.5">
+<div class="flex justify-between text-sm">
+<span class="font-medium text-operator-slate">Calderon Plumbing Inbound</span>
+<span class="font-mono text-receipt-gold">$14,840</span>
+</div>
+<div class="w-full bg-soft-hairline rounded-full h-6 overflow-hidden">
+<div class="bg-signal-teal h-full" style="width: 80%;"></div>
+</div>
+</div>
+<!-- Bar 3 -->
+<div class="space-y-1.5">
+<div class="flex justify-between text-sm">
+<span class="font-medium text-operator-slate">Calderon HVAC Win-back</span>
+<span class="font-mono text-receipt-gold">$8,420</span>
+</div>
+<div class="w-full bg-soft-hairline rounded-full h-6 overflow-hidden">
+<div class="bg-signal-teal h-full" style="width: 45%;"></div>
+</div>
+</div>
+<!-- Bar 4 -->
+<div class="space-y-1.5">
+<div class="flex justify-between text-sm">
+<span class="font-medium text-operator-slate">Calderon Missed-call Rescue</span>
+<span class="font-mono text-receipt-gold">$5,520</span>
+</div>
+<div class="w-full bg-soft-hairline rounded-full h-6 overflow-hidden">
+<div class="bg-signal-teal h-full" style="width: 30%;"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 5: COMPARISON -->
+<section class="grid grid-cols-3 gap-6">
+<div class="p-4 border border-hairline rounded-lg bg-hush-mist/30">
+<p class="text-[11px] font-semibold text-mute-slate uppercase tracking-wider mb-2">Revenue delta</p>
+<div class="flex items-baseline gap-2">
+<span class="font-mono text-lg text-operator-slate">$47,200</span>
+<span class="text-booked-green text-xs font-semibold">+12%</span>
+</div>
+<p class="text-[11px] text-whisper-slate mt-1">vs $42,180 (March)</p>
+</div>
+<div class="p-4 border border-hairline rounded-lg bg-hush-mist/30">
+<p class="text-[11px] font-semibold text-mute-slate uppercase tracking-wider mb-2">Calls delta</p>
+<div class="flex items-baseline gap-2">
+<span class="font-mono text-lg text-operator-slate">1,247</span>
+<span class="text-booked-green text-xs font-semibold">+14%</span>
+</div>
+<p class="text-[11px] text-whisper-slate mt-1">vs 1,094 (March)</p>
+</div>
+<div class="p-4 border border-hairline rounded-lg bg-hush-mist/30">
+<p class="text-[11px] font-semibold text-mute-slate uppercase tracking-wider mb-2">Booking rate</p>
+<div class="flex items-baseline gap-2">
+<span class="font-mono text-lg text-operator-slate">68%</span>
+<span class="text-booked-green text-xs font-semibold">+4pp</span>
+</div>
+<p class="text-[11px] text-whisper-slate mt-1">vs 64% (March)</p>
+</div>
+</section>
+<!-- SECTION 6: COST BREAKDOWN -->
+<section class="mt-auto">
+<div class="border-t border-hairline pt-6">
+<div class="grid grid-cols-2 gap-y-3">
+<div class="text-sm text-mute-slate">Conversation minutes usage (8,412 mins)</div>
+<div class="text-sm font-mono text-operator-slate text-right">$252.36</div>
+<div class="text-sm text-mute-slate">LLM context tokens &amp; inference</div>
+<div class="text-sm font-mono text-operator-slate text-right">$84.10</div>
+<div class="text-sm text-mute-slate">Voice synthesis (ElevenLabs HD)</div>
+<div class="text-sm font-mono text-operator-slate text-right">$42.54</div>
+<div class="text-sm text-mute-slate">Telephony &amp; regional DID routing</div>
+<div class="text-sm font-mono text-operator-slate text-right">$10.00</div>
+</div>
+<div class="mt-4 p-4 bg-hush-mist rounded-lg flex justify-between items-center">
+<span class="font-semibold text-operator-slate">Total Vokari cost</span>
+<span class="font-mono text-xl font-medium text-receipt-gold">$389.00</span>
+</div>
+</div>
+</section>
+<!-- SECTION 7: FOOTER -->
+<footer class="pt-6 border-t border-hairline flex justify-between items-end">
+<div class="text-[11px] text-mute-slate uppercase tracking-wider space-y-1">
+<p>Generated April 30, 2026 · vokari.ai</p>
+<p class="font-mono opacity-80">Audit-trail entry: cv-receipt-april-26-1f3a</p>
+</div>
+<div class="text-[11px] text-mute-slate font-semibold">
+                    Page 1 / 1
+                </div>
+</footer>
+</article>
+</main>
+</body></html>

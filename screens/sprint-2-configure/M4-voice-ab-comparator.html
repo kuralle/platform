@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vokari | Voice A/B Comparator</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;550;600&amp;family=Geist:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        'midnight-signal': '#0B1220',
+                        'operator-slate': '#1F2937',
+                        'mute-slate': '#64748B',
+                        'whisper-slate': '#94A3B8',
+                        'hush-mist': '#F4F6FA',
+                        'paper-white': '#FFFFFF',
+                        'hairline': '#E2E6EF',
+                        'soft-hairline': '#EEF1F6',
+                        'signal-teal': '#0EA5A6',
+                        'deep-teal': '#0F7A7B',
+                        'live-cyan': '#22D3EE',
+                        'booked-green': '#10B981',
+                        'compliance-amber': '#F59E0B',
+                        'risk-crimson': '#DC2626',
+                        'audit-indigo': '#4F46E5',
+                        'receipt-gold': '#B89A4A',
+                        'mission-black': '#06080F',
+                        'mission-slate': '#1A2030',
+                        'mission-hairline': '#2A3142',
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.25rem',
+                        'lg': '0.5rem',
+                        'xl': '0.75rem',
+                        'xxl': '10px',
+                        'full': '9999px',
+                    },
+                    fontFamily: {
+                        'headline': ['Geist', 'sans-serif'],
+                        'display': ['Geist', 'sans-serif'],
+                        'body': ['Inter', 'sans-serif'],
+                        'label': ['Inter', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace'],
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .small-caps {
+            font-variant: all-small-caps;
+        }
+        .waveform-static {
+            background-image: repeating-linear-gradient(90deg, #0EA5A6 0px, #0EA5A6 2px, transparent 2px, transparent 4px);
+            mask-image: linear-gradient(to top, black 20%, transparent 20%, transparent 40%, black 40%, black 60%, transparent 60%, transparent 80%, black 80%);
+        }
+    </style>
+</head>
+<body class="bg-hush-mist font-body text-operator-slate antialiased">
+<!-- TopNavBar (Shared Component) -->
+<header class="fixed top-0 w-full z-50 flex items-center justify-between px-8 h-[56px] bg-white dark:bg-[#0B1220] border-b border-[#E2E6EF] dark:border-[#2A3142] font-['Geist'] text-sm font-medium tracking-tight">
+<div class="flex items-center gap-8">
+<span class="text-xl font-semibold text-[#0B1220] dark:text-white">Vokari</span>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-[#0EA5A6] border-b-2 border-[#0EA5A6] pb-1" href="#">Configure</a>
+<a class="text-[#64748B] hover:text-[#1F2937] transition-colors" href="#">Operate</a>
+<a class="text-[#64748B] hover:text-[#1F2937] transition-colors" href="#">Distribute</a>
+<a class="text-[#64748B] hover:text-[#1F2937] transition-colors" href="#">Workspace</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative flex items-center bg-[#F4F6FA] dark:bg-[#1A2030] px-3 py-1.5 rounded-lg border border-[#E2E6EF] dark:border-[#2A3142]">
+<span class="material-symbols-outlined text-sm text-[#64748B] mr-2">search</span>
+<input class="bg-transparent border-none p-0 focus:ring-0 text-sm w-48" placeholder="Search workspace..." type="text"/>
+</div>
+<button class="p-2 hover:bg-[#F4F6FA] dark:hover:bg-[#1A2030] rounded-lg transition-colors">
+<span class="material-symbols-outlined text-[#64748B]">notifications</span>
+</button>
+<button class="p-2 hover:bg-[#F4F6FA] dark:hover:bg-[#1A2030] rounded-lg transition-colors">
+<span class="material-symbols-outlined text-[#64748B]">settings</span>
+</button>
+<img alt="User Avatar" class="w-8 h-8 rounded-full border border-hairline" data-alt="A clean, professional headshot of a user for a software interface, presented as a circular avatar. The background is a soft neutral gray, and the person is smiling warmly, dressed in professional attire, fitting the modern tech aesthetic of the Vokari platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcgGv0dXiWTvnVsCu8MzXx_01BP7-llkvs4Xlk2Aswg-ujtHo0wq6XxPwS3SEYXlSxQ_SavxF0l2TbTNDmwvwY4qZiMwcLYQC8sc0_VlJ_H2c4xUMXBcxvWdUmo1uyKpGAyhWllHhX1yG2q49Bb0GgIvtLcbMz1C0G5PwyoD9gO1HIchcwVeiq8EKpP7Cwy1_0ToOuGMPT5vyoAMcmhjoHF-dF8bgFKMob3B2vuncP7O2tcEsatQ4Gq4eY_nfAIn_BcIYYInzJnD5f"/>
+</div>
+</header>
+<!-- SideNavBar (Shared Component) -->
+<aside class="fixed left-0 top-[56px] h-[calc(100vh-56px)] z-40 flex flex-col py-4 bg-white dark:bg-[#06080F] border-r border-[#E2E6EF] dark:border-[#2A3142] w-[224px] font-['Inter'] text-[14px] font-[450]">
+<div class="px-4 mb-8">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-8 h-8 bg-[#0EA5A6] rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-lg">settings_voice</span>
+</div>
+<div>
+<p class="font-['Geist'] font-semibold text-[#0B1220] leading-none">Vokari</p>
+<p class="text-[11px] text-[#64748B]">Operator Console</p>
+</div>
+</div>
+<button class="w-full bg-[#0EA5A6] text-white py-2 px-4 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-[#0F7A7B] transition-all active:scale-95">
+<span class="material-symbols-outlined text-sm">add</span>
+                New Agent
+            </button>
+</div>
+<nav class="flex-1 flex flex-col px-2 gap-1">
+<a class="flex items-center gap-3 px-3 py-2.5 bg-[#F4F6FA] dark:bg-[#1A2030] text-[#1F2937] border-l-4 border-[#0EA5A6] font-[550] transition-all" href="#">
+<span class="material-symbols-outlined text-sm">settings_voice</span>
+                Configure
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-[#64748B] hover:bg-[#F4F6FA] hover:text-[#1F2937] transition-all" href="#">
+<span class="material-symbols-outlined text-sm">record_voice_over</span>
+                Operate
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-[#64748B] hover:bg-[#F4F6FA] hover:text-[#1F2937] transition-all" href="#">
+<span class="material-symbols-outlined text-sm">hub</span>
+                Distribute
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-[#64748B] hover:bg-[#F4F6FA] hover:text-[#1F2937] transition-all" href="#">
+<span class="material-symbols-outlined text-sm">dataset</span>
+                Workspace
+            </a>
+</nav>
+<div class="mt-auto px-2 flex flex-col gap-1 border-t border-[#E2E6EF] dark:border-[#2A3142] pt-4">
+<a class="flex items-center gap-3 px-3 py-2 text-[#64748B] hover:bg-[#F4F6FA] hover:text-[#1F2937] transition-all" href="#">
+<span class="material-symbols-outlined text-sm">help</span>
+                Support
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#64748B] hover:bg-[#F4F6FA] hover:text-[#1F2937] transition-all" href="#">
+<span class="material-symbols-outlined text-sm">settings</span>
+                Settings
+            </a>
+</div>
+</aside>
+<!-- Main Content Background (to show context) -->
+<main class="ml-[224px] mt-[56px] p-8 min-h-screen">
+<div class="max-w-6xl mx-auto">
+<div class="flex items-center justify-between mb-8">
+<div>
+<h1 class="font-headline text-3xl font-semibold tracking-tight text-midnight-signal">Voice Configuration</h1>
+<p class="text-mute-slate mt-1">Manage and compare AI voice profiles for your agents.</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Placeholder cards for context -->
+<div class="h-48 bg-white border border-hairline rounded-xl p-6"></div>
+<div class="h-48 bg-white border border-hairline rounded-xl p-6"></div>
+<div class="h-48 bg-white border border-hairline rounded-xl p-6"></div>
+</div>
+</div>
+</main>
+<!-- Modal Backdrop -->
+<div class="fixed inset-0 z-[100] flex items-center justify-center bg-midnight-signal bg-opacity-60 backdrop-blur-sm">
+<!-- M4 Voice A/B Comparator Modal -->
+<div class="w-[880px] bg-paper-white rounded-xl border border-hairline shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
+<!-- Modal Header -->
+<div class="px-6 py-5 border-b border-hairline flex items-center justify-between">
+<div>
+<h2 class="font-headline text-[22px] font-semibold text-midnight-signal leading-tight">Compare voices</h2>
+<p class="font-body text-xs text-mute-slate mt-0.5">Listen to the same phrase in two voices side-by-side.</p>
+</div>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-hush-mist text-mute-slate transition-colors">
+<span class="material-symbols-outlined text-lg">close</span>
+</button>
+</div>
+<!-- Modal Body -->
+<div class="p-6">
+<!-- Test Phrase Section -->
+<div class="mb-8">
+<label class="block font-headline text-[11px] font-semibold text-mute-slate tracking-[0.08em] small-caps mb-2">TEST PHRASE</label>
+<div class="flex gap-4">
+<textarea class="flex-1 min-h-[64px] border border-hairline rounded-lg p-3 text-sm font-body focus:ring-2 focus:ring-signal-teal/15 focus:border-signal-teal outline-none transition-all resize-none">Hi, this is Maya from Calderon Cooling. How can I help today?</textarea>
+<div class="w-[120px] relative">
+<div class="h-full flex items-center justify-between border border-hairline rounded-lg px-3 bg-paper-white cursor-pointer hover:bg-hush-mist transition-colors">
+<span class="text-sm font-medium font-body">EN-US</span>
+<span class="material-symbols-outlined text-sm text-mute-slate">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 2-Column Comparator Grid -->
+<div class="grid grid-cols-2 gap-4">
+<!-- Left Card: Maya -->
+<div class="h-[380px] border border-hairline rounded-xxl p-6 flex flex-col hover:border-signal-teal/30 transition-all">
+<div class="flex items-start justify-between mb-4">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-gradient-to-br from-signal-teal/20 to-audit-indigo/20 flex items-center justify-center overflow-hidden border border-hairline">
+<img alt="Maya Avatar" class="w-full h-full object-cover" data-alt="A professional and friendly female avatar with soft features, representing an AI voice persona named Maya. The visual style is clean and modern, set against a subtle gradient background of teal and indigo, matching the Vokari design language." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYQQqfGVhO74oIe8NBc7R77S7_ZwoJsaJXBPdTog_Q6rgU-svR2p0i6GKbAis4UCnkpGtINqDPA-yS3Fy6AiwweUP5QhnXDCwQ-vW3BZTW-321xNHEOHz3F9wdVp-4PGdmbJgv8F5We-r9wLzHXb_z86d_f6OKGdU46eCbIJfUxVN7BN3MQiKnPdmwU12OU_JPERgsxjRL8O2rB-WnbWoW_d1E_vee-UnnIjmRkS45lFvCyddLbdDmDv3HKv9tshQFxojRhupZCq1q"/>
+</div>
+<div>
+<h3 class="font-headline font-semibold text-base text-midnight-signal leading-tight">Maya</h3>
+<p class="text-xs text-mute-slate">Mexican Spanish, 32, warm</p>
+</div>
+</div>
+<div class="flex gap-1.5">
+<span class="px-2 py-0.5 rounded-md bg-audit-indigo/10 text-audit-indigo font-headline text-[10px] font-semibold small-caps tracking-wider">EN</span>
+<span class="px-2 py-0.5 rounded-md bg-audit-indigo/10 text-audit-indigo font-headline text-[10px] font-semibold small-caps tracking-wider">ES</span>
+</div>
+</div>
+<!-- Waveform Static -->
+<div class="flex-1 flex items-center justify-center mb-4 bg-hush-mist/50 rounded-lg overflow-hidden relative group">
+<div class="absolute inset-0 flex items-center justify-center px-4">
+<div class="w-full h-12 flex items-center gap-[2px]">
+<!-- Static signal bars -->
+<div class="flex-1 bg-signal-teal h-[20%] rounded-full opacity-40"></div>
+<div class="flex-1 bg-signal-teal h-[40%] rounded-full opacity-50"></div>
+<div class="flex-1 bg-signal-teal h-[70%] rounded-full opacity-60"></div>
+<div class="flex-1 bg-signal-teal h-[30%] rounded-full opacity-40"></div>
+<div class="flex-1 bg-signal-teal h-[50%] rounded-full opacity-50"></div>
+<div class="flex-1 bg-signal-teal h-[85%] rounded-full opacity-80"></div>
+<div class="flex-1 bg-signal-teal h-[40%] rounded-full opacity-40"></div>
+<div class="flex-1 bg-signal-teal h-[60%] rounded-full opacity-60"></div>
+<div class="flex-1 bg-signal-teal h-[20%] rounded-full opacity-30"></div>
+<div class="flex-1 bg-signal-teal h-[45%] rounded-full opacity-50"></div>
+<div class="flex-1 bg-signal-teal h-[90%] rounded-full opacity-90"></div>
+<div class="flex-1 bg-signal-teal h-[35%] rounded-full opacity-40"></div>
+<div class="flex-1 bg-signal-teal h-[55%] rounded-full opacity-60"></div>
+<div class="flex-1 bg-signal-teal h-[75%] rounded-full opacity-70"></div>
+<div class="flex-1 bg-signal-teal h-[40%] rounded-full opacity-50"></div>
+</div>
+</div>
+</div>
+<!-- Play Button -->
+<button class="w-full bg-signal-teal hover:bg-deep-teal text-white py-2 rounded-lg font-medium text-sm mb-6 flex items-center justify-center gap-2 transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined text-base" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+                            Play
+                        </button>
+<!-- Voice Sliders Grid -->
+<div class="grid grid-cols-2 gap-x-6 gap-y-4 mb-4">
+<div class="flex flex-col gap-1.5">
+<div class="flex justify-between items-center">
+<span class="text-[11px] font-semibold text-operator-slate/70 uppercase tracking-tighter">Stability</span>
+<span class="font-mono text-[11px] text-signal-teal font-medium">85%</span>
+</div>
+<div class="h-1 bg-hairline rounded-full overflow-hidden">
+<div class="h-full bg-signal-teal w-[85%]"></div>
+</div>
+</div>
+<div class="flex flex-col gap-1.5">
+<div class="flex justify-between items-center">
+<span class="text-[11px] font-semibold text-operator-slate/70 uppercase tracking-tighter">Similarity</span>
+<span class="font-mono text-[11px] text-signal-teal font-medium">92%</span>
+</div>
+<div class="h-1 bg-hairline rounded-full overflow-hidden">
+<div class="h-full bg-signal-teal w-[92%]"></div>
+</div>
+</div>
+<div class="flex flex-col gap-1.5">
+<div class="flex justify-between items-center">
+<span class="text-[11px] font-semibold text-operator-slate/70 uppercase tracking-tighter">Style</span>
+<span class="font-mono text-[11px] text-signal-teal font-medium">70%</span>
+</div>
+<div class="h-1 bg-hairline rounded-full overflow-hidden">
+<div class="h-full bg-signal-teal w-[70%]"></div>
+</div>
+</div>
+<div class="flex flex-col gap-1.5">
+<div class="flex justify-between items-center">
+<span class="text-[11px] font-semibold text-operator-slate/70 uppercase tracking-tighter">Speed</span>
+<span class="font-mono text-[11px] text-signal-teal font-medium">1.1x</span>
+</div>
+<div class="h-1 bg-hairline rounded-full overflow-hidden">
+<div class="h-full bg-signal-teal w-[60%]"></div>
+</div>
+</div>
+</div>
+<button class="mt-auto text-signal-teal hover:text-deep-teal text-xs font-semibold self-start hover:underline transition-all">Swap voice</button>
+</div>
+<!-- Right Card: Diego (Active) -->
+<div class="h-[380px] border border-live-cyan/30 bg-live-cyan/[0.02] rounded-xxl p-6 flex flex-col transition-all ring-1 ring-live-cyan/20 shadow-sm">
+<div class="flex items-start justify-between mb-4">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full bg-gradient-to-br from-live-cyan/20 to-audit-indigo/20 flex items-center justify-center overflow-hidden border border-hairline">
+<img alt="Diego Avatar" class="w-full h-full object-cover" data-alt="A sharp, energetic male avatar representing an AI voice persona named Diego. The visual style is crisp and modern with a cool color palette, reflecting a castilian speaker's character, aligned with the Vokari brand aesthetics." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJo8jlANUuiDSrvMQxLlnzAuX8VCJwWE_wdEnyuQHvpGdUyU0IFrkEnToMTJVmDdA4z5OI0AyNvsfcU0xu4MkBTNzn0mOX89Yk9P16dpl6IhuFE4Zc2Qeukgt40PNHMBo_HUsju2b7IOXdXMP3VClVvm9OhNRzD-1VwfAVVIPTgq9Q7sMiOU3miwewDxqotjHRFeljsoWCXuoXzI6G8UBJvKl1l9Fprr009WNYUSZiW9ZcPIcjstvTYZEznswTn3D78vOtv_hBUiYq"/>
+</div>
+<div>
+<h3 class="font-headline font-semibold text-base text-midnight-signal leading-tight">Diego</h3>
+<p class="text-xs text-mute-slate">Castilian Spanish, 28, energetic</p>
+</div>
+</div>
+<div class="flex gap-1.5">
+<span class="px-2 py-0.5 rounded-md bg-audit-indigo/10 text-audit-indigo font-headline text-[10px] font-semibold small-caps tracking-wider">EN</span>
+<span class="px-2 py-0.5 rounded-md bg-audit-indigo/10 text-audit-indigo font-headline text-[10px] font-semibold small-caps tracking-wider">ES</span>
+</div>
+</div>
+<!-- Waveform Active (Animated Mockup) -->
+<div class="flex-1 flex items-center justify-center mb-4 bg-live-cyan/5 rounded-lg overflow-hidden relative">
+<div class="absolute inset-0 flex items-center justify-center px-4">
+<div class="w-full h-16 flex items-center gap-[3px]">
+<!-- Dynamic bars -->
+<div class="flex-1 bg-live-cyan h-[20%] rounded-full animate-pulse"></div>
+<div class="flex-1 bg-live-cyan h-[60%] rounded-full animate-pulse delay-75"></div>
+<div class="flex-1 bg-live-cyan h-[40%] rounded-full animate-pulse delay-150"></div>
+<div class="flex-1 bg-live-cyan h-[80%] rounded-full animate-pulse delay-300"></div>
+<div class="flex-1 bg-live-cyan h-[50%] rounded-full animate-pulse delay-100"></div>
+<div class="flex-1 bg-live-cyan h-[95%] rounded-full animate-pulse delay-200"></div>
+<div class="flex-1 bg-live-cyan h-[30%] rounded-full animate-pulse delay-500"></div>
+<div class="flex-1 bg-live-cyan h-[70%] rounded-full animate-pulse delay-75"></div>
+<div class="flex-1 bg-live-cyan h-[100%] rounded-full animate-pulse delay-150"></div>
+<div class="flex-1 bg-live-cyan h-[60%] rounded-full animate-pulse delay-300"></div>
+<div class="flex-1 bg-live-cyan h-[40%] rounded-full animate-pulse delay-200"></div>
+<div class="flex-1 bg-live-cyan h-[80%] rounded-full animate-pulse delay-100"></div>
+<div class="flex-1 bg-live-cyan h-[20%] rounded-full animate-pulse delay-500"></div>
+<div class="flex-1 bg-live-cyan h-[50%] rounded-full animate-pulse delay-75"></div>
+<div class="flex-1 bg-live-cyan h-[30%] rounded-full animate-pulse delay-150"></div>
+</div>
+</div>
+<div class="absolute top-2 right-2 flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-live-cyan animate-ping"></span>
+<span class="text-[10px] font-bold text-live-cyan uppercase tracking-widest">Live</span>
+</div>
+</div>
+<!-- Pause Button -->
+<button class="w-full bg-live-cyan/10 border border-live-cyan hover:bg-live-cyan/20 text-operator-slate py-2 rounded-lg font-medium text-sm mb-6 flex items-center justify-center gap-2 transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined text-base" style="font-variation-settings: 'FILL' 1;">pause</span>
+                            Pause
+                        </button>
+<!-- Voice Sliders Grid -->
+<div class="grid grid-cols-2 gap-x-6 gap-y-4 mb-4">
+<div class="flex flex-col gap-1.5">
+<div class="flex justify-between items-center">
+<span class="text-[11px] font-semibold text-operator-slate/70 uppercase tracking-tighter">Stability</span>
+<span class="font-mono text-[11px] text-signal-teal font-medium">78%</span>
+</div>
+<div class="h-1 bg-hairline rounded-full overflow-hidden">
+<div class="h-full bg-signal-teal w-[78%]"></div>
+</div>
+</div>
+<div class="flex flex-col gap-1.5">
+<div class="flex justify-between items-center">
+<span class="text-[11px] font-semibold text-operator-slate/70 uppercase tracking-tighter">Similarity</span>
+<span class="font-mono text-[11px] text-signal-teal font-medium">95%</span>
+</div>
+<div class="h-1 bg-hairline rounded-full overflow-hidden">
+<div class="h-full bg-signal-teal w-[95%]"></div>
+</div>
+</div>
+<div class="flex flex-col gap-1.5">
+<div class="flex justify-between items-center">
+<span class="text-[11px] font-semibold text-operator-slate/70 uppercase tracking-tighter">Style</span>
+<span class="font-mono text-[11px] text-signal-teal font-medium">88%</span>
+</div>
+<div class="h-1 bg-hairline rounded-full overflow-hidden">
+<div class="h-full bg-signal-teal w-[88%]"></div>
+</div>
+</div>
+<div class="flex flex-col gap-1.5">
+<div class="flex justify-between items-center">
+<span class="text-[11px] font-semibold text-operator-slate/70 uppercase tracking-tighter">Speed</span>
+<span class="font-mono text-[11px] text-signal-teal font-medium">1.2x</span>
+</div>
+<div class="h-1 bg-hairline rounded-full overflow-hidden">
+<div class="h-full bg-signal-teal w-[75%]"></div>
+</div>
+</div>
+</div>
+<button class="mt-auto text-signal-teal hover:text-deep-teal text-xs font-semibold self-start hover:underline transition-all">Swap voice</button>
+</div>
+</div>
+<p class="text-center text-xs text-mute-slate mt-8">Use <span class="px-1.5 py-0.5 bg-hush-mist border border-hairline rounded text-operator-slate font-mono text-[10px]">SPACEBAR</span> to alternate between voices</p>
+</div>
+<!-- Modal Footer -->
+<div class="px-6 py-4 bg-hush-mist/30 border-t border-hairline flex items-center justify-between">
+<button class="px-4 py-2 text-sm font-medium text-operator-slate hover:bg-hush-mist rounded-lg transition-colors">Close</button>
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 border border-hairline text-sm font-medium text-operator-slate hover:bg-white rounded-lg transition-all shadow-sm">Use voice on right</button>
+<button class="px-4 py-2 bg-signal-teal hover:bg-deep-teal text-white text-sm font-medium rounded-lg transition-all shadow-md active:scale-95">Use voice on left</button>
+</div>
+</div>
+</div>
+</div>
+</body></html>

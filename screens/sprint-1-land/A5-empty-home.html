@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vokari | Home</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        @font-face {
+            font-family: 'Geist';
+            src: url('https://fonts.cdnfonts.com/css/geist-sans') format('woff2');
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F4F6FA;
+        }
+        .font-geist { font-family: 'Geist', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            midnight: "#0B1220",
+                            operator: "#1F2937",
+                            mute: "#64748B",
+                            whisper: "#94A3B8",
+                            mist: "#F4F6FA",
+                            hairline: "#E2E6EF",
+                            teal: "#0EA5A6",
+                            deepTeal: "#0F7A7B",
+                            indigo: "#4F46E5"
+                        }
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        headline: ["Geist", "sans-serif"],
+                        display: ["Geist", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                        label: ["Inter", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-brand-mist text-brand-operator antialiased">
+<!-- TopNavBar -->
+<header class="h-14 w-full border-b sticky top-0 z-50 bg-white dark:bg-[#0B1220] border-slate-200 dark:border-[#2A3142] flex items-center justify-between px-6">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold tracking-tighter text-[#0B1220] dark:text-white font-headline">Vokari</span>
+<!-- Global Shell Nav (Web Desktop context) -->
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-[#0EA5A6] font-semibold text-sm" href="#">Configure</a>
+<a class="text-[#64748B] hover:text-[#1F2937] transition-colors text-sm" href="#">Operate</a>
+<a class="text-[#64748B] hover:text-[#1F2937] transition-colors text-sm" href="#">Distribute</a>
+<a class="text-[#64748B] hover:text-[#1F2937] transition-colors text-sm" href="#">Workspace</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 px-2 py-1 bg-[#F4F6FA] dark:bg-[#1A2030] rounded border border-slate-200 dark:border-[#2A3142]">
+<span class="w-2 h-2 rounded-full bg-brand-indigo"></span>
+<span class="text-[10px] font-bold uppercase tracking-wider text-brand-mute">Production</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="material-symbols-outlined text-brand-mute hover:text-brand-operator cursor-pointer">notifications</button>
+<button class="material-symbols-outlined text-brand-mute hover:text-brand-operator cursor-pointer">help</button>
+<div class="h-8 w-8 rounded-full bg-slate-200 overflow-hidden border border-slate-300">
+<img alt="User profile" data-alt="professional headshot of a middle-aged male executive with a clean background in soft natural studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuArOOmeKvIsZYfPUPX7zc3I4J2UQAkYGALI9wHN6PuKS-HVeuavp84-q54qdis_8xZHBG7dcP7qv705n6jCEzzXHVfxfJKSrwzjOQCq68oIx_Nabh_kpPI00A88fXXcY5jMOLgpm-cfmrfV5d3PGEyK-EhfMsrXH0UjPOW9M3CHXoeNe51mWxahb3s3LjPz3oQX5mADepSqk0ywV-oqJ5LvxV4OML0Kh2_ltuo55jtkPXrqu_MhW8HfZ0X_MQc9Ds8763jhRJ-VbP26"/>
+</div>
+</div>
+</div>
+</header>
+<div class="flex min-h-screen">
+<!-- SideNavBar -->
+<aside class="w-56 h-screen border-r fixed left-0 top-0 pt-14 bg-white dark:bg-[#0B1220] border-slate-200 dark:border-[#2A3142] flex flex-col z-40">
+<div class="px-4 py-6">
+<div class="flex items-center gap-3 mb-8 px-2">
+<div class="w-8 h-8 rounded bg-brand-teal flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-sm" style="font-variation-settings: 'FILL' 1;">settings_input_component</span>
+</div>
+<div>
+<div class="font-['Geist'] font-bold text-[#0B1220] text-sm">Operator View</div>
+<div class="text-[10px] text-brand-mute uppercase tracking-widest font-semibold">Vokari Core</div>
+</div>
+</div>
+<nav class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium transition-all bg-[#F4F6FA] dark:bg-[#1A2030] text-[#0EA5A6] border-l-4 border-[#0EA5A6]" href="#">
+<span class="material-symbols-outlined text-[20px]">settings_input_component</span>
+<span>Configure</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium transition-all text-[#64748B] hover:bg-[#F4F6FA] dark:hover:bg-[#1A2030] hover:text-[#1F2937]" href="#">
+<span class="material-symbols-outlined text-[20px]">settings_remote</span>
+<span>Operate</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium transition-all text-[#64748B] hover:bg-[#F4F6FA] dark:hover:bg-[#1A2030] hover:text-[#1F2937]" href="#">
+<span class="material-symbols-outlined text-[20px]">share</span>
+<span>Distribute</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium transition-all text-[#64748B] hover:bg-[#F4F6FA] dark:hover:bg-[#1A2030] hover:text-[#1F2937]" href="#">
+<span class="material-symbols-outlined text-[20px]">dns</span>
+<span>Workspace</span>
+</a>
+</nav>
+</div>
+<div class="mt-auto px-4 py-6 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium transition-all text-[#64748B] hover:bg-[#F4F6FA] hover:text-[#1F2937]" href="#">
+<span class="material-symbols-outlined text-[20px]">help</span>
+<span>Help Center</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium transition-all text-[#64748B] hover:bg-[#F4F6FA] hover:text-[#1F2937]" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+<span>Settings</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 ml-56 min-h-screen flex flex-col">
+<!-- Top bar/Breadcrumb area -->
+<div class="px-8 pt-6">
+<div class="text-[11px] font-semibold uppercase tracking-[0.08em] text-brand-mute font-label">
+                    Home
+                </div>
+</div>
+<!-- Empty State Container -->
+<div class="flex-1 flex flex-col items-center justify-center px-6">
+<div class="max-w-[480px] w-full text-center flex flex-col items-center">
+<!-- Icon -->
+<div class="mb-6 flex items-center justify-center">
+<div class="relative">
+<span class="material-symbols-outlined text-[64px] text-brand-mute leading-none" style="font-variation-settings: 'wght' 200;">call</span>
+<span class="absolute -top-1 -right-1 material-symbols-outlined text-[24px] text-brand-mute/40">sensors</span>
+</div>
+</div>
+<!-- Heading -->
+<h1 class="mb-3 text-[22px] font-semibold leading-tight text-brand-operator font-headline">
+                        You don't have an agent yet
+                    </h1>
+<!-- Body text -->
+<p class="mb-6 text-sm leading-[1.6] text-brand-mute font-body">
+                        Build your first one in five minutes — pick a template, plug in a phone number, and we'll run a live test call together.
+                    </p>
+<!-- CTA Button -->
+<button class="mb-3 h-[44px] px-6 bg-brand-teal hover:bg-brand-deepTeal text-white font-medium text-sm rounded-[6px] transition-colors flex items-center justify-center gap-2 active:opacity-90">
+<span>Build my first agent</span>
+</button>
+<!-- Secondary Link -->
+<button class="mb-8 text-sm text-brand-operator hover:text-brand-teal transition-colors font-medium underline underline-offset-4 decoration-slate-300">
+                        Watch the 90-second tour
+                    </button>
+<!-- Checklist -->
+<div class="flex items-center justify-center gap-4 text-[11px] font-semibold uppercase tracking-[0.08em] text-brand-mute/60 font-label">
+<span class="flex items-center gap-2">1. PICK A TEMPLATE</span>
+<span class="text-brand-hairline">→</span>
+<span class="flex items-center gap-2">2. CONNECT TELEPHONY</span>
+<span class="text-brand-hairline">→</span>
+<span class="flex items-center gap-2">3. RUN A TEST CALL</span>
+</div>
+</div>
+</div>
+<!-- Dashboard Background Elements (Subtle Grid) -->
+<div class="fixed inset-0 pointer-events-none -z-10 overflow-hidden opacity-50">
+<div class="absolute inset-0" style="background-image: radial-gradient(#E2E6EF 1px, transparent 1px); background-size: 24px 24px;"></div>
+</div>
+</main>
+</div>
+</body></html>

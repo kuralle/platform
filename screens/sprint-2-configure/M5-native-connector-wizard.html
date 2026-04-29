@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vokari - Connect ServiceTitan</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Geist:wght@600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        midnight: "#0B1220",
+                        operator: "#1F2937",
+                        mute: "#64748B",
+                        whisper: "#94A3B8",
+                        hush: "#F4F6FA",
+                        paper: "#FFFFFF",
+                        hairline: "#E2E6EF",
+                        soft: "#EEF1F6",
+                        signal: "#0EA5A6",
+                        deep: "#0F7A7B"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        headline: ["Geist", "sans-serif"],
+                        display: ["Geist", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                        label: ["Inter", "sans-serif"],
+                        mono: ["JetBrains Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .modal-backdrop {
+            background-color: rgba(11, 18, 32, 0.6);
+        }
+    </style>
+</head>
+<body class="bg-hush font-body text-operator antialiased">
+<!-- Modal Backdrop -->
+<div class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop p-4">
+<!-- Modal Container -->
+<div class="bg-paper w-full max-w-[720px] rounded-[16px] border border-hairline shadow-[0_12px_32px_rgba(11,18,32,0.08)] flex flex-col overflow-hidden">
+<!-- Header -->
+<div class="px-6 py-6 border-b border-hairline flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-6 h-6 flex-shrink-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-operator" style="font-size: 24px;">settings_input_component</span>
+</div>
+<div>
+<h2 class="font-headline text-[22px] leading-[28px] font-semibold text-midnight -tracking-[1%]">Connect ServiceTitan</h2>
+<p class="font-body text-[12px] leading-[16px] text-mute mt-1">Vokari will appear in your ServiceTitan integrations and write bookings to your dispatch board.</p>
+</div>
+</div>
+<button class="text-mute hover:text-operator transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Body -->
+<div class="px-8 py-8">
+<!-- Stepper -->
+<div class="flex items-center justify-between h-[64px] mb-8">
+<!-- Step 1: Active -->
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-signal flex items-center justify-center text-paper font-mono text-[14px]">1</div>
+<span class="text-[12px] font-semibold text-operator font-label">Authorize</span>
+</div>
+<div class="flex-grow mx-4 h-[1px] bg-hairline"></div>
+<!-- Step 2: Inactive -->
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full border border-hairline flex items-center justify-center text-whisper font-mono text-[14px]">2</div>
+<span class="text-[12px] font-semibold text-whisper font-label">Map fields</span>
+</div>
+<div class="flex-grow mx-4 h-[1px] bg-hairline"></div>
+<!-- Step 3: Inactive -->
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full border border-hairline flex items-center justify-center text-whisper font-mono text-[14px]">3</div>
+<span class="text-[12px] font-semibold text-whisper font-label">Enable tools</span>
+</div>
+<div class="flex-grow mx-4 h-[1px] bg-hairline"></div>
+<!-- Step 4: Inactive -->
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full border border-hairline flex items-center justify-center text-whisper font-mono text-[14px]">4</div>
+<span class="text-[12px] font-semibold text-whisper font-label">Test call</span>
+</div>
+</div>
+<!-- Step 1 Content Card -->
+<div class="bg-paper border border-hairline rounded-[10px] p-8 flex flex-col items-center justify-center text-center h-[240px]">
+<div class="mb-6 flex items-center justify-center">
+<div class="w-16 h-16 bg-soft rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-operator" style="font-size: 32px;">hub</span>
+</div>
+</div>
+<button class="bg-signal hover:bg-deep text-paper font-semibold h-[44px] px-8 rounded-[6px] transition-all active:scale-95 mb-3 text-[14px] font-label">
+                        Authorize with ServiceTitan
+                    </button>
+<p class="text-[12px] text-mute font-body">You'll be redirected to ServiceTitan and back. We never see your password.</p>
+</div>
+<!-- Preview Row -->
+<div class="mt-8">
+<div class="flex items-center gap-4">
+<div class="flex-1">
+<div class="h-[60px] bg-soft border border-hairline rounded-[6px] flex items-center justify-center grayscale opacity-50">
+<span class="material-symbols-outlined text-mute">table_rows</span>
+</div>
+<span class="block text-[10px] text-mute font-semibold mt-2 text-center uppercase tracking-wider">Mapping</span>
+</div>
+<div class="flex-1">
+<div class="h-[60px] bg-soft border border-hairline rounded-[6px] flex items-center justify-center grayscale opacity-50">
+<span class="material-symbols-outlined text-mute">toggle_on</span>
+</div>
+<span class="block text-[10px] text-mute font-semibold mt-2 text-center uppercase tracking-wider">Tools</span>
+</div>
+<div class="flex-1">
+<div class="h-[60px] bg-soft border border-hairline rounded-[6px] flex items-center justify-center grayscale opacity-50">
+<span class="material-symbols-outlined text-mute">play_circle</span>
+</div>
+<span class="block text-[10px] text-mute font-semibold mt-2 text-center uppercase tracking-wider">Validation</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<div class="px-4 py-4 border-t border-hairline flex items-center justify-between">
+<button class="h-[36px] px-4 text-operator hover:bg-hush rounded-[6px] text-[14px] font-semibold transition-colors font-label">
+                    Cancel
+                </button>
+<div class="flex items-center gap-2">
+<button class="h-[36px] px-4 text-operator opacity-50 cursor-not-allowed text-[14px] font-semibold font-label" disabled="">
+                        Back
+                    </button>
+<button class="h-[36px] px-6 bg-signal hover:bg-deep text-paper rounded-[6px] text-[14px] font-semibold transition-all active:scale-95 font-label">
+                        Continue
+                    </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Background UI Mockup (Behind Modal) -->
+<div class="fixed inset-0 -z-10 bg-hush flex">
+<!-- Sidebar Mock -->
+<div class="w-[224px] border-r border-hairline bg-white h-full p-4 space-y-6">
+<div class="h-8 w-32 bg-soft rounded"></div>
+<div class="space-y-2">
+<div class="h-10 bg-hush rounded"></div>
+<div class="h-10 bg-transparent rounded"></div>
+<div class="h-10 bg-transparent rounded"></div>
+</div>
+</div>
+<!-- Main Content Mock -->
+<div class="flex-grow p-8 space-y-8">
+<div class="flex justify-between items-center">
+<div class="h-8 w-48 bg-hairline rounded"></div>
+<div class="h-10 w-32 bg-signal/20 rounded"></div>
+</div>
+<div class="grid grid-cols-3 gap-6">
+<div class="h-48 bg-white border border-hairline rounded-xl"></div>
+<div class="h-48 bg-white border border-hairline rounded-xl"></div>
+<div class="h-48 bg-white border border-hairline rounded-xl"></div>
+</div>
+</div>
+</div>
+</body></html>

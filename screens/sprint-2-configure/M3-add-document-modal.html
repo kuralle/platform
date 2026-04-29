@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vokari - Add Document</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;550;600&amp;family=JetBrains+Mono:wght@400;500&amp;family=Geist:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        midnight: "#0B1220",
+                        operator: "#1F2937",
+                        mute: "#64748B",
+                        whisper: "#94A3B8",
+                        hush: "#F4F6FA",
+                        paper: "#FFFFFF",
+                        hairline: "#E2E6EF",
+                        softHairline: "#EEF1F6",
+                        signalTeal: "#0EA5A6",
+                        deepTeal: "#0F7A7B",
+                        liveCyan: "#22D3EE",
+                        bookedGreen: "#10B981",
+                        complianceAmber: "#F59E0B",
+                        riskCrimson: "#DC2626",
+                        auditIndigo: "#4F46E5",
+                        receiptGold: "#B89A4A"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        headline: ["Geist", "sans-serif"],
+                        display: ["Geist", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                        label: ["Inter", "sans-serif"],
+                        mono: ["JetBrains Mono", "monospace"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-hush font-body text-operator antialiased">
+<!-- Mock Background Page (Knowledge Base) -->
+<div class="flex h-screen w-full overflow-hidden">
+<!-- SideNavBar (As defined in JSON) -->
+<aside class="flex flex-col h-screen sticky top-0 bg-white dark:bg-[#0B1220] border-r border-[#E2E6EF] dark:border-[#2A3142] w-[224px] z-0">
+<div class="p-6">
+<div class="flex items-center gap-3 mb-8">
+<div class="w-8 h-8 rounded bg-midnight flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-sm" data-icon="token">token</span>
+</div>
+<div>
+<h1 class="font-['Geist'] font-semibold text-[#0B1220] dark:text-white leading-none">Knowledge Base</h1>
+<p class="text-[10px] uppercase tracking-wider text-mute mt-1">Vokari Operator</p>
+</div>
+</div>
+<nav class="space-y-1">
+<div class="flex items-center gap-3 px-3 py-2 bg-[#F4F6FA] dark:bg-[#1F2937] text-[#0EA5A6] border-l-4 border-[#0EA5A6] font-semibold font-['Inter'] text-[14px] cursor-pointer">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Configure</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-[#64748B] dark:text-[#94A3B8] hover:bg-[#F4F6FA] dark:hover:bg-[#1F2937] font-['Inter'] text-[14px] transition-all duration-200 ease-out cursor-pointer">
+<span class="material-symbols-outlined" data-icon="Play_Circle">play_circle</span>
+<span>Operate</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-[#64748B] dark:text-[#94A3B8] hover:bg-[#F4F6FA] dark:hover:bg-[#1F2937] font-['Inter'] text-[14px] transition-all duration-200 ease-out cursor-pointer">
+<span class="material-symbols-outlined" data-icon="share">share</span>
+<span>Distribute</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-[#64748B] dark:text-[#94A3B8] hover:bg-[#F4F6FA] dark:hover:bg-[#1F2937] font-['Inter'] text-[14px] transition-all duration-200 ease-out cursor-pointer">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span>Workspace</span>
+</div>
+</nav>
+</div>
+<div class="mt-auto p-6 border-t border-hairline">
+<nav class="space-y-1">
+<div class="flex items-center gap-3 px-3 py-2 text-[#64748B] dark:text-[#94A3B8] hover:bg-[#F4F6FA] font-['Inter'] text-[14px] cursor-pointer">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span>Support</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-[#64748B] dark:text-[#94A3B8] hover:bg-[#F4F6FA] font-['Inter'] text-[14px] cursor-pointer">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</div>
+</nav>
+</div>
+</aside>
+<main class="flex-1 flex flex-col min-w-0 overflow-hidden">
+<!-- TopNavBar (As defined in JSON) -->
+<header class="flex justify-between items-center px-6 w-full bg-white dark:bg-[#0B1220] h-[56px] border-b border-[#E2E6EF] dark:border-[#2A3142] sticky top-0 z-10">
+<div class="flex items-center gap-4">
+<span class="text-xl font-bold text-[#0B1220] dark:text-white font-['Geist'] tracking-tight">Vokari</span>
+<div class="px-2 py-0.5 bg-auditIndigo/10 text-auditIndigo text-[10px] font-semibold tracking-wider uppercase rounded">Production</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative w-64">
+<input class="w-full bg-hush border-none h-8 px-8 text-xs rounded-lg focus:ring-1 focus:ring-signalTeal" placeholder="Search documents..." type="text"/>
+<span class="material-symbols-outlined absolute left-2 top-1.5 text-mute text-sm" data-icon="search">search</span>
+</div>
+<span class="material-symbols-outlined text-mute cursor-pointer" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-mute cursor-pointer" data-icon="apps">apps</span>
+<div class="w-8 h-8 rounded-full bg-hairline overflow-hidden">
+<img alt="User avatar" data-alt="Close-up portrait of a professional male designer with a neutral expression in high-key lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBZpTRfL5YQkNMGa6uXbLZPPygqQCkbKJise5cupbdMp2AvZdlG-iOlfCod5IZbFNaGVCw0RgSvcAlYAsz4ylVpKyxm_LrinraLGAy5f29YDEgJcl5XRmb0ougU9V-iUmeH4yvCkJbqQbaAZCzKFEB3nomwo60jyEOBVXUWXTckr5EvHh5oaHyq8tBeBgHCZQufh6b56sSG0Mko1aT_o4mlgV9k5MQlbds1Bdqfw_m0QnSPYgHxG12JHSTlbCJXYAMnySxT-H5Tonwn"/>
+</div>
+</div>
+</header>
+<div class="p-8 h-full">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h2 class="text-2xl font-semibold font-headline tracking-tight text-midnight">Documents</h2>
+<p class="text-sm text-mute mt-1">Manage and index files for your Voice-AI agents.</p>
+</div>
+<button class="bg-signalTeal text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 hover:bg-deepTeal transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="add">add</span>
+                        Add Document
+                    </button>
+</div>
+<!-- Table Content Placeholder -->
+<div class="bg-white border border-hairline rounded-xl overflow-hidden">
+<div class="grid grid-cols-4 px-6 py-3 bg-hush text-[11px] font-semibold uppercase tracking-wider text-mute">
+<div>Name</div>
+<div>Type</div>
+<div>Status</div>
+<div>Last Indexed</div>
+</div>
+<div class="divide-y divide-softHairline">
+<div class="grid grid-cols-4 px-6 py-4 items-center">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-mute" data-icon="description">description</span>
+<span class="text-sm font-medium">Service_Manual_HVAC.pdf</span>
+</div>
+<div class="text-xs text-mute font-mono">PDF</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-bookedGreen"></div>
+<span class="text-xs">Indexed</span>
+</div>
+<div class="text-xs text-mute font-mono">2023-10-12 14:32</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Modal Backdrop -->
+<div class="fixed inset-0 bg-midnight/60 z-50 flex items-center justify-center p-4">
+<!-- Modal Container (M3 Add Document Modal) -->
+<div class="bg-paper w-full max-w-[640px] rounded-2xl border border-hairline shadow-[0_12px_32px_rgba(11,18,32,0.08)] flex flex-col overflow-hidden">
+<!-- Header -->
+<div class="flex items-start justify-between px-6 pt-6 pb-4">
+<div>
+<h2 class="text-[22px] font-headline font-semibold text-midnight leading-tight">Add document</h2>
+<p class="text-[12px] font-body text-mute mt-1">Vokari will index this for retrieval-augmented answering.</p>
+</div>
+<button class="text-mute hover:text-operator transition-colors">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+<!-- Body -->
+<div class="px-6 pb-6 space-y-6">
+<!-- Segmented Control -->
+<div class="bg-hush p-1 rounded-lg flex gap-1">
+<button class="flex-1 py-1.5 text-[14px] font-medium rounded-md bg-paper border border-hairline shadow-sm text-operator">File</button>
+<button class="flex-1 py-1.5 text-[14px] font-medium rounded-md text-mute hover:text-operator transition-colors">URL</button>
+<button class="flex-1 py-1.5 text-[14px] font-medium rounded-md text-mute hover:text-operator transition-colors">Text</button>
+</div>
+<!-- Drag-and-drop Zone -->
+<div class="h-[200px] border-2 border-dashed border-hairline bg-hush rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-signalTeal/30 transition-colors group">
+<span class="material-symbols-outlined text-mute text-[32px] mb-3 group-hover:text-signalTeal transition-colors" data-icon="cloud_upload">cloud_upload</span>
+<p class="text-[14px] font-body text-operator">
+                        Drop a PDF, DOCX, MD, or TXT file
+                    </p>
+<p class="text-[14px] font-body text-mute">
+                        or <span class="text-signalTeal font-medium">browse</span>
+</p>
+</div>
+<!-- File-type Chips -->
+<div class="flex flex-wrap gap-2">
+<div class="px-3 py-1.5 bg-hush/60 border border-hairline rounded-md flex items-center gap-2">
+<span class="material-symbols-outlined text-xs text-mute" data-icon="picture_as_pdf">picture_as_pdf</span>
+<span class="text-[12px] font-mono font-medium text-operator uppercase">PDF</span>
+<span class="w-[1px] h-3 bg-hairline"></span>
+<span class="text-[11px] font-mono text-mute">10MB</span>
+</div>
+<div class="px-3 py-1.5 bg-hush/60 border border-hairline rounded-md flex items-center gap-2">
+<span class="material-symbols-outlined text-xs text-mute" data-icon="description">description</span>
+<span class="text-[12px] font-mono font-medium text-operator uppercase">DOCX</span>
+<span class="w-[1px] h-3 bg-hairline"></span>
+<span class="text-[11px] font-mono text-mute">10MB</span>
+</div>
+<div class="px-3 py-1.5 bg-hush/60 border border-hairline rounded-md flex items-center gap-2">
+<span class="material-symbols-outlined text-xs text-mute" data-icon="article">article</span>
+<span class="text-[12px] font-mono font-medium text-operator uppercase">MD</span>
+<span class="w-[1px] h-3 bg-hairline"></span>
+<span class="text-[11px] font-mono text-mute">5MB</span>
+</div>
+<div class="px-3 py-1.5 bg-hush/60 border border-hairline rounded-md flex items-center gap-2">
+<span class="material-symbols-outlined text-xs text-mute" data-icon="text_snippet">text_snippet</span>
+<span class="text-[12px] font-mono font-medium text-operator uppercase">TXT</span>
+<span class="w-[1px] h-3 bg-hairline"></span>
+<span class="text-[11px] font-mono text-mute">5MB</span>
+</div>
+</div>
+<!-- Folder Picker -->
+<div class="space-y-2">
+<h3 class="text-[18px] font-headline font-semibold text-midnight">Folder</h3>
+<div class="relative">
+<select class="w-full h-[36px] bg-paper border border-hairline rounded-lg text-[14px] text-operator px-3 appearance-none focus:ring-1 focus:ring-signalTeal/50 focus:border-signalTeal transition-shadow outline-none">
+<option>Root</option>
+<option>Manuals</option>
+<option>Protocols</option>
+<option>Compliance</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1.5 text-mute pointer-events-none" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<!-- Toggles -->
+<div class="space-y-4 pt-2">
+<!-- Toggle 1: Auto-sync -->
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-[14px] font-medium text-operator">Auto-sync</span>
+<span class="text-[12px] text-mute">re-index when file changes</span>
+</div>
+<button class="relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-whisper transition-colors duration-200 ease-in-out focus:outline-none" role="switch">
+<span class="translate-x-0 pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+</button>
+</div>
+<!-- Toggle 2: Compute RAG -->
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-[14px] font-medium text-operator">Compute RAG immediately after upload</span>
+<span class="text-[12px] text-mute">Recommended for production agents</span>
+</div>
+<button class="relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-signalTeal transition-colors duration-200 ease-in-out focus:outline-none" role="switch">
+<span class="translate-x-5 pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+</button>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<div class="px-6 py-4 bg-softHairline/50 border-t border-hairline flex items-center justify-between">
+<button class="text-[14px] font-medium text-operator px-4 py-2 hover:bg-hush rounded-lg transition-colors">Cancel</button>
+<button class="h-[36px] px-4 bg-signalTeal opacity-50 text-white text-[14px] font-medium rounded-lg cursor-not-allowed">
+                    Add document
+                </button>
+</div>
+</div>
+</div>
+</body></html>

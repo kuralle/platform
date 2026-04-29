@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;550;600&amp;family=Geist:wght@600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        'midnight-signal': '#0B1220',
+                        'operator-slate': '#1F2937',
+                        'mute-slate': '#64748B',
+                        'whisper-slate': '#94A3B8',
+                        'hush-mist': '#F4F6FA',
+                        'paper-white': '#FFFFFF',
+                        'hairline': '#E2E6EF',
+                        'soft-hairline': '#EEF1F6',
+                        'signal-teal': '#0EA5A6',
+                        'deep-teal': '#0F7A7B',
+                        'live-cyan': '#22D3EE',
+                        'booked-green': '#10B981',
+                        'compliance-amber': '#F59E0B',
+                        'risk-crimson': '#DC2626',
+                        'audit-indigo': '#4F46E5',
+                        'receipt-gold': '#B89A4A'
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.25rem',
+                        'lg': '0.5rem',
+                        'xl': '0.75rem',
+                        'full': '9999px'
+                    },
+                    fontFamily: {
+                        'headline': ['Geist', 'sans-serif'],
+                        'display': ['Geist', 'sans-serif'],
+                        'body': ['Inter', 'sans-serif'],
+                        'label': ['Inter', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-hush-mist text-operator-slate">
+<div class="flex h-screen overflow-hidden">
+<!-- SideNavBar -->
+<aside class="hidden md:flex flex-col h-full py-4 overflow-y-auto w-56 bg-white dark:bg-[#0B1220] border-r border-[#E2E6EF] dark:border-[#2A3142] font-['Inter'] text-sm font-medium">
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-8 h-8 bg-midnight-signal rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-lg">smart_toy</span>
+</div>
+<div>
+<h1 class="text-lg font-['Geist'] font-bold text-[#0B1220] dark:text-white leading-tight">Vokari</h1>
+<p class="text-[10px] uppercase tracking-widest text-mute-slate font-semibold">Operator Console</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1 px-3">
+<!-- Active: Agents (Determined by Page Intent) -->
+<a class="flex items-center gap-3 px-3 py-2 text-[#64748B] dark:text-[#94A3B8] hover:text-[#1F2937] hover:bg-[#F4F6FA] dark:hover:bg-[#1F2937] transition-all duration-150 ease-in-out group" href="#">
+<span class="material-symbols-outlined">home</span>
+<span>Home</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#64748B] dark:text-[#94A3B8] hover:text-[#1F2937] hover:bg-[#F4F6FA] dark:hover:bg-[#1F2937] transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span>Conversations</span>
+</a>
+<a class="bg-[#F4F6FA] dark:bg-[#1F2937] text-[#1F2937] dark:text-white border-l-4 border-[#0EA5A6] flex items-center gap-3 px-3 py-2 transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[#0EA5A6]">smart_toy</span>
+<span>Agents</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#64748B] dark:text-[#94A3B8] hover:text-[#1F2937] hover:bg-[#F4F6FA] dark:hover:bg-[#1F2937] transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">book</span>
+<span>Knowledge</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#64748B] dark:text-[#94A3B8] hover:text-[#1F2937] hover:bg-[#F4F6FA] dark:hover:bg-[#1F2937] transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">build</span>
+<span>Tools</span>
+</a>
+<div class="pt-4 pb-2 px-3 text-[11px] font-semibold text-mute-slate uppercase tracking-wider">Workspace</div>
+<a class="flex items-center gap-3 px-3 py-2 text-[#64748B] dark:text-[#94A3B8] hover:text-[#1F2937] hover:bg-[#F4F6FA] dark:hover:bg-[#1F2937] transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">verified_user</span>
+<span>Compliance</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#64748B] dark:text-[#94A3B8] hover:text-[#1F2937] hover:bg-[#F4F6FA] dark:hover:bg-[#1F2937] transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-auto px-3 border-t border-hairline pt-4">
+<a class="flex items-center gap-3 px-3 py-2 text-mute-slate hover:text-operator-slate transition-colors" href="#">
+<span class="material-symbols-outlined">contact_support</span>
+<span>Support</span>
+</a>
+<div class="mt-4 p-3 bg-hush-mist rounded-lg">
+<button class="w-full bg-signal-teal text-white py-2 rounded-md font-semibold text-sm hover:bg-deep-teal transition-colors">
+                        New Agent
+                    </button>
+</div>
+</div>
+</aside>
+<!-- Main Workspace -->
+<main class="flex-1 flex flex-col min-w-0 relative">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center h-14 px-6 w-full bg-white dark:bg-[#0B1220] border-b border-[#E2E6EF] dark:border-[#2A3142] z-50">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 bg-audit-indigo/10 text-audit-indigo px-2 py-0.5 rounded text-xs font-semibold">
+<span>US-East-1</span>
+</div>
+<div class="flex items-center gap-2 bg-booked-green/10 text-booked-green px-2 py-0.5 rounded text-xs font-semibold">
+<span>Production</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative group">
+<span class="material-symbols-outlined text-mute-slate cursor-pointer hover:text-operator-slate">search</span>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined text-mute-slate cursor-pointer hover:text-operator-slate">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-risk-crimson rounded-full border-2 border-white"></span>
+</div>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-hairline cursor-pointer">
+<img alt="User Avatar" data-alt="minimalist professional portrait of a tech executive in clean studio lighting with neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRmUcLh3B6CpOHR5hbikDjPrZ2xSqmfv9ouQkMhTrtARGUDYroNTl8RFiUKzZVEQ7CYtQjzkTXuSx5iBybP33gotK50x6r5epgcn5wyC0mDqrToV7eq3EC9f_itT8NGJRhQaRmwhNdvV6QqaM4am_VwekdFx3a-QT3xzzhrADSRK1YIkM-52t82JOETJN7jte_DTz0MVF3lPtXYrTe3tBgNZku63T3pq6DPzxTQtvBYcv82DPDpMFky6g_eFTlzyHY_fOj7K48Mjgb"/>
+</div>
+</div>
+</header>
+<!-- Scrollable Content Pane -->
+<div class="flex-1 overflow-y-auto bg-hush-mist pb-24">
+<!-- Agent Header Section -->
+<div class="bg-white px-8 pt-6 border-b border-hairline">
+<div class="max-w-7xl mx-auto">
+<div class="flex justify-between items-start mb-6">
+<div>
+<nav class="text-[12px] font-medium text-mute-slate flex items-center gap-2 mb-1">
+<span>Agents</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span>Calderon HVAC Inbound</span>
+</nav>
+<div class="flex items-center gap-3 group">
+<h2 class="text-[22px] font-headline font-semibold text-midnight-signal leading-tight">Calderon HVAC Inbound</h2>
+<span class="material-symbols-outlined text-whisper-slate text-lg cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity">edit</span>
+</div>
+<code class="text-[12px] font-mono text-mute-slate">agt_8a91k2</code>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-2 px-3 py-1 rounded-full border border-compliance-amber bg-compliance-amber/5 text-compliance-amber text-[11px] font-semibold tracking-wider uppercase">
+<span class="w-1.5 h-1.5 bg-compliance-amber rounded-full"></span>
+                                    Draft
+                                </div>
+<button class="px-4 py-2 border border-hairline rounded-lg text-sm font-semibold text-operator-slate bg-white hover:bg-hush-mist transition-colors">
+                                    Test agent
+                                </button>
+<button class="px-4 py-2 bg-signal-teal text-white rounded-lg text-sm font-semibold hover:bg-deep-teal transition-colors shadow-sm">
+                                    Save
+                                </button>
+</div>
+</div>
+<!-- Tab Scaffolding -->
+<div class="flex items-center gap-8 h-10">
+<button class="h-full px-1 text-mute-slate text-sm font-medium hover:text-operator-slate transition-colors border-b-2 border-transparent">LLM</button>
+<button class="h-full px-1 text-mute-slate text-sm font-medium hover:text-operator-slate transition-colors border-b-2 border-transparent">Voice</button>
+<button class="h-full px-1 text-operator-slate text-sm font-semibold border-b-2 border-signal-teal">Behavior</button>
+<button class="h-full px-1 text-mute-slate text-sm font-medium hover:text-operator-slate transition-colors border-b-2 border-transparent">Knowledge Base</button>
+<button class="h-full px-1 text-mute-slate text-sm font-medium hover:text-operator-slate transition-colors border-b-2 border-transparent">Tools</button>
+<button class="h-full px-1 text-mute-slate text-sm font-medium hover:text-operator-slate transition-colors border-b-2 border-transparent">Personalization</button>
+<button class="h-full px-1 text-mute-slate text-sm font-medium hover:text-operator-slate transition-colors border-b-2 border-transparent">Compliance</button>
+<button class="h-full px-1 text-mute-slate text-sm font-medium hover:text-operator-slate transition-colors border-b-2 border-transparent">Analysis</button>
+</div>
+</div>
+</div>
+<!-- Form Content Area -->
+<div class="max-w-[720px] mx-auto py-10 px-6 space-y-8">
+<!-- Section 1: First Message -->
+<section>
+<div class="mb-3">
+<h3 class="text-lg font-headline font-semibold text-midnight-signal">First message</h3>
+<p class="text-[12px] text-mute-slate">What the agent says first when the call connects.</p>
+</div>
+<div class="relative">
+<textarea class="w-full bg-white border border-hairline rounded-lg px-4 py-3 text-sm font-body text-operator-slate focus:ring-2 focus:ring-signal-teal/15 focus:border-signal-teal transition-all outline-none resize-none" placeholder="Calderon Cooling, this is Maya — how can I help?" rows="2"></textarea>
+<div class="flex justify-end mt-2">
+<button class="flex items-center gap-1 text-[11px] font-semibold text-signal-teal tracking-wider uppercase hover:text-deep-teal transition-colors">
+                                    INSERT VARIABLE
+                                    <span class="material-symbols-outlined text-[14px]">expand_more</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Section 2: System Prompt -->
+<section>
+<div class="mb-3">
+<h3 class="text-lg font-headline font-semibold text-midnight-signal">System prompt</h3>
+<p class="text-[12px] text-mute-slate">The core persona, instructions, and guardrails for this agent.</p>
+</div>
+<div class="bg-white border border-hairline rounded-lg overflow-hidden flex flex-col">
+<!-- Editor Toolbar -->
+<div class="px-4 py-2 bg-soft-hairline flex items-center justify-between border-b border-hairline">
+<div class="flex items-center gap-2">
+<button class="flex items-center gap-2 px-3 py-1.5 bg-white border border-hairline rounded text-xs font-medium text-operator-slate hover:bg-hush-mist transition-colors">
+                                        Template inserter
+                                        <span class="material-symbols-outlined text-[14px]">expand_more</span>
+</button>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex flex-col items-end gap-1">
+<div class="flex items-center gap-2">
+<span class="text-[10px] font-mono font-medium text-mute-slate">1,247 / 8,000 tokens</span>
+<span class="text-[10px] font-mono text-mute-slate opacity-70" title="≈ $0.0021/call">≈ $0.0021/call</span>
+</div>
+<div class="w-32 h-1 bg-hairline rounded-full overflow-hidden">
+<div class="h-full bg-signal-teal w-[15.5%] rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Editor Gutter & Content -->
+<div class="flex h-[480px] bg-white font-mono text-sm leading-relaxed">
+<div class="w-10 bg-soft-hairline/50 border-r border-hairline text-mute-slate text-right py-4 pr-3 select-none flex flex-col gap-0.5">
+<span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span>
+</div>
+<div class="flex-1 p-4 overflow-y-auto whitespace-pre-wrap">
+<span class="text-mute-slate italic"># CORE IDENTITY</span>
+<span class="font-bold">Name:</span> Maya
+<span class="font-bold">Role:</span> Professional Scheduling Assistant for Calderon HVAC
+<span class="font-bold">Tone:</span> Helpful, efficient, calm, and reassuring
+
+<span class="text-mute-slate italic"># SERVICE AREA</span>
+Primary focus is San Antonio Metro and surrounding counties.
+Always confirm ZIP code before offering available slots.
+
+<span class="text-mute-slate italic"># BOOKING FLOW</span>
+1. Greet customer and identify urgency (Emergency vs Routine).
+2. Collect Name, Address, and Phone.
+3. Check availability for HVAC inspection.
+4. If urgency is high (No heat/cool), escalate to supervisor immediately.
+
+<span class="text-mute-slate italic"># GUARDRAILS</span>
+- Never quote specific repair prices. 
+- Only quote the $89 diagnostic dispatch fee.
+- If customer asks about electrical, refer to our partner "San Marcos Sparks".</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+<!-- Sticky Save Bar -->
+<footer class="absolute bottom-0 left-0 right-0 h-16 bg-white border-t border-hairline px-8 flex items-center justify-between z-50">
+<div class="max-w-7xl mx-auto w-full flex items-center justify-between">
+<div class="flex items-center gap-2 text-[12px] font-medium text-mute-slate">
+<span class="material-symbols-outlined text-[16px]">info</span>
+                        3 fields modified
+                    </div>
+<div class="flex items-center gap-3">
+<button class="px-6 py-2 text-sm font-semibold text-operator-slate hover:bg-hush-mist rounded-lg transition-colors">
+                            Discard
+                        </button>
+<button class="px-6 py-2 bg-signal-teal text-white rounded-lg text-sm font-semibold hover:bg-deep-teal transition-colors shadow-sm">
+                            Save changes
+                        </button>
+</div>
+</div>
+</footer>
+</main>
+</div>
+</body></html>

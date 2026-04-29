@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Geist:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        'midnight-signal': '#0B1220',
+                        'operator-slate': '#1F2937',
+                        'mute-slate': '#64748B',
+                        'whisper-slate': '#94A3B8',
+                        'hush-mist': '#F4F6FA',
+                        'paper-white': '#FFFFFF',
+                        'hairline': '#E2E6EF',
+                        'soft-hairline': '#EEF1F6',
+                        'signal-teal': '#0EA5A6',
+                        'deep-teal': '#0F7A7B',
+                        'live-cyan': '#22D3EE',
+                        'booked-green': '#10B981',
+                        'compliance-amber': '#F59E0B',
+                        'risk-crimson': '#DC2626',
+                        'audit-indigo': '#4F46E5',
+                        'receipt-gold': '#B89A4A'
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.25rem',
+                        'lg': '0.5rem',
+                        'xl': '0.75rem',
+                        '2xl': '1rem',
+                        'full': '9999px'
+                    },
+                    fontFamily: {
+                        'headline': ['Geist', 'sans-serif'],
+                        'display': ['Geist', 'sans-serif'],
+                        'body': ['Inter', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: #F4F6FA; }
+        .h1-title { font-family: 'Geist', sans-serif; font-size: 28px; line-height: 32px; letter-spacing: -0.015em; font-weight: 600; }
+        .tab-mono { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+    </style>
+</head>
+<body class="text-operator-slate">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 bg-white dark:bg-[#0B1220] border-b border-[#E2E6EF] dark:border-[#2A3142] flex justify-between items-center h-14 px-4 w-full">
+<div class="flex items-center gap-4">
+<span class="text-xl font-bold text-[#0B1220] dark:text-white tracking-tighter font-['Geist']">Vokari</span>
+<div class="flex items-center gap-2 px-2 py-1 bg-audit-indigo/10 rounded-md">
+<span class="text-[10px] font-semibold text-audit-indigo uppercase tracking-wider">Production</span>
+</div>
+</div>
+<div class="flex-1 max-w-md mx-8">
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-mute-slate text-lg">search</span>
+<input class="w-full bg-hush-mist border-none rounded-lg py-1.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-signal-teal/20 transition-all" placeholder="Search commands..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2 text-mute-slate hover:bg-[#F4F6FA] dark:hover:bg-[#1A2030] rounded-full transition-colors cursor-pointer">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-mute-slate hover:bg-[#F4F6FA] dark:hover:bg-[#1A2030] rounded-full transition-colors cursor-pointer">
+<span class="material-symbols-outlined" data-icon="command_key">keyboard_command_key</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-hairline overflow-hidden border border-hairline">
+<img class="w-full h-full object-cover" data-alt="A high-quality professional portrait of a modern software operator. The individual is shown in profile against a soft, neutral studio background with clean, high-key lighting that emphasizes a polished, professional tech-industry aesthetic. The color palette is dominated by cool grays and crisp whites to match the UI system." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3g7mmyoEbvg8Jdb_m1ubo0jJ4eTNLcO2YPL45ANsQRDT_lgdwSs9lcHxcWxMFJqP-RiKcHGecfZL7PV5qdUUMKOhyrUUGUoP0SVDsiSKvtHw2xrYzZWU71N__33SwUk94HJhP9ulFFHDP7-KNAFsmjGzTfDH8voigYxkRRuoJn5FdrMLgw3mJQS4_U-RG4atlhPPXqbh-mD0QZNnlfBgG178k9FaUMXtknLmRUoAEJOJDEhzrfnxL3x7uPswpB7SCUfEUh6BsMlFs"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-14 h-[calc(100vh-56px)] w-56 bg-white dark:bg-[#0B1220] border-r border-[#E2E6EF] dark:border-[#2A3142] flex flex-col py-4 font-['Inter'] text-sm font-medium">
+<div class="flex-1 px-3 space-y-1">
+<!-- Section: Configure -->
+<div class="text-[11px] font-semibold text-mute-slate uppercase tracking-wider px-3 mb-2 mt-4">Configure</div>
+<a class="flex items-center gap-3 px-3 py-2 text-[#94A3B8] hover:text-[#1F2937] dark:hover:text-white hover:bg-[#F4F6FA] dark:hover:bg-[#1A2030] rounded-md transition-all duration-150" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="settings">settings</span>
+<span>Agents</span>
+</a>
+<!-- Section: Operate -->
+<div class="text-[11px] font-semibold text-mute-slate uppercase tracking-wider px-3 mb-2 mt-6">Operate</div>
+<a class="flex items-center gap-3 px-3 py-2 text-[#94A3B8] hover:text-[#1F2937] dark:hover:text-white hover:bg-[#F4F6FA] dark:hover:bg-[#1A2030] rounded-md transition-all duration-150" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="play_circle">play_circle</span>
+<span>Console</span>
+</a>
+<!-- Section: Distribute -->
+<div class="text-[11px] font-semibold text-mute-slate uppercase tracking-wider px-3 mb-2 mt-6">Distribute</div>
+<a class="flex items-center gap-3 px-3 py-2 bg-[#F4F6FA] dark:bg-[#1A2030] text-[#1F2937] dark:text-white border-l-4 border-[#0EA5A6] font-semibold rounded-r-md transition-all duration-150" href="#">
+<span class="material-symbols-outlined text-lg text-signal-teal" data-icon="share">share</span>
+<span>Widget</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#94A3B8] hover:text-[#1F2937] dark:hover:text-white hover:bg-[#F4F6FA] dark:hover:bg-[#1A2030] rounded-md transition-all duration-150" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="grid_view">grid_view</span>
+<span>Workspace</span>
+</a>
+</div>
+<div class="px-3 pt-4 border-t border-hairline space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-[#94A3B8] hover:text-[#1F2937] rounded-md transition-all" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="help">help</span>
+<span>Support</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#94A3B8] hover:text-[#1F2937] rounded-md transition-all" href="#">
+<span class="material-symbols-outlined text-lg" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-56 mt-14 p-8 min-h-screen">
+<!-- Header Section -->
+<div class="flex justify-between items-start mb-8">
+<div>
+<h1 class="h1-title text-midnight-signal">Widget customizer</h1>
+<p class="text-sm text-mute-slate mt-1">Configure how Vokari appears on your website.</p>
+</div>
+<div class="flex gap-3">
+<button class="h-9 px-4 rounded-md border border-hairline bg-white text-sm font-medium text-operator-slate hover:bg-hush-mist transition-colors">
+                    Reset to defaults
+                </button>
+<button class="h-9 px-4 rounded-md bg-signal-teal text-white text-sm font-medium hover:bg-deep-teal transition-colors">
+                    Save &amp; publish
+                </button>
+</div>
+</div>
+<!-- Layout Grid -->
+<div class="grid grid-cols-10 gap-4">
+<!-- LEFT COLUMN: Preview -->
+<div class="col-span-6">
+<div class="bg-white rounded-[10px] border border-hairline p-6 h-[720px] relative overflow-hidden flex flex-col shadow-sm">
+<div class="flex-1 bg-hush-mist rounded-lg overflow-hidden border border-hairline flex flex-col">
+<!-- Faux Browser Header -->
+<div class="h-10 bg-white border-b border-hairline px-4 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-20 h-4 bg-hairline rounded"></div>
+<div class="flex gap-3">
+<div class="w-10 h-2 bg-hairline/60 rounded"></div>
+<div class="w-10 h-2 bg-hairline/60 rounded"></div>
+<div class="w-10 h-2 bg-hairline/60 rounded"></div>
+</div>
+</div>
+<div class="w-16 h-5 bg-hairline rounded"></div>
+</div>
+<!-- Faux Website Content -->
+<div class="p-8 space-y-6">
+<div class="max-w-md">
+<div class="text-2xl font-bold text-whisper-slate mb-4">[Your website content]</div>
+<div class="space-y-3">
+<div class="h-4 bg-hairline rounded w-full"></div>
+<div class="h-4 bg-hairline rounded w-5/6"></div>
+<div class="h-4 bg-hairline rounded w-4/6"></div>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-4 mt-12">
+<div class="h-32 bg-white border border-hairline rounded-lg"></div>
+<div class="h-32 bg-white border border-hairline rounded-lg"></div>
+<div class="h-32 bg-white border border-hairline rounded-lg"></div>
+</div>
+</div>
+<!-- Floating Widget & Panel -->
+<div class="absolute bottom-6 right-6 flex items-end gap-4">
+<!-- Chat Panel -->
+<div class="w-[360px] h-[480px] bg-white rounded-2xl shadow-[0_12px_32px_rgba(11,18,32,0.12)] border border-hairline flex flex-col overflow-hidden">
+<div class="p-4 flex items-center justify-between border-b border-hairline bg-white sticky top-0">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-hairline bg-hush-mist">
+<img class="w-full h-full object-cover" data-alt="A professional and friendly AI agent profile picture. The image features a woman with a warm, welcoming expression, styled like a modern corporate customer service representative. The background is a clean, minimal office environment with soft natural lighting, maintaining the cool-neutral professional aesthetic of the Vokari brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPXJwL3qUIqnaePYQkrqJnFzJZIEGq9lXC4tZw2oKcFkejvRds4-7VSAsBBlLvvU1TU6PtRJ_XHGI1-kLVRKVH7-VofxtGhy1yaccIBlckiMTUxjQ3eaqhhoAyD4x0i-SmMNFBtdXoQolq8lildhGFcbBW1s8iovqQF5ONgwX3syDJtEFnZOUz0KPZwJBlh81bYkxN5_KdjqALTGfDYwfvTJYMrbLevFE4qvT9cNRJdA8fH5O33hQ44twt3q9teZ9arJHcvq6Xhndj"/>
+</div>
+<div>
+<div class="text-sm font-semibold text-midnight-signal leading-tight">Maya · HVAC Inbound</div>
+<div class="flex items-center gap-1">
+<div class="w-2 h-2 rounded-full bg-booked-green"></div>
+<span class="text-[10px] text-mute-slate uppercase font-semibold tracking-wide">Live Support</span>
+</div>
+</div>
+</div>
+<button class="text-mute-slate hover:text-midnight-signal">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+<div class="flex-1 p-4 bg-hush-mist/30 space-y-4 overflow-y-auto">
+<div class="flex gap-2">
+<div class="bg-white p-3 rounded-xl rounded-tl-none border border-hairline text-sm max-w-[80%] shadow-sm">
+                                            Hello! I'm Maya from Vokari. How can I help you today?
+                                        </div>
+</div>
+<div class="flex flex-row-reverse gap-2">
+<div class="bg-signal-teal text-white p-3 rounded-xl rounded-tr-none text-sm max-w-[80%] shadow-sm">
+                                            I need to schedule an HVAC inspection for my office.
+                                        </div>
+</div>
+</div>
+<div class="p-4 bg-white border-t border-hairline">
+<div class="relative flex items-center">
+<input class="w-full bg-hush-mist border-none rounded-xl py-2.5 pl-4 pr-12 text-sm focus:ring-1 focus:ring-signal-teal/30" placeholder="Type your message..." type="text"/>
+<button class="absolute right-3 text-signal-teal">
+<span class="material-symbols-outlined" data-icon="mic" style="font-variation-settings: 'FILL' 1;">mic</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Widget Toggle Button -->
+<button class="w-16 h-16 rounded-full bg-signal-teal flex items-center justify-center text-white shadow-xl hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-3xl" data-icon="waves" style="font-variation-settings: 'FILL' 1;">waves</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- RIGHT COLUMN: Customization Rail -->
+<div class="col-span-4 flex flex-col gap-4">
+<div class="bg-white rounded-[10px] border border-hairline shadow-sm overflow-hidden flex-1">
+<!-- Scrollable Settings -->
+<div class="divide-y divide-hairline">
+<!-- 1. Modality -->
+<div class="p-4">
+<div class="flex items-center justify-between mb-3">
+<span class="text-sm font-semibold text-operator-slate">Modality</span>
+<span class="material-symbols-outlined text-mute-slate text-sm" data-icon="expand_more">expand_more</span>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 py-2 px-3 border border-hairline rounded-md text-xs font-medium text-mute-slate hover:bg-hush-mist transition-colors">Text</button>
+<button class="flex-1 py-2 px-3 border border-hairline rounded-md text-xs font-medium text-mute-slate hover:bg-hush-mist transition-colors">Voice</button>
+<button class="flex-1 py-2 px-3 border-2 border-signal-teal bg-signal-teal/5 rounded-md text-xs font-semibold text-signal-teal">Voice + text</button>
+</div>
+</div>
+<!-- 2. Avatar -->
+<div class="p-4">
+<div class="flex items-center justify-between mb-3">
+<span class="text-sm font-semibold text-operator-slate">Avatar</span>
+<span class="material-symbols-outlined text-mute-slate text-sm" data-icon="chevron_right">chevron_right</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full border-2 border-soft-hairline overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Avatar preview showing the friendly AI agent portrait used in the widget, framed in a clean circular crop against the UI shell background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwtrO9iWajsBg9N3MGdib3QYplh-KL97Wgpxzl5MGSTERMBmuMnne36WP38wuHQXCc5s09MYbC0az0rbTaskuh5VBKVOL5Vs4UM7T8MVhurSNPQSjsC8cnorNZGVcWWAXCTInZLAb5jqxqZB8-7MABAgfh-OJk2i-5HXcPgvHcOSoXcMuM-OH5LyuRztLbHrPFv-4RSFg2D3EQUnls8qJ44HaKt8ObAJBhbzddgdC73Kgg6jvw9z1-hB1Qg5_gZE-Ez_bvN1JhdMzu"/>
+</div>
+<button class="flex-1 h-12 border-2 border-dashed border-hairline rounded-md text-xs text-mute-slate hover:border-signal-teal/50 hover:text-signal-teal transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="upload">upload</span>
+                                    Upload new
+                                </button>
+</div>
+</div>
+<!-- 3. Theme -->
+<div class="p-4">
+<div class="flex items-center justify-between mb-3">
+<span class="text-sm font-semibold text-operator-slate">Theme</span>
+<span class="material-symbols-outlined text-mute-slate text-sm" data-icon="chevron_right">chevron_right</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex gap-2">
+<div class="w-6 h-6 rounded-full bg-signal-teal ring-2 ring-offset-2 ring-signal-teal cursor-pointer"></div>
+<div class="w-6 h-6 rounded-full bg-audit-indigo cursor-pointer hover:scale-110 transition-transform"></div>
+<div class="w-6 h-6 rounded-full bg-midnight-signal cursor-pointer hover:scale-110 transition-transform"></div>
+<div class="w-6 h-6 rounded-full bg-receipt-gold cursor-pointer hover:scale-110 transition-transform"></div>
+</div>
+<div class="flex items-center bg-hush-mist p-1 rounded-full w-14 h-7 relative">
+<div class="w-5 h-5 bg-white rounded-full shadow-sm absolute left-1"></div>
+<span class="material-symbols-outlined text-[12px] absolute left-1.5 text-mute-slate" data-icon="light_mode">light_mode</span>
+<span class="material-symbols-outlined text-[12px] absolute right-1.5 text-whisper-slate" data-icon="dark_mode">dark_mode</span>
+</div>
+</div>
+</div>
+<!-- 4. Strings -->
+<div class="p-4">
+<div class="flex items-center justify-between mb-3">
+<span class="text-sm font-semibold text-operator-slate">Strings</span>
+<span class="material-symbols-outlined text-mute-slate text-sm" data-icon="chevron_right">chevron_right</span>
+</div>
+<div class="space-y-3">
+<div>
+<label class="text-[11px] font-semibold text-mute-slate uppercase tracking-wider block mb-1">Greeting</label>
+<input class="w-full h-8 text-sm border-hairline rounded-md focus:ring-signal-teal focus:border-signal-teal" type="text" value="Hello! I'm Maya from Vokari."/>
+</div>
+<div>
+<label class="text-[11px] font-semibold text-mute-slate uppercase tracking-wider block mb-1">Placeholder</label>
+<input class="w-full h-8 text-sm border-hairline rounded-md focus:ring-signal-teal focus:border-signal-teal" type="text" value="Type your message..."/>
+</div>
+</div>
+</div>
+<!-- 5. Overrides allowlist -->
+<div class="p-4">
+<div class="flex items-center justify-between mb-3">
+<span class="text-sm font-semibold text-operator-slate">Overrides allowlist</span>
+<span class="material-symbols-outlined text-mute-slate text-sm" data-icon="chevron_right">chevron_right</span>
+</div>
+<div class="space-y-2">
+<label class="flex items-center gap-2 cursor-pointer group">
+<input checked="" class="w-4 h-4 rounded border-hairline text-signal-teal focus:ring-signal-teal" type="checkbox"/>
+<span class="text-xs text-operator-slate group-hover:text-midnight-signal">Greeting</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input checked="" class="w-4 h-4 rounded border-hairline text-signal-teal focus:ring-signal-teal" type="checkbox"/>
+<span class="text-xs text-operator-slate group-hover:text-midnight-signal">Accent Color</span>
+</label>
+</div>
+</div>
+<!-- 6. Feedback -->
+<div class="p-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="text-sm font-semibold text-operator-slate">Feedback</span>
+<div class="w-8 h-4 bg-signal-teal rounded-full relative flex items-center px-1">
+<div class="w-2.5 h-2.5 bg-white rounded-full absolute right-1"></div>
+</div>
+</div>
+<span class="material-symbols-outlined text-mute-slate text-sm" data-icon="chevron_right">chevron_right</span>
+</div>
+<p class="text-[11px] text-mute-slate mt-2">Show CSAT chip after session ends.</p>
+</div>
+<!-- 7. Variant (Segmented Control) -->
+<div class="p-4">
+<div class="flex items-center justify-between mb-3">
+<span class="text-sm font-semibold text-operator-slate">Variant</span>
+</div>
+<div class="bg-hush-mist p-1 rounded-lg flex gap-1">
+<button class="flex-1 h-8 bg-white shadow-sm border border-hairline rounded-md text-[11px] font-semibold text-midnight-signal">Default</button>
+<button class="flex-1 h-8 text-[11px] font-semibold text-mute-slate hover:text-operator-slate">Compact</button>
+<button class="flex-1 h-8 text-[11px] font-semibold text-mute-slate hover:text-operator-slate">Minimal</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Status Rail -->
+<div class="bg-white border border-hairline rounded-lg p-3 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-booked-green shadow-[0_0_8px_rgba(16,185,129,0.4)]"></div>
+<span class="text-[11px] text-mute-slate font-medium">Variant: <span class="text-operator-slate">Default</span> · last published 18 min ago</span>
+</div>
+<span class="material-symbols-outlined text-mute-slate text-lg" data-icon="history">history</span>
+</div>
+</div>
+</div>
+</main>
+</body></html>

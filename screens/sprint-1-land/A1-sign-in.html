@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sign in | Vokari</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;550;600&amp;family=Geist:wght@600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        'midnight-signal': '#0B1220',
+                        'operator-slate': '#1F2937',
+                        'mute-slate': '#64748B',
+                        'whisper-slate': '#94A3B8',
+                        'hush-mist': '#F4F6FA',
+                        'paper-white': '#FFFFFF',
+                        'hairline': '#E2E6EF',
+                        'signal-teal': '#0EA5A6',
+                        'deep-teal': '#0F7A7B',
+                        'live-cyan': '#22D3EE',
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.25rem',
+                        'lg': '0.5rem',
+                        'xl': '0.75rem',
+                        'full': '9999px'
+                    },
+                    fontFamily: {
+                        'headline': ['Geist', 'sans-serif'],
+                        'display': ['Geist', 'sans-serif'],
+                        'body': ['Inter', 'sans-serif'],
+                        'label': ['Inter', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .geist-h1 {
+            font-family: 'Geist', sans-serif;
+            font-weight: 600;
+            font-size: 28px;
+            line-height: 32px;
+            letter-spacing: -1.5%;
+        }
+        .geist-h3 {
+            font-family: 'Geist', sans-serif;
+            font-weight: 600;
+            font-size: 18px;
+            line-height: 24px;
+            letter-spacing: -0.5%;
+        }
+        .small-caps {
+            font-variant: all-small-caps;
+            letter-spacing: 0.08em;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-hush-mist text-midnight-signal flex flex-col min-h-screen">
+<!-- Auth Container -->
+<main class="flex-grow flex items-center justify-center px-4 py-12">
+<div class="w-full max-w-[420px]">
+<!-- Branding & Header -->
+<div class="flex flex-col items-center mb-8 text-center">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-signal-teal text-2xl" style="font-variation-settings: 'FILL' 1;">graphic_eq</span>
+<span class="text-xl font-semibold tracking-tighter text-midnight-signal font-headline">Vokari</span>
+</div>
+<h1 class="geist-h1 text-midnight-signal mb-2">Sign in to Vokari</h1>
+<p class="text-[12px] text-mute-slate max-w-[280px] leading-relaxed">
+                    Operator-grade voice AI for HVAC, dental, and admissions teams
+                </p>
+</div>
+<!-- Auth Card -->
+<div class="bg-paper-white border border-hairline rounded-xl p-8 space-y-6">
+<!-- SSO Provider Cluster -->
+<div class="space-y-4">
+<button class="w-full h-11 flex items-center justify-center gap-3 bg-paper-white border border-hairline rounded-[6px] text-operator-slate text-sm font-[550] hover:bg-hush-mist transition-colors duration-150 active:opacity-80">
+<img alt="" class="w-4 h-4" data-alt="minimalist google icon logo on white background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7k-1Ndu0kCysfMFhz_68frJAlldp2TRse4yBle55JDNcsUla-O-AbEFAk3C4orfiAIOb4dxm72rORe2GVgb-z7pBhiOSXQ2kxhlyXD-7YowbK3GjrWKOUPWXr1Fj1GuZn35gAailgkY7s4bR5TCkCvQK-rqCMYmD2d-yXB4zBzMRD8A1uSj1-bOIN7647LrpH194hsHBtMjiyTG2iz8vHe2xHXc4ntpsjWRYMWf_4XYMjcH3G8tUomOUHQM2On32hpEmnwtwG_AN3"/>
+                        Continue with Google
+                    </button>
+<button class="w-full h-11 flex items-center justify-center gap-3 bg-paper-white border border-hairline rounded-[6px] text-operator-slate text-sm font-[550] hover:bg-hush-mist transition-colors duration-150 active:opacity-80">
+<svg class="w-4 h-4" fill="none" viewbox="0 0 23 23" xmlns="http://www.w3.org/2000/svg">
+<path d="M11.4 0H0V11.4H11.4V0Z" fill="#F25022"></path>
+<path d="M23 0H11.6V11.4H23V0Z" fill="#7FBA00"></path>
+<path d="M11.4 11.6H0V23H11.4V11.6Z" fill="#00A4EF"></path>
+<path d="M23 11.6H11.6V23H23V11.6Z" fill="#FFB900"></path>
+</svg>
+                        Continue with Microsoft
+                    </button>
+<button class="w-full h-11 flex items-center justify-center gap-3 bg-paper-white border border-hairline rounded-[6px] text-operator-slate text-sm font-[550] hover:bg-hush-mist transition-colors duration-150 active:opacity-80">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">ios</span>
+                        Continue with Apple
+                    </button>
+</div>
+<!-- Divider -->
+<div class="flex items-center gap-4">
+<div class="flex-grow h-[1px] bg-hairline"></div>
+<span class="text-[12px] font-medium text-mute-slate uppercase tracking-wider">or</span>
+<div class="flex-grow h-[1px] bg-hairline"></div>
+</div>
+<!-- Email Form -->
+<div class="space-y-4">
+<div class="space-y-1.5">
+<label class="block text-[12px] font-[550] text-operator-slate ml-0.5" for="email">Email address</label>
+<input class="w-full h-9 bg-paper-white border border-hairline rounded-lg px-3 text-sm focus:ring-2 focus:ring-signal-teal/15 focus:border-signal-teal outline-none transition-all placeholder:text-whisper-slate" id="email" placeholder="name@company.com" type="email"/>
+</div>
+<button class="w-full h-11 bg-signal-teal text-white rounded-[6px] text-sm font-[550] hover:bg-deep-teal transition-all duration-150 active:opacity-80">
+                        Continue with email
+                    </button>
+</div>
+</div>
+<!-- Footer Meta -->
+<div class="mt-8 flex flex-col items-center gap-6">
+<p class="text-sm text-mute-slate">
+                    New to Vokari? <a class="text-signal-teal font-[550] hover:underline decoration-2 underline-offset-4" href="#">Start a workspace</a>
+</p>
+<!-- Compliance Row -->
+<div class="flex items-center gap-4 text-mute-slate opacity-70">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]">verified_user</span>
+<span class="text-[10px] small-caps font-semibold">SOC 2 TYPE II</span>
+</div>
+<div class="w-[1px] h-3 bg-hairline"></div>
+<div class="flex items-center gap-1.5">
+<span class="text-[10px] small-caps font-semibold">HIPAA COMPLIANT</span>
+</div>
+<div class="w-[1px] h-3 bg-hairline"></div>
+<div class="flex items-center gap-1.5">
+<span class="text-[10px] small-caps font-semibold">FERPA READY</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Global Footer (from JSON structure) -->
+<footer class="fixed bottom-0 w-full py-4 bg-hush-mist">
+<div class="flex flex-col md:flex-row justify-between items-center px-8 w-full max-w-7xl mx-auto gap-4">
+<span class="text-[12px] font-normal text-mute-slate tracking-wide font-body">© 2024 Vokari. Operator-grade Intelligence.</span>
+<div class="flex gap-6">
+<a class="text-[12px] font-normal text-mute-slate tracking-wide font-body hover:text-signal-teal transition-colors duration-200" href="#">Privacy</a>
+<a class="text-[12px] font-normal text-mute-slate tracking-wide font-body hover:text-signal-teal transition-colors duration-200" href="#">Terms</a>
+<a class="text-[12px] font-normal text-mute-slate tracking-wide font-body hover:text-signal-teal transition-colors duration-200" href="#">Compliance</a>
+<a class="text-[12px] font-normal text-mute-slate tracking-wide font-body hover:text-signal-teal transition-colors duration-200" href="#">Security</a>
+</div>
+</div>
+</footer>
+</body></html>

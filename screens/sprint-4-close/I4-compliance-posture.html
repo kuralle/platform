@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        midnight: "#0B1220",
+                        operator: "#1F2937",
+                        mute: "#64748B",
+                        whisper: "#94A3B8",
+                        hush: "#F4F6FA",
+                        paper: "#FFFFFF",
+                        hairline: "#E2E6EF",
+                        softHairline: "#EEF1F6",
+                        signalTeal: "#0EA5A6",
+                        deepTeal: "#0F7A7B",
+                        liveCyan: "#22D3EE",
+                        bookedGreen: "#10B981",
+                        complianceAmber: "#F59E0B",
+                        riskCrimson: "#DC2626",
+                        auditIndigo: "#4F46E5",
+                        receiptGold: "#B89A4A"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        headline: ["Geist", "sans-serif"],
+                        display: ["Geist", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                        label: ["Inter", "sans-serif"],
+                        mono: ["JetBrains Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .small-caps {
+            font-variant: all-small-caps;
+        }
+    </style>
+</head>
+<body class="bg-[#F4F6FA] font-body text-operator antialiased">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full h-14 z-50 bg-slate-900 dark:bg-black border-b border-slate-800 flex justify-between items-center px-6 w-full">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold tracking-[-1.5%] text-white font-headline">Vokari</span>
+<nav class="hidden md:flex items-center gap-6 h-14">
+<a class="text-slate-400 hover:text-slate-200 font-headline font-semibold tracking-tight text-sm h-full flex items-center transition-colors duration-150" href="#">Dashboard</a>
+<a class="text-slate-400 hover:text-slate-200 font-headline font-semibold tracking-tight text-sm h-full flex items-center transition-colors duration-150" href="#">Audits</a>
+<a class="text-teal-400 border-b-2 border-teal-500 font-headline font-semibold tracking-tight text-sm h-full flex items-center" href="#">Compliance</a>
+<a class="text-slate-400 hover:text-slate-200 font-headline font-semibold tracking-tight text-sm h-full flex items-center transition-colors duration-150" href="#">Settings</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative flex items-center">
+<span class="material-symbols-outlined text-slate-400 absolute left-3 text-lg">search</span>
+<input class="bg-white/10 border-none rounded-md py-1.5 pl-10 pr-4 text-sm text-white placeholder-slate-500 focus:ring-1 focus:ring-teal-500 w-64" placeholder="Search..." type="text"/>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-slate-400 hover:bg-white/5 rounded-full transition-colors"><span class="material-symbols-outlined">notifications</span></button>
+<button class="p-2 text-slate-400 hover:bg-white/5 rounded-full transition-colors"><span class="material-symbols-outlined">help</span></button>
+<div class="h-8 w-8 rounded-full bg-slate-700 overflow-hidden ml-2 border border-slate-600">
+<img alt="User profile" data-alt="A professional headshot of a corporate executive in a modern, brightly lit office environment. The lighting is clean and high-key, reflecting a minimalist light-mode UI aesthetic. The person is wearing a dark navy blazer, and the background features soft-focus architectural details in cool slate tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNWF8qF0P3oAQbCu2USI6JmXCPRGHRZEPY-_rZdZMU9rsFEcWONfSROU36ChTYGtJNEr_k5zLP1o78zRunj0PnPPA0dJjKPWCbjUzL0xWLKj_v0YXWQW_iYsBj_OIOBU5X6ROYDZ5re52DNDSHpTYvhxDruAZj63YxogG0Vv9vCB1QeVU2kkc4yHot-8N9XEJS2qZG_D7SUt4Y2dcw4smCAQVU5MhyZklenMwymujoXouOtr004Y3Y-YZqCpBjWu2RDqeI-uRdB5Lb"/>
+</div>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-14 h-[calc(100vh-56px)] w-56 border-r border-slate-200 bg-white dark:bg-slate-900 flex flex-col py-4 gap-2">
+<div class="px-4 mb-6">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 bg-slate-900 rounded flex items-center justify-center text-white font-bold">V</div>
+<div>
+<div class="text-sm font-bold text-slate-900 dark:text-white font-headline">Vokari Ops</div>
+<div class="text-[10px] text-mute font-medium">Production Cluster</div>
+</div>
+</div>
+<button class="mt-6 w-full py-2 bg-signalTeal hover:bg-deepTeal text-white text-sm font-semibold rounded-md transition-all">New Audit</button>
+</div>
+<nav class="flex-1 px-2 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-mute hover:bg-slate-50 hover:text-slate-900 rounded-md transition-all text-sm font-medium" href="#">
+<span class="material-symbols-outlined text-lg">dashboard</span> Overview
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-mute hover:bg-slate-50 hover:text-slate-900 rounded-md transition-all text-sm font-medium" href="#">
+<span class="material-symbols-outlined text-lg">smart_toy</span> Agents
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-mute hover:bg-slate-50 hover:text-slate-900 rounded-md transition-all text-sm font-medium" href="#">
+<span class="material-symbols-outlined text-lg">forum</span> Conversations
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 bg-slate-50 text-signalTeal border-l-4 border-signalTeal transition-all text-sm font-semibold" href="#">
+<span class="material-symbols-outlined text-lg">gavel</span> Compliance
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-mute hover:bg-slate-50 hover:text-slate-900 rounded-md transition-all text-sm font-medium" href="#">
+<span class="material-symbols-outlined text-lg">work</span> Workspace
+            </a>
+</nav>
+<div class="px-2 mt-auto border-t border-slate-100 pt-4">
+<a class="flex items-center gap-3 px-3 py-2 text-mute hover:bg-slate-50 hover:text-slate-900 rounded-md transition-all text-sm font-medium" href="#">
+<span class="material-symbols-outlined text-lg">contact_support</span> Support
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-mute hover:bg-slate-50 hover:text-slate-900 rounded-md transition-all text-sm font-medium" href="#">
+<span class="material-symbols-outlined text-lg">description</span> Docs
+            </a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-56 mt-14 p-8 max-w-[1280px] mx-auto min-h-screen">
+<!-- Header -->
+<div class="mb-8">
+<h1 class="text-[28px] leading-8 font-semibold font-headline tracking-tight text-midnight">Compliance posture</h1>
+<div class="flex items-center gap-2 mt-1">
+<span class="text-sm text-mute">Calderon Cooling · last evaluated 2 minutes ago</span>
+<span class="text-mute text-xs">•</span>
+<a class="text-sm font-medium text-signalTeal hover:underline" href="#">Re-evaluate</a>
+</div>
+</div>
+<!-- KPI Tile Row -->
+<div class="grid grid-cols-4 gap-4 mb-8">
+<!-- Tile 1 -->
+<div class="h-[120px] bg-paper border border-hairline rounded-[10px] p-5 flex flex-col justify-between">
+<span class="text-[11px] font-semibold text-mute tracking-[0.08em] small-caps">WORKSPACE TIER</span>
+<div class="mt-auto">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-auditIndigo/10 text-auditIndigo border border-auditIndigo/20">
+                        Enterprise
+                    </span>
+</div>
+</div>
+<!-- Tile 2 -->
+<div class="h-[120px] bg-paper border border-hairline rounded-[10px] p-5 flex flex-col justify-between">
+<span class="text-[11px] font-semibold text-mute tracking-[0.08em] small-caps">OPEN COMPLIANCE ISSUES</span>
+<div class="flex items-end justify-between">
+<span class="text-3xl font-medium font-mono text-operator">3</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded bg-complianceAmber/10 text-complianceAmber text-[11px] font-semibold border border-complianceAmber/20">
+                        3 to resolve
+                    </span>
+</div>
+</div>
+<!-- Tile 3 -->
+<div class="h-[120px] bg-paper border border-hairline rounded-[10px] p-5 flex flex-col justify-between">
+<span class="text-[11px] font-semibold text-mute tracking-[0.08em] small-caps">AUDIT-TRAIL ENTRIES (30D)</span>
+<div class="mt-auto">
+<span class="text-3xl font-medium font-mono text-operator">1,247</span>
+</div>
+</div>
+<!-- Tile 4 -->
+<div class="h-[120px] bg-paper border border-hairline rounded-[10px] p-5 flex flex-col justify-between">
+<span class="text-[11px] font-semibold text-mute tracking-[0.08em] small-caps">LAST BAA SIGNED</span>
+<div class="flex items-center gap-2 mt-auto">
+<div class="w-2 h-2 rounded-full bg-bookedGreen"></div>
+<span class="text-lg font-medium text-operator">12 days ago</span>
+</div>
+</div>
+</div>
+<!-- Regulation Cards Grid -->
+<div class="grid grid-cols-2 gap-8 mb-8">
+<!-- HIPAA -->
+<div class="h-[320px] bg-paper border border-hairline rounded-[10px] p-6 flex flex-col">
+<div class="flex items-start justify-between mb-6">
+<div>
+<span class="text-[11px] font-semibold text-mute tracking-[0.08em] small-caps block mb-2">HIPAA</span>
+<div class="flex items-center gap-2">
+<span class="h-6 flex items-center px-3 rounded-full bg-bookedGreen/10 text-bookedGreen text-[11px] font-bold border border-bookedGreen/20 uppercase tracking-wide">Active</span>
+<span class="text-[11px] text-mute font-medium">Applies to 8 agents</span>
+</div>
+</div>
+<button class="p-1.5 hover:bg-hush rounded-md transition-colors text-mute"><span class="material-symbols-outlined text-xl">more_vert</span></button>
+</div>
+<div class="flex-1 space-y-3">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-bookedGreen text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-[13px] text-operator">Zero-Retention LLM enforced</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-bookedGreen text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-[13px] text-operator">Audio recording disabled</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-bookedGreen text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-[13px] text-operator">Redaction enabled (PII/PHI)</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-bookedGreen text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-[13px] text-operator">BAA on file with Vokari Inc.</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-bookedGreen text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-[13px] text-operator">Disclosure attached to voice prompts</span>
+</div>
+</div>
+<div class="pt-4 mt-auto border-t border-hairline flex items-center justify-between">
+<a class="text-[13px] font-medium text-signalTeal hover:underline" href="#">View audit trail</a>
+<button class="text-[13px] font-semibold text-operator hover:text-midnight">Settings</button>
+</div>
+</div>
+<!-- FERPA -->
+<div class="h-[320px] bg-paper border border-hairline rounded-[10px] p-6 flex flex-col">
+<div class="flex items-start justify-between mb-6">
+<div>
+<span class="text-[11px] font-semibold text-mute tracking-[0.08em] small-caps block mb-2">FERPA</span>
+<div class="flex items-center gap-2">
+<span class="h-6 flex items-center px-3 rounded-full bg-whisper/10 text-whisper text-[11px] font-bold border border-whisper/20 uppercase tracking-wide">Inactive</span>
+<span class="text-[11px] text-mute font-medium">Applies to 0 agents</span>
+</div>
+</div>
+</div>
+<div class="flex-1 flex flex-col items-center justify-center text-center">
+<div class="mb-3 p-3 bg-hush rounded-full">
+<span class="material-symbols-outlined text-mute text-2xl">info</span>
+</div>
+<span class="text-[13px] text-operator">Not applicable to current workspace vertical (Home Services).</span>
+<button class="mt-4 text-[13px] font-medium text-signalTeal hover:underline">Request manual enablement</button>
+</div>
+<div class="pt-4 mt-auto border-t border-hairline flex items-center justify-between">
+<a class="text-[13px] font-medium text-signalTeal hover:underline" href="#">Learn more</a>
+<button class="text-[13px] font-semibold text-mute cursor-not-allowed">Disabled</button>
+</div>
+</div>
+<!-- TCPA -->
+<div class="h-[320px] bg-paper border border-hairline rounded-[10px] p-6 flex flex-col">
+<div class="flex items-start justify-between mb-6">
+<div>
+<span class="text-[11px] font-semibold text-mute tracking-[0.08em] small-caps block mb-2">TCPA</span>
+<div class="flex items-center gap-2">
+<span class="h-6 flex items-center px-3 rounded-full bg-complianceAmber/10 text-complianceAmber text-[11px] font-bold border border-complianceAmber/20 uppercase tracking-wide">Action Required</span>
+<span class="text-[11px] text-mute font-medium">Applies to 12 agents</span>
+</div>
+</div>
+</div>
+<div class="flex-1 space-y-3">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-bookedGreen text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-[13px] text-operator">Consent-to-call verification enabled</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-bookedGreen text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-[13px] text-operator">Mandatory DNC list synchronization</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-bookedGreen text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-[13px] text-operator">Call-time window restrictions (8AM-9PM)</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-bookedGreen text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-[13px] text-operator">Opt-out automation active</span>
+</div>
+<div class="flex items-center gap-3 bg-complianceAmber/5 p-2 rounded border border-complianceAmber/20">
+<div class="w-2 h-2 rounded-full bg-complianceAmber shrink-0 ml-1"></div>
+<span class="text-[13px] text-operator font-medium">DNC scrub last refreshed 4 days ago</span>
+<a class="ml-auto text-[13px] font-semibold text-signalTeal" href="#">Refresh now →</a>
+</div>
+</div>
+<div class="pt-4 mt-auto border-t border-hairline flex items-center justify-between">
+<a class="text-[13px] font-medium text-signalTeal hover:underline" href="#">View audit trail</a>
+<button class="bg-signalTeal hover:bg-deepTeal text-white text-[13px] font-semibold py-1.5 px-4 rounded transition-colors">Fix Issues</button>
+</div>
+</div>
+<!-- EU-AI-ACT -->
+<div class="h-[320px] bg-paper border border-hairline rounded-[10px] p-6 flex flex-col">
+<div class="flex items-start justify-between mb-6">
+<div>
+<span class="text-[11px] font-semibold text-mute tracking-[0.08em] small-caps block mb-2">EU-AI-ACT</span>
+<div class="flex items-center gap-2">
+<span class="h-6 flex items-center px-3 rounded-full bg-whisper/10 text-whisper text-[11px] font-bold border border-whisper/20 uppercase tracking-wide">Inactive</span>
+<span class="text-[11px] text-mute font-medium">Global Scope Required</span>
+</div>
+</div>
+</div>
+<div class="flex-1 flex flex-col items-center justify-center text-center">
+<div class="mb-3 p-3 bg-hush rounded-full">
+<span class="material-symbols-outlined text-mute text-2xl">public</span>
+</div>
+<p class="text-[13px] text-operator px-4">Not applicable for US-only workspace. European Union expansion requires regional data residency migration.</p>
+</div>
+<div class="pt-4 mt-auto border-t border-hairline flex flex-col gap-3">
+<button class="w-full bg-paper border border-hairline text-operator hover:bg-hush text-[13px] font-semibold py-2 rounded transition-colors">Request EU expansion review</button>
+</div>
+</div>
+</div>
+<!-- Audit Trail Card -->
+<div class="bg-paper border border-hairline rounded-[10px] overflow-hidden">
+<div class="px-6 py-5 border-b border-hairline flex items-center justify-between">
+<h3 class="text-lg font-headline font-semibold text-midnight">Audit trail (last 24 hours)</h3>
+<a class="text-sm font-medium text-signalTeal hover:underline" href="#">Export full trail</a>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-hush h-8">
+<th class="px-6 text-[11px] font-semibold text-mute tracking-[0.08em] small-caps">TIME</th>
+<th class="px-4 text-[11px] font-semibold text-mute tracking-[0.08em] small-caps">ACTOR</th>
+<th class="px-4 text-[11px] font-semibold text-mute tracking-[0.08em] small-caps">RESOURCE</th>
+<th class="px-4 text-[11px] font-semibold text-mute tracking-[0.08em] small-caps">ACTION</th>
+<th class="px-4 text-[11px] font-semibold text-mute tracking-[0.08em] small-caps">IP ADDRESS</th>
+<th class="px-6 text-right text-[11px] font-semibold text-mute tracking-[0.08em] small-caps">RESULT</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-softHairline">
+<!-- Row 1 -->
+<tr class="h-11 hover:bg-hush transition-colors cursor-pointer">
+<td class="px-6 font-mono text-[12px] text-mute">14:22:04</td>
+<td class="px-4">
+<div class="flex items-center gap-2">
+<div class="h-6 w-6 rounded-full bg-slate-200 overflow-hidden">
+<img alt="Actor" data-alt="A small circular avatar of a professional technician in a clean, modern workspace. The lighting is neutral and even, following the operator-grade aesthetic of the Vokari design system." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjiJ8_S1uJV1QwLiHSaFCVqQ9UXQeSb7RbQEp3FOgH8rQ_MeQgCRIoqyOcjjSMcjs09D87wuwVtJg-foIkk07yv8C7ap8RIqd-j1T3qWToxIhmGRYVBV3TxAhfvvhKDuFRky3Ct6JQTpiwuiNv129_2vvcBkaY3EoqV5syMgwJxy3VjHLi8oLyzVVwBbi2Vul2yDZiL8ap8RoyGZQfE9208x9XWOjsBfGMZjhSDMNPNLe9-FwTnhw0_QDEqq3zoD7o5hKN4MM3qwIK"/>
+</div>
+<span class="text-[13px] font-medium text-operator">Marcus Chen</span>
+</div>
+</td>
+<td class="px-4 text-[13px] font-mono text-mute">agt_8a91 / compliance</td>
+<td class="px-4 text-[13px] text-operator">toggled HIPAA mode</td>
+<td class="px-4 font-mono text-[12px] text-mute">192.0.2.1</td>
+<td class="px-6 text-right"><span class="material-symbols-outlined text-bookedGreen text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span></td>
+</tr>
+<!-- Row 2 -->
+<tr class="h-11 hover:bg-hush transition-colors cursor-pointer">
+<td class="px-6 font-mono text-[12px] text-mute">13:45:11</td>
+<td class="px-4">
+<div class="flex items-center gap-2">
+<div class="h-6 w-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold">SY</div>
+<span class="text-[13px] font-medium text-operator">System / Auto-eval</span>
+</div>
+</td>
+<td class="px-4 text-[13px] font-mono text-mute">workspace_root</td>
+<td class="px-4 text-[13px] text-operator">daily compliance scan</td>
+<td class="px-4 font-mono text-[12px] text-mute">0.0.0.0</td>
+<td class="px-6 text-right"><span class="material-symbols-outlined text-bookedGreen text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span></td>
+</tr>
+<!-- Row 3 -->
+<tr class="h-11 hover:bg-hush transition-colors cursor-pointer">
+<td class="px-6 font-mono text-[12px] text-mute">11:12:30</td>
+<td class="px-4">
+<div class="flex items-center gap-2">
+<div class="h-6 w-6 rounded-full bg-slate-200 overflow-hidden">
+<img alt="Actor" data-alt="A portrait of a security officer in a high-tech control room with soft ambient lighting. The style is professional and grounded, using cool slate tones and clean lines consistent with the mission-control visual language." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMRb7Z9ICuZ2dN8OHuKBRRDKQJgkJYhBCi1HB1TMN1E4VUtsX4ggZlXJPAmakmCwvvmfer6FaLyJ0hE12LZLoM26zz0Hym0PRaOMcQVZFP737_AdmKP0JGdm0dJrng2qNij8Fd3WDudJgd_FmfgcpoYpZ4_TYHr41Q1ML6wvWS0woVs-6Iu11bcJJnhr4yw4AitBcSXP6DsGTmCGLwXsvIA-clZ1icXZMQqNZp5r1Ivxv9shjb0LuK2xjrDKD-Bs--_OpMNKyfYE5v"/>
+</div>
+<span class="text-[13px] font-medium text-operator">Sarah Jenkins</span>
+</div>
+</td>
+<td class="px-4 text-[13px] font-mono text-mute">sec_key_443</td>
+<td class="px-4 text-[13px] text-operator">rotated API secrets</td>
+<td class="px-4 font-mono text-[12px] text-mute">192.0.2.14</td>
+<td class="px-6 text-right"><span class="material-symbols-outlined text-bookedGreen text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span></td>
+</tr>
+<!-- Row 4 -->
+<tr class="h-11 hover:bg-hush transition-colors cursor-pointer">
+<td class="px-6 font-mono text-[12px] text-mute">10:05:59</td>
+<td class="px-4">
+<div class="flex items-center gap-2">
+<div class="h-6 w-6 rounded-full bg-slate-200 overflow-hidden">
+<img alt="Actor" data-alt="Professional headshot of a team member in a minimalist office setting, with soft natural light. The aesthetic is clean, professional, and follows the operator-grade visual theme." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7jJHKa0ge12EyVMfAojeKIYw-gy2_Q4lzrimvtD__yzVB0kVrjSU_9W8Ob60b3bgpdKQhVxpscQESCpn4xuV4_LrEH7fqA_0g4H9CAwvACBmAwcpSFO4x4GQ_PN71TZ14BaH9R3cRieuwvkDfXMG_uDVewM0GIbvsj-0SVuxky7EjR3qUyUvn8DqjPXMZEikJIW3LPfDULZZ6uefv_fw_EmBRVVZJ8rLa3nA33rcjuW4LhHFi3P0RbBbf8Z8nifT0mJc2tpwgmOxY"/>
+</div>
+<span class="text-[13px] font-medium text-operator">Marcus Chen</span>
+</div>
+</td>
+<td class="px-4 text-[13px] font-mono text-mute">tcpa_settings</td>
+<td class="px-4 text-[13px] text-operator">attempted DNC bypass</td>
+<td class="px-4 font-mono text-[12px] text-mute">192.0.2.1</td>
+<td class="px-6 text-right"><span class="material-symbols-outlined text-riskCrimson text-lg" style="font-variation-settings: 'FILL' 1;">cancel</span></td>
+</tr>
+<!-- Row 5 -->
+<tr class="h-11 hover:bg-hush transition-colors cursor-pointer">
+<td class="px-6 font-mono text-[12px] text-mute">09:30:22</td>
+<td class="px-4">
+<div class="flex items-center gap-2">
+<div class="h-6 w-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold">ID</div>
+<span class="text-[13px] font-medium text-operator">IdP Sync</span>
+</div>
+</td>
+<td class="px-4 text-[13px] font-mono text-mute">iam_policy_global</td>
+<td class="px-4 text-[13px] text-operator">synced 44 users from Okta</td>
+<td class="px-4 font-mono text-[12px] text-mute">10.24.1.88</td>
+<td class="px-6 text-right"><span class="material-symbols-outlined text-bookedGreen text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span></td>
+</tr>
+<!-- Row 6 -->
+<tr class="h-11 hover:bg-hush transition-colors cursor-pointer">
+<td class="px-6 font-mono text-[12px] text-mute">08:14:00</td>
+<td class="px-4">
+<div class="flex items-center gap-2">
+<div class="h-6 w-6 rounded-full bg-slate-200 overflow-hidden">
+<img alt="Actor" data-alt="A clean, minimalist portrait of a system administrator in a brightly lit modern office environment. The style is focused and professional, using a cool-neutral color palette of slate and white." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRnRjxBIqiIkIr8cn6aS0FnI75ONHMC11c593rXxY1ffAyjH_rYiUjAoh91QJONki0HsFH5xuq3xcoLHUd0PwoxIAZUk26dw1peh3VtPTa6AiRuYgmskJhF6F-Sl9393GrHhSiXPEzAtXBzblBptmxWdsu2yCFqUlcJMcbXM1G4DcnO0zDmW1_tpXrvJKIGW0Fg4z91EDP4cDAMkGHzzSl9644bwAsx6hTZM3Urfdcteyb5F-aQy64jn4KfbeGLUvQfIFD1a0Hduv4"/>
+</div>
+<span class="text-[13px] font-medium text-operator">David Vogt</span>
+</div>
+</td>
+<td class="px-4 text-[13px] font-mono text-mute">baa_contract_v2</td>
+<td class="px-4 text-[13px] text-operator">digitally signed BAA</td>
+<td class="px-4 font-mono text-[12px] text-mute">192.0.2.201</td>
+<td class="px-6 text-right"><span class="material-symbols-outlined text-bookedGreen text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span></td>
+</tr>
+<!-- Row 7 -->
+<tr class="h-11 hover:bg-hush transition-colors cursor-pointer">
+<td class="px-6 font-mono text-[12px] text-mute">04:00:00</td>
+<td class="px-4">
+<div class="flex items-center gap-2">
+<div class="h-6 w-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold">DB</div>
+<span class="text-[13px] font-medium text-operator">DB Maintenance</span>
+</div>
+</td>
+<td class="px-4 text-[13px] font-mono text-mute">storage_retention_policy</td>
+<td class="px-4 text-[13px] text-operator">purged 1,202 recordings</td>
+<td class="px-4 font-mono text-[12px] text-mute">internal</td>
+<td class="px-6 text-right"><span class="material-symbols-outlined text-bookedGreen text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span></td>
+</tr>
+<!-- Row 8 -->
+<tr class="h-11 hover:bg-hush transition-colors cursor-pointer">
+<td class="px-6 font-mono text-[12px] text-mute">昨天 23:55:18</td>
+<td class="px-4">
+<div class="flex items-center gap-2">
+<div class="h-6 w-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold">AD</div>
+<span class="text-[13px] font-medium text-operator">Audit Daemon</span>
+</div>
+</td>
+<td class="px-4 text-[13px] font-mono text-mute">log_integrity_check</td>
+<td class="px-4 text-[13px] text-operator">verified daily block hash</td>
+<td class="px-4 font-mono text-[12px] text-mute">internal</td>
+<td class="px-6 text-right"><span class="material-symbols-outlined text-bookedGreen text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</main>
+</body></html>

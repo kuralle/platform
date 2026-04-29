@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;550;600&amp;family=Geist:wght@600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        'midnight-signal': '#0B1220',
+                        'operator-slate': '#1F2937',
+                        'mute-slate': '#64748B',
+                        'whisper-slate': '#94A3B8',
+                        'hush-mist': '#F4F6FA',
+                        'paper-white': '#FFFFFF',
+                        'hairline': '#E2E6EF',
+                        'soft-hairline': '#EEF1F6',
+                        'signal-teal': '#0EA5A6',
+                        'deep-teal': '#0F7A7B',
+                        'live-cyan': '#22D3EE',
+                        'booked-green': '#10B981',
+                        'compliance-amber': '#F59E0B',
+                        'risk-crimson': '#DC2626',
+                        'audit-indigo': '#4F46E5',
+                        'receipt-gold': '#B89A4A'
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.25rem',
+                        'lg': '0.5rem',
+                        'xl': '0.75rem',
+                        'full': '9999px'
+                    },
+                    fontFamily: {
+                        'headline': ['Geist', 'sans-serif'],
+                        'display': ['Geist', 'sans-serif'],
+                        'body': ['Inter', 'sans-serif'],
+                        'label': ['Inter', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace']
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #E2E6EF; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+    </style>
+</head>
+<body class="bg-hush-mist font-body text-operator-slate antialiased overflow-hidden">
+<!-- TopNavBar Shell -->
+<header class="fixed top-0 left-0 w-full h-[56px] bg-white dark:bg-[#0B1220] border-b border-[#E2E6EF] dark:border-[#2A3142] flex justify-between items-center px-8 z-50">
+<div class="flex items-center gap-4">
+<span class="text-xl font-bold text-[#0B1220] dark:text-white font-headline tracking-[-1.5%]">Vokari</span>
+<div class="h-4 w-[1px] bg-hairline mx-2"></div>
+<div class="flex items-center gap-2">
+<span class="bg-audit-indigo/10 text-audit-indigo px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Production</span>
+<span class="bg-hush-mist text-mute-slate px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">US-WEST-2</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center bg-hush-mist dark:bg-[#1A2030] px-3 py-1.5 rounded-lg border border-hairline dark:border-[#2A3142] w-64">
+<span class="material-symbols-outlined text-mute-slate text-sm mr-2">search</span>
+<span class="text-mute-slate text-xs">Search conversations...</span>
+<span class="ml-auto text-[10px] bg-white border border-hairline px-1 rounded text-whisper-slate font-mono">⌘K</span>
+</div>
+<span class="material-symbols-outlined text-mute-slate hover:text-signal-teal transition-colors cursor-pointer">notifications</span>
+<div class="w-8 h-8 rounded-full bg-hush-mist border border-hairline overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="professional woman headshot avatar for user profile in software dashboard" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1YDY7FwmMUk_ePt5uWZjHhrepS-mex3qOr5Y-DaDpkb_SEdsx9HlUeDaDWdXZbdBu9Gife6PUoiZaTRao0jyk_Gf4mIuFGodbkpr8IsYsuXkrBOX5AHWqOrrIWFeM862zbuGQYx4PrgPZcIZYekRu-5EBsb3CYBjYW5YyS8InnG7d6qK-_zRgWxCD1fLlKLOVemMqJUUUzfV5__bk7D1VK9GjTmdG4K_oPpKchdLgio0VJTjB2yEIrS64g5YySN54z3egF_H69zKj"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar Shell -->
+<aside class="flex flex-col h-screen fixed left-0 top-0 pt-[56px] w-[224px] bg-white dark:bg-[#0B1220] border-r border-[#E2E6EF] dark:border-[#2A3142] z-40">
+<div class="p-4">
+<button class="w-full flex items-center justify-center gap-2 bg-signal-teal hover:bg-deep-teal text-white py-2 rounded-lg font-medium text-sm transition-all shadow-sm">
+<span class="material-symbols-outlined text-sm">add</span>
+                New Agent
+            </button>
+</div>
+<nav class="flex-1 px-3 space-y-1">
+<div class="flex items-center gap-3 px-3 py-2 text-[#64748B] dark:text-[#94A3B8] hover:bg-[#F4F6FA] dark:hover:bg-[#1A2030] transition-all rounded-lg cursor-pointer">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm font-medium">Configure</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 bg-[#F4F6FA] dark:bg-[#1A2030] text-[#1F2937] dark:text-white border-l-4 border-[#0EA5A6] transition-all cursor-pointer">
+<span class="material-symbols-outlined">terminal</span>
+<span class="text-sm font-medium">Operate</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-[#64748B] dark:text-[#94A3B8] hover:bg-[#F4F6FA] dark:hover:bg-[#1A2030] transition-all rounded-lg cursor-pointer">
+<span class="material-symbols-outlined">share</span>
+<span class="text-sm font-medium">Distribute</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-[#64748B] dark:text-[#94A3B8] hover:bg-[#F4F6FA] dark:hover:bg-[#1A2030] transition-all rounded-lg cursor-pointer">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="text-sm font-medium">Workspace</span>
+</div>
+</nav>
+<div class="mt-auto p-3 border-t border-hairline space-y-1">
+<div class="flex items-center gap-3 px-3 py-2 text-[#64748B] dark:text-[#94A3B8] hover:bg-[#F4F6FA] transition-all rounded-lg cursor-pointer">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-[#64748B] dark:text-[#94A3B8] hover:bg-[#F4F6FA] transition-all rounded-lg cursor-pointer">
+<span class="material-symbols-outlined">help</span>
+<span class="text-sm font-medium">Support</span>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-[224px] mt-[56px] h-[calc(100vh-56px)] flex flex-col relative">
+<!-- Header Section -->
+<div class="px-8 py-4 flex flex-col gap-2">
+<nav class="flex items-center gap-1 text-[12px] text-mute-slate font-medium">
+<span>Conversations</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-operator-slate">cv_8a91k2</span>
+</nav>
+<div class="flex items-center justify-between">
+<div class="flex flex-col gap-3">
+<h1 class="text-2xl font-mono font-medium text-operator-slate tracking-tight">cv_8a91k2</h1>
+<div class="flex flex-wrap gap-2">
+<div class="h-6 flex items-center gap-2 px-2.5 rounded-full bg-hush-mist border border-hairline text-[11px] font-semibold text-operator-slate">
+<span class="material-symbols-outlined text-[14px] text-mute-slate">support_agent</span>
+                            Agent: Calderon HVAC Inbound
+                        </div>
+<div class="h-6 flex items-center gap-2 px-2.5 rounded-full bg-hush-mist border border-hairline text-[11px] font-semibold text-operator-slate">
+<span class="material-symbols-outlined text-[14px] text-mute-slate">call</span>
+                            Phone: +1 (480) 555-0143
+                        </div>
+<div class="h-6 flex items-center gap-2 px-2.5 rounded-full bg-hush-mist border border-hairline text-[11px] font-semibold text-operator-slate">
+<span class="material-symbols-outlined text-[14px] text-mute-slate">schedule</span>
+                            Started: 14:33 · 12m ago
+                        </div>
+<div class="h-6 flex items-center gap-2 px-2.5 rounded-full bg-hush-mist border border-hairline text-[11px] font-semibold text-operator-slate font-mono">
+<span class="material-symbols-outlined text-[14px] text-mute-slate">timer</span>
+                            Duration: 3m 42s
+                        </div>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="h-9 px-4 rounded-[6px] border border-hairline bg-white text-operator-slate text-sm font-medium hover:bg-hush-mist transition-colors">Convert to test</button>
+<button class="h-9 px-4 rounded-[6px] border border-hairline bg-white text-operator-slate text-sm font-medium hover:bg-hush-mist transition-colors">Re-run analysis</button>
+<button class="h-9 px-4 rounded-[6px] bg-signal-teal hover:bg-deep-teal text-white text-sm font-medium transition-colors shadow-sm">Mark reviewed</button>
+</div>
+</div>
+</div>
+<!-- Three-Pane Main Container -->
+<div class="flex-1 px-8 pb-20 overflow-hidden">
+<div class="bg-white border border-hairline rounded-[10px] h-full flex overflow-hidden shadow-sm">
+<!-- Left Pane: Transcript (6 cols) -->
+<section class="w-1/2 flex flex-col border-r border-hairline h-full relative">
+<div class="p-5 border-b border-hairline flex items-center justify-between sticky top-0 bg-white z-10">
+<h2 class="text-lg font-headline font-semibold text-midnight-signal">Transcript</h2>
+<button class="flex items-center gap-1.5 text-signal-teal text-xs font-semibold hover:underline">
+<span class="material-symbols-outlined text-[18px]">play_circle</span>
+                            Play all
+                        </button>
+</div>
+<div class="flex-1 overflow-y-auto p-4 space-y-6">
+<!-- Transcription Rows -->
+<div class="flex gap-4">
+<span class="font-mono text-mute-slate text-[11px] w-14 shrink-0 mt-1">00:00</span>
+<div class="flex flex-col gap-1 flex-1">
+<span class="text-[10px] font-bold tracking-wider text-signal-teal uppercase">Agent</span>
+<p class="text-[13px] leading-relaxed text-operator-slate max-w-[90%]">"Thank you for calling Calderon HVAC services, this is Maria. How can I help you today?"</p>
+</div>
+</div>
+<div class="flex gap-4">
+<span class="font-mono text-mute-slate text-[11px] w-14 shrink-0 mt-1">00:04</span>
+<div class="flex flex-col gap-1 flex-1">
+<span class="text-[10px] font-bold tracking-wider text-operator-slate uppercase">Customer</span>
+<p class="text-[13px] leading-relaxed text-operator-slate max-w-[90%]">"Hi, my AC unit is making a loud buzzing noise and it's not blowing cold air. Can you help?"</p>
+</div>
+</div>
+<div class="flex gap-4">
+<span class="font-mono text-mute-slate text-[11px] w-14 shrink-0 mt-1">00:12</span>
+<div class="flex flex-col gap-1 flex-1">
+<span class="text-[10px] font-bold tracking-wider text-signal-teal uppercase">Agent</span>
+<p class="text-[13px] leading-relaxed text-operator-slate max-w-[90%]">"I'm sorry to hear that. I can certainly help you book a technician. May I start with your name please?"</p>
+</div>
+</div>
+<div class="flex gap-4">
+<span class="font-mono text-mute-slate text-[11px] w-14 shrink-0 mt-1">00:18</span>
+<div class="flex flex-col gap-1 flex-1">
+<span class="text-[10px] font-bold tracking-wider text-operator-slate uppercase">Customer</span>
+<p class="text-[13px] leading-relaxed text-operator-slate max-w-[90%]">"Yes, it's Maria Hernandez. We're in Chandler, zip 85226. It's really hot in here."</p>
+</div>
+</div>
+<div class="flex gap-4">
+<span class="font-mono text-mute-slate text-[11px] w-14 shrink-0 mt-1">00:25</span>
+<div class="flex flex-col gap-1 flex-1">
+<span class="text-[10px] font-bold tracking-wider text-signal-teal uppercase">Agent</span>
+<p class="text-[13px] leading-relaxed text-operator-slate max-w-[90%]">"Got it, Maria. Let me check our availability for the 85226 area. Would tomorrow morning work for you?"</p>
+</div>
+</div>
+<div class="flex gap-4">
+<span class="font-mono text-mute-slate text-[11px] w-14 shrink-0 mt-1">00:32</span>
+<div class="flex flex-col gap-1 flex-1">
+<span class="text-[10px] font-bold tracking-wider text-operator-slate uppercase">Customer</span>
+<p class="text-[13px] leading-relaxed text-operator-slate max-w-[90%]">"Tomorrow morning is perfect. Also, do you have any technicians that speak Spanish? My husband would prefer to explain it in Spanish."</p>
+</div>
+</div>
+</div>
+<!-- Audio Bar -->
+<div class="h-24 bg-white border-t border-hairline p-3 flex flex-col gap-2">
+<div class="relative h-10 w-full overflow-hidden rounded-md bg-signal-teal/5">
+<!-- Placeholder Waveform -->
+<div class="absolute inset-0 flex items-center justify-around px-2 opacity-40">
+<div class="w-1 h-3 bg-signal-teal rounded-full"></div>
+<div class="w-1 h-6 bg-signal-teal rounded-full"></div>
+<div class="w-1 h-4 bg-signal-teal rounded-full"></div>
+<div class="w-1 h-8 bg-signal-teal rounded-full"></div>
+<div class="w-1 h-5 bg-signal-teal rounded-full"></div>
+<div class="w-1 h-7 bg-signal-teal rounded-full"></div>
+<div class="w-1 h-4 bg-signal-teal rounded-full"></div>
+<div class="w-1 h-6 bg-signal-teal rounded-full"></div>
+<div class="w-1 h-2 bg-signal-teal rounded-full"></div>
+<div class="w-1 h-5 bg-signal-teal rounded-full"></div>
+<div class="w-1 h-3 bg-signal-teal rounded-full"></div>
+<div class="w-1 h-8 bg-signal-teal rounded-full"></div>
+<div class="w-1 h-4 bg-signal-teal rounded-full"></div>
+<div class="w-1 h-6 bg-signal-teal rounded-full"></div>
+<div class="w-1 h-5 bg-signal-teal rounded-full"></div>
+</div>
+<!-- Live playhead -->
+<div class="absolute top-0 bottom-0 left-[35%] w-[2px] bg-live-cyan z-10 shadow-[0_0_8px_rgba(34,211,238,0.5)]"></div>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<button class="w-8 h-8 rounded-full bg-signal-teal flex items-center justify-center text-white shadow-sm hover:bg-deep-teal transition-all scale-95 active:scale-90">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<span class="font-mono text-[11px] text-mute-slate">00:32 / 03:42</span>
+</div>
+<div class="bg-hush-mist p-0.5 rounded-lg flex border border-hairline">
+<button class="px-2.5 py-1 text-[10px] font-bold text-operator-slate bg-white border border-hairline rounded-[6px] shadow-sm">1x</button>
+<button class="px-2.5 py-1 text-[10px] font-bold text-mute-slate hover:text-operator-slate">1.5x</button>
+<button class="px-2.5 py-1 text-[10px] font-bold text-mute-slate hover:text-operator-slate">2x</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Center Pane: Analysis (3 cols) -->
+<section class="w-1/4 flex flex-col border-r border-hairline h-full overflow-y-auto bg-soft-hairline/30">
+<div class="p-5 border-b border-hairline bg-white sticky top-0 z-10">
+<h2 class="text-lg font-headline font-semibold text-midnight-signal">Analysis</h2>
+</div>
+<div class="p-4 space-y-6">
+<!-- Eval Verdicts -->
+<div class="flex flex-col gap-3">
+<span class="text-[10px] font-bold text-mute-slate uppercase tracking-wider px-1">Eval Verdicts</span>
+<div class="bg-white border border-hairline rounded-lg overflow-hidden divide-y divide-hairline">
+<div class="flex items-center justify-between p-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-booked-green text-[18px]">check_circle</span>
+<span class="text-[12px] font-medium">booking_confirmed</span>
+</div>
+<span class="text-signal-teal text-[11px] font-semibold hover:underline cursor-pointer">Why?</span>
+</div>
+<div class="flex items-center justify-between p-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-risk-crimson text-[18px]">cancel</span>
+<span class="text-[12px] font-medium">correct_service_area</span>
+</div>
+<span class="text-signal-teal text-[11px] font-semibold hover:underline cursor-pointer">Why?</span>
+</div>
+<div class="flex items-center justify-between p-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-booked-green text-[18px]">check_circle</span>
+<span class="text-[12px] font-medium">caller_satisfied</span>
+</div>
+<span class="text-signal-teal text-[11px] font-semibold hover:underline cursor-pointer">Why?</span>
+</div>
+<div class="flex items-center justify-between p-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-booked-green text-[18px]">check_circle</span>
+<span class="text-[12px] font-medium">time_window_collected</span>
+</div>
+<span class="text-signal-teal text-[11px] font-semibold hover:underline cursor-pointer">Why?</span>
+</div>
+<div class="flex items-center justify-between p-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-risk-crimson text-[18px]">cancel</span>
+<span class="text-[12px] font-medium">phone_number_verified</span>
+</div>
+<span class="text-signal-teal text-[11px] font-semibold hover:underline cursor-pointer">Why?</span>
+</div>
+</div>
+</div>
+<!-- Extracted Fields -->
+<div class="flex flex-col gap-3">
+<span class="text-[10px] font-bold text-mute-slate uppercase tracking-wider px-1">Extracted Fields</span>
+<div class="bg-white border border-hairline rounded-lg overflow-hidden">
+<table class="w-full text-left text-[12px]">
+<tbody class="divide-y divide-hairline">
+<tr class="hover:bg-hush-mist transition-colors group">
+<td class="py-2.5 px-3 font-semibold text-mute-slate w-1/3">Name</td>
+<td class="py-2.5 px-3 flex items-center justify-between">
+<span>Maria Hernandez</span>
+<span class="material-symbols-outlined text-[14px] text-whisper-slate opacity-0 group-hover:opacity-100 transition-opacity">edit</span>
+</td>
+</tr>
+<tr class="hover:bg-hush-mist transition-colors group">
+<td class="py-2.5 px-3 font-semibold text-mute-slate">Phone</td>
+<td class="py-2.5 px-3 flex items-center justify-between">
+<span class="font-mono">+14805550143</span>
+<span class="material-symbols-outlined text-[14px] text-whisper-slate opacity-0 group-hover:opacity-100 transition-opacity">edit</span>
+</td>
+</tr>
+<tr class="hover:bg-hush-mist transition-colors group">
+<td class="py-2.5 px-3 font-semibold text-mute-slate">Zip</td>
+<td class="py-2.5 px-3 flex items-center justify-between">
+<span class="font-mono">85226</span>
+<span class="material-symbols-outlined text-[14px] text-whisper-slate opacity-0 group-hover:opacity-100 transition-opacity">edit</span>
+</td>
+</tr>
+<tr class="hover:bg-hush-mist transition-colors group">
+<td class="py-2.5 px-3 font-semibold text-mute-slate">Job</td>
+<td class="py-2.5 px-3 flex items-center justify-between">
+<span>AC repair</span>
+<span class="material-symbols-outlined text-[14px] text-whisper-slate opacity-0 group-hover:opacity-100 transition-opacity">edit</span>
+</td>
+</tr>
+<tr class="hover:bg-hush-mist transition-colors group">
+<td class="py-2.5 px-3 font-semibold text-mute-slate">Time</td>
+<td class="py-2.5 px-3 flex items-center justify-between">
+<span>Tomorrow AM</span>
+<span class="material-symbols-outlined text-[14px] text-whisper-slate opacity-0 group-hover:opacity-100 transition-opacity">edit</span>
+</td>
+</tr>
+<tr class="hover:bg-hush-mist transition-colors group">
+<td class="py-2.5 px-3 font-semibold text-mute-slate">Notes</td>
+<td class="py-2.5 px-3 flex items-center justify-between">
+<span class="truncate">Spanish-preferred</span>
+<span class="material-symbols-outlined text-[14px] text-whisper-slate opacity-0 group-hover:opacity-100 transition-opacity">edit</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Topics -->
+<div class="flex flex-col gap-3">
+<span class="text-[10px] font-bold text-mute-slate uppercase tracking-wider px-1">Topics</span>
+<div class="flex flex-wrap gap-1.5">
+<span class="px-2 py-1 bg-white border border-hairline rounded-full text-[11px] font-medium">AC repair</span>
+<span class="px-2 py-1 bg-white border border-hairline rounded-full text-[11px] font-medium">billing question</span>
+<span class="px-2 py-1 bg-white border border-hairline rounded-full text-[11px] font-medium">Spanish language</span>
+<span class="px-2 py-1 bg-white border border-hairline rounded-full text-[11px] font-medium">Urgent</span>
+<span class="px-2 py-1 bg-white border border-hairline rounded-full text-[11px] font-medium">Chandler</span>
+</div>
+</div>
+<!-- Tool Events -->
+<div class="flex flex-col gap-3">
+<span class="text-[10px] font-bold text-mute-slate uppercase tracking-wider px-1">Tool Events</span>
+<div class="space-y-3 relative before:absolute before:left-[9px] before:top-2 before:bottom-2 before:w-[1px] before:bg-hairline">
+<div class="flex items-center gap-3 relative z-10">
+<span class="material-symbols-outlined text-booked-green text-[18px] bg-white">check_circle</span>
+<span class="font-mono text-[11px] bg-white border border-hairline px-2 py-0.5 rounded text-operator-slate">search_customer</span>
+</div>
+<div class="flex items-center gap-3 relative z-10">
+<span class="material-symbols-outlined text-booked-green text-[18px] bg-white">check_circle</span>
+<span class="font-mono text-[11px] bg-white border border-hairline px-2 py-0.5 rounded text-operator-slate">create_booking</span>
+</div>
+<div class="flex items-center gap-3 relative z-10">
+<span class="material-symbols-outlined text-booked-green text-[18px] bg-white">check_circle</span>
+<span class="font-mono text-[11px] bg-white border border-hairline px-2 py-0.5 rounded text-operator-slate">send_sms_confirmation</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Pane: Context (3 cols) -->
+<section class="w-1/4 flex flex-col h-full overflow-y-auto">
+<div class="p-5 border-b border-hairline bg-white sticky top-0 z-10">
+<h2 class="text-lg font-headline font-semibold text-midnight-signal">Context</h2>
+</div>
+<div class="p-4 space-y-8">
+<!-- Visited Agents Trail -->
+<div class="flex flex-col gap-3">
+<span class="text-[10px] font-bold text-mute-slate uppercase tracking-wider">Visited Agents Trail</span>
+<div class="flex flex-col gap-3">
+<div class="flex items-center gap-3 p-2 border border-hairline rounded-lg hover:bg-hush-mist transition-colors cursor-pointer">
+<div class="w-8 h-8 rounded bg-audit-indigo/10 flex items-center justify-center text-audit-indigo">
+<span class="material-symbols-outlined text-[20px]">smart_toy</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[12px] font-semibold">Inbound Welcome</span>
+<span class="text-[10px] text-mute-slate">00:00 - 00:15</span>
+</div>
+</div>
+<div class="flex items-center gap-3 p-2 border-2 border-signal-teal/30 bg-signal-teal/5 rounded-lg">
+<div class="w-8 h-8 rounded bg-signal-teal/10 flex items-center justify-center text-signal-teal">
+<span class="material-symbols-outlined text-[20px]">calendar_today</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[12px] font-semibold">Service Booking</span>
+<span class="text-[10px] text-mute-slate">00:15 - Current</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Attachments -->
+<div class="flex flex-col gap-3">
+<span class="text-[10px] font-bold text-mute-slate uppercase tracking-wider">Attachments</span>
+<div class="flex flex-col items-center justify-center py-6 border-2 border-dashed border-hairline rounded-lg">
+<span class="material-symbols-outlined text-mute-slate/50 text-[32px] mb-2">attachment</span>
+<span class="text-[11px] text-mute-slate">No attachments shared</span>
+</div>
+</div>
+<!-- Feedback -->
+<div class="flex flex-col gap-3">
+<span class="text-[10px] font-bold text-mute-slate uppercase tracking-wider">Feedback</span>
+<div class="flex flex-col gap-2 p-3 bg-hush-mist/50 rounded-lg border border-hairline">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-receipt-gold text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-receipt-gold text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-receipt-gold text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-receipt-gold text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-whisper-slate text-[16px]">star</span>
+<span class="ml-2 text-[12px] font-semibold">4/5</span>
+</div>
+<p class="text-[12px] italic text-mute-slate font-medium">"Agent was very helpful with the Spanish request, just took a minute to look up the schedule."</p>
+</div>
+</div>
+<!-- Compliance Flags -->
+<div class="flex flex-col gap-3">
+<span class="text-[10px] font-bold text-mute-slate uppercase tracking-wider">Compliance Flags</span>
+<div class="flex items-center gap-2 px-3 py-2 bg-booked-green/5 border border-booked-green/20 rounded-full w-fit">
+<div class="w-1.5 h-1.5 rounded-full bg-booked-green animate-pulse"></div>
+<span class="text-[11px] font-semibold text-booked-green">No flags raised</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+<!-- Sticky Footer Action Bar -->
+<footer class="fixed bottom-0 left-[224px] right-0 h-16 bg-white border-t border-hairline flex items-center justify-between px-8 z-30">
+<div class="flex items-center gap-2">
+<button class="h-9 px-3 rounded-[6px] text-risk-crimson hover:bg-risk-crimson/5 text-[13px] font-semibold flex items-center gap-2 transition-all">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+                    Delete
+                </button>
+<div class="w-[1px] h-6 bg-hairline mx-2"></div>
+<button class="h-9 px-3 rounded-[6px] border border-hairline text-operator-slate hover:bg-hush-mist text-[13px] font-semibold flex items-center gap-2 transition-all shadow-sm">
+<span class="material-symbols-outlined text-[18px]">flag</span>
+                    Flag for review
+                </button>
+<button class="h-9 px-3 rounded-[6px] border border-hairline text-operator-slate hover:bg-hush-mist text-[13px] font-semibold flex items-center gap-2 transition-all shadow-sm">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                    Export transcript
+                </button>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-[11px] text-mute-slate font-medium">Last automated sync: 2m ago</span>
+<button class="h-9 px-5 bg-midnight-signal hover:bg-black text-white text-sm font-semibold rounded-[6px] transition-all">Done</button>
+</div>
+</footer>
+</main>
+</body></html>

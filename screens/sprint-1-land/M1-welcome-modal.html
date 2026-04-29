@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vokari - Welcome Modal</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;800&amp;family=Inter:wght@400;450;550;600&amp;family=JetBrains+Mono:wght@500&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "midnight-signal": "#0B1220",
+              "operator-slate": "#1F2937",
+              "mute-slate": "#64748B",
+              "whisper-slate": "#94A3B8",
+              "hush-mist": "#F4F6FA",
+              "paper-white": "#FFFFFF",
+              "hairline": "#E2E6EF",
+              "signal-teal": "#0EA5A6",
+              "deep-teal": "#0F7A7B",
+              "live-cyan": "#22D3EE",
+              "booked-green": "#10B981",
+              "compliance-amber": "#F59E0B",
+              "risk-crimson": "#DC2626",
+              "audit-indigo": "#4F46E5",
+            },
+            borderRadius: {
+              "DEFAULT": "0.25rem",
+              "sm": "6px",
+              "lg": "10px",
+              "xl": "16px",
+              "full": "9999px"
+            },
+            fontFamily: {
+              "headline": ["Geist", "sans-serif"],
+              "display": ["Geist", "sans-serif"],
+              "body": ["Inter", "sans-serif"],
+              "label": ["Inter", "sans-serif"],
+              "mono": ["JetBrains Mono", "monospace"]
+            },
+            boxShadow: {
+              "modal": "0 12px 32px rgba(11, 18, 32, 0.08)"
+            }
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        background-color: #F4F6FA; /* Hush Mist canvas */
+      }
+    </style>
+</head>
+<body class="antialiased font-body overflow-hidden h-full">
+<!-- TOP NAVIGATION SHELL (Inactive/Background) -->
+<nav class="fixed top-0 w-full h-14 bg-[#0B1220] border-b border-[#E2E6EF]/10 flex justify-between items-center px-6 z-10">
+<div class="flex items-center gap-4">
+<span class="text-xl font-bold tracking-tighter text-[#FFFFFF]">Vokari</span>
+<div class="h-6 w-px bg-white/10 mx-2"></div>
+<div class="flex items-center gap-2 px-2 py-1 bg-audit-indigo/20 rounded-sm">
+<span class="text-[10px] font-bold tracking-wider text-audit-indigo uppercase">Production</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#94A3B8] cursor-pointer hover:text-[#0EA5A6] transition-colors">notifications</span>
+<span class="material-symbols-outlined text-[#94A3B8] cursor-pointer hover:text-[#0EA5A6] transition-colors">settings</span>
+<div class="w-8 h-8 rounded-full bg-slate-700 overflow-hidden">
+<img alt="Operator Avatar" data-alt="professional portrait of a system operator in a tech environment, clean lighting, neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6oRdeAkj4w8djP9sClzXAADM7rdig5N_M1r22EvVgwtB1lon8Ag64bt13-PJDloWqCJdc5NeSjYPXSHoIRqqcSxnNYyXm1EOxSkBNziBtiGo_TDxaWu3yaFULbS6A9bsOkY2psYUFS5U0ERdjLsIytM9p_cGbTsraY5LIxf8aKd6Y-JYxREi7nRrkSG0SdyQRVcBN3Zf_j6--hKdCV6nLFP_4JYaETLW7TtUbz8_a_9Wo5o1WWPLMg9PBdBOYUeEIhLwlPpndEg6t"/>
+</div>
+</div>
+</nav>
+<!-- SIDE NAVIGATION SHELL (Inactive/Background) -->
+<aside class="fixed left-0 top-14 h-[calc(100vh-56px)] w-56 bg-white border-r border-hairline flex flex-col py-4 z-10">
+<div class="flex-1 px-3 space-y-1">
+<div class="flex items-center gap-3 px-3 py-2 text-operator-slate font-medium text-sm rounded-sm bg-hush-mist border-l-4 border-signal-teal">
+<span class="material-symbols-outlined text-signal-teal">settings_input_component</span>
+<span>Configure</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-mute-slate hover:bg-hush-mist transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined">settings_remote</span>
+<span>Operate</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-mute-slate hover:bg-hush-mist transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined">hub</span>
+<span>Distribute</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-mute-slate hover:bg-hush-mist transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined">domain</span>
+<span>Workspace</span>
+</div>
+</div>
+<div class="px-3 py-4 border-t border-hairline space-y-1">
+<div class="flex items-center gap-3 px-3 py-2 text-mute-slate hover:bg-hush-mist transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined">help</span>
+<span class="text-sm">Support</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-mute-slate hover:bg-hush-mist transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined">description</span>
+<span class="text-sm">Docs</span>
+</div>
+</div>
+</aside>
+<!-- MODAL BACKDROP -->
+<div class="fixed inset-0 bg-midnight-signal/60 z-[60] flex items-center justify-center p-6 backdrop-blur-sm">
+<!-- CENTERED MODAL -->
+<div class="w-full max-w-[480px] bg-paper-white rounded-xl shadow-modal border border-hairline overflow-hidden flex flex-col">
+<!-- HEADER SECTION -->
+<div class="pt-8 px-8 flex flex-col items-center">
+<!-- Voice Waveform Icon -->
+<div class="w-12 h-12 rounded-lg bg-signal-teal/10 flex items-center justify-center text-signal-teal mb-8">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">graphic_eq</span>
+</div>
+<h2 class="text-[22px] font-headline font-semibold text-operator-slate leading-[28px] -tracking-[1%]">
+                    Welcome to Vokari, Ramón
+                </h2>
+<p class="mt-2 text-sm font-body text-operator-slate leading-[20px]">
+                    You're three steps away from your first answered call.
+                </p>
+</div>
+<!-- CHECKLIST BODY -->
+<div class="mt-4 px-8 pb-4">
+<div class="flex flex-col">
+<!-- Step 1 -->
+<div class="h-[56px] flex items-center justify-between group cursor-pointer hover:bg-hush-mist/50 transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-6 h-6 flex-shrink-0 bg-signal-teal rounded-full flex items-center justify-center">
+<span class="text-[12px] font-mono font-medium text-white">1</span>
+</div>
+<div class="flex flex-col">
+<h3 class="text-base font-headline font-semibold text-operator-slate leading-none">Build your first agent</h3>
+<p class="text-[12px] font-body text-mute-slate mt-1">Behavior, voice, compliance · 4 min</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-mute-slate text-[20px]">chevron_right</span>
+</div>
+<div class="h-px bg-hairline w-full"></div>
+<!-- Step 2 -->
+<div class="h-[56px] flex items-center justify-between group cursor-pointer hover:bg-hush-mist/50 transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-6 h-6 flex-shrink-0 bg-signal-teal rounded-full flex items-center justify-center">
+<span class="text-[12px] font-mono font-medium text-white">2</span>
+</div>
+<div class="flex flex-col">
+<h3 class="text-base font-headline font-semibold text-operator-slate leading-none">Connect a phone number</h3>
+<p class="text-[12px] font-body text-mute-slate mt-1">Twilio, BYO-Twilio, or SIP · 2 min</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-mute-slate text-[20px]">chevron_right</span>
+</div>
+<div class="h-px bg-hairline w-full"></div>
+<!-- Step 3 -->
+<div class="h-[56px] flex items-center justify-between group cursor-pointer hover:bg-hush-mist/50 transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-6 h-6 flex-shrink-0 bg-signal-teal rounded-full flex items-center justify-center">
+<span class="text-[12px] font-mono font-medium text-white">3</span>
+</div>
+<div class="flex flex-col">
+<h3 class="text-base font-headline font-semibold text-operator-slate leading-none">Run a test call</h3>
+<p class="text-[12px] font-body text-mute-slate mt-1">We'll dial you and you talk to it · 1 min</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-mute-slate text-[20px]">chevron_right</span>
+</div>
+</div>
+</div>
+<!-- FOOTER SECTION -->
+<div class="p-6 pt-4 border-t border-hairline flex items-center justify-between">
+<button class="text-sm font-body font-medium text-operator-slate hover:text-signal-teal transition-colors py-2">
+                    I'll explore on my own
+                </button>
+<button class="h-9 px-4 bg-signal-teal hover:bg-deep-teal transition-colors text-white text-sm font-label font-medium rounded-sm flex items-center justify-center tracking-tight">
+                    Start step 1
+                </button>
+</div>
+</div>
+</div>
+<!-- BACKGROUND CONTENT PLACEHOLDER -->
+<main class="ml-56 mt-14 p-8 grid grid-cols-12 gap-8 opacity-40 select-none pointer-events-none">
+<div class="col-span-12">
+<h1 class="text-2xl font-headline font-semibold text-operator-slate">Dashboard</h1>
+</div>
+<div class="col-span-4 h-32 bg-white border border-hairline rounded-lg"></div>
+<div class="col-span-4 h-32 bg-white border border-hairline rounded-lg"></div>
+<div class="col-span-4 h-32 bg-white border border-hairline rounded-lg"></div>
+<div class="col-span-8 h-96 bg-white border border-hairline rounded-lg"></div>
+<div class="col-span-4 h-96 bg-white border border-hairline rounded-lg"></div>
+</main>
+</body></html>

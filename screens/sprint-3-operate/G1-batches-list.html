@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vokari - Outbound Batches</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;550;600&amp;family=Geist:wght@600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        'midnight-signal': '#0B1220',
+                        'operator-slate': '#1F2937',
+                        'mute-slate': '#64748B',
+                        'whisper-slate': '#94A3B8',
+                        'hush-mist': '#F4F6FA',
+                        'paper-white': '#FFFFFF',
+                        'hairline': '#E2E6EF',
+                        'soft-hairline': '#EEF1F6',
+                        'signal-teal': '#0EA5A6',
+                        'deep-teal': '#0F7A7B',
+                        'live-cyan': '#22D3EE',
+                        'booked-green': '#10B981',
+                        'compliance-amber': '#F59E0B',
+                        'risk-crimson': '#DC2626',
+                        'audit-indigo': '#4F46E5',
+                        'receipt-gold': '#B89A4A',
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.25rem',
+                        'lg': '0.5rem',
+                        'xl': '0.75rem',
+                        'full': '9999px',
+                    },
+                    fontFamily: {
+                        'headline': ['Geist', 'sans-serif'],
+                        'display': ['Geist', 'sans-serif'],
+                        'body': ['Inter', 'sans-serif'],
+                        'label': ['Inter', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+            font-size: 20px;
+        }
+        .small-caps {
+            font-variant: all-small-caps;
+            letter-spacing: 0.08em;
+        }
+        .status-pie-ring {
+            transform: rotate(-90deg);
+        }
+    </style>
+</head>
+<body class="bg-hush-mist font-body text-operator-slate antialiased">
+<!-- SideNavBar (Shared Component JSON Mapping) -->
+<aside class="fixed left-0 top-0 bottom-0 w-64 border-r border-[#E2E6EF] dark:border-[#2A3142] bg-white dark:bg-[#0B1220] z-40 flex flex-col h-full py-4">
+<div class="px-6 mb-8">
+<h1 class="font-['Geist'] font-bold text-xl tracking-tight text-[#0B1220] dark:text-white">Vokari</h1>
+<p class="text-xs text-mute-slate font-medium">Operator Dashboard</p>
+</div>
+<nav class="flex-1 px-3 space-y-1">
+<!-- Navigate to "Operate" (Active based on Intent: Outbound Batches) -->
+<a class="flex items-center gap-3 text-[#64748B] dark:text-[#94A3B8] px-4 py-2 hover:bg-[#F4F6FA] dark:hover:bg-[#1F2937] transition-all duration-180 ease-out" href="#">
+<span class="material-symbols-outlined">settings_input_component</span>
+<span class="font-['Inter'] text-[14px] font-medium">Configure</span>
+</a>
+<a class="flex items-center gap-3 bg-[#F4F6FA] dark:bg-[#1F2937] border-l-[3px] border-[#0EA5A6] text-[#1F2937] dark:text-white font-semibold px-4 py-2 transition-all duration-180 ease-out" href="#">
+<span class="material-symbols-outlined" style="color: #0EA5A6;">play_circle</span>
+<span class="font-['Inter'] text-[14px] font-medium">Operate</span>
+</a>
+<a class="flex items-center gap-3 text-[#64748B] dark:text-[#94A3B8] px-4 py-2 hover:bg-[#F4F6FA] dark:hover:bg-[#1F2937] transition-all duration-180 ease-out" href="#">
+<span class="material-symbols-outlined">hub</span>
+<span class="font-['Inter'] text-[14px] font-medium">Distribute</span>
+</a>
+<a class="flex items-center gap-3 text-[#64748B] dark:text-[#94A3B8] px-4 py-2 hover:bg-[#F4F6FA] dark:hover:bg-[#1F2937] transition-all duration-180 ease-out" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-['Inter'] text-[14px] font-medium">Workspace</span>
+</a>
+</nav>
+<div class="px-3 pt-4 border-t border-hairline mt-auto">
+<button class="w-full flex items-center justify-center gap-2 bg-signal-teal text-white font-medium py-2 rounded-lg hover:bg-deep-teal transition-colors mb-4">
+<span class="material-symbols-outlined">add</span>
+<span>New Batch</span>
+</button>
+<a class="flex items-center gap-3 text-[#64748B] dark:text-[#94A3B8] px-4 py-2 hover:bg-[#F4F6FA] dark:hover:bg-[#1F2937] transition-all duration-180 ease-out" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="font-['Inter'] text-[14px] font-medium">Docs</span>
+</a>
+<a class="flex items-center gap-3 text-[#64748B] dark:text-[#94A3B8] px-4 py-2 hover:bg-[#F4F6FA] dark:hover:bg-[#1F2937] transition-all duration-180 ease-out" href="#">
+<span class="material-symbols-outlined">contact_support</span>
+<span class="font-['Inter'] text-[14px] font-medium">Support</span>
+</a>
+</div>
+</aside>
+<!-- TopNavBar (Shared Component JSON Mapping) -->
+<header class="fixed top-0 right-0 left-0 h-14 border-b border-[#E2E6EF] dark:border-[#2A3142] bg-white dark:bg-[#0B1220] z-30 flex items-center justify-between px-6 w-full ml-64">
+<div class="flex items-center gap-4">
+<div class="bg-audit-indigo/10 text-audit-indigo px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest">Production</div>
+<div class="h-4 w-px bg-hairline"></div>
+<span class="text-mute-slate text-sm font-medium">US-East-1</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-mute-slate">search</span>
+<input class="bg-hush-mist border-none rounded-lg pl-10 pr-4 py-1.5 text-sm w-64 focus:ring-1 focus:ring-signal-teal outline-none" placeholder="Cmd+K to search" type="text"/>
+</div>
+<div class="flex items-center gap-3">
+<button class="text-mute-slate hover:text-operator-slate transition-colors"><span class="material-symbols-outlined">notifications</span></button>
+<button class="text-mute-slate hover:text-operator-slate transition-colors"><span class="material-symbols-outlined">help_outline</span></button>
+<button class="text-mute-slate hover:text-operator-slate transition-colors"><span class="material-symbols-outlined">settings</span></button>
+<div class="h-8 w-8 rounded-full bg-soft-hairline overflow-hidden border border-hairline">
+<img alt="User avatar" data-alt="Professional user avatar in business casual attire with neutral background for corporate dashboard profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuANBn9v2HkztjSpn-QqvDY7zxqzUQR0ev9szx---m7zqlhEHpei2SkjkJEullNMdTnnCmROs33LPfmInq3bfRvK0wBklkcVPOr8I5hZAgsdgYDdwOtwUJleOVZ_RURT9S83j7yb7cUU7fZ_FuhkZzQZ7E2unwu3U2CYaoZFSS8ROXZjwl-h0kE8YXdX624M6kTYTcMJa4dp6Am3cCKvsCMJ89vTXeD81RG7yMSMAODMmM-Li8BtjzGvb4yniD2CyumDgL2DnCOx77LT"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="ml-64 pt-14 p-8 min-h-screen">
+<div class="max-w-[1440px] mx-auto">
+<!-- Header Section -->
+<div class="flex items-end justify-between mb-8">
+<div>
+<h1 class="text-[28px] font-headline font-semibold text-midnight-signal leading-tight">Batches</h1>
+<p class="text-sm font-body text-mute-slate mt-1">12 batches · 4 in progress · 8 completed</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="h-9 px-4 rounded-lg border border-hairline bg-white text-operator-slate text-sm font-medium hover:bg-hush-mist transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined">library_books</span>
+                        Browse flow library
+                    </button>
+<button class="h-9 px-4 rounded-lg bg-signal-teal text-white text-sm font-medium hover:bg-deep-teal transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined">add</span>
+                        New batch
+                    </button>
+</div>
+</div>
+<!-- Toolbar -->
+<div class="flex items-center gap-4 mb-4">
+<div class="relative w-[320px]">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-mute-slate">search</span>
+<input class="w-full bg-white border border-hairline rounded-lg pl-10 pr-4 py-2 text-sm focus:ring-1 focus:ring-signal-teal focus:border-signal-teal outline-none transition-all" placeholder="Search batches..." type="text"/>
+</div>
+<!-- Filter Chips -->
+<div class="flex items-center gap-2">
+<button class="h-6 px-3 rounded-full bg-hush-mist text-mute-slate text-[11px] font-semibold flex items-center gap-1 hover:bg-soft-hairline transition-colors">
+                        Status <span class="material-symbols-outlined !text-[14px]">expand_more</span>
+</button>
+<button class="h-6 px-3 rounded-full bg-hush-mist text-mute-slate text-[11px] font-semibold flex items-center gap-1 hover:bg-soft-hairline transition-colors">
+                        Schedule <span class="material-symbols-outlined !text-[14px]">expand_more</span>
+</button>
+<button class="h-6 px-3 rounded-full bg-hush-mist text-mute-slate text-[11px] font-semibold flex items-center gap-1 hover:bg-soft-hairline transition-colors">
+                        Branch <span class="material-symbols-outlined !text-[14px]">expand_more</span>
+</button>
+<button class="h-6 px-3 rounded-full bg-hush-mist text-mute-slate text-[11px] font-semibold flex items-center gap-1 hover:bg-soft-hairline transition-colors">
+                        Vertical-flow type <span class="material-symbols-outlined !text-[14px]">expand_more</span>
+</button>
+</div>
+</div>
+<!-- Data Table Container -->
+<div class="bg-white border border-hairline rounded-[10px] overflow-hidden">
+<table class="w-full border-collapse">
+<!-- Table Header -->
+<thead class="bg-hush-mist h-8">
+<tr>
+<th class="px-6 text-left text-mute-slate small-caps text-[11px] font-semibold">Batch Name &amp; ID</th>
+<th class="px-4 text-left text-mute-slate small-caps text-[11px] font-semibold">Agent</th>
+<th class="px-4 text-left text-mute-slate small-caps text-[11px] font-semibold">Provider</th>
+<th class="px-4 text-center text-mute-slate small-caps text-[11px] font-semibold">Status</th>
+<th class="px-4 text-right text-mute-slate small-caps text-[11px] font-semibold">Recipients</th>
+<th class="px-4 text-left text-mute-slate small-caps text-[11px] font-semibold">Schedule</th>
+<th class="px-4 text-left text-mute-slate small-caps text-[11px] font-semibold">Branch</th>
+<th class="px-6 text-right text-mute-slate small-caps text-[11px] font-semibold">Actions</th>
+</tr>
+</thead>
+<!-- Table Body -->
+<tbody class="divide-y divide-hairline">
+<!-- Row 1: In Progress -->
+<tr class="h-14 hover:bg-hush-mist transition-colors group">
+<td class="px-6">
+<div class="font-medium text-operator-slate">HVAC Fall Maintenance</div>
+<div class="font-mono text-[11px] text-mute-slate">btc_04n8</div>
+</td>
+<td class="px-4">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded bg-audit-indigo/10 text-audit-indigo text-[11px] font-medium">Support-Agent-04</span>
+<div class="flex items-center gap-1 px-1.5 py-0.5 rounded-md border border-hairline bg-white">
+<span class="material-symbols-outlined !text-[12px] text-signal-teal">mic</span>
+<span class="text-[10px] font-bold text-operator-slate">EN-US</span>
+</div>
+</div>
+</td>
+<td class="px-4">
+<span class="px-2 py-0.5 rounded-full bg-booked-green/10 text-booked-green text-[10px] font-bold tracking-tight">TWILIO</span>
+</td>
+<td class="px-4">
+<div class="flex justify-center">
+<div class="relative h-6 w-6">
+<svg class="status-pie-ring h-6 w-6" viewbox="0 0 32 32">
+<circle cx="16" cy="16" fill="transparent" r="14" stroke="#E2E6EF" stroke-width="4"></circle>
+<circle cx="16" cy="16" fill="transparent" r="14" stroke="#F59E0B" stroke-dasharray="88 88" stroke-dashoffset="20" stroke-width="4"></circle>
+</svg>
+</div>
+</div>
+</td>
+<td class="px-4 text-right font-mono text-sm">2,480</td>
+<td class="px-4 text-sm text-mute-slate">Started 12m ago</td>
+<td class="px-4">
+<span class="px-2 py-0.5 rounded bg-hush-mist text-operator-slate text-[11px] font-medium border border-hairline">PHX-Downtown</span>
+</td>
+<td class="px-6 text-right">
+<div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 rounded-md text-mute-slate hover:bg-white hover:text-risk-crimson transition-all"><span class="material-symbols-outlined">cancel</span></button>
+<button class="p-1.5 rounded-md text-mute-slate hover:bg-white hover:text-signal-teal transition-all"><span class="material-symbols-outlined">refresh</span></button>
+<button class="p-1.5 rounded-md text-mute-slate hover:bg-white hover:text-risk-crimson transition-all"><span class="material-symbols-outlined">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 2: Completed -->
+<tr class="h-14 bg-soft-hairline hover:bg-hush-mist transition-colors group">
+<td class="px-6">
+<div class="font-medium text-operator-slate">Alumni Donation Flow</div>
+<div class="font-mono text-[11px] text-mute-slate">btc_92k1</div>
+</td>
+<td class="px-4">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded bg-audit-indigo/10 text-audit-indigo text-[11px] font-medium">Admissions-AI</span>
+<div class="flex items-center gap-1 px-1.5 py-0.5 rounded-md border border-hairline bg-white">
+<span class="material-symbols-outlined !text-[12px] text-signal-teal">mic</span>
+<span class="text-[10px] font-bold text-operator-slate">ES-MX</span>
+</div>
+</div>
+</td>
+<td class="px-4">
+<span class="px-2 py-0.5 rounded-full bg-compliance-amber/10 text-compliance-amber text-[10px] font-bold tracking-tight">BYO-SIP</span>
+</td>
+<td class="px-4">
+<div class="flex justify-center">
+<div class="relative h-6 w-6">
+<svg class="status-pie-ring h-6 w-6" viewbox="0 0 32 32">
+<circle cx="16" cy="16" fill="transparent" r="14" stroke="#10B981" stroke-width="4"></circle>
+</svg>
+</div>
+</div>
+</td>
+<td class="px-4 text-right font-mono text-sm">12,500</td>
+<td class="px-4 text-sm text-mute-slate">2 days ago</td>
+<td class="px-4">
+<span class="px-2 py-0.5 rounded bg-hush-mist text-operator-slate text-[11px] font-medium border border-hairline">Corporate</span>
+</td>
+<td class="px-6 text-right">
+<div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 rounded-md text-mute-slate hover:bg-white hover:text-signal-teal transition-all"><span class="material-symbols-outlined">visibility</span></button>
+<button class="p-1.5 rounded-md text-mute-slate hover:bg-white hover:text-signal-teal transition-all"><span class="material-symbols-outlined">refresh</span></button>
+<button class="p-1.5 rounded-md text-mute-slate hover:bg-white hover:text-risk-crimson transition-all"><span class="material-symbols-outlined">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 3: Dispatched -->
+<tr class="h-14 hover:bg-hush-mist transition-colors group">
+<td class="px-6">
+<div class="font-medium text-operator-slate">Emergency Plumbing Blast</div>
+<div class="font-mono text-[11px] text-mute-slate">btc_15f2</div>
+</td>
+<td class="px-4">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded bg-audit-indigo/10 text-audit-indigo text-[11px] font-medium">Night-Operator</span>
+<div class="flex items-center gap-1 px-1.5 py-0.5 rounded-md border border-hairline bg-white">
+<span class="material-symbols-outlined !text-[12px] text-signal-teal">mic</span>
+<span class="text-[10px] font-bold text-operator-slate">EN-US</span>
+</div>
+</div>
+</td>
+<td class="px-4">
+<span class="px-2 py-0.5 rounded-full bg-audit-indigo/10 text-audit-indigo text-[10px] font-bold tracking-tight">GLOBAL-SIP</span>
+</td>
+<td class="px-4">
+<div class="flex justify-center">
+<div class="relative h-6 w-6">
+<svg class="status-pie-ring h-6 w-6" viewbox="0 0 32 32">
+<circle cx="16" cy="16" fill="transparent" r="14" stroke="#E2E6EF" stroke-width="4"></circle>
+<circle cx="16" cy="16" fill="transparent" r="14" stroke="#4F46E5" stroke-dasharray="40 88" stroke-dashoffset="0" stroke-width="4"></circle>
+</svg>
+</div>
+</div>
+</td>
+<td class="px-4 text-right font-mono text-sm">450</td>
+<td class="px-4 text-sm text-mute-slate">Pending</td>
+<td class="px-4">
+<span class="px-2 py-0.5 rounded bg-hush-mist text-operator-slate text-[11px] font-medium border border-hairline">Regional-West</span>
+</td>
+<td class="px-6 text-right">
+<div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 rounded-md text-mute-slate hover:bg-white hover:text-risk-crimson transition-all"><span class="material-symbols-outlined">cancel</span></button>
+<button class="p-1.5 rounded-md text-mute-slate hover:bg-white hover:text-signal-teal transition-all"><span class="material-symbols-outlined">refresh</span></button>
+<button class="p-1.5 rounded-md text-mute-slate hover:bg-white hover:text-risk-crimson transition-all"><span class="material-symbols-outlined">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 4: Failed -->
+<tr class="h-14 bg-soft-hairline hover:bg-hush-mist transition-colors group">
+<td class="px-6">
+<div class="font-medium text-operator-slate">Student Orientation IVR</div>
+<div class="font-mono text-[11px] text-mute-slate">btc_73d9</div>
+</td>
+<td class="px-4">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded bg-audit-indigo/10 text-audit-indigo text-[11px] font-medium">Campus-Guide</span>
+<div class="flex items-center gap-1 px-1.5 py-0.5 rounded-md border border-hairline bg-white">
+<span class="material-symbols-outlined !text-[12px] text-signal-teal">mic</span>
+<span class="text-[10px] font-bold text-operator-slate">EN-US</span>
+</div>
+</div>
+</td>
+<td class="px-4">
+<span class="px-2 py-0.5 rounded-full bg-booked-green/10 text-booked-green text-[10px] font-bold tracking-tight">TWILIO</span>
+</td>
+<td class="px-4">
+<div class="flex justify-center">
+<div class="relative h-6 w-6">
+<svg class="status-pie-ring h-6 w-6" viewbox="0 0 32 32">
+<circle cx="16" cy="16" fill="transparent" r="14" stroke="#DC2626" stroke-width="4"></circle>
+</svg>
+</div>
+</div>
+</td>
+<td class="px-4 text-right font-mono text-sm">3,200</td>
+<td class="px-4 text-sm text-mute-slate">Failed 1h ago</td>
+<td class="px-4">
+<span class="px-2 py-0.5 rounded bg-hush-mist text-operator-slate text-[11px] font-medium border border-hairline">Campus-Main</span>
+</td>
+<td class="px-6 text-right">
+<div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 rounded-md text-risk-crimson bg-risk-crimson/10 border border-risk-crimson/20 transition-all font-bold text-[10px] px-2">RETRY</button>
+<button class="p-1.5 rounded-md text-mute-slate hover:bg-white hover:text-risk-crimson transition-all"><span class="material-symbols-outlined">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 5: Completed -->
+<tr class="h-14 hover:bg-hush-mist transition-colors group">
+<td class="px-6">
+<div class="font-medium text-operator-slate">Appointment Reminders Q3</div>
+<div class="font-mono text-[11px] text-mute-slate">btc_44w2</div>
+</td>
+<td class="px-4">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded bg-audit-indigo/10 text-audit-indigo text-[11px] font-medium">Scheduler-Bot</span>
+<div class="flex items-center gap-1 px-1.5 py-0.5 rounded-md border border-hairline bg-white">
+<span class="material-symbols-outlined !text-[12px] text-signal-teal">mic</span>
+<span class="text-[10px] font-bold text-operator-slate">EN-UK</span>
+</div>
+</div>
+</td>
+<td class="px-4">
+<span class="px-2 py-0.5 rounded-full bg-booked-green/10 text-booked-green text-[10px] font-bold tracking-tight">TWILIO</span>
+</td>
+<td class="px-4">
+<div class="flex justify-center">
+<div class="relative h-6 w-6">
+<svg class="status-pie-ring h-6 w-6" viewbox="0 0 32 32">
+<circle cx="16" cy="16" fill="transparent" r="14" stroke="#10B981" stroke-width="4"></circle>
+</svg>
+</div>
+</div>
+</td>
+<td class="px-4 text-right font-mono text-sm">8,922</td>
+<td class="px-4 text-sm text-mute-slate">4 days ago</td>
+<td class="px-4">
+<span class="px-2 py-0.5 rounded bg-hush-mist text-operator-slate text-[11px] font-medium border border-hairline">PHX-Downtown</span>
+</td>
+<td class="px-6 text-right">
+<div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 rounded-md text-mute-slate hover:bg-white hover:text-signal-teal transition-all"><span class="material-symbols-outlined">visibility</span></button>
+<button class="p-1.5 rounded-md text-mute-slate hover:bg-white hover:text-signal-teal transition-all"><span class="material-symbols-outlined">refresh</span></button>
+<button class="p-1.5 rounded-md text-mute-slate hover:bg-white hover:text-risk-crimson transition-all"><span class="material-symbols-outlined">delete</span></button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Footer Pagination Placeholder -->
+<div class="mt-6 flex items-center justify-between">
+<p class="text-[13px] text-mute-slate">Showing 5 of 12 batches</p>
+<div class="flex items-center gap-2">
+<button class="h-8 w-8 rounded-lg border border-hairline flex items-center justify-center text-mute-slate hover:bg-white transition-colors disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="h-8 w-8 rounded-lg bg-white border border-hairline flex items-center justify-center text-operator-slate font-medium text-sm">1</button>
+<button class="h-8 w-8 rounded-lg border border-hairline flex items-center justify-center text-mute-slate hover:bg-white transition-colors">2</button>
+<button class="h-8 w-8 rounded-lg border border-hairline flex items-center justify-center text-mute-slate hover:bg-white transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</body></html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vokari Operator Console - New Outbound Batch</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;550;600&amp;family=Geist:wght@400;600;800&amp;family=JetBrains+Mono:wght@400;500&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "midnight-signal": "#0B1220",
+                        "operator-slate": "#1F2937",
+                        "mute-slate": "#64748B",
+                        "whisper-slate": "#94A3B8",
+                        "hush-mist": "#F4F6FA",
+                        "paper-white": "#FFFFFF",
+                        "hairline": "#E2E6EF",
+                        "soft-hairline": "#EEF1F6",
+                        "signal-teal": "#0EA5A6",
+                        "deep-teal": "#0F7A7B",
+                        "live-cyan": "#22D3EE",
+                        "booked-green": "#10B981",
+                        "compliance-amber": "#F59E0B",
+                        "risk-crimson": "#DC2626",
+                        "audit-indigo": "#4F46E5",
+                        "receipt-gold": "#B89A4A",
+                        "receipt-gold-tint": "#F5EFD9",
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        "headline": ["Geist", "sans-serif"],
+                        "display": ["Geist", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: #F4F6FA; }
+        .font-geist { font-family: 'Geist', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+    </style>
+</head>
+<body class="text-operator-slate antialiased">
+<!-- TopNavBar Shell -->
+<header class="fixed top-0 w-full h-14 z-40 bg-white dark:bg-[#0B1220] border-b border-[#E2E6EF] dark:border-[#2A3142] flex items-center justify-between px-6">
+<div class="flex items-center gap-4">
+<span class="font-headline font-semibold text-lg text-[#0B1220] dark:text-white tracking-[-1.5%]">Vokari</span>
+<div class="flex items-center gap-2 px-2 py-0.5 bg-audit-indigo/10 border border-audit-indigo/20 rounded-full">
+<span class="w-1.5 h-1.5 rounded-full bg-audit-indigo"></span>
+<span class="text-[10px] font-semibold text-audit-indigo uppercase tracking-wider">Production</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative">
+<span class="material-symbols-outlined text-mute-slate cursor-pointer hover:bg-hush-mist p-1.5 rounded-lg transition-colors">search</span>
+</div>
+<span class="material-symbols-outlined text-mute-slate cursor-pointer hover:bg-hush-mist p-1.5 rounded-lg transition-colors">notifications</span>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-hairline">
+<img class="w-full h-full object-cover" data-alt="professional male corporate avatar with neutral expression and clean studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBX6BCAEnEgaMBrCitkdeHk830XQEGdkOLR_i9E7Lv75BCc_KaPvrOPVRY-Khh6saneV2sbGp4dkZHo0KFTMzv7LVSLuuFqj1AvBFE78z_hTGUtxluN3l6aABzgCl3sU1P09THj-M8R88RtgF6krMD6vBgbVQBc72Psq-EG1NL-bf_RPMhd6fzL7FM5P_rvoWdsakdmwTtKb45bnd-PvLrPQOTX2OP6wgQ_ANiWpddQRY20eC8kXtd8FSBl_tB4SVelXKJmPEX5sRE0"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar Shell -->
+<aside class="fixed left-0 top-14 h-[calc(100vh-3.5rem)] w-[224px] z-50 bg-white border-r border-hairline flex flex-col py-4">
+<nav class="flex-1 px-3 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-mute-slate hover:bg-hush-mist hover:text-operator-slate rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[14px] font-[450]">Home</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-mute-slate hover:bg-hush-mist hover:text-operator-slate rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="text-[14px] font-[450]">Conversations</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 bg-hush-mist text-midnight-signal font-[550] border-l-[3px] border-signal-teal rounded-r-lg transition-all" href="#">
+<span class="material-symbols-outlined text-signal-teal">support_agent</span>
+<span class="text-[14px]">Agents</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-mute-slate hover:bg-hush-mist hover:text-operator-slate rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="text-[14px] font-[450]">Workspace</span>
+</a>
+</nav>
+<div class="px-3 pt-4 border-t border-hairline space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-mute-slate hover:bg-hush-mist hover:text-operator-slate rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[14px] font-[450]">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-mute-slate hover:bg-hush-mist hover:text-operator-slate rounded-lg transition-all" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="text-[14px] font-[450]">Support</span>
+</a>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-[224px] mt-14 min-h-[calc(100vh-3.5rem)] bg-hush-mist p-8 flex justify-center items-start">
+<!-- Central Card: Wizard Container -->
+<div class="w-[880px] bg-paper-white border border-hairline rounded-[10px] flex flex-col overflow-hidden">
+<!-- Header -->
+<div class="px-6 py-6 border-b border-hairline flex items-center justify-between">
+<h2 class="font-headline text-[22px] font-semibold text-midnight-signal tracking-tight">New outbound batch</h2>
+<button class="text-mute-slate hover:text-operator-slate transition-colors p-1">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-8">
+<!-- Progress Stepper -->
+<div class="flex items-start justify-between w-full mb-8 relative">
+<!-- Connector Lines -->
+<div class="absolute top-[14px] left-[10%] right-[10%] h-[1px] bg-hairline -z-10"></div>
+<!-- Step 1: Active -->
+<div class="flex flex-col items-center gap-3 z-10 bg-paper-white px-2">
+<div class="w-7 h-7 rounded-full bg-signal-teal flex items-center justify-center">
+<span class="font-mono text-white text-[13px] font-medium">1</span>
+</div>
+<span class="text-[12px] font-[550] text-operator-slate">Agent + Number</span>
+</div>
+<!-- Step 2 -->
+<div class="flex flex-col items-center gap-3 z-10 bg-paper-white px-2">
+<div class="w-7 h-7 rounded-full border border-hairline flex items-center justify-center bg-paper-white">
+<span class="font-mono text-whisper-slate text-[13px] font-medium">2</span>
+</div>
+<span class="text-[12px] font-[550] text-whisper-slate">Recipients</span>
+</div>
+<!-- Step 3 -->
+<div class="flex flex-col items-center gap-3 z-10 bg-paper-white px-2">
+<div class="w-7 h-7 rounded-full border border-hairline flex items-center justify-center bg-paper-white">
+<span class="font-mono text-whisper-slate text-[13px] font-medium">3</span>
+</div>
+<span class="text-[12px] font-[550] text-whisper-slate">Schedule</span>
+</div>
+<!-- Step 4 -->
+<div class="flex flex-col items-center gap-3 z-10 bg-paper-white px-2">
+<div class="w-7 h-7 rounded-full border border-hairline flex items-center justify-center bg-paper-white">
+<span class="font-mono text-whisper-slate text-[13px] font-medium">4</span>
+</div>
+<span class="text-[12px] font-[550] text-whisper-slate">Concurrency</span>
+</div>
+<!-- Step 5 -->
+<div class="flex flex-col items-center gap-3 z-10 bg-paper-white px-2">
+<div class="w-7 h-7 rounded-full border border-hairline flex items-center justify-center bg-paper-white">
+<span class="font-mono text-whisper-slate text-[13px] font-medium">5</span>
+</div>
+<span class="text-[12px] font-[550] text-whisper-slate">Review</span>
+</div>
+</div>
+<!-- Step 1 Content: Form -->
+<div class="grid grid-cols-2 gap-8 mb-8">
+<!-- Left: Agent Selection -->
+<div class="space-y-4">
+<div class="space-y-1">
+<h3 class="font-headline text-[18px] font-semibold text-midnight-signal">Agent</h3>
+<p class="text-[12px] text-mute-slate leading-tight">Pick the agent that will run this campaign.</p>
+</div>
+<div class="relative group">
+<button class="w-full h-11 px-3 bg-white border border-hairline rounded-lg flex items-center justify-between hover:border-signal-teal transition-all text-left">
+<div class="flex items-center gap-3">
+<div class="w-6 h-6 rounded bg-soft-hairline flex items-center justify-center">
+<img class="w-5 h-5 rounded-sm object-cover" data-alt="abstract tech pattern in deep teal and slate tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxBCrDg33-cMHnLgdxgEEhI3NJumGxB7CXAKjprXRmqxkLEddrQad03_2cg1UmhVxXafhSEeFO0J_8IyLfNGkVcjlYz651EaWVent2HkkyB6MGczPZy4OrpsoGKxhbpvakCCNnW4T2UOddRJ9y6EVCSt5wcNSE1OAzON0vFdz51380ssJQqBha0UB5JRiKlubu9Q6SPamURYocJmgteoamrSvi0xy3CRNGLmfSFGF1JxsaCluS8atUCvbQUlSNQ0Q9G7kq5Ui8fboZ"/>
+</div>
+<span class="text-[14px] font-[550] text-operator-slate">Calderon HVAC Win-back</span>
+<div class="flex gap-1">
+<span class="px-1.5 py-0.5 bg-audit-indigo/10 text-audit-indigo text-[9px] font-bold rounded tracking-tighter uppercase">EN</span>
+<span class="px-1.5 py-0.5 bg-audit-indigo/10 text-audit-indigo text-[9px] font-bold rounded tracking-tighter uppercase">ES</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-whisper-slate">expand_more</span>
+</button>
+</div>
+</div>
+<!-- Right: Phone Number -->
+<div class="space-y-4">
+<div class="space-y-1">
+<h3 class="font-headline text-[18px] font-semibold text-midnight-signal">Phone number</h3>
+<p class="text-[12px] text-mute-slate leading-tight">Outbound calls will originate from this number.</p>
+</div>
+<div class="relative">
+<button class="w-full h-11 px-3 bg-white border border-hairline rounded-lg flex items-center justify-between hover:border-signal-teal transition-all text-left">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-mute-slate text-[20px]">call</span>
+<span class="text-[14px] font-mono text-operator-slate">+1 (480) 555-0173</span>
+<span class="text-[12px] px-2 py-0.5 bg-hush-mist border border-hairline rounded text-mute-slate font-medium">Twilio</span>
+</div>
+<span class="material-symbols-outlined text-whisper-slate">expand_more</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Preview Tiles -->
+<div class="grid grid-cols-4 gap-4 mb-8">
+<!-- Tile 2: CSV Upload -->
+<div class="h-24 bg-soft-hairline border border-hairline rounded-lg flex flex-col items-center justify-center gap-2 opacity-60">
+<span class="material-symbols-outlined text-whisper-slate text-[28px]">upload_file</span>
+<span class="text-[11px] font-semibold text-mute-slate uppercase tracking-wider">Recipients</span>
+</div>
+<!-- Tile 3: Schedule -->
+<div class="h-24 bg-soft-hairline border border-hairline rounded-lg flex flex-col items-center justify-center gap-2 opacity-60">
+<span class="material-symbols-outlined text-whisper-slate text-[28px]">calendar_today</span>
+<span class="text-[11px] font-semibold text-mute-slate uppercase tracking-wider">Schedule</span>
+</div>
+<!-- Tile 4: Concurrency -->
+<div class="h-24 bg-soft-hairline border border-hairline rounded-lg flex flex-col items-center justify-center gap-2 opacity-60">
+<span class="material-symbols-outlined text-whisper-slate text-[28px]">speed</span>
+<span class="text-[11px] font-semibold text-mute-slate uppercase tracking-wider">Capacity</span>
+</div>
+<!-- Tile 5: Review & Cost -->
+<div class="h-24 bg-soft-hairline border border-hairline rounded-lg flex flex-col items-center justify-center gap-2 p-3">
+<div class="flex flex-col items-center">
+<span class="text-[18px] font-mono font-medium text-receipt-gold">$28.40</span>
+<span class="text-[10px] text-mute-slate uppercase tracking-widest font-semibold mt-0.5">Est. Cost</span>
+</div>
+<div class="px-2 py-0.5 bg-booked-green/10 border border-booked-green/20 rounded-full flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-booked-green"></span>
+<span class="text-[9px] font-bold text-booked-green uppercase tracking-tighter">TCPA Compliant</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Sticky Bar -->
+<div class="px-6 py-4 bg-paper-white border-t border-hairline flex items-center justify-between">
+<button class="px-4 h-9 text-[14px] font-[550] text-operator-slate opacity-50 cursor-not-allowed">
+                    Back
+                </button>
+<div class="flex items-center gap-3">
+<span class="text-[12px] text-mute-slate mr-2">Step 1 of 5</span>
+<button class="h-9 px-6 bg-signal-teal hover:bg-deep-teal text-white rounded-lg text-[14px] font-[550] transition-all shadow-sm active:scale-95">
+                        Continue
+                    </button>
+</div>
+</div>
+</div>
+<!-- Background Decor (Minimalistic operator-grade dots) -->
+<div class="fixed inset-0 -z-50 opacity-[0.03] pointer-events-none" style="background-image: radial-gradient(#0B1220 1px, transparent 1px); background-size: 32px 32px;"></div>
+</main>
+</body></html>

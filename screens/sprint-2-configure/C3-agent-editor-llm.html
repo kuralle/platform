@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;550;600&amp;family=Geist:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            midnight: "#0B1220",
+                            operator: "#1F2937",
+                            mute: "#64748B",
+                            whisper: "#94A3B8",
+                            hush: "#F4F6FA",
+                            paper: "#FFFFFF",
+                            hairline: "#E2E6EF",
+                            softHairline: "#EEF1F6",
+                            teal: "#0EA5A6",
+                            deepTeal: "#0F7A7B",
+                            cyan: "#22D3EE",
+                            green: "#10B981",
+                            amber: "#F59E0B",
+                            crimson: "#DC2626",
+                            indigo: "#4F46E5",
+                            gold: "#B89A4A"
+                        }
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        headline: ["Geist", "sans-serif"],
+                        display: ["Geist", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                        label: ["Inter", "sans-serif"],
+                        mono: ["JetBrains Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+            font-size: 1.25rem;
+        }
+        .mono-text { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+    </style>
+</head>
+<body class="bg-brand-hush font-body text-brand-operator antialiased">
+<!-- TopNavBar Shell -->
+<header class="fixed top-0 w-full h-14 border-b border-brand-hairline bg-brand-paper z-50 flex justify-between items-center px-6">
+<div class="flex items-center gap-8">
+<span class="text-xl font-semibold tracking-tighter text-brand-midnight">Vokari</span>
+<nav class="hidden md:flex h-14 items-center gap-6 font-headline text-sm font-semibold">
+<a class="text-brand-midnight border-b-2 border-brand-teal h-full flex items-center transition-colors duration-180" href="#">Configure</a>
+<a class="text-brand-mute hover:text-brand-teal h-full flex items-center transition-colors duration-180" href="#">Operate</a>
+<a class="text-brand-mute hover:text-brand-teal h-full flex items-center transition-colors duration-180" href="#">Distribute</a>
+<a class="text-brand-mute hover:text-brand-teal h-full flex items-center transition-colors duration-180" href="#">Workspace</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center px-3 py-1.5 bg-brand-hush border border-brand-hairline rounded-lg gap-2 text-brand-mute cursor-pointer">
+<span class="material-symbols-outlined text-sm">search</span>
+<span class="text-xs font-medium">Search...</span>
+<span class="text-[10px] bg-brand-paper border border-brand-hairline px-1 rounded">⌘K</span>
+</div>
+<span class="material-symbols-outlined text-brand-mute cursor-pointer">notifications</span>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-brand-hairline">
+<img alt="User avatar" class="w-full h-full object-cover" data-alt="close-up portrait of a professional operator in a minimalist clean setting with soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuArPkzVn7nOmb8u_-fyZSs0Z5jmJclFDK71HhKkXfzydSq6HpQLzmiAPTlIwOX64iwYsxq1b9I9PzwAB50MHMqjgGS4AwVzy1dr0D99SiKXJJhZG3HY97YRMVW6ivJfpFQo0G9ux2PZ3koWT6SLHDVPve3i87RpZhMDdRguhbJORVoCMOnovsLZVWi3nwAOsw0idZrWeU8rO9NWi9JcxOYEUHjvFXn7GujlPfBbmFUyl8eFP6sySxw4cH3A0kyBpwSfdXT7vE6ymxQN"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar Shell -->
+<aside class="fixed left-0 top-14 h-[calc(100vh-56px)] w-56 border-r border-brand-hairline bg-brand-paper z-40 flex flex-col py-4">
+<div class="px-4 mb-6 flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-brand-hush border border-brand-hairline flex items-center justify-center">
+<span class="material-symbols-outlined text-brand-teal" style="font-variation-settings: 'FILL' 1;">neurology</span>
+</div>
+<div>
+<div class="text-sm font-semibold text-brand-midnight">Agent C2</div>
+<div class="text-[11px] text-brand-mute">Vokari Voice Assistant</div>
+</div>
+</div>
+<nav class="flex-1 px-2 space-y-0.5 overflow-y-auto">
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg bg-brand-hush text-brand-midnight border-l-[3px] border-brand-teal font-[550] cursor-pointer">
+<span class="material-symbols-outlined text-brand-teal">neurology</span>
+<span class="text-sm">LLM</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg text-brand-mute hover:bg-brand-hush transition-all duration-180 cursor-pointer">
+<span class="material-symbols-outlined">record_voice_over</span>
+<span class="text-sm">Voice</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg text-brand-mute hover:bg-brand-hush transition-all duration-180 cursor-pointer">
+<span class="material-symbols-outlined">psychology</span>
+<span class="text-sm">Behavior</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg text-brand-mute hover:bg-brand-hush transition-all duration-180 cursor-pointer">
+<span class="material-symbols-outlined">database</span>
+<span class="text-sm">Knowledge Base</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg text-brand-mute hover:bg-brand-hush transition-all duration-180 cursor-pointer">
+<span class="material-symbols-outlined">handyman</span>
+<span class="text-sm">Tools</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg text-brand-mute hover:bg-brand-hush transition-all duration-180 cursor-pointer">
+<span class="material-symbols-outlined">settings_account_box</span>
+<span class="text-sm">Personalization</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg text-brand-mute hover:bg-brand-hush transition-all duration-180 cursor-pointer">
+<span class="material-symbols-outlined">verified_user</span>
+<span class="text-sm">Compliance</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg text-brand-mute hover:bg-brand-hush transition-all duration-180 cursor-pointer">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-sm">Analysis</span>
+</div>
+</nav>
+<div class="px-2 pt-4 border-t border-brand-hairline space-y-0.5">
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg text-brand-mute hover:bg-brand-hush transition-all duration-180 cursor-pointer">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm">Settings</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 rounded-lg text-brand-mute hover:bg-brand-hush transition-all duration-180 cursor-pointer">
+<span class="material-symbols-outlined">help</span>
+<span class="text-sm">Support</span>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-56 mt-14 p-8 min-h-[calc(100vh-56px)] pb-24">
+<div class="max-w-4xl mx-auto">
+<!-- Agent Editor Header & Tabs -->
+<div class="mb-6">
+<h1 class="text-2xl font-headline font-semibold text-brand-midnight tracking-tight">Agent Editor</h1>
+<div class="mt-4 flex border-b border-brand-hairline gap-8">
+<button class="pb-3 text-sm font-semibold text-brand-midnight border-b-2 border-brand-teal">LLM</button>
+<button class="pb-3 text-sm font-medium text-brand-mute hover:text-brand-operator">Voice</button>
+<button class="pb-3 text-sm font-medium text-brand-mute hover:text-brand-operator">Tools</button>
+<button class="pb-3 text-sm font-medium text-brand-mute hover:text-brand-operator">History</button>
+<button class="pb-3 text-sm font-medium text-brand-mute hover:text-brand-operator">Settings</button>
+</div>
+</div>
+<!-- Banner Alert -->
+<div class="bg-brand-amber/5 border border-brand-amber/30 rounded-lg p-3 flex items-start gap-3 mb-6">
+<span class="material-symbols-outlined text-brand-amber shrink-0" style="font-variation-settings: 'FILL' 1;">report</span>
+<p class="text-[13px] text-brand-operator leading-relaxed">
+                    This agent is in HIPAA mode. 14 of 32 models are hidden because they don't meet zero-retention requirements.
+                    <a class="text-brand-teal font-medium hover:underline ml-1" href="#">Why?</a>
+</p>
+</div>
+<!-- Model Picker Card -->
+<div class="bg-brand-paper border border-brand-hairline rounded-[10px] p-6 mb-8">
+<div class="space-y-4">
+<!-- OpenAI Section (Expanded) -->
+<div>
+<div class="flex items-center gap-2 py-2 cursor-pointer group">
+<span class="material-symbols-outlined text-brand-mute group-hover:text-brand-operator transition-transform">expand_more</span>
+<span class="text-sm font-semibold text-brand-operator">OpenAI</span>
+<span class="text-xs text-brand-mute font-medium">· 4 models</span>
+</div>
+<div class="mt-2 space-y-0 border-t border-brand-hairline">
+<!-- Model Row: Selected -->
+<div class="flex items-center h-16 border-b border-brand-hairline px-4 gap-4 bg-brand-teal/[0.02] border-brand-teal/20 relative -mx-4 first:rounded-t-lg">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-brand-teal"></div>
+<div class="w-4 h-4 rounded-full border-2 border-brand-teal flex items-center justify-center shrink-0">
+<div class="w-1.5 h-1.5 rounded-full bg-brand-teal"></div>
+</div>
+<span class="material-symbols-outlined text-brand-midnight">smart_toy</span>
+<div class="flex-1">
+<div class="flex items-center gap-3">
+<span class="text-sm font-[550] text-brand-operator">GPT-4o</span>
+<div class="flex gap-1">
+<span class="px-1.5 py-0.5 bg-brand-hush text-brand-operator text-[10px] font-semibold uppercase tracking-wider rounded">Tool use</span>
+<span class="px-1.5 py-0.5 bg-brand-hush text-brand-operator text-[10px] font-semibold uppercase tracking-wider rounded">Vision</span>
+</div>
+</div>
+<div class="flex items-center gap-3 mt-1">
+<span class="text-[12px] text-brand-mute">128K context</span>
+<span class="mono-text text-[12px] text-brand-mute">p95 720ms</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-brand-green"></div>
+<span class="text-[11px] font-semibold text-brand-mute uppercase tracking-tight">HIPAA Approved</span>
+</div>
+</div>
+<!-- Model Row: Pruned -->
+<div class="flex items-center h-16 border-b border-brand-hairline px-4 gap-4 opacity-50 grayscale bg-brand-hush/50">
+<div class="w-4 h-4 rounded-full border border-brand-hairline shrink-0"></div>
+<span class="material-symbols-outlined text-brand-mute">smart_toy</span>
+<div class="flex-1">
+<div class="flex items-center gap-3">
+<span class="text-sm font-[550] text-brand-operator line-through">GPT-3.5 Turbo</span>
+<span class="px-1.5 py-0.5 bg-brand-hairline text-brand-mute text-[10px] font-semibold uppercase tracking-wider rounded">Legacy</span>
+</div>
+<div class="flex items-center gap-3 mt-1">
+<span class="text-[12px] text-brand-mute">16K context</span>
+<span class="mono-text text-[12px] text-brand-mute">p95 180ms</span>
+</div>
+</div>
+<span class="text-[11px] font-medium text-brand-whisper line-through">Hidden — not zero-retention</span>
+</div>
+<!-- Model Row: Available -->
+<div class="flex items-center h-16 border-b border-brand-hairline px-4 gap-4 hover:bg-brand-hush/50 cursor-pointer transition-colors">
+<div class="w-4 h-4 rounded-full border border-brand-hairline shrink-0"></div>
+<span class="material-symbols-outlined text-brand-midnight">smart_toy</span>
+<div class="flex-1">
+<div class="flex items-center gap-3">
+<span class="text-sm font-[550] text-brand-operator">GPT-4 Turbo</span>
+<span class="px-1.5 py-0.5 bg-brand-hush text-brand-operator text-[10px] font-semibold uppercase tracking-wider rounded">Tool use</span>
+</div>
+<div class="flex items-center gap-3 mt-1">
+<span class="text-[12px] text-brand-mute">128K context</span>
+<span class="mono-text text-[12px] text-brand-mute">p95 1.2s</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-brand-green"></div>
+<span class="text-[11px] font-semibold text-brand-mute uppercase tracking-tight">HIPAA Approved</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Anthropic Section (Collapsed) -->
+<div class="border-t border-brand-hairline pt-4">
+<div class="flex items-center gap-2 py-2 cursor-pointer group">
+<span class="material-symbols-outlined text-brand-mute group-hover:text-brand-operator transition-transform">chevron_right</span>
+<span class="text-sm font-semibold text-brand-operator">Anthropic</span>
+<span class="text-xs text-brand-mute font-medium">· 3 models</span>
+</div>
+</div>
+<!-- Google Section (Collapsed) -->
+<div class="border-t border-brand-hairline pt-4">
+<div class="flex items-center gap-2 py-2 cursor-pointer group">
+<span class="material-symbols-outlined text-brand-mute group-hover:text-brand-operator transition-transform">chevron_right</span>
+<span class="text-sm font-semibold text-brand-operator">Google</span>
+<span class="text-xs text-brand-mute font-medium">· 2 models</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Temperature Slider Section -->
+<div class="max-w-2xl">
+<h3 class="text-lg font-headline font-semibold text-brand-midnight mb-8">Temperature</h3>
+<div class="relative px-2">
+<!-- Value Indicator -->
+<div class="absolute -top-8 left-[20%] -translate-x-1/2 mono-text text-sm font-semibold text-brand-teal bg-brand-teal/10 px-2 py-0.5 rounded">
+                        0.3
+                    </div>
+<!-- Slider -->
+<div class="relative h-4 flex items-center">
+<div class="absolute w-full h-1 bg-brand-hairline rounded-full"></div>
+<div class="absolute w-[20%] h-1 bg-brand-teal rounded-full"></div>
+<div class="absolute left-[20%] -translate-x-1/2 w-4 h-4 bg-brand-paper border-2 border-brand-teal rounded-full shadow-sm cursor-pointer"></div>
+</div>
+<div class="flex justify-between mt-3">
+<span class="mono-text text-[11px] text-brand-mute">0.0 (Stable)</span>
+<span class="mono-text text-[11px] text-brand-mute">1.5 (Creative)</span>
+</div>
+</div>
+<p class="mt-4 text-[12px] text-brand-mute">
+                    Lower = more deterministic. <span class="font-medium text-brand-operator">0.3</span> is recommended for booking workflows.
+                </p>
+</div>
+</div>
+</main>
+<!-- Sticky Save Bar -->
+<footer class="fixed bottom-0 left-56 right-0 h-16 bg-brand-paper border-t border-brand-hairline flex items-center justify-between px-8 z-40">
+<div class="text-[12px] text-brand-mute">
+            Unsaved changes — 2 fields modified
+        </div>
+<div class="flex items-center gap-3">
+<button class="h-9 px-4 text-sm font-medium text-brand-operator bg-brand-paper border border-brand-hairline rounded-lg hover:bg-brand-hush transition-colors">
+                Discard
+            </button>
+<button class="h-9 px-4 text-sm font-medium text-brand-paper bg-brand-teal rounded-lg hover:bg-brand-deepTeal transition-colors">
+                Save changes
+            </button>
+</div>
+</footer>
+</body></html>

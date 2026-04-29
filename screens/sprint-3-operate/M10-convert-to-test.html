@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;550;600&amp;family=Geist:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Geist', sans-serif; }
+        .mono { font-family: 'JetBrains+Mono', monospace; }
+        .small-caps { font-variant: all-small-caps; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        midnight: "#0B1220",
+                        operator: "#1F2937",
+                        mute: "#64748B",
+                        whisper: "#94A3B8",
+                        hush: "#F4F6FA",
+                        paper: "#FFFFFF",
+                        hairline: "#E2E6EF",
+                        softHairline: "#EEF1F6",
+                        signalTeal: "#0EA5A6",
+                        deepTeal: "#0F7A7B",
+                        liveCyan: "#22D3EE",
+                        bookedGreen: "#10B981",
+                        complianceAmber: "#F59E0B",
+                        riskCrimson: "#DC2626",
+                        auditIndigo: "#4F46E5",
+                        receiptGold: "#B89A4A"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        headline: ["Geist"],
+                        display: ["Geist"],
+                        body: ["Inter"],
+                        label: ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-hush text-midnight overflow-hidden">
+<!-- PLATFORM SHELL BACKGROUND -->
+<div class="flex h-screen w-full blur-sm">
+<!-- SideNavBar -->
+<aside class="w-[224px] h-screen border-r border-hairline bg-white flex flex-col py-6 sticky top-0 shrink-0">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 bg-midnight rounded flex items-center justify-center text-white font-bold">V</div>
+<div>
+<h1 class="text-xl font-semibold tracking-tight text-midnight">Vokari</h1>
+<p class="text-[10px] text-mute uppercase tracking-widest font-semibold">Operator Console</p>
+</div>
+</div>
+<button class="mt-6 w-full py-2 bg-signalTeal text-white text-sm font-medium rounded-lg hover:bg-deepTeal transition-colors">
+                    New Agent
+                </button>
+</div>
+<nav class="flex-1">
+<div class="flex items-center gap-3 px-4 py-2 border-l-4 border-signalTeal bg-hush text-midnight font-medium">
+<span class="material-symbols-outlined text-signalTeal">settings_input_component</span>
+<span class="text-sm">Configure</span>
+</div>
+<div class="flex items-center gap-3 px-4 py-2 text-mute hover:bg-hush transition-colors cursor-pointer">
+<span class="material-symbols-outlined">forum</span>
+<span class="text-sm">Operate</span>
+</div>
+<div class="flex items-center gap-3 px-4 py-2 text-mute hover:bg-hush transition-colors cursor-pointer">
+<span class="material-symbols-outlined">bar_chart</span>
+<span class="text-sm">Distribute</span>
+</div>
+<div class="flex items-center gap-3 px-4 py-2 text-mute hover:bg-hush transition-colors cursor-pointer">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="text-sm">Workspace</span>
+</div>
+</nav>
+<div class="mt-auto px-4 border-t border-hairline pt-4 space-y-1">
+<div class="flex items-center gap-3 px-4 py-2 text-mute hover:bg-hush transition-colors cursor-pointer">
+<span class="material-symbols-outlined">help</span>
+<span class="text-sm">Support</span>
+</div>
+<div class="flex items-center gap-3 px-4 py-2 text-mute hover:bg-hush transition-colors cursor-pointer">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm">Settings</span>
+</div>
+</div>
+</aside>
+<!-- Main Content Area Wrapper -->
+<div class="flex-1 flex flex-col overflow-hidden">
+<!-- TopNavBar -->
+<header class="h-[56px] w-full border-b border-hairline bg-white flex justify-between items-center px-8 z-50">
+<div class="flex items-center gap-8 h-full">
+<span class="text-lg font-bold tracking-tighter text-midnight">Vokari</span>
+<nav class="flex items-center gap-6 h-full text-sm font-medium">
+<a class="text-midnight border-b-2 border-signalTeal h-full flex items-center px-2" href="#">Dashboard</a>
+<a class="text-mute hover:text-midnight" href="#">Inventory</a>
+<a class="text-mute hover:text-midnight" href="#">Evaluation</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative">
+<span class="absolute inset-y-0 left-3 flex items-center text-mute">
+<span class="material-symbols-outlined text-sm">search</span>
+</span>
+<input class="pl-9 pr-4 py-1.5 bg-hush border-none rounded-lg text-sm w-64" placeholder="Search..." type="text"/>
+</div>
+<button class="px-3 py-1.5 border border-hairline rounded-md text-sm font-medium text-operator hover:bg-hush">Live Console</button>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-mute cursor-pointer">notifications</span>
+<div class="w-8 h-8 rounded-full bg-softHairline flex items-center justify-center text-xs font-bold text-operator">OP</div>
+</div>
+</div>
+</header>
+<!-- Background content mockup -->
+<main class="flex-1 p-8">
+<div class="grid grid-cols-12 gap-6">
+<div class="col-span-8 space-y-6">
+<div class="h-64 bg-white border border-hairline rounded-xl"></div>
+<div class="h-96 bg-white border border-hairline rounded-xl"></div>
+</div>
+<div class="col-span-4 space-y-6">
+<div class="h-48 bg-white border border-hairline rounded-xl"></div>
+<div class="h-48 bg-white border border-hairline rounded-xl"></div>
+</div>
+</div>
+</main>
+</div>
+</div>
+<!-- MODAL OVERLAY -->
+<div class="fixed inset-0 bg-midnight/60 flex items-center justify-center z-[100] backdrop-blur-sm">
+<!-- MODAL CONTAINER -->
+<div class="w-[720px] bg-paper rounded-[16px] border border-hairline shadow-[0_12px_32px_rgba(11,18,32,0.08)] flex flex-col max-h-[921px]">
+<!-- HEADER -->
+<div class="p-6 border-b border-hairline flex justify-between items-start">
+<div>
+<h2 class="text-[22px] leading-[28px] font-semibold text-operator -tracking-[0.01em]">Save this conversation as a test</h2>
+<p class="text-[12px] leading-[16px] text-mute mt-1">Vokari will replay it in your CI evals.</p>
+</div>
+<button class="text-mute hover:text-midnight transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- BODY (SCROLLABLE) -->
+<div class="p-6 overflow-y-auto space-y-6">
+<!-- Section 1: Transcript -->
+<section>
+<h3 class="text-[11px] font-semibold text-mute tracking-[0.08em] small-caps mb-3">CAPTURED CHAT HISTORY</h3>
+<div class="h-[240px] bg-hush rounded-lg p-4 overflow-y-auto space-y-4 border border-hairline/50">
+<!-- Turn 1 -->
+<div class="flex flex-col items-start gap-1">
+<span class="px-2 py-0.5 bg-signalTeal text-white text-[10px] font-bold rounded-full uppercase tracking-wider">Agent</span>
+<div class="bg-paper border border-hairline rounded-lg px-3 py-2 text-[13px] text-operator max-w-[90%] shadow-sm">
+                                Hola, gracias por llamar a HVAC Pro. ¿En qué puedo ayudarle hoy con su aire...
+                            </div>
+</div>
+<!-- Turn 2 -->
+<div class="flex flex-col items-end gap-1">
+<span class="px-2 py-0.5 bg-operator text-white text-[10px] font-bold rounded-full uppercase tracking-wider">Customer</span>
+<div class="bg-paper border border-hairline rounded-lg px-3 py-2 text-[13px] text-operator max-w-[90%] shadow-sm">
+                                Hola, mi unidad de aire acondicionado dejó de enfriar anoche. Necesito un...
+                            </div>
+</div>
+<!-- Turn 3 -->
+<div class="flex flex-col items-start gap-1">
+<span class="px-2 py-0.5 bg-signalTeal text-white text-[10px] font-bold rounded-full uppercase tracking-wider">Agent</span>
+<div class="bg-paper border border-hairline rounded-lg px-3 py-2 text-[13px] text-operator max-w-[90%] shadow-sm">
+                                Lamento escuchar eso. ¿Me podría dar su número de teléfono para verificar su...
+                            </div>
+</div>
+<!-- Turn 4 -->
+<div class="flex flex-col items-end gap-1">
+<span class="px-2 py-0.5 bg-operator text-white text-[10px] font-bold rounded-full uppercase tracking-wider">Customer</span>
+<div class="bg-paper border border-hairline rounded-lg px-3 py-2 text-[13px] text-operator max-w-[90%] shadow-sm">
+                                Sí, es el 480-555-0143. Mi nombre es María García. El aire solo sopla aire...
+                            </div>
+</div>
+<!-- Turn 5 -->
+<div class="flex flex-col items-start gap-1">
+<span class="px-2 py-0.5 bg-signalTeal text-white text-[10px] font-bold rounded-full uppercase tracking-wider">Agent</span>
+<div class="bg-paper border border-hairline rounded-lg px-3 py-2 text-[13px] text-operator max-w-[90%] shadow-sm">
+                                Gracias María. He encontrado su cuenta. Puedo programar una visita hoy a las...
+                            </div>
+</div>
+<!-- Turn 6 -->
+<div class="flex flex-col items-end gap-1">
+<span class="px-2 py-0.5 bg-operator text-white text-[10px] font-bold rounded-full uppercase tracking-wider">Customer</span>
+<div class="bg-paper border border-hairline rounded-lg px-3 py-2 text-[13px] text-operator max-w-[90%] shadow-sm">
+                                Perfecto, las 4 de la tarde me parece muy bien. Muchas gracias por la ayuda...
+                            </div>
+</div>
+</div>
+<button class="mt-2 text-[13px] font-medium text-signalTeal hover:underline flex items-center gap-1">
+                        View full transcript <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</section>
+<!-- Section 2: Tool Calls -->
+<section>
+<h3 class="text-[11px] font-semibold text-mute tracking-[0.08em] small-caps mb-3">CAPTURED TOOL CALLS</h3>
+<div class="h-[96px] bg-softHairline rounded-[6px] p-3 mono text-[12px] text-operator border border-hairline flex flex-col justify-between">
+<div class="flex items-center gap-2">
+<span class="text-mute shrink-0">→</span>
+<span class="truncate">search_customer({ phone: "+14805550143" })</span>
+<span class="text-bookedGreen font-bold ml-auto shrink-0">✓ 142ms</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-mute shrink-0">→</span>
+<span class="truncate">create_booking({ customer_id: "c_8a91", ... })</span>
+<span class="text-bookedGreen font-bold ml-auto shrink-0">✓ 380ms</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-mute shrink-0">→</span>
+<span class="truncate">send_sms_confirmation({ to: "...", template: "..." })</span>
+<span class="text-bookedGreen font-bold ml-auto shrink-0">✓ 220ms</span>
+</div>
+</div>
+</section>
+<!-- Section 3: Success Condition -->
+<section>
+<h3 class="text-[11px] font-semibold text-mute tracking-[0.08em] small-caps mb-3">SUGGESTED SUCCESS_CONDITION</h3>
+<div class="flex items-center gap-3">
+<div class="flex-1 h-[36px] bg-paper border border-hairline rounded-lg px-3 flex items-center mono text-[12px] text-operator overflow-hidden">
+                            booking_confirmed == true &amp;&amp; correct_service_area == true
+                        </div>
+<button class="text-sm font-medium text-signalTeal hover:underline shrink-0">Edit</button>
+</div>
+</section>
+<!-- Section 4: Settings -->
+<section class="grid grid-cols-2 gap-4">
+<div class="space-y-3">
+<div class="flex justify-between items-baseline">
+<h3 class="text-[18px] font-semibold text-midnight -tracking-[0.005em]">Save to folder</h3>
+<button class="text-xs font-medium text-signalTeal hover:underline">+ New folder</button>
+</div>
+<div class="relative">
+<select class="w-full h-[36px] bg-paper border border-hairline rounded-lg px-3 text-sm text-operator appearance-none focus:ring-2 focus:ring-signalTeal/15 focus:border-signalTeal outline-none cursor-pointer">
+<option>/ HVAC tests / inbound bookings</option>
+<option>/ HVAC tests / support calls</option>
+<option>/ Emergency / after-hours</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1.5 text-mute pointer-events-none">expand_more</span>
+</div>
+</div>
+<div class="space-y-3">
+<h3 class="text-[18px] font-semibold text-midnight -tracking-[0.005em]">Test name</h3>
+<input class="w-full h-[36px] bg-paper border border-hairline rounded-lg px-3 text-sm text-operator focus:ring-2 focus:ring-signalTeal/15 focus:border-signalTeal outline-none" type="text" value="HVAC inbound · Spanish · booked"/>
+</div>
+</section>
+</div>
+<!-- FOOTER -->
+<div class="p-4 border-t border-hairline flex justify-between items-center bg-hush/30 rounded-b-[16px]">
+<button class="px-4 py-2 text-sm font-medium text-mute hover:bg-hush rounded-lg transition-colors">
+                    Cancel
+                </button>
+<button class="px-6 py-2 h-[36px] bg-signalTeal text-white text-sm font-semibold rounded-[6px] hover:bg-deepTeal transition-all active:scale-[0.98]">
+                    Save as test
+                </button>
+</div>
+</div>
+</div>
+</body></html>

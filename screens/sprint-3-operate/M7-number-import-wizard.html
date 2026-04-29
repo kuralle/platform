@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vokari - Phone Import Wizard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;550;600&amp;family=Geist:wght@600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            font-size: 24px;
+        }
+        .small-caps {
+            font-variant: small-caps;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F4F6FA;
+        }
+        .font-headline { font-family: 'Geist', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Custom Checkbox Reset for Signal Teal */
+        input[type="checkbox"] {
+            color: #0EA5A6;
+            border-color: #E2E6EF;
+            border-radius: 4px;
+        }
+        input[type="checkbox"]:focus {
+            ring-color: #0EA5A6;
+            outline-color: #0EA5A6;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        'midnight-signal': '#0B1220',
+                        'operator-slate': '#1F2937',
+                        'mute-slate': '#64748B',
+                        'whisper-slate': '#94A3B8',
+                        'hush-mist': '#F4F6FA',
+                        'paper-white': '#FFFFFF',
+                        'hairline': '#E2E6EF',
+                        'soft-hairline': '#EEF1F6',
+                        'signal-teal': '#0EA5A6',
+                        'deep-teal': '#0F7A7B',
+                        'audit-indigo': '#4F46E5'
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.25rem',
+                        'lg': '0.5rem',
+                        'xl': '0.75rem',
+                        'full': '9999px'
+                    },
+                    fontFamily: {
+                        'headline': ['Geist'],
+                        'body': ['Inter'],
+                        'mono': ['JetBrains Mono']
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-midnight-signal/60 flex items-center justify-center min-h-screen p-4">
+<!-- Modal Backdrop is the Body in this centered view -->
+<div class="w-full max-w-[720px] bg-paper-white rounded-xl border border-hairline shadow-[0_12px_32px_rgba(11,18,32,0.08)] overflow-hidden">
+<!-- Header -->
+<div class="px-6 py-6 border-b border-hairline flex justify-between items-start">
+<div>
+<h2 class="text-[22px] leading-[28px] font-headline font-semibold text-midnight-signal tracking-[-1%]">Import a phone number</h2>
+<p class="text-[12px] leading-[16px] text-mute-slate mt-1">Choose your transport. Each path takes under 2 minutes.</p>
+</div>
+<button class="text-mute-slate hover:text-operator-slate transition-colors">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+<!-- Body -->
+<div class="p-6 space-y-8">
+<!-- Transport Cards Row -->
+<div class="grid grid-cols-3 gap-4">
+<!-- Card 1 (Selected) -->
+<button class="h-[160px] p-4 text-left border-2 border-signal-teal rounded-lg bg-paper-white flex flex-col justify-between group transition-all">
+<div>
+<span class="material-symbols-outlined text-signal-teal mb-3" data-icon="hub">hub</span>
+<div class="text-operator-slate font-semibold text-sm">Twilio Native</div>
+<div class="text-mute-slate text-[12px] leading-[16px] mt-1">Vokari finds your numbers automatically</div>
+</div>
+<div class="flex justify-end">
+<span class="material-symbols-outlined text-signal-teal text-sm" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</button>
+<!-- Card 2 -->
+<button class="h-[160px] p-4 text-left border border-hairline rounded-lg bg-paper-white flex flex-col justify-between hover:bg-hush-mist transition-colors">
+<div>
+<span class="material-symbols-outlined text-mute-slate mb-3" data-icon="account_balance_wallet">account_balance_wallet</span>
+<div class="text-operator-slate font-semibold text-sm">BYO Twilio</div>
+<div class="text-mute-slate text-[12px] leading-[16px] mt-1">Bring your account credentials</div>
+</div>
+</button>
+<!-- Card 3 -->
+<button class="h-[160px] p-4 text-left border border-hairline rounded-lg bg-paper-white flex flex-col justify-between hover:bg-hush-mist transition-colors">
+<div>
+<span class="material-symbols-outlined text-mute-slate mb-3" data-icon="settings_input_component">settings_input_component</span>
+<div class="text-operator-slate font-semibold text-sm">SIP</div>
+<div class="text-mute-slate text-[12px] leading-[16px] mt-1">Custom transport + auth + region</div>
+</div>
+</button>
+</div>
+<!-- Discovered Numbers Section -->
+<div class="space-y-3">
+<h3 class="text-[11px] font-headline font-semibold uppercase tracking-[0.08em] text-mute-slate">DISCOVERED NUMBERS · 5 found</h3>
+<div class="border border-hairline rounded-lg bg-paper-white overflow-hidden">
+<!-- Row 1 (Checked) -->
+<div class="flex items-center px-4 h-[48px] border-b border-hairline hover:bg-hush-mist/50 transition-colors">
+<input checked="" class="w-4 h-4 text-signal-teal border-hairline rounded focus:ring-signal-teal" type="checkbox"/>
+<div class="ml-4 font-mono text-sm text-operator-slate">+1 (480) 555-0173</div>
+<div class="ml-4 text-[12px] text-mute-slate">US-Phoenix</div>
+<div class="ml-auto flex gap-1.5">
+<span class="px-2 py-0.5 bg-hush-mist text-mute-slate text-[11px] font-semibold rounded-full small-caps">Voice</span>
+<span class="px-2 py-0.5 bg-hush-mist text-mute-slate text-[11px] font-semibold rounded-full small-caps">SMS</span>
+<span class="px-2 py-0.5 bg-hush-mist text-mute-slate text-[11px] font-semibold rounded-full small-caps">MMS</span>
+</div>
+</div>
+<!-- Row 2 (Checked) -->
+<div class="flex items-center px-4 h-[48px] border-b border-hairline hover:bg-hush-mist/50 transition-colors">
+<input checked="" class="w-4 h-4 text-signal-teal border-hairline rounded focus:ring-signal-teal" type="checkbox"/>
+<div class="ml-4 font-mono text-sm text-operator-slate">+1 (480) 555-0199</div>
+<div class="ml-4 text-[12px] text-mute-slate">US-Phoenix</div>
+<div class="ml-auto flex gap-1.5">
+<span class="px-2 py-0.5 bg-hush-mist text-mute-slate text-[11px] font-semibold rounded-full small-caps">Voice</span>
+<span class="px-2 py-0.5 bg-hush-mist text-mute-slate text-[11px] font-semibold rounded-full small-caps">SMS</span>
+</div>
+</div>
+<!-- Row 3 -->
+<div class="flex items-center px-4 h-[48px] border-b border-hairline hover:bg-hush-mist/50 transition-colors">
+<input class="w-4 h-4 text-signal-teal border-hairline rounded focus:ring-signal-teal" type="checkbox"/>
+<div class="ml-4 font-mono text-sm text-operator-slate">+1 (602) 555-0142</div>
+<div class="ml-4 text-[12px] text-mute-slate">US-Phoenix</div>
+<div class="ml-auto flex gap-1.5">
+<span class="px-2 py-0.5 bg-hush-mist text-mute-slate text-[11px] font-semibold rounded-full small-caps">Voice</span>
+<span class="px-2 py-0.5 bg-hush-mist text-mute-slate text-[11px] font-semibold rounded-full small-caps">SMS</span>
+</div>
+</div>
+<!-- Row 4 -->
+<div class="flex items-center px-4 h-[48px] border-b border-hairline hover:bg-hush-mist/50 transition-colors">
+<input class="w-4 h-4 text-signal-teal border-hairline rounded focus:ring-signal-teal" type="checkbox"/>
+<div class="ml-4 font-mono text-sm text-operator-slate">+1 (602) 555-0158</div>
+<div class="ml-4 text-[12px] text-mute-slate">US-Phoenix</div>
+<div class="ml-auto flex gap-1.5">
+<span class="px-2 py-0.5 bg-hush-mist text-mute-slate text-[11px] font-semibold rounded-full small-caps">Voice</span>
+</div>
+</div>
+<!-- Row 5 -->
+<div class="flex items-center px-4 h-[48px] hover:bg-hush-mist/50 transition-colors">
+<input class="w-4 h-4 text-signal-teal border-hairline rounded focus:ring-signal-teal" type="checkbox"/>
+<div class="ml-4 font-mono text-sm text-operator-slate">+1 (520) 555-0111</div>
+<div class="ml-4 text-[12px] text-mute-slate">US-Tucson</div>
+<div class="ml-auto flex gap-1.5">
+<span class="px-2 py-0.5 bg-hush-mist text-mute-slate text-[11px] font-semibold rounded-full small-caps">Voice</span>
+<span class="px-2 py-0.5 bg-hush-mist text-mute-slate text-[11px] font-semibold rounded-full small-caps">SMS</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<div class="px-4 py-4 border-t border-hairline flex justify-between items-center">
+<button class="px-4 h-[36px] text-sm font-semibold text-operator-slate hover:bg-hush-mist rounded-md transition-colors">
+                Cancel
+            </button>
+<button class="px-4 h-[36px] bg-signal-teal hover:bg-deep-teal text-white text-sm font-semibold rounded-md shadow-sm transition-all active:scale-[0.98]">
+                Import 2 numbers
+            </button>
+</div>
+</div>
+</body></html>

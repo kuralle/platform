@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;550;600&amp;family=Geist:wght@600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        'midnight-signal': '#0B1220',
+                        'operator-slate': '#1F2937',
+                        'mute-slate': '#64748B',
+                        'whisper-slate': '#94A3B8',
+                        'hush-mist': '#F4F6FA',
+                        'paper-white': '#FFFFFF',
+                        'hairline': '#E2E6EF',
+                        'soft-hairline': '#EEF1F6',
+                        'signal-teal': '#0EA5A6',
+                        'deep-teal': '#0F7A7B',
+                        'live-cyan': '#22D3EE',
+                        'booked-green': '#10B981',
+                        'compliance-amber': '#F59E0B',
+                        'risk-crimson': '#DC2626',
+                        'audit-indigo': '#4F46E5',
+                        'receipt-gold': '#B89A4A'
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.25rem',
+                        'lg': '0.5rem',
+                        'xl': '0.75rem',
+                        '2xl': '1rem',
+                        'full': '9999px'
+                    },
+                    fontFamily: {
+                        'headline': ['Geist', 'sans-serif'],
+                        'display': ['Geist', 'sans-serif'],
+                        'body': ['Inter', 'sans-serif'],
+                        'label': ['Inter', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-size: 18px;
+        }
+        .small-caps {
+            font-variant: all-small-caps;
+        }
+    </style>
+</head>
+<body class="bg-hush-mist font-body text-operator-slate antialiased">
+<!-- Background Content (Dashboard View) -->
+<div class="fixed inset-0 overflow-hidden pointer-events-none grayscale-[0.2] opacity-40 blur-sm">
+<!-- TopAppBar Placeholder -->
+<header class="bg-white border-b border-hairline h-[56px] flex items-center px-8 w-full">
+<div class="text-xl font-semibold tracking-tight text-midnight-signal">Vokari</div>
+<div class="ml-12 flex space-x-8 h-full">
+<div class="text-mute-slate h-full flex items-center px-4">Configure</div>
+<div class="text-signal-teal border-b-2 border-signal-teal h-full flex items-center px-4 font-semibold">Operate</div>
+<div class="text-mute-slate h-full flex items-center px-4">Distribute</div>
+<div class="text-mute-slate h-full flex items-center px-4">Workspace</div>
+</div>
+</header>
+<!-- Main Dashboard Content -->
+<main class="p-8 max-w-[1280px] mx-auto grid grid-cols-12 gap-6">
+<div class="col-span-12 h-48 bg-white border border-hairline rounded-xl p-6">
+<div class="h-4 w-32 bg-hush-mist rounded mb-4"></div>
+<div class="h-32 w-full bg-hush-mist/50 rounded"></div>
+</div>
+<div class="col-span-4 h-64 bg-white border border-hairline rounded-xl p-6"></div>
+<div class="col-span-4 h-64 bg-white border border-hairline rounded-xl p-6"></div>
+<div class="col-span-4 h-64 bg-white border border-hairline rounded-xl p-6"></div>
+</main>
+</div>
+<!-- Modal Backdrop -->
+<div class="fixed inset-0 bg-midnight-signal/60 z-50 flex items-center justify-center p-4">
+<!-- M2 Compliance status modal -->
+<div class="bg-paper-white w-full max-w-[640px] rounded-2xl shadow-[0_12px_32px_rgba(11,18,32,0.08)] border border-hairline flex flex-col overflow-hidden">
+<!-- Header -->
+<div class="px-6 py-6 border-b border-hairline flex justify-between items-start">
+<div>
+<h2 class="text-[22px] font-headline font-semibold text-midnight-signal leading-7 -tracking-[1%]">Compliance posture</h2>
+<p class="text-[12px] font-body text-mute-slate mt-1">Workspace · Production · US-East</p>
+</div>
+<button class="text-whisper-slate hover:text-operator-slate transition-colors">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+<!-- Body -->
+<div class="p-6 space-y-3 max-h-[716px] overflow-y-auto">
+<!-- HIPAA Tile (Active) -->
+<div class="bg-paper-white border border-hairline rounded-xl p-4">
+<div class="flex justify-between items-center mb-4">
+<span class="text-[11px] font-semibold text-mute-slate tracking-[0.08em] small-caps">HIPAA</span>
+<div class="flex items-center space-x-2 px-2.5 py-1 bg-booked-green/10 rounded-full border border-booked-green/20">
+<div class="w-2 h-2 rounded-full bg-booked-green"></div>
+<span class="text-[10px] font-semibold text-booked-green small-caps">Active</span>
+</div>
+</div>
+<div class="mb-3">
+<p class="text-[13px] font-medium text-operator-slate">4 of 4 requirements met</p>
+</div>
+<div class="space-y-2">
+<div class="flex items-center space-x-3 text-[13px] text-operator-slate">
+<span class="material-symbols-outlined text-booked-green" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>Zero-retention LLM configured</span>
+</div>
+<div class="flex items-center space-x-3 text-[13px] text-operator-slate">
+<span class="material-symbols-outlined text-booked-green" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>Signed BAA on file</span>
+</div>
+<div class="flex items-center space-x-3 text-[13px] text-operator-slate">
+<span class="material-symbols-outlined text-booked-green" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>PHI redaction layer enabled</span>
+</div>
+<div class="flex items-center space-x-3 text-[13px] text-operator-slate">
+<span class="material-symbols-outlined text-booked-green" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>Admin audit logging active</span>
+</div>
+</div>
+</div>
+<!-- FERPA Tile (Inactive) -->
+<div class="bg-paper-white border border-hairline rounded-xl p-4">
+<div class="flex justify-between items-center mb-2">
+<span class="text-[11px] font-semibold text-mute-slate tracking-[0.08em] small-caps">FERPA</span>
+<div class="flex items-center space-x-2 px-2.5 py-1 bg-whisper-slate/10 rounded-full border border-whisper-slate/20">
+<div class="w-2 h-2 rounded-full bg-whisper-slate"></div>
+<span class="text-[10px] font-semibold text-whisper-slate small-caps">Inactive</span>
+</div>
+</div>
+<p class="text-[13px] text-mute-slate italic">Not applicable to this workspace's vertical</p>
+</div>
+<!-- TCPA Tile (Action Required) -->
+<div class="bg-paper-white border border-hairline rounded-xl p-4">
+<div class="flex justify-between items-center mb-4">
+<span class="text-[11px] font-semibold text-mute-slate tracking-[0.08em] small-caps">TCPA</span>
+<div class="flex items-center space-x-2 px-2.5 py-1 bg-compliance-amber/10 rounded-full border border-compliance-amber/20">
+<div class="w-2 h-2 rounded-full bg-compliance-amber"></div>
+<span class="text-[10px] font-semibold text-compliance-amber small-caps">Action required</span>
+</div>
+</div>
+<div class="mb-3">
+<p class="text-[13px] font-medium text-operator-slate">3 of 4 met</p>
+</div>
+<div class="space-y-2">
+<div class="flex items-center space-x-3 text-[13px] text-operator-slate">
+<span class="material-symbols-outlined text-booked-green" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>Do Not Call list sync active</span>
+</div>
+<div class="flex items-center space-x-3 text-[13px] text-operator-slate">
+<span class="material-symbols-outlined text-booked-green" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>Restricted hours enforced</span>
+</div>
+<div class="flex items-center space-x-3 text-[13px] text-operator-slate">
+<span class="material-symbols-outlined text-booked-green" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>Manual opt-out overrides enabled</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center space-x-3 text-[13px] text-operator-slate">
+<span class="material-symbols-outlined text-risk-crimson" data-icon="cancel" style="font-variation-settings: 'FILL' 1;">cancel</span>
+<span>Disclosure not attached to outbound batches</span>
+</div>
+<a class="text-signal-teal font-medium text-[13px] hover:underline" href="#">Fix</a>
+</div>
+</div>
+</div>
+<!-- EU-AI-ACT Tile (Inactive) -->
+<div class="bg-paper-white border border-hairline rounded-xl p-4">
+<div class="flex justify-between items-center mb-2">
+<span class="text-[11px] font-semibold text-mute-slate tracking-[0.08em] small-caps">EU-AI-Act</span>
+<div class="flex items-center space-x-2 px-2.5 py-1 bg-whisper-slate/10 rounded-full border border-whisper-slate/20">
+<div class="w-2 h-2 rounded-full bg-whisper-slate"></div>
+<span class="text-[10px] font-semibold text-whisper-slate small-caps">Inactive</span>
+</div>
+</div>
+<p class="text-[13px] text-mute-slate italic">Not applicable for US-only workspace</p>
+</div>
+</div>
+<!-- Footer -->
+<div class="px-6 py-4 border-t border-hairline flex items-center justify-between">
+<a class="text-signal-teal font-medium text-[14px] hover:underline flex items-center" href="#">
+                    View full posture page <span class="material-symbols-outlined ml-1 text-sm">arrow_forward</span>
+</a>
+<button class="bg-signal-teal hover:bg-deep-teal text-white h-[36px] px-6 rounded-lg text-[14px] font-medium transition-all active:scale-95 active:opacity-80">
+                    Done
+                </button>
+</div>
+</div>
+</div>
+</body></html>
