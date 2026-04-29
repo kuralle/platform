@@ -832,15 +832,6 @@ function NodeInspector({
                 className="font-mono text-[12px]"
               />
             </Field>
-            <Field>
-              <FieldLabel>Generated Zod schema</FieldLabel>
-              <pre className="overflow-auto rounded-md border bg-muted/40 p-3 font-mono text-[11px] leading-relaxed">
-                {buildZodSchema(node.data.extraction.fields)}
-              </pre>
-              <p className="mt-1 text-[11px] text-muted-foreground">
-                Auto-derived from the field list above. Edit the fields to change the schema.
-              </p>
-            </Field>
           </>
         )}
 
