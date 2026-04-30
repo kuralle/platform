@@ -371,6 +371,7 @@ function ModelsTab() {
           </>
         )}
 
+        {/* Hidden until we wire the audio pipeline.
         <section>
           <Eyebrow>Noise cancellation</Eyebrow>
           <h2 className="mt-1 font-display text-[18px] font-semibold">Clean up the caller's audio</h2>
@@ -408,6 +409,7 @@ function ModelsTab() {
             </Select>
           </Field>
         </section>
+        */}
       </div>
     </AgentEditorShell>
   );
