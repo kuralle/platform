@@ -85,7 +85,7 @@ function ComplianceTab() {
         setRedactionChips(original.chips);
       }}
     >
-      <div className="mx-auto flex max-w-4xl flex-col gap-6">
+      <div className="flex flex-col gap-6">
         <Card className="p-6">
           <Eyebrow>Compliance mode</Eyebrow>
           <h2 className="mt-1 font-display text-[20px] font-semibold">Pick the regulation that governs this agent.</h2>

@@ -63,7 +63,7 @@ function VoiceTab() {
         setWarmth(original.warmth);
       }}
     >
-      <div className="mx-auto flex max-w-5xl flex-col gap-6">
+      <div className="flex flex-col gap-6">
         {multilingual && (
           <Alert className="border-amber-500/30 bg-amber-500/8 text-foreground">
             <Languages />

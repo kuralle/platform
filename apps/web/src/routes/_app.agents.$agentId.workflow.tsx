@@ -22,7 +22,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import {
   ArrowRightLeft,
   ClipboardList,
+  GitBranch,
   GripVertical,
+  MessageSquare,
   Phone,
   PhoneOff,
   Play,
@@ -382,10 +384,52 @@ function sampleNodes(): NodeType<NodeData>[] {
   ];
 }
 
-const DEFAULT_FLOW_META: FlowMeta = {
+const SAMPLE_FLOW_META: FlowMeta = {
   globalPrompt: "You are a friendly receptionist at a medical clinic.",
   mode: "strict",
 };
+
+const EMPTY_FLOW_META: FlowMeta = {
+  globalPrompt: "",
+  mode: "strict",
+};
+
+function blankNodes(): NodeType<NodeData>[] {
+  return [
+    {
+      id: "start",
+      type: "workflow",
+      position: { x: 200, y: 200 },
+      data: {
+        kind: "subagent",
+        title: "Start",
+        description: "First phase of the conversation. Edit the prompt to set the goal.",
+        prompt: "Greet the caller and find out what they need.",
+        contextStrategy: "append",
+        addGlobalPrompt: true,
+      },
+    },
+    {
+      id: "end",
+      type: "workflow",
+      position: { x: 600, y: 200 },
+      data: {
+        kind: "end",
+        title: "End call",
+        description: "Graceful termination + post-call webhooks.",
+        endReason: "completed",
+      },
+    },
+  ];
+}
+
+function blankEdges(): EdgeType<EdgeData>[] {
+  return [
+    makeAnimatedEdge("e-start-end", "start", "end", {
+      conditionType: "none",
+    }),
+  ];
+}
 
 function sampleEdges(): EdgeType<EdgeData>[] {
   return [
@@ -424,9 +468,9 @@ function WorkflowTab() {
   const agents = useMemo(() => makeAgents(10), []);
   const seed = agents.find((a) => a.id === agentId) ?? agents[0]!;
 
-  const [nodes, setNodes] = useState<NodeType<NodeData>[]>(() => sampleNodes());
-  const [edges, setEdges] = useState<EdgeType<EdgeData>[]>(() => sampleEdges());
-  const [flowMeta, setFlowMeta] = useState<FlowMeta>(DEFAULT_FLOW_META);
+  const [nodes, setNodes] = useState<NodeType<NodeData>[]>([]);
+  const [edges, setEdges] = useState<EdgeType<EdgeData>[]>([]);
+  const [flowMeta, setFlowMeta] = useState<FlowMeta>(EMPTY_FLOW_META);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
 
@@ -478,9 +522,9 @@ function WorkflowTab() {
     setSelectedEdgeId(null);
   }
 
-  const [originalNodes] = useState(() => sampleNodes());
-  const [originalEdges] = useState(() => sampleEdges());
-  const [originalMeta] = useState<FlowMeta>(DEFAULT_FLOW_META);
+  const [originalNodes, setOriginalNodes] = useState<NodeType<NodeData>[]>([]);
+  const [originalEdges, setOriginalEdges] = useState<EdgeType<EdgeData>[]>([]);
+  const [originalMeta, setOriginalMeta] = useState<FlowMeta>(EMPTY_FLOW_META);
   const dirty =
     nodes.length !== originalNodes.length ||
     edges.length !== originalEdges.length ||
@@ -490,9 +534,33 @@ function WorkflowTab() {
   const changes = dirty ? 1 : 0;
 
   function reset() {
+    setNodes(originalNodes);
+    setEdges(originalEdges);
+    setFlowMeta(originalMeta);
+    setSelectedNodeId(null);
+    setSelectedEdgeId(null);
+  }
+
+  function startBlank() {
+    setNodes(blankNodes());
+    setEdges(blankEdges());
+    setFlowMeta(EMPTY_FLOW_META);
+    setSelectedNodeId(null);
+    setSelectedEdgeId(null);
+  }
+
+  function startFromSample() {
     setNodes(sampleNodes());
     setEdges(sampleEdges());
-    setFlowMeta(DEFAULT_FLOW_META);
+    setFlowMeta(SAMPLE_FLOW_META);
+    setSelectedNodeId(null);
+    setSelectedEdgeId(null);
+  }
+
+  function clearWorkflow() {
+    setNodes([]);
+    setEdges([]);
+    setFlowMeta(EMPTY_FLOW_META);
     setSelectedNodeId(null);
     setSelectedEdgeId(null);
   }
@@ -531,6 +599,9 @@ function WorkflowTab() {
       onSave={() => undefined}
       onDiscard={reset}
     >
+      {nodes.length === 0 ? (
+        <EmptyWorkflowState onStartBlank={startBlank} onStartFromSample={startFromSample} />
+      ) : (
       <div className="-mx-8 -my-8 grid h-[calc(100svh-3.5rem-4rem-105px)] grid-cols-[1fr_360px]">
         <div className="relative">
           <ReactFlow
@@ -611,11 +682,89 @@ function WorkflowTab() {
               onChange={setFlowMeta}
               nodeCount={nodes.length}
               edgeCount={edges.length}
+              onClear={clearWorkflow}
             />
           )}
         </aside>
       </div>
+      )}
     </AgentEditorShell>
+  );
+}
+
+function EmptyWorkflowState({
+  onStartBlank,
+  onStartFromSample,
+}: {
+  onStartBlank: () => void;
+  onStartFromSample: () => void;
+}) {
+  return (
+    <div className="-mx-8 -my-8 flex min-h-[calc(100svh-3.5rem-4rem-105px)] items-center justify-center bg-muted/20 p-8">
+      <div className="grid w-full max-w-3xl gap-6">
+        <div className="grid gap-2 text-center">
+          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full border bg-background text-muted-foreground">
+            <GitBranch size={18} />
+          </div>
+          <h2 className="font-display text-[20px] font-semibold tracking-tight">
+            No workflow yet
+          </h2>
+          <p className="mx-auto max-w-md text-[13px] leading-relaxed text-muted-foreground">
+            This agent runs open-ended on the system prompt from the{" "}
+            <span className="font-medium text-foreground">Behavior</span> tab. Add a
+            workflow when the agent must complete steps in order — collect info,
+            confirm, dispatch tools, transfer.
+          </p>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <button
+            onClick={onStartBlank}
+            className="group grid gap-2 rounded-lg border bg-card p-5 text-left transition hover:border-primary/40 hover:bg-card/80"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex h-8 w-8 items-center justify-center rounded-md border bg-background">
+                <MessageSquare size={14} />
+              </div>
+              <Badge variant="outline" className="text-[10px] uppercase tracking-wide">
+                Blank
+              </Badge>
+            </div>
+            <div className="mt-1 text-[14px] font-semibold tracking-tight">
+              Start blank
+            </div>
+            <div className="text-[12px] leading-relaxed text-muted-foreground">
+              One Subagent node connected to End. Build it up phase by phase.
+            </div>
+          </button>
+
+          <button
+            onClick={onStartFromSample}
+            className="group grid gap-2 rounded-lg border bg-card p-5 text-left transition hover:border-primary/40 hover:bg-card/80"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex h-8 w-8 items-center justify-center rounded-md border bg-background">
+                <ClipboardList size={14} />
+              </div>
+              <Badge variant="outline" className="text-[10px] uppercase tracking-wide">
+                Sample
+              </Badge>
+            </div>
+            <div className="mt-1 text-[14px] font-semibold tracking-tight">
+              Medical-clinic intake
+            </div>
+            <div className="text-[12px] leading-relaxed text-muted-foreground">
+              Greeting → extraction (name / phone / reason) → confirm → end, with
+              an LLM-conditioned escalation branch.
+            </div>
+          </button>
+        </div>
+
+        <div className="text-center text-[11px] text-muted-foreground">
+          Saving with no workflow keeps the agent open-ended.
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -1077,11 +1226,13 @@ function FlowSettingsInspector({
   onChange,
   nodeCount,
   edgeCount,
+  onClear,
 }: {
   meta: FlowMeta;
   onChange: (next: FlowMeta) => void;
   nodeCount: number;
   edgeCount: number;
+  onClear: () => void;
 }) {
   return (
     <>
@@ -1130,6 +1281,15 @@ function FlowSettingsInspector({
             {nodeCount} node{nodeCount === 1 ? "" : "s"} · {edgeCount} edge{edgeCount === 1 ? "" : "s"}
           </div>
         </div>
+        <button
+          onClick={onClear}
+          className="rounded-md border border-destructive/30 bg-background px-3 py-2 text-left text-[12px] text-destructive transition hover:bg-destructive/5"
+        >
+          <div className="font-semibold">Remove workflow</div>
+          <div className="mt-0.5 text-[11px] text-destructive/80">
+            Clears every node and returns the agent to open-ended mode.
+          </div>
+        </button>
       </div>
     </>
   );

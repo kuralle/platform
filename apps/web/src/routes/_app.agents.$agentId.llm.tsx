@@ -74,7 +74,7 @@ function LlmTab() {
         setTemperature(original.temperature);
       }}
     >
-      <div className="mx-auto flex max-w-4xl flex-col gap-6">
+      <div className="flex flex-col gap-6">
         {hipaaMode && (
           <Alert variant="destructive" className="border-amber-500/30 bg-amber-500/8 text-foreground">
             <ShieldAlert />
