@@ -59,7 +59,7 @@ function BehaviorTab() {
       onSave={() => undefined}
       onDiscard={reset}
     >
-      <div className="mx-auto grid max-w-3xl gap-6">
+      <div className="grid gap-6">
         <Card className="p-6">
           <Eyebrow>Identity</Eyebrow>
           <h2 className="mt-1 font-display text-[18px] font-semibold">First message + description</h2>
