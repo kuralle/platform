@@ -10,6 +10,32 @@ export type ComplianceMode = "none" | "hipaa" | "ferpa" | "tcpa";
 
 export type AgentStatus = "live" | "paused" | "draft" | "archived";
 
+/** STT-LLM-TTS pipeline = three swappable models in sequence.
+ *  Realtime = a single multimodal model handles both reasoning and speech. */
+export type PipelineMode = "stt-llm-tts" | "realtime";
+
+export type ReasoningEffort = "low" | "medium" | "high";
+
+export interface AgentTtsConfig {
+  model: string;
+  voiceId: string;
+  voiceName: string;
+  language: string;
+}
+
+export interface AgentSttConfig {
+  model: string;
+  language: string;
+}
+
+export interface AgentRealtimeConfig {
+  model: string;
+  voiceId: string;
+  voiceName: string;
+  /** Some realtime providers require the user's own API key (xAI, OpenAI). */
+  requiresByokSecret?: string;
+}
+
 export interface Agent {
   id: string;
   name: string;
@@ -35,6 +61,16 @@ export interface Agent {
   /** Maximum tool-call iterations before the agent must yield to the user.
    *  Maps to AriaFlow's `Agent.maxSteps`. */
   maxSteps: number;
+
+  /** "Models & Voice" tab state — modelled on LiveKit's pipeline-mode toggle. */
+  pipelineMode: PipelineMode;
+  reasoningEffort: ReasoningEffort;
+  tts: AgentTtsConfig;
+  stt: AgentSttConfig;
+  realtime: AgentRealtimeConfig;
+  /** Audio-pipeline accessories (apply in both pipeline modes). */
+  noiseCancellation: string;
+  backgroundAudio: string;
 }
 
 export type ConversationOutcome =

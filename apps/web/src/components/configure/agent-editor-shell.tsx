@@ -13,8 +13,7 @@ import { AgentTestDrawer } from "./agent-test-drawer";
 
 const TABS = [
   { slug: "behavior", label: "Behavior" },
-  { slug: "llm", label: "LLM" },
-  { slug: "voice", label: "Voice" },
+  { slug: "models", label: "Models & Voice" },
   { slug: "knowledge", label: "Knowledge" },
   { slug: "workflow", label: "Workflow" },
   { slug: "compliance", label: "Compliance" },

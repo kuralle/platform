@@ -66,6 +66,25 @@ export function makeAgents(count = 10, vertical = "home-services"): Agent[] {
       description:
         "Inbound dispatcher for HVAC operators. Triages emergency / routine / quote / info calls; books service windows; escalates to a human when a caller turns hostile.",
       maxSteps: 6,
+      pipelineMode: "stt-llm-tts",
+      reasoningEffort: "low",
+      tts: {
+        model: "cartesia-sonic-3",
+        voiceId: voice.id,
+        voiceName: voice.name,
+        language: voice.language,
+      },
+      stt: {
+        model: "deepgram-nova-3-monolingual",
+        language: "en",
+      },
+      realtime: {
+        model: "openai-realtime-2026-04",
+        voiceId: voice.id,
+        voiceName: voice.name,
+      },
+      noiseCancellation: "Quail VF L",
+      backgroundAudio: "None",
     } satisfies Agent;
   });
 }
