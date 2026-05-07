@@ -2,6 +2,7 @@ import { and, eq, isNull, desc } from "drizzle-orm";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import * as schema from "@kuralle/db/schema";
 import type { KvStore } from "@kuralle/platform/interface";
+import { WorkspaceScopeViolation } from "../errors.js";
 
 export interface KbDocument {
   id: string;
@@ -134,7 +135,11 @@ export class KbDocumentRepository {
         .limit(1);
 
       if (rows.length === 0) return null;
-      return toDomain(rows[0]!);
+      const row = rows[0]!;
+      if (row.workspaceId !== this.workspaceId) {
+        throw new WorkspaceScopeViolation("kb_document", row.id, this.workspaceId, row.workspaceId);
+      }
+      return toDomain(row);
     }, { ttlSeconds: 60 });
   }
 
@@ -178,6 +183,7 @@ export class KbDocumentRepository {
       .returning();
 
     if (!row) throw new Error("KbDocumentRepository.insert: no row returned");
+    await this.kv.delete(docCacheKey(this.workspaceId, row.id));
     return toDomain(row);
   }
 
@@ -218,7 +224,10 @@ export class KbDocumentRepository {
   async findChunkById(id: string): Promise<KbChunk | null> {
     return this.kv.getOrCompute(chunkCacheKey(this.workspaceId, id), async () => {
       const rows = await this.db
-        .select()
+        .select({
+          kb_chunks: schema.kbChunks,
+          doc_workspace_id: schema.kbDocuments.workspaceId,
+        })
         .from(schema.kbChunks)
         .innerJoin(
           schema.kbDocuments,
@@ -228,12 +237,22 @@ export class KbDocumentRepository {
           and(
             eq(schema.kbChunks.id, id),
             eq(schema.kbDocuments.workspaceId, this.workspaceId),
+            isNull(schema.kbDocuments.deletedAt),
           ),
         )
         .limit(1);
 
       if (rows.length === 0) return null;
-      return toChunkDomain(rows[0]!.kb_chunks);
+      const row = rows[0]!;
+      if (row.doc_workspace_id !== this.workspaceId) {
+        throw new WorkspaceScopeViolation(
+          "kb_chunk",
+          row.kb_chunks.id,
+          this.workspaceId,
+          row.doc_workspace_id,
+        );
+      }
+      return toChunkDomain(row.kb_chunks);
     }, { ttlSeconds: 60 });
   }
 
@@ -251,6 +270,7 @@ export class KbDocumentRepository {
       .returning();
 
     if (!row) throw new Error("KbDocumentRepository.insertChunk: no row returned");
+    await this.kv.delete(chunkCacheKey(this.workspaceId, row.id));
     return toChunkDomain(row);
   }
 }

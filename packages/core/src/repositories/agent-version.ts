@@ -1,8 +1,8 @@
-import { and, eq, desc } from "drizzle-orm";
+import { and, eq, isNull, desc } from "drizzle-orm";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import * as schema from "@kuralle/db/schema";
 import type { KvStore } from "@kuralle/platform/interface";
-import { AppendOnlyViolation } from "../errors.js";
+import { AppendOnlyViolation, WorkspaceScopeViolation } from "../errors.js";
 
 export interface AgentVersion {
   id: string;
@@ -71,19 +71,32 @@ export class AgentVersionRepository {
   async findById(id: string): Promise<AgentVersion | null> {
     return this.kv.getOrCompute(cacheKey(this.workspaceId, id), async () => {
       const rows = await this.db
-        .select()
+        .select({
+          agent_versions: schema.agentVersions,
+          agent_workspace_id: schema.agents.workspaceId,
+        })
         .from(schema.agentVersions)
         .innerJoin(schema.agents, eq(schema.agentVersions.agentId, schema.agents.id))
         .where(
           and(
             eq(schema.agentVersions.id, id),
             eq(schema.agents.workspaceId, this.workspaceId),
+            isNull(schema.agents.deletedAt),
           ),
         )
         .limit(1);
 
       if (rows.length === 0) return null;
-      return toDomain(rows[0]!.agent_versions);
+      const row = rows[0]!;
+      if (row.agent_workspace_id !== this.workspaceId) {
+        throw new WorkspaceScopeViolation(
+          "agent_version",
+          row.agent_versions.id,
+          this.workspaceId,
+          row.agent_workspace_id,
+        );
+      }
+      return toDomain(row.agent_versions);
     }, { ttlSeconds: 60 });
   }
 
@@ -97,7 +110,12 @@ export class AgentVersionRepository {
       .select({ agent_versions: schema.agentVersions })
       .from(schema.agentVersions)
       .innerJoin(schema.agents, eq(schema.agentVersions.agentId, schema.agents.id))
-      .where(eq(schema.agents.workspaceId, this.workspaceId))
+      .where(
+        and(
+          eq(schema.agents.workspaceId, this.workspaceId),
+          isNull(schema.agents.deletedAt),
+        ),
+      )
       .orderBy(desc(schema.agentVersions.publishedAt))
       .limit(limit);
 
@@ -116,12 +134,15 @@ export class AgentVersionRepository {
         changeSummary: input.changeSummary ?? null,
         changedFields: input.changedFields ?? [],
         publishedByUserId: input.publishedByUserId ?? null,
-        publishedAt: input.publishedAt ?? null,
+        // Omit publishedAt when undefined so the DB defaultNow() applies for publish
+        // rows. Auto-save callers explicitly set null when they want no timestamp.
+        ...(input.publishedAt !== undefined && { publishedAt: input.publishedAt }),
         snapshot: input.snapshot as Record<string, unknown>,
       })
       .returning();
 
     if (!row) throw new Error("AgentVersionRepository.insert: no row returned");
+    await this.kv.delete(cacheKey(this.workspaceId, row.id));
     return toDomain(row);
   }
 

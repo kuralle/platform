@@ -91,6 +91,22 @@ describe("AgentRepository", () => {
       expect(agent.status).toBe("draft");
       expect(agent.workspaceId).toBe(workspaceId);
     });
+
+    it("rejects PK collision with a Postgres unique-violation error", async () => {
+      // F4 representative failure-path test: inserting with a duplicate PK
+      // raises the underlying driver error (Postgres SQLSTATE 23505). Drizzle
+      // wraps the error in DrizzleQueryError; the unique-violation code lives
+      // on the .cause. We assert both the throw and the underlying SQLSTATE.
+      await repo.insert({ id: "ag_dup", status: "draft" });
+      try {
+        await repo.insert({ id: "ag_dup", status: "draft" });
+        expect.unreachable("expected duplicate-PK insert to throw");
+      } catch (e: unknown) {
+        expect(e).toBeInstanceOf(Error);
+        const cause = (e as Error & { cause?: { code?: string } }).cause;
+        expect(cause?.code).toBe("23505");
+      }
+    });
   });
 
   describe("update", () => {
@@ -119,6 +135,55 @@ describe("AgentRepository", () => {
       const second = await repo.findById("ag_cache_inv");
       expect(second).not.toBeNull();
       expect(second!.status).toBe("published");
+    });
+
+    it("findById trace: miss -> hit -> invalidation -> miss (kv compute counter)", async () => {
+      // F3: instrument the cache trace with a compute-call counter so
+      // miss/hit/invalidation transitions are explicit, not just "functionally
+      // correct end state". Wrap MemoryKvStore so we observe how often
+      // getOrCompute actually executes its compute callback.
+      let computeCalls = 0;
+      const inner = new MemoryKvStore();
+      const countingKv = {
+        get: <T>(k: string) => inner.get<T>(k),
+        set: <T>(k: string, v: T, opts?: { ttlSeconds?: number }) =>
+          inner.set<T>(k, v, opts),
+        delete: (k: string) => inner.delete(k),
+        getOrCompute: <T>(
+          k: string,
+          compute: () => Promise<T>,
+          opts?: { ttlSeconds?: number },
+        ) =>
+          inner.getOrCompute<T>(
+            k,
+            async () => {
+              computeCalls += 1;
+              return compute();
+            },
+            opts,
+          ),
+      };
+      const tracedRepo = new AgentRepository(db, workspaceId, countingKv);
+
+      await tracedRepo.insert({ id: "ag_trace", status: "draft" });
+
+      // (1) miss — first findById hits compute
+      const first = await tracedRepo.findById("ag_trace");
+      expect(first).not.toBeNull();
+      expect(computeCalls).toBe(1);
+
+      // (2) hit — second findById is served from cache; compute NOT called
+      const second = await tracedRepo.findById("ag_trace");
+      expect(second).not.toBeNull();
+      expect(computeCalls).toBe(1);
+
+      // (3) update invalidates the cache key
+      await tracedRepo.update("ag_trace", { status: "published" });
+
+      // (4) miss again — post-invalidation findById hits compute
+      const third = await tracedRepo.findById("ag_trace");
+      expect(third!.status).toBe("published");
+      expect(computeCalls).toBe(2);
     });
   });
 

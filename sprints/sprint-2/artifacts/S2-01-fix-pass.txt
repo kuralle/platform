@@ -1,0 +1,28 @@
+=== S2-01 fix-pass verification ===
+2026-05-07 21:57:18
+
+=== bun -F @kuralle/core test ===
+@kuralle/core test: 
+@kuralle/core test:  RUN  v4.1.5 /Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/core
+@kuralle/core test: 
+@kuralle/core test: 
+@kuralle/core test:  Test Files  6 passed (6)
+@kuralle/core test:       Tests  45 passed (45)
+@kuralle/core test:    Start at  21:57:19
+@kuralle/core test:    Duration  5.42s (transform 153ms, setup 0ms, import 1.82s, tests 2.96s, environment 0ms)
+@kuralle/core test: 
+@kuralle/core test: Exited with code 0
+
+=== bun run check-types ===
+
+ Tasks:    7 successful, 7 total
+Cached:    7 cached, 7 total
+  Time:    51ms >>> FULL TURBO
+
+
+=== bun run lint ===
+/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/env/src/web.ts
+  9:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 1 problem (0 errors, 1 warning)
+

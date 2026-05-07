@@ -2,6 +2,7 @@ import { and, eq, isNull, desc } from "drizzle-orm";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import * as schema from "@kuralle/db/schema";
 import type { KvStore } from "@kuralle/platform/interface";
+import { WorkspaceScopeViolation } from "../errors.js";
 
 export interface Tool {
   id: string;
@@ -95,7 +96,16 @@ export class ToolRepository {
         .limit(1);
 
       if (rows.length === 0) return null;
-      return toDomain(rows[0]!);
+      const row = rows[0]!;
+      if (row.workspaceId !== this.workspaceId) {
+        throw new WorkspaceScopeViolation(
+          "tool",
+          row.id,
+          this.workspaceId,
+          row.workspaceId ?? "<null>",
+        );
+      }
+      return toDomain(row);
     }, { ttlSeconds: 60 });
   }
 
@@ -139,6 +149,7 @@ export class ToolRepository {
       .returning();
 
     if (!row) throw new Error("ToolRepository.insert: no row returned");
+    await this.kv.delete(cacheKey(this.workspaceId, row.id));
     return toDomain(row);
   }
 
