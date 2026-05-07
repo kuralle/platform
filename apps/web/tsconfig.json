@@ -7,7 +7,10 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "skipLibCheck": true,
-    "types": ["vite/client"],
+    // @cloudflare/workers-types is required because @kuralle/api-client
+    // transitively resolves @kuralle/api → @kuralle/auth → @kuralle/env/server
+    // → "cloudflare:workers". Type-only; zero Vite runtime impact.
+    "types": ["vite/client", "@cloudflare/workers-types"],
     "rootDirs": ["."],
     "paths": {
       "@/*": ["./src/*"],

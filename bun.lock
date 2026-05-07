@@ -13,10 +13,10 @@
         "@cloudflare/workers-types": "catalog:",
         "@kuralle/config": "workspace:*",
         "@types/node": "catalog:",
-        "eslint": "^9.38.0",
+        "eslint": "^9.39.4",
         "turbo": "^2.8.12",
         "typescript": "catalog:",
-        "typescript-eslint": "^8.46.0",
+        "typescript-eslint": "^8.59.2",
       },
     },
     "apps/server": {
@@ -73,6 +73,7 @@
         "zod": "catalog:",
       },
       "devDependencies": {
+        "@cloudflare/workers-types": "catalog:",
         "@kuralle/config": "workspace:*",
         "@tanstack/react-query-devtools": "^5.91.1",
         "@tanstack/react-router-devtools": "^1.166.13",
