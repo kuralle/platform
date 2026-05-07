@@ -47,8 +47,8 @@ if (process.argv.includes("--check")) {
   } finally {
     try {
       unlinkSync(tmpPath);
-    } catch {
-      /* cleanup is best-effort */
+    } catch (err) {
+      console.warn(`failed to clean up temp file ${tmpPath}:`, err);
     }
   }
 } else {
