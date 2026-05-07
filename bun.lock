@@ -150,6 +150,22 @@
       "name": "@kuralle/config",
       "version": "0.0.0",
     },
+    "packages/core": {
+      "name": "@kuralle/core",
+      "version": "0.0.1",
+      "dependencies": {
+        "@kuralle/db": "workspace:*",
+        "@kuralle/platform": "workspace:*",
+        "drizzle-orm": "catalog:",
+        "zod": "catalog:",
+      },
+      "devDependencies": {
+        "@kuralle/config": "workspace:*",
+        "@types/pg": "^8.11.11",
+        "pg": "catalog:",
+        "vitest": "catalog:",
+      },
+    },
     "packages/db": {
       "name": "@kuralle/db",
       "dependencies": {
@@ -648,6 +664,8 @@
 
     "@kuralle/config": ["@kuralle/config@workspace:packages/config"],
 
+    "@kuralle/core": ["@kuralle/core@workspace:packages/core"],
+
     "@kuralle/db": ["@kuralle/db@workspace:packages/db"],
 
     "@kuralle/env": ["@kuralle/env@workspace:packages/env"],
@@ -1087,6 +1105,8 @@
     "@types/json-schema": ["@types/json-schema@7.0.15", "", {}, "sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA=="],
 
     "@types/node": ["@types/node@22.19.17", "", { "dependencies": { "undici-types": "~6.21.0" } }, "sha512-wGdMcf+vPYM6jikpS/qhg6WiqSV/OhG+jeeHT/KlVqxYfD40iYJf9/AE1uQxVWFvU7MipKRkRv8NSHiCGgPr8Q=="],
+
+    "@types/pg": ["@types/pg@8.20.0", "", { "dependencies": { "@types/node": "*", "pg-protocol": "*", "pg-types": "^2.2.0" } }, "sha512-bEPFOaMAHTEP1EzpvHTbmwR8UsFyHSKsRisLIHVMXnpNefSbGA1bD6CVy+qKjGSqmZqNqBDV2azOBo8TgkcVow=="],
 
     "@types/react": ["@types/react@19.2.14", "", { "dependencies": { "csstype": "^3.2.2" } }, "sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w=="],
 

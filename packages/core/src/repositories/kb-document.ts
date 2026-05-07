@@ -1,0 +1,256 @@
+import { and, eq, isNull, desc } from "drizzle-orm";
+import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import * as schema from "@kuralle/db/schema";
+import type { KvStore } from "@kuralle/platform/interface";
+
+export interface KbDocument {
+  id: string;
+  workspaceId: string;
+  folder: string | null;
+  name: string;
+  source: string;
+  sourceUrl: string | null;
+  storageKey: string | null;
+  contentText: string | null;
+  sizeBytes: number;
+  status: string;
+  ragIndexed: boolean;
+  embeddingModel: string | null;
+  autoSync: boolean;
+  lastSyncedAt: Date | null;
+  createdByUserId: string | null;
+  createdAt: Date;
+  updatedAt: Date | null;
+  deletedAt: Date | null;
+}
+
+export interface KbDocumentInsert {
+  id: string;
+  folder?: string;
+  name: string;
+  source: string;
+  sourceUrl?: string;
+  storageKey?: string;
+  contentText?: string;
+  sizeBytes: number;
+  status?: string;
+  embeddingModel?: string;
+  createdByUserId?: string;
+}
+
+export interface KbDocumentUpdate {
+  folder?: string;
+  name?: string;
+  status?: string;
+  ragIndexed?: boolean;
+  autoSync?: boolean;
+  lastSyncedAt?: Date;
+  contentText?: string;
+}
+
+export interface KbChunk {
+  id: string;
+  documentId: string;
+  ordinal: number;
+  content: string;
+  embedding: number[] | null;
+  tokenCount: number | null;
+  createdAt: Date;
+}
+
+export interface KbChunkInsert {
+  id: string;
+  documentId: string;
+  ordinal: number;
+  content: string;
+  embedding?: number[] | null;
+  tokenCount?: number;
+}
+
+function toDomain(row: typeof schema.kbDocuments.$inferSelect): KbDocument {
+  return {
+    id: row.id,
+    workspaceId: row.workspaceId,
+    folder: row.folder,
+    name: row.name,
+    source: row.source,
+    sourceUrl: row.sourceUrl,
+    storageKey: row.storageKey,
+    contentText: row.contentText,
+    sizeBytes: row.sizeBytes,
+    status: row.status,
+    ragIndexed: row.ragIndexed ?? false,
+    embeddingModel: row.embeddingModel,
+    autoSync: row.autoSync ?? false,
+    lastSyncedAt: row.lastSyncedAt,
+    createdByUserId: row.createdByUserId,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+    deletedAt: row.deletedAt,
+  };
+}
+
+function toChunkDomain(
+  row: typeof schema.kbChunks.$inferSelect,
+): KbChunk {
+  return {
+    id: row.id,
+    documentId: row.documentId,
+    ordinal: row.ordinal,
+    content: row.content,
+    embedding: row.embedding,
+    tokenCount: row.tokenCount,
+    createdAt: row.createdAt,
+  };
+}
+
+function docCacheKey(workspaceId: string, id: string): string {
+  return `repo:kb_document:${workspaceId}:${id}`;
+}
+
+function chunkCacheKey(workspaceId: string, id: string): string {
+  return `repo:kb_chunk:${workspaceId}:${id}`;
+}
+
+export class KbDocumentRepository {
+  constructor(
+    private readonly db: NodePgDatabase<typeof schema>,
+    private readonly workspaceId: string,
+    private readonly kv: KvStore,
+  ) {}
+
+  async findById(id: string): Promise<KbDocument | null> {
+    return this.kv.getOrCompute(docCacheKey(this.workspaceId, id), async () => {
+      const rows = await this.db
+        .select()
+        .from(schema.kbDocuments)
+        .where(
+          and(
+            eq(schema.kbDocuments.id, id),
+            eq(schema.kbDocuments.workspaceId, this.workspaceId),
+            isNull(schema.kbDocuments.deletedAt),
+          ),
+        )
+        .limit(1);
+
+      if (rows.length === 0) return null;
+      return toDomain(rows[0]!);
+    }, { ttlSeconds: 60 });
+  }
+
+  async findManyByWorkspace(opts?: {
+    cursor?: string;
+    limit?: number;
+  }): Promise<KbDocument[]> {
+    const limit = opts?.limit ?? 50;
+    const rows = await this.db
+      .select()
+      .from(schema.kbDocuments)
+      .where(
+        and(
+          eq(schema.kbDocuments.workspaceId, this.workspaceId),
+          isNull(schema.kbDocuments.deletedAt),
+        ),
+      )
+      .orderBy(desc(schema.kbDocuments.updatedAt))
+      .limit(limit);
+
+    return rows.map(toDomain);
+  }
+
+  async insert(input: KbDocumentInsert): Promise<KbDocument> {
+    const [row] = await this.db
+      .insert(schema.kbDocuments)
+      .values({
+        id: input.id,
+        workspaceId: this.workspaceId,
+        folder: input.folder ?? null,
+        name: input.name,
+        source: input.source,
+        sourceUrl: input.sourceUrl ?? null,
+        storageKey: input.storageKey ?? null,
+        contentText: input.contentText ?? null,
+        sizeBytes: input.sizeBytes,
+        status: input.status ?? "indexing",
+        embeddingModel: input.embeddingModel ?? null,
+        createdByUserId: input.createdByUserId ?? null,
+      })
+      .returning();
+
+    if (!row) throw new Error("KbDocumentRepository.insert: no row returned");
+    return toDomain(row);
+  }
+
+  async update(id: string, patch: KbDocumentUpdate): Promise<KbDocument> {
+    const [row] = await this.db
+      .update(schema.kbDocuments)
+      .set({ ...patch, updatedAt: new Date() })
+      .where(
+        and(
+          eq(schema.kbDocuments.id, id),
+          eq(schema.kbDocuments.workspaceId, this.workspaceId),
+        ),
+      )
+      .returning();
+
+    if (!row) throw new Error("KbDocumentRepository.update: no row returned");
+
+    await this.kv.delete(docCacheKey(this.workspaceId, id));
+    return toDomain(row);
+  }
+
+  async softDelete(id: string): Promise<void> {
+    await this.db
+      .update(schema.kbDocuments)
+      .set({ deletedAt: new Date(), updatedAt: new Date() })
+      .where(
+        and(
+          eq(schema.kbDocuments.id, id),
+          eq(schema.kbDocuments.workspaceId, this.workspaceId),
+        ),
+      );
+
+    await this.kv.delete(docCacheKey(this.workspaceId, id));
+  }
+
+  // ── Chunk methods ──────────────────────────────────────────
+
+  async findChunkById(id: string): Promise<KbChunk | null> {
+    return this.kv.getOrCompute(chunkCacheKey(this.workspaceId, id), async () => {
+      const rows = await this.db
+        .select()
+        .from(schema.kbChunks)
+        .innerJoin(
+          schema.kbDocuments,
+          eq(schema.kbChunks.documentId, schema.kbDocuments.id),
+        )
+        .where(
+          and(
+            eq(schema.kbChunks.id, id),
+            eq(schema.kbDocuments.workspaceId, this.workspaceId),
+          ),
+        )
+        .limit(1);
+
+      if (rows.length === 0) return null;
+      return toChunkDomain(rows[0]!.kb_chunks);
+    }, { ttlSeconds: 60 });
+  }
+
+  async insertChunk(input: KbChunkInsert): Promise<KbChunk> {
+    const [row] = await this.db
+      .insert(schema.kbChunks)
+      .values({
+        id: input.id,
+        documentId: input.documentId,
+        ordinal: input.ordinal,
+        content: input.content,
+        embedding: input.embedding ?? null,
+        tokenCount: input.tokenCount ?? null,
+      })
+      .returning();
+
+    if (!row) throw new Error("KbDocumentRepository.insertChunk: no row returned");
+    return toChunkDomain(row);
+  }
+}

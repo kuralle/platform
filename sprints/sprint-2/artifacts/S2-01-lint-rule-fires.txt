@@ -1,0 +1,39 @@
+
+/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/api/src/routers/agents.ts
+  2:1  error  '@kuralle/db/schema/agents' import is restricted from being used by a pattern. Routers must not import @kuralle/db/schema directly. Use a repository from @kuralle/core instead  no-restricted-imports
+
+/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/api/src/routers/batches.ts
+  2:1  error  '@kuralle/db/schema/batches' import is restricted from being used by a pattern. Routers must not import @kuralle/db/schema directly. Use a repository from @kuralle/core instead  no-restricted-imports
+
+/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/api/src/routers/channels.ts
+  2:1  error  '@kuralle/db/schema/channels' import is restricted from being used by a pattern. Routers must not import @kuralle/db/schema directly. Use a repository from @kuralle/core instead  no-restricted-imports
+
+/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/api/src/routers/compliance.ts
+  2:1  error  '@kuralle/db/schema/compliance' import is restricted from being used by a pattern. Routers must not import @kuralle/db/schema directly. Use a repository from @kuralle/core instead  no-restricted-imports
+
+/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/api/src/routers/conversations.ts
+  2:1  error  '@kuralle/db/schema/conversations' import is restricted from being used by a pattern. Routers must not import @kuralle/db/schema directly. Use a repository from @kuralle/core instead  no-restricted-imports
+
+/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/api/src/routers/kb.ts
+  2:1  error  '@kuralle/db/schema/knowledge' import is restricted from being used by a pattern. Routers must not import @kuralle/db/schema directly. Use a repository from @kuralle/core instead  no-restricted-imports
+
+/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/api/src/routers/receipts.ts
+  2:1  error  '@kuralle/db/schema/billing' import is restricted from being used by a pattern. Routers must not import @kuralle/db/schema directly. Use a repository from @kuralle/core instead  no-restricted-imports
+
+/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/api/src/routers/secrets.ts
+  2:1  error  '@kuralle/db/schema/secrets' import is restricted from being used by a pattern. Routers must not import @kuralle/db/schema directly. Use a repository from @kuralle/core instead  no-restricted-imports
+
+/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/api/src/routers/tools.ts
+  2:1  error  '@kuralle/db/schema/tools' import is restricted from being used by a pattern. Routers must not import @kuralle/db/schema directly. Use a repository from @kuralle/core instead  no-restricted-imports
+
+/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/api/src/routers/voices.ts
+  2:1  error  '@kuralle/db/schema/voices' import is restricted from being used by a pattern. Routers must not import @kuralle/db/schema directly. Use a repository from @kuralle/core instead  no-restricted-imports
+
+/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/api/src/routers/webhooks.ts
+  2:1  error  '@kuralle/db/schema/webhooks' import is restricted from being used by a pattern. Routers must not import @kuralle/db/schema directly. Use a repository from @kuralle/core instead  no-restricted-imports
+
+/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/env/src/web.ts
+  9:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 12 problems (11 errors, 1 warning)
+

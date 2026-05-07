@@ -98,4 +98,28 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    // S2-01: Forbid raw drizzle-orm / @kuralle/db/schema imports from routers.
+    // Every DB access from routers must go through a repository.
+    files: ["packages/api/src/routers/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["drizzle-orm", "drizzle-orm/*"],
+              message:
+                "Routers must not import drizzle-orm directly. Use a repository from @kuralle/core instead.",
+            },
+            {
+              group: ["@kuralle/db/schema", "@kuralle/db/schema/*"],
+              message:
+                "Routers must not import @kuralle/db/schema directly. Use a repository from @kuralle/core instead.",
+            },
+          ],
+        },
+      ],
+    },
+  },
 );

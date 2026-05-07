@@ -1,0 +1,53 @@
+@kuralle/core test: 
+@kuralle/core test:  RUN  v4.1.5 /Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/core
+@kuralle/core test: 
+@kuralle/core test:  ✓ src/repositories/agent.test.ts > AgentRepository > findById > returns null for missing agent 92ms
+@kuralle/core test:  ✓ src/repositories/agent.test.ts > AgentRepository > findById > returns the inserted agent 60ms
+@kuralle/core test:  ✓ src/repositories/agent.test.ts > AgentRepository > findById > does not return soft-deleted agents 70ms
+@kuralle/core test:  ✓ src/repositories/agent.test.ts > AgentRepository > findManyByWorkspace > returns agents scoped to the workspace 66ms
+@kuralle/core test:  ✓ src/repositories/agent.test.ts > AgentRepository > findManyByWorkspace > respects limit 58ms
+@kuralle/core test:  ✓ src/repositories/agent.test.ts > AgentRepository > insert > inserts with default status 58ms
+@kuralle/core test:  ✓ src/repositories/agent.test.ts > AgentRepository > update > updates agent fields 51ms
+@kuralle/core test:  ✓ src/repositories/agent.test.ts > AgentRepository > update > invalidates cache after update 48ms
+@kuralle/core test:  ✓ src/repositories/agent.test.ts > AgentRepository > softDelete > sets deletedAt and invalidates cache 52ms
+@kuralle/core test:  ✓ src/repositories/agent.test.ts > AgentRepository > workspace scope > returns 0 rows for agents in another workspace 56ms
+@kuralle/core test:  ✓ src/repositories/kb-document.test.ts > KbDocumentRepository > findById > returns null for missing document 85ms
+@kuralle/core test:  ✓ src/repositories/kb-document.test.ts > KbDocumentRepository > findById > returns the inserted document 119ms
+@kuralle/core test:  ✓ src/repositories/kb-document.test.ts > KbDocumentRepository > findManyByWorkspace > returns documents scoped to workspace 66ms
+@kuralle/core test:  ✓ src/repositories/kb-document.test.ts > KbDocumentRepository > insert > inserts with default status indexing 57ms
+@kuralle/core test:  ✓ src/repositories/kb-document.test.ts > KbDocumentRepository > update > updates document fields and invalidates cache 57ms
+@kuralle/core test:  ✓ src/repositories/kb-document.test.ts > KbDocumentRepository > softDelete > sets deletedAt and invalidates cache 61ms
+@kuralle/core test:  ✓ src/repositories/kb-document.test.ts > KbDocumentRepository > chunks (vector round-trip — BL-S1-VECTOR-ROUNDTRIP-TEST) > round-trips a populated 1024-dim vector embedding 104ms
+@kuralle/core test:  ✓ src/repositories/kb-document.test.ts > KbDocumentRepository > chunks (vector round-trip — BL-S1-VECTOR-ROUNDTRIP-TEST) > handles null embedding without crash 68ms
+@kuralle/core test:  ✓ src/repositories/agent-version.test.ts > AgentVersionRepository > findById > returns null for missing version 71ms
+@kuralle/core test:  ✓ src/repositories/agent-version.test.ts > AgentVersionRepository > findById > returns the inserted version 59ms
+@kuralle/core test:  ✓ src/repositories/agent-version.test.ts > AgentVersionRepository > findById > scopes by workspace through agent FK 49ms
+@kuralle/core test:  ✓ src/repositories/agent-version.test.ts > AgentVersionRepository > findManyByWorkspace > returns versions scoped through agent FK 64ms
+@kuralle/core test:  ✓ src/repositories/agent-version.test.ts > AgentVersionRepository > insert > inserts with default versionKind 57ms
+@kuralle/core test:  ✓ src/repositories/agent-version.test.ts > AgentVersionRepository > update > always throws AppendOnlyViolation 60ms
+@kuralle/core test:  ✓ src/repositories/agent-version.test.ts > AgentVersionRepository > cache invalidation > findById caches and invalidates on insert of new version 55ms
+@kuralle/core test:  ✓ src/repositories/channel.test.ts > ChannelRepository > findById > returns null for missing channel 65ms
+@kuralle/core test:  ✓ src/repositories/channel.test.ts > ChannelRepository > findById > returns the inserted channel 52ms
+@kuralle/core test:  ✓ src/repositories/channel.test.ts > ChannelRepository > findManyByWorkspace > returns channels scoped to workspace 52ms
+@kuralle/core test:  ✓ src/repositories/channel.test.ts > ChannelRepository > insert > inserts with default status disconnected 69ms
+@kuralle/core test:  ✓ src/repositories/channel.test.ts > ChannelRepository > update > updates channel fields and invalidates cache 53ms
+@kuralle/core test:  ✓ src/repositories/channel.test.ts > ChannelRepository > softDelete > sets deletedAt and invalidates cache 52ms
+@kuralle/core test:  ✓ src/repositories/conversation.test.ts > ConversationRepository > findById > returns null for missing conversation 80ms
+@kuralle/core test:  ✓ src/repositories/conversation.test.ts > ConversationRepository > findById > returns the inserted conversation 54ms
+@kuralle/core test:  ✓ src/repositories/conversation.test.ts > ConversationRepository > findManyByWorkspace > returns conversations scoped to workspace 52ms
+@kuralle/core test:  ✓ src/repositories/conversation.test.ts > ConversationRepository > insert > inserts with defaults 46ms
+@kuralle/core test:  ✓ src/repositories/conversation.test.ts > ConversationRepository > update > updates conversation fields and invalidates cache 51ms
+@kuralle/core test:  ✓ src/repositories/conversation.test.ts > ConversationRepository > no softDelete > conversations table has no deletedAt column — softDelete not available 51ms
+@kuralle/core test:  ✓ src/repositories/tool.test.ts > ToolRepository > findById > returns null for missing tool 63ms
+@kuralle/core test:  ✓ src/repositories/tool.test.ts > ToolRepository > findById > returns the inserted tool 49ms
+@kuralle/core test:  ✓ src/repositories/tool.test.ts > ToolRepository > findManyByWorkspace > returns tools scoped to workspace 48ms
+@kuralle/core test:  ✓ src/repositories/tool.test.ts > ToolRepository > insert > inserts with default status active 50ms
+@kuralle/core test:  ✓ src/repositories/tool.test.ts > ToolRepository > update > updates tool fields and invalidates cache 59ms
+@kuralle/core test:  ✓ src/repositories/tool.test.ts > ToolRepository > softDelete > sets deletedAt and invalidates cache 52ms
+@kuralle/core test: 
+@kuralle/core test:  Test Files  6 passed (6)
+@kuralle/core test:       Tests  43 passed (43)
+@kuralle/core test:    Start at  21:33:47
+@kuralle/core test:    Duration  5.59s (transform 169ms, setup 0ms, import 1.98s, tests 2.95s, environment 0ms)
+@kuralle/core test: 
+@kuralle/core test: Exited with code 0
