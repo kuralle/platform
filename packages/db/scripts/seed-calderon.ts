@@ -131,6 +131,8 @@ const CONVERSATIONS: ConversationSeed[] = [
       { speaker: "agent", text: "Thanks for calling Calderon HVAC — how can I help?" },
       { speaker: "caller", text: "Oh, I didn't expect a machine. Uh, I'll call back later." },
       { speaker: "agent", text: "No worries at all — I can help you right now actually. What do you need?" },
+      { speaker: "caller", text: "Um... no, it's fine. I'll just call back." },
+      { speaker: "agent", text: "Of course. Just so you know, we're available 24/7. Take care." },
     ],
   },
   {
@@ -144,6 +146,7 @@ const CONVERSATIONS: ConversationSeed[] = [
       { speaker: "agent", text: "Thanks for calling Calderon HVAC — how can I help?" },
       { speaker: "caller", text: "..." },
       { speaker: "agent", text: "It sounds like I reached your voicemail. I'll leave a message — this is Calderon HVAC returning your call." },
+      { speaker: "agent", text: "Please call us back at your convenience to schedule service." },
     ],
   },
   {

@@ -1,0 +1,47 @@
+## Manager fix-pass artifact (S1-06-fix)
+
+### 1. Turn count expanded for cv_calderon_003 and cv_calderon_004 (gate items 1, 2)
+
+```
+cv_calderon_001|6
+cv_calderon_002|5
+cv_calderon_003|5
+cv_calderon_004|4
+cv_calderon_005|6
+
+```
+
+### 2. Re-run db:seed shows 3 new rows (the new turns; existing rows unaffected)
+
+### 3. Idempotency check PASS (after the new turns landed)
+
+```
+=== Comparison ===
+  organization: 1 vs 1 — MATCH
+  agents: 3 vs 3 — MATCH
+  agent_versions: 3 vs 3 — MATCH
+  channel_connections: 1 vs 1 — MATCH
+  channel_endpoints: 1 vs 1 — MATCH
+  conversations: 5 vs 5 — MATCH
+  conversation_turns: 26 vs 26 — MATCH
+  kb_documents: 1 vs 1 — MATCH
+  webhooks: 1 vs 1 — MATCH
+
+PASS — idempotency verified
+
+```
+
+### 4. Lint + check-types unchanged
+
+```
+Cached:    2 cached, 6 total
+  Time:    9.279s 
+
+
+/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/env/src/web.ts
+  9:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 1 problem (0 errors, 1 warning)
+
+
+```
