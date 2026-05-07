@@ -426,6 +426,35 @@ async function main() {
         constraintName: "batch_recipients_status_check",
         params: [] as unknown[],
       },
+      // S1-04-fix: 4 CHECKs that were missing from the original coverage
+      {
+        label: "audit_log_events.actor_kind CHECK",
+        sql: `INSERT INTO audit_log_events (id, workspace_id, event, actor_kind, created_at)
+              VALUES ('${prefix}-ae-bogus', $1, 'test', 'bogus', now())`,
+        constraintName: "audit_log_events_actor_kind_check",
+        params: [orgId],
+      },
+      {
+        label: "workspace_compliance_posture.ferpa CHECK",
+        sql: `INSERT INTO workspace_compliance_posture (workspace_id, hipaa, ferpa, tcpa, eu_ai_act)
+              VALUES ($1, 'active', 'bogus', 'inactive', 'inactive')`,
+        constraintName: "workspace_compliance_posture_ferpa_check",
+        params: [orgId2],
+      },
+      {
+        label: "workspace_compliance_posture.tcpa CHECK",
+        sql: `INSERT INTO workspace_compliance_posture (workspace_id, hipaa, ferpa, tcpa, eu_ai_act)
+              VALUES ($1, 'active', 'inactive', 'bogus', 'inactive')`,
+        constraintName: "workspace_compliance_posture_tcpa_check",
+        params: [orgId2],
+      },
+      {
+        label: "workspace_compliance_posture.eu_ai_act CHECK",
+        sql: `INSERT INTO workspace_compliance_posture (workspace_id, hipaa, ferpa, tcpa, eu_ai_act)
+              VALUES ($1, 'active', 'inactive', 'inactive', 'bogus')`,
+        constraintName: "workspace_compliance_posture_eu_ai_act_check",
+        params: [orgId2],
+      },
     ];
 
     for (const t of enumTests) {
