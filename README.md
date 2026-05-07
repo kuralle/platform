@@ -5,7 +5,7 @@
 
 **Stack:** TypeScript, React 19, TanStack Router (file-based), TailwindCSS v4,
 shadcn/ui (`base-lyra` style), Hono + oRPC (server, not integrated yet),
-Drizzle + Turso (db, not integrated yet), Better-Auth (not integrated yet),
+Drizzle + Postgres (Neon serverless driver) (db, not integrated yet), Better-Auth (not integrated yet),
 Cloudflare Workers via Alchemy, Turborepo + Bun.
 
 **Design language:** stock shadcn `base-lyra` neutral palette. Primary action

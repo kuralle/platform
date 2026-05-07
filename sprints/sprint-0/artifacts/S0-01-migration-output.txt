@@ -1,0 +1,26 @@
+=== bun -F @kuralle/db db:generate ===
+@kuralle/db db:generate: No config path provided, using default 'drizzle.config.ts'
+@kuralle/db db:generate: Reading config file '/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/db/drizzle.config.ts'
+@kuralle/db db:generate: ◇ injected env (4) from ../../apps/server/.env // tip: ⌘ enable debugging { debug: true }
+@kuralle/db db:generate: 0 tables
+@kuralle/db db:generate: 
+@kuralle/db db:generate: 
+@kuralle/db db:generate: No schema changes, nothing to migrate 😴
+@kuralle/db db:generate: Exited with code 0
+
+---
+
+=== bun -F @kuralle/db db:push ===
+@kuralle/db db:push: No config path provided, using default 'drizzle.config.ts'
+@kuralle/db db:push: Reading config file '/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/db/drizzle.config.ts'
+@kuralle/db db:push: ◇ injected env (4) from ../../apps/server/.env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+@kuralle/db db:push: Using 'pg' driver for database querying
+@kuralle/db db:push: [⣷] Pulling schema from database...
+@kuralle/db db:push: [2K[1G[✓] Pulling schema from database...
+@kuralle/db db:push: [i] No changes detected
+@kuralle/db db:push: Exited with code 0
+
+---
+
+=== psql kuralle_dev -c '\dt' ===
+Did not find any relations.

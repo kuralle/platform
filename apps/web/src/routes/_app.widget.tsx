@@ -45,7 +45,7 @@ function WidgetRoute() {
           Live preview on the left, customization on the right. Embed anywhere with a single script tag.
         </p>
       </div>
-      <ResizablePanelGroup direction="horizontal">
+      <ResizablePanelGroup orientation="horizontal">
         <ResizablePanel defaultSize={60} minSize={40}>
           <div className="flex h-full items-center justify-center bg-muted/60 p-8">
             <div className="relative h-full w-full max-w-[720px] rounded-lg border bg-card shadow-[0_24px_60px_rgba(11,18,32,0.06)]">

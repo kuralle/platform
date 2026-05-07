@@ -132,7 +132,10 @@ function BehaviorTab() {
               max={1}
               step={0.05}
               value={[temperature]}
-              onValueChange={([v]) => v !== undefined && setTemperature(v)}
+              onValueChange={(vals) => {
+                const v = typeof vals === "number" ? vals : vals[0];
+                if (v !== undefined) setTemperature(v);
+              }}
               className="flex-1"
             />
           </div>
@@ -152,7 +155,10 @@ function BehaviorTab() {
               max={20}
               step={1}
               value={[maxSteps]}
-              onValueChange={([v]) => v !== undefined && setMaxSteps(v)}
+              onValueChange={(vals) => {
+                const v = typeof vals === "number" ? vals : vals[0];
+                if (v !== undefined) setMaxSteps(v);
+              }}
               className="flex-1"
             />
           </div>

@@ -196,7 +196,7 @@ function KnowledgeDocRoute() {
                   </Field>
                   <Field>
                     <FieldLabel>Folder</FieldLabel>
-                    <Select value={folder} onValueChange={setFolder}>
+                    <Select value={folder} onValueChange={(v) => v != null && setFolder(v)}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>

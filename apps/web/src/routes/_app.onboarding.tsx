@@ -125,7 +125,7 @@ function OnboardingRoute() {
                 ),
               },
             ]}
-            onFinish={() => navigate({ to: "/home" })}
+            onFinish={() => navigate({ to: "/home", search: { welcome: false } })}
           />
         </div>
       </Card>

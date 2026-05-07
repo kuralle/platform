@@ -27,7 +27,7 @@ export function Topbar({ onCommandOpen }: TopbarProps) {
   const { workspace } = useWorkspace();
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-card px-4">
-      <Link to="/home" className="flex items-center gap-2">
+      <Link to="/home" search={{ welcome: false }} className="flex items-center gap-2">
         <Wordmark />
       </Link>
       <span className="h-6 w-px bg-border" />

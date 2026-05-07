@@ -94,9 +94,11 @@ function ComplianceTab() {
             the agent has logged calls preserves the original posture for those calls.
           </p>
           <ToggleGroup
-            type="single"
-            value={mode}
-            onValueChange={(v) => v && setMode(v as typeof mode)}
+            value={[mode]}
+            onValueChange={(vals) => {
+              const v = vals[0];
+              if (v === "none" || v === "hipaa" || v === "ferpa" || v === "tcpa") setMode(v);
+            }}
             className="mt-5 grid grid-cols-4 gap-3"
           >
             {(["none", "hipaa", "ferpa", "tcpa"] as const).map((m) => (
@@ -150,7 +152,10 @@ function ComplianceTab() {
             max={365}
             step={5}
             value={[retentionDays]}
-            onValueChange={([v]) => v !== undefined && setRetentionDays(v)}
+            onValueChange={(vals) => {
+              const v = typeof vals === "number" ? vals : vals[0];
+              if (v !== undefined) setRetentionDays(v);
+            }}
             className="mt-5"
           />
         </Card>

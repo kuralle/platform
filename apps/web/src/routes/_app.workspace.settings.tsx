@@ -161,7 +161,10 @@ function WorkspaceSettingsRoute() {
                   max={365}
                   step={5}
                   value={[retention]}
-                  onValueChange={([v]) => v !== undefined && setRetention(v)}
+                  onValueChange={(vals) => {
+                    const v = typeof vals === "number" ? vals : vals[0];
+                    if (v !== undefined) setRetention(v);
+                  }}
                   className="mt-5"
                 />
               </Card>

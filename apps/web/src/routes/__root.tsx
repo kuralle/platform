@@ -30,7 +30,7 @@ function RootComponent() {
         disableTransitionOnChange
         storageKey="kuralle-theme"
       >
-        <TooltipProvider delayDuration={150}>
+        <TooltipProvider delay={150}>
           <Outlet />
           <Toaster richColors position="bottom-center" />
         </TooltipProvider>

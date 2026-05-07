@@ -189,7 +189,7 @@ function ModelsTab() {
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <Field>
                   <FieldLabel>Model</FieldLabel>
-                  <Select value={ttsModel} onValueChange={setTtsModel}>
+                  <Select value={ttsModel} onValueChange={(v) => v != null && setTtsModel(v)}>
                     <SelectTrigger className="h-10">
                       <BrandedValue brand={TTS_MODELS.find((m) => m.id === ttsModel)?.brand}>
                         <SelectValue />
@@ -204,7 +204,7 @@ function ModelsTab() {
                 </Field>
                 <Field>
                   <FieldLabel>Voice</FieldLabel>
-                  <Select value={ttsVoiceId} onValueChange={setTtsVoiceId}>
+                  <Select value={ttsVoiceId} onValueChange={(v) => v != null && setTtsVoiceId(v)}>
                     <SelectTrigger className="h-10">
                       <span className="flex items-center gap-2">
                         <span className="text-[14px] font-medium">{ttsVoice.name}</span>
@@ -235,7 +235,7 @@ function ModelsTab() {
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <Field>
                   <FieldLabel>Model</FieldLabel>
-                  <Select value={llmModel} onValueChange={setLlmModel}>
+                  <Select value={llmModel} onValueChange={(v) => v != null && setLlmModel(v)}>
                     <SelectTrigger className="h-10">
                       <BrandedValue brand={LLM_MODELS.find((m) => m.id === llmModel)?.brand}>
                         <SelectValue />
@@ -274,7 +274,7 @@ function ModelsTab() {
               <div className="mt-4 grid gap-4 sm:grid-cols-[2fr_1fr]">
                 <Field>
                   <FieldLabel>Model</FieldLabel>
-                  <Select value={sttModel} onValueChange={setSttModel}>
+                  <Select value={sttModel} onValueChange={(v) => v != null && setSttModel(v)}>
                     <SelectTrigger className="h-10">
                       <BrandedValue brand={STT_MODELS.find((m) => m.id === sttModel)?.brand}>
                         <SelectValue />
@@ -289,7 +289,7 @@ function ModelsTab() {
                 </Field>
                 <Field>
                   <FieldLabel>Language</FieldLabel>
-                  <Select value={sttLanguage} onValueChange={setSttLanguage}>
+                  <Select value={sttLanguage} onValueChange={(v) => v != null && setSttLanguage(v)}>
                     <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {STT_LANGUAGES.map((l) => (
@@ -323,7 +323,7 @@ function ModelsTab() {
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <Field>
                   <FieldLabel>Model</FieldLabel>
-                  <Select value={realtimeModel} onValueChange={setRealtimeModel}>
+                  <Select value={realtimeModel} onValueChange={(v) => v != null && setRealtimeModel(v)}>
                     <SelectTrigger className="h-10">
                       <BrandedValue brand={REALTIME_MODELS.find((m) => m.id === realtimeModel)?.brand}>
                         <SelectValue />
@@ -347,7 +347,7 @@ function ModelsTab() {
                 </Field>
                 <Field>
                   <FieldLabel>Voice</FieldLabel>
-                  <Select value={realtimeVoiceId} onValueChange={setRealtimeVoiceId}>
+                  <Select value={realtimeVoiceId} onValueChange={(v) => v != null && setRealtimeVoiceId(v)}>
                     <SelectTrigger className="h-10">
                       <span className="flex items-center gap-2">
                         <span className="text-[14px] font-medium">{realtimeVoice.name}</span>

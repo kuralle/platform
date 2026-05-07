@@ -87,7 +87,7 @@ export function AgentEditorShell({
             return (
               <Link
                 key={t.slug}
-                href={href}
+                to={href}
                 className={cn(
                   "relative flex h-10 items-center px-3 text-[13px] font-medium transition",
                   active ? "text-foreground" : "text-muted-foreground hover:text-foreground",

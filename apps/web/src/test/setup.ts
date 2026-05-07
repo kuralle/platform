@@ -9,17 +9,16 @@ afterEach(() => {
 // Stub `matchMedia` for next-themes / shadcn primitives that read it during
 // jsdom-based tests.
 if (typeof window !== "undefined" && !window.matchMedia) {
-  // @ts-expect-error — assigning a minimal stub.
-  window.matchMedia = (q: string) => ({
+  window.matchMedia = ((query: string) => ({
     matches: false,
-    media: q,
+    media: query,
     onchange: null,
     addListener: () => undefined,
     removeListener: () => undefined,
     addEventListener: () => undefined,
     removeEventListener: () => undefined,
     dispatchEvent: () => false,
-  });
+  })) as typeof window.matchMedia;
 }
 
 // ResizeObserver stub for components like WaveformPlayer.
@@ -28,5 +27,6 @@ class ResizeObserverStub {
   unobserve() {}
   disconnect() {}
 }
-// @ts-expect-error — install on window.
-if (typeof window !== "undefined" && !window.ResizeObserver) window.ResizeObserver = ResizeObserverStub;
+if (typeof window !== "undefined" && !window.ResizeObserver) {
+  window.ResizeObserver = ResizeObserverStub as typeof ResizeObserver;
+}

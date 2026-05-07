@@ -20,14 +20,14 @@ function SignInScreen() {
 
   function handleSso(_provider: "google" | "microsoft" | "apple") {
     setSubmitting(true);
-    setTimeout(() => navigate({ to: "/home" }), 300);
+    setTimeout(() => navigate({ to: "/home", search: { welcome: false } }), 300);
   }
 
   function handleEmail(e: React.FormEvent) {
     e.preventDefault();
     if (!email) return;
     setSubmitting(true);
-    setTimeout(() => navigate({ to: "/home" }), 300);
+    setTimeout(() => navigate({ to: "/home", search: { welcome: false } }), 300);
   }
 
   return (

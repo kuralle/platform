@@ -15,15 +15,15 @@
   },
   "dependencies": {
     "@kuralle/env": "workspace:*",
-    "@libsql/client": "catalog:",
+    "@neondatabase/serverless": "catalog:",
     "dotenv": "catalog:",
-    "drizzle-orm": "^0.45.1",
-    "libsql": "catalog:",
+    "drizzle-orm": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@kuralle/config": "workspace:*",
-    "drizzle-kit": "^0.31.8",
+    "drizzle-kit": "catalog:",
+    "pg": "catalog:",
     "typescript": "catalog:"
   }
 }

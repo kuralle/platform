@@ -50,7 +50,7 @@ function NewBatchRoute() {
                   <div className="grid gap-4">
                     <Field>
                       <FieldLabel>Agent</FieldLabel>
-                      <Select value={agentId} onValueChange={setAgentId}>
+                      <Select value={agentId} onValueChange={(v) => v != null && setAgentId(v)}>
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
@@ -65,7 +65,7 @@ function NewBatchRoute() {
                     </Field>
                     <Field>
                       <FieldLabel>Outbound number</FieldLabel>
-                      <Select value={numberId} onValueChange={setNumberId}>
+                      <Select value={numberId} onValueChange={(v) => v != null && setNumberId(v)}>
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
@@ -145,7 +145,10 @@ function NewBatchRoute() {
                         max={32}
                         step={1}
                         value={[concurrency]}
-                        onValueChange={([v]) => v !== undefined && setConcurrency(v)}
+                        onValueChange={(vals) => {
+                          const v = typeof vals === "number" ? vals : vals[0];
+                          if (v !== undefined) setConcurrency(v);
+                        }}
                         className="flex-1"
                       />
                     </div>
