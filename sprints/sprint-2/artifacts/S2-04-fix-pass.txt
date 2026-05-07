@@ -1,0 +1,28 @@
+=== S2-04 fix-pass verification ===
+2026-05-08 01:01:18
+
+=== bun -F web test ===
+web test:       Tests  55 passed (55)
+web test:    Start at  01:01:18
+web test:    Duration  3.39s (transform 915ms, setup 3.10s, import 2.39s, tests 1.98s, environment 12.15s)
+web test: 
+web test: Exited with code 0
+
+=== bun -F server test ===
+server test:       Tests  12 passed (12)
+server test:    Start at  01:01:22
+server test:    Duration  1.81s (transform 201ms, setup 0ms, import 850ms, tests 774ms, environment 0ms)
+server test: 
+server test: Exited with code 0
+
+=== bun run check-types ===
+Cached:    8 cached, 8 total
+  Time:    52ms >>> FULL TURBO
+
+
+=== bun run lint ===
+/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/env/src/web.ts
+  9:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 1 problem (0 errors, 1 warning)
+

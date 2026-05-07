@@ -7,6 +7,11 @@ import { useWorkspace } from "@/contexts/workspace";
 import { PublishConfirmationModal } from "@/components/editor/publish-confirmation-modal";
 import { Button } from "@kuralle/ui/components/button";
 
+/** Auto-save debounce window per USER_JOURNEYS §4 + S2-04 brief AC#6. */
+const AUTO_SAVE_DELAY_MS = 30_000;
+/** "Live" pulse window before the sticky bar resets to "Saved" / "Idle" (F07). */
+const PUBLISH_LIVE_PULSE_MS = 2500;
+
 export const Route = createFileRoute("/_app/agents/$agentId")({
   component: AgentEditorLayout,
   beforeLoad: ({ params, location }) => {
@@ -54,17 +59,27 @@ function AgentEditorLayout() {
 
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     autoSaveTimer.current = setTimeout(() => {
-      autoSave.mutate({
-        workspaceId: workspace.id,
-        agentId,
-        ir: state.ir,
-      });
-    }, 30_000);
+      autoSave.mutate(
+        {
+          workspaceId: workspace.id,
+          agentId,
+          ir: state.ir,
+        },
+        {
+          // F02: snap `original` to the saved IR so isDirty returns false and
+          // the sticky bar can show "Saved". Without this, the timer re-fires
+          // every edit forever and "Saved" never appears.
+          onSuccess: () => {
+            dispatch({ type: "set", ir: state.ir });
+          },
+        },
+      );
+    }, AUTO_SAVE_DELAY_MS);
 
     return () => {
       if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     };
-  }, [state.ir, isDirty, autoSave.mutate, workspace.id, agentId, agentQuery.data]);
+  }, [state.ir, isDirty, autoSave, dispatch, workspace.id, agentId, agentQuery.data]);
 
   // Cancel auto-save timer when publish fires
   useEffect(() => {
@@ -72,6 +87,20 @@ function AgentEditorLayout() {
       clearTimeout(autoSaveTimer.current);
     }
   }, [publish.isPending]);
+
+  // F07: pulse the "Live" status briefly, then reset the publish mutation so
+  // the sticky bar returns to "Saved"/"Idle". Otherwise it stays on "Live"
+  // forever and the user can't tell whether subsequent edits saved.
+  // We capture state.ir via a ref so the effect can re-snap original without
+  // re-running on every edit.
+  const publishedIrRef = useRef(state.ir);
+  publishedIrRef.current = state.ir;
+  useEffect(() => {
+    if (!publish.isSuccess) return;
+    dispatch({ type: "set", ir: publishedIrRef.current });
+    const timer = setTimeout(() => publish.reset(), PUBLISH_LIVE_PULSE_MS);
+    return () => clearTimeout(timer);
+  }, [publish.isSuccess, publish, dispatch]);
 
   const handlePublish = useCallback(() => {
     publish.mutate({

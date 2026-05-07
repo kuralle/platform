@@ -20,7 +20,19 @@ import { useHealthCheck } from "@/hooks/api/health";
 import { useConversations } from "@/hooks/api/conversations";
 import { useAgents } from "@/hooks/api/agents";
 import { formatPct, formatRelative, formatUsd } from "@/lib/format";
-import { makeDashboardKpis } from "@/mocks";
+import type { KpiTilePoint } from "@/types/domain";
+
+// S2-04 fix-pass F05: B1 KPI tiles are inline placeholders until S3 wires
+// real telemetry from `usage_events` (live calls + p95 latency) and an
+// aggregator (calls today + booking rate + recovered revenue). Mock import
+// removed to satisfy the no-mock-from-production-screen rule.
+const PLACEHOLDER_KPIS: KpiTilePoint[] = [
+  { label: "Live calls", value: 0, delta: 0, spark: [], live: true },
+  { label: "Calls today", value: 0, delta: 0, spark: [] },
+  { label: "Booking rate", value: 0, delta: 0, spark: [] },
+  { label: "Recovered revenue", value: 0, currency: true, delta: 0, spark: [] },
+  { label: "p95 latency", value: 0, delta: 0, spark: [] },
+];
 
 /** API row shape for conversations.list — subset of fields used by this screen. */
 interface ConversationRow {
@@ -50,7 +62,7 @@ function HomeRoute() {
 
   const health = useHealthCheck();
 
-  const kpis = useMemo(() => makeDashboardKpis(), []);
+  const kpis = PLACEHOLDER_KPIS;
   const conversationsQuery = useConversations({ workspaceId: workspace.id, limit: 6 });
   const conversations = useMemo(
     () => conversationsQuery.data?.items ?? [],

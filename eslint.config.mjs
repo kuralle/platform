@@ -28,6 +28,9 @@ export default tseslint.config(
     },
   },
   {
+    // Hook-wrapper rule (S0-05 + codex r2 reinforcement): no @kuralle/api-client
+    // and no @/providers/api-provider imports outside hooks/api/ (the allow-list
+    // immediately below scopes the rule out of those files).
     files: ["apps/web/src/**/*.{ts,tsx}"],
     rules: {
       "no-restricted-imports": [
@@ -41,9 +44,7 @@ export default tseslint.config(
             },
             // Closes the codex r2 hook-wrapper bypass: blocks any import of
             // the api-provider module ($api singleton) from outside the
-            // explicit allow-list below. Without this rule, a component
-            // could `import { $api } from '@/providers/api-provider'` and
-            // call the typed client directly, skipping the hook wrapper.
+            // explicit allow-list below.
             {
               group: [
                 "@/providers/api-provider",
@@ -51,6 +52,47 @@ export default tseslint.config(
               ],
               message:
                 "Components must not import the api-provider module directly ($api singleton bypasses hook-wrapper rule). Use a hook from apps/web/src/hooks/api/ instead.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    // S2-04 fix-pass F06: forbidden-mock-import rule. Project docs claimed
+    // this rule existed since S0-05; the gate found it missing. Production
+    // screens in apps/web/src/** must not import from @/mocks. Tests,
+    // mock-source files, and dev-only utilities are exempt via the override
+    // below. The `ignores` array scopes the rule out of screens NOT yet wired
+    // to real hooks in S2; each is wired in its own sprint and dropped from
+    // this list as it lands. When the array empties, delete the rule's
+    // override block.
+    files: ["apps/web/src/**/*.{ts,tsx}"],
+    ignores: [
+      "apps/web/src/test/**/*.{ts,tsx}",
+      "apps/web/src/__tests__/**/*.{ts,tsx}",
+      "apps/web/src/mocks/**/*.{ts,tsx}",
+      "apps/web/src/**/*.test.{ts,tsx}",
+      "apps/web/src/**/*.spec.{ts,tsx}",
+      // Deferred: not yet wired to real hooks (will land in S3+).
+      "apps/web/src/components/modals/attach-document-modal.tsx",
+      "apps/web/src/routes/_app.agents.$agentId.knowledge.tsx",
+      "apps/web/src/routes/_app.batches.index.tsx",
+      "apps/web/src/routes/_app.conversations.$id.index.tsx",
+      "apps/web/src/routes/_app.conversations.$id.live.tsx",
+      "apps/web/src/routes/_app.knowledge.$docId.tsx",
+      "apps/web/src/routes/_app.revenue.receipt.$month.tsx",
+      "apps/web/src/routes/_app.workspace.compliance.tsx",
+    ],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@/mocks", "@/mocks/*"],
+              message:
+                "Production screens must not import from @/mocks. Use a hook from apps/web/src/hooks/api/ instead. Mock fixtures are allowed only in test files and dev-only utilities.",
             },
           ],
         },
