@@ -1,0 +1,76 @@
+## Manager fix-pass artifact (S1-02-fix)
+
+### 1. From-scratch replay (drop public + drizzle schemas, reapply 0000..0006)
+
+✅ db:migrate applied successfully
+
+### 2. Indexes now have DESC NULLS LAST (Apply-now items 1, 2)
+
+```
+agent_versions_agent_published_idx|CREATE INDEX agent_versions_agent_published_idx ON public.agent_versions USING btree (agent_id, published_at DESC NULLS LAST)
+agent_versions_agent_kind_published_idx|CREATE INDEX agent_versions_agent_kind_published_idx ON public.agent_versions USING btree (agent_id, version_kind, published_at DESC NULLS LAST)
+agents_workspace_updated_idx|CREATE INDEX agents_workspace_updated_idx ON public.agents USING btree (workspace_id, updated_at DESC NULLS LAST)
+
+```
+
+### 3. Smoke S1-02 (16 assertions, all PASS)
+
+```
+◇ injected env (4) from apps/server/.env // tip: ◈ encrypted .env [www.dotenvx.com]
+S1-02 smoke — agents two-row split + projections
+
+  ✓ INSERT organization
+  ✓ INSERT agents (NULL activeVersionId)
+  ✓   activeVersionId IS NULL
+  ✓ INSERT agent_versions (v1)
+  ✓ UPDATE agents.activeVersionId → av1
+  ✓ INSERT agent_versions (v2)
+  ✓ UPDATE agent_versions raises trigger
+  ✓   error contains 'append-only'
+  ✓ UNIQUE (agent_id, version_number) blocks dup version_number=1
+  ✓   error contains 'agent_versions_agent_version_uidx' or 'duplicate key'
+  ✓ INSERT agent_tool_attachments
+  ✓ INSERT agent_kb_attachments
+  ✓ INSERT agent_guardrails
+  ✓ INSERT agent_eval_criteria
+  ✓ INSERT workflow_nodes_projection
+  ✓ INSERT workflow_edges_projection
+
+  (cleanup done)
+
+16 passed, 0 failed
+
+```
+
+### 4. Smoke S1-01 still green
+
+```
+[PASS] voices.provider='bogus': voices_provider_check fired
+[PASS] Valid organization INSERT succeeded
+[PASS] Cleanup complete
+
+SMOKE RESULT: GREEN
+
+```
+
+### 5. check-types --force / lint / platform / openapi
+
+```
+Cached:    0 cached, 6 total
+  Time:    12.936s 
+
+
+/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/env/src/web.ts
+  9:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 1 problem (0 errors, 1 warning)
+
+
+@kuralle/platform test:    Duration  868ms (transform 67ms, setup 0ms, import 84ms, tests 682ms, environment 0ms)
+@kuralle/platform test: 
+@kuralle/platform test: Exited with code 0
+
+server gen:openapi: ✅ OpenAPI spec matches committed openapi.json
+server gen:openapi: Exited with code 0
+
+```

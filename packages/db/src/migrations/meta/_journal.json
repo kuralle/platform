@@ -41,6 +41,13 @@
       "when": 1778146500000,
       "tag": "0005_s1_02_meta",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1778147834345,
+      "tag": "0006_s1_02_index_desc",
+      "breakpoints": true
     }
   ]
 }

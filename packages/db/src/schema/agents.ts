@@ -34,7 +34,10 @@ export const agents = pgTable(
   },
   (table) => [
     index("agents_workspace_status_idx").on(table.workspaceId, table.status),
-    index("agents_workspace_updated_idx").on(table.workspaceId, table.updatedAt),
+    index("agents_workspace_updated_idx").on(
+      table.workspaceId,
+      table.updatedAt.desc(),
+    ),
   ],
 );
 
@@ -70,12 +73,12 @@ export const agentVersions = pgTable(
     ),
     index("agent_versions_agent_published_idx").on(
       table.agentId,
-      table.publishedAt,
+      table.publishedAt.desc(),
     ),
     index("agent_versions_agent_kind_published_idx").on(
       table.agentId,
       table.versionKind,
-      table.publishedAt,
+      table.publishedAt.desc(),
     ),
     index("agent_versions_bundle_hash_idx").on(table.bundleHash),
   ],
@@ -223,14 +226,108 @@ export const workflowEdgesProjection = pgTable(
   ],
 );
 
-// agents → agentVersions
-export const agentsRelations = relations(agents, ({ many }) => ({
+export const agentsRelations = relations(agents, ({ one, many }) => ({
   versions: many(agentVersions),
-}));
-
-export const agentVersionsRelations = relations(agentVersions, ({ one }) => ({
-  agent: one(agents, {
-    fields: [agentVersions.agentId],
-    references: [agents.id],
+  activeVersion: one(agentVersions, {
+    fields: [agents.activeVersionId],
+    references: [agentVersions.id],
+    relationName: "agents_active_version",
+  }),
+  authorUser: one(user, {
+    fields: [agents.authorUserId],
+    references: [user.id],
   }),
 }));
+
+export const agentVersionsRelations = relations(
+  agentVersions,
+  ({ one, many }) => ({
+    agent: one(agents, {
+      fields: [agentVersions.agentId],
+      references: [agents.id],
+    }),
+    parentVersion: one(agentVersions, {
+      fields: [agentVersions.parentVersionId],
+      references: [agentVersions.id],
+      relationName: "agent_versions_parent",
+    }),
+    publishedByUser: one(user, {
+      fields: [agentVersions.publishedByUserId],
+      references: [user.id],
+    }),
+    toolAttachments: many(agentToolAttachments),
+    kbAttachments: many(agentKbAttachments),
+    guardrails: many(agentGuardrails),
+    evalCriteria: many(agentEvalCriteria),
+    workflowNodes: many(workflowNodesProjection),
+    workflowEdges: many(workflowEdgesProjection),
+  }),
+);
+
+export const agentToolAttachmentsRelations = relations(
+  agentToolAttachments,
+  ({ one }) => ({
+    agentVersion: one(agentVersions, {
+      fields: [agentToolAttachments.agentVersionId],
+      references: [agentVersions.id],
+    }),
+    tool: one(tools, {
+      fields: [agentToolAttachments.toolId],
+      references: [tools.id],
+    }),
+  }),
+);
+
+export const agentKbAttachmentsRelations = relations(
+  agentKbAttachments,
+  ({ one }) => ({
+    agentVersion: one(agentVersions, {
+      fields: [agentKbAttachments.agentVersionId],
+      references: [agentVersions.id],
+    }),
+    document: one(kbDocuments, {
+      fields: [agentKbAttachments.documentId],
+      references: [kbDocuments.id],
+    }),
+  }),
+);
+
+export const agentGuardrailsRelations = relations(
+  agentGuardrails,
+  ({ one }) => ({
+    agentVersion: one(agentVersions, {
+      fields: [agentGuardrails.agentVersionId],
+      references: [agentVersions.id],
+    }),
+  }),
+);
+
+export const agentEvalCriteriaRelations = relations(
+  agentEvalCriteria,
+  ({ one }) => ({
+    agentVersion: one(agentVersions, {
+      fields: [agentEvalCriteria.agentVersionId],
+      references: [agentVersions.id],
+    }),
+  }),
+);
+
+export const workflowNodesProjectionRelations = relations(
+  workflowNodesProjection,
+  ({ one }) => ({
+    agentVersion: one(agentVersions, {
+      fields: [workflowNodesProjection.agentVersionId],
+      references: [agentVersions.id],
+    }),
+  }),
+);
+
+export const workflowEdgesProjectionRelations = relations(
+  workflowEdgesProjection,
+  ({ one }) => ({
+    agentVersion: one(agentVersions, {
+      fields: [workflowEdgesProjection.agentVersionId],
+      references: [agentVersions.id],
+    }),
+  }),
+);

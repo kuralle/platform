@@ -97,6 +97,29 @@ async function main() {
     check("UPDATE agent_versions raises trigger", triggerFired);
     check("  error contains 'append-only'", triggerMsg.includes("append-only"), triggerMsg);
 
+    // 6b. UNIQUE (agentId, versionNumber) blocks duplicate version_number
+    let uniqueFired = false;
+    let uniqueMsg = "";
+    try {
+      await client.query(
+        `INSERT INTO agent_versions (id, agent_id, version_number, version_kind, snapshot)
+         VALUES ('test-s1-02-av-dup', 'test-s1-02-agent', 1, 'manual_save', '{}'::jsonb)`,
+      );
+    } catch (e) {
+      uniqueFired = true;
+      uniqueMsg = e instanceof Error ? e.message : String(e);
+    }
+    check(
+      "UNIQUE (agent_id, version_number) blocks dup version_number=1",
+      uniqueFired,
+    );
+    check(
+      "  error contains 'agent_versions_agent_version_uidx' or 'duplicate key'",
+      uniqueMsg.includes("agent_versions_agent_version_uidx") ||
+        uniqueMsg.includes("duplicate key"),
+      uniqueMsg,
+    );
+
     // 7. Create temporary FK-target rows
     await client.query(
       `INSERT INTO tools (id, name, kind, config, workspace_id)
