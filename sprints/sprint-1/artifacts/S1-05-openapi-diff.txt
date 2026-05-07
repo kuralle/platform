@@ -1,0 +1,80 @@
+diff --git a/apps/server/openapi.json b/apps/server/openapi.json
+index 0bfd0fd..1ad623d 100644
+--- a/apps/server/openapi.json
++++ b/apps/server/openapi.json
+@@ -5,6 +5,396 @@
+   },
+   "openapi": "3.1.1",
+   "paths": {
++    "/agents/list": {
++      "post": {
++        "operationId": "agents.list",
++        "requestBody": {
++          "content": {
++            "application/json": {
++              "schema": {
++                "properties": {
++                  "cursor": {
++                    "anyOf": [
++                      {
++                        "type": "string"
++                      },
++                      {
++                        "type": "null"
++                      }
++                    ]
++                  },
++                  "limit": {
++                    "default": 20,
++                    "maximum": 100,
++                    "minimum": 1,
++                    "type": "integer"
++                  },
++                  "workspaceId": {
++                    "type": "string"
++                  }
++                },
++                "required": [
++                  "workspaceId"
++                ],
++                "type": "object"
++              }
++            }
++          },
++          "required": true
++        },
++        "responses": {
++          "200": {
++            "content": {
++              "application/json": {
++                "schema": {
++                  "properties": {
++                    "cursor": {
++                      "anyOf": [
++                        {
++                          "type": "string"
++                        },
++                        {
++                          "type": "null"
++                        }
++                      ]
++                    },
++                    "items": {
++                      "items": {
++                        "anyOf": [
++                          {},
++                          {
++                            "type": "null"
++                          }
++                        ]
++                      },
++                      "type": "array"
++                    }
++                  },
++                  "required": [
++                    "items",
++                    "cursor"
++                  ],
++                  "type": "object"
++                }
++              }

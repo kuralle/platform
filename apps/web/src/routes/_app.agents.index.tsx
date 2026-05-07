@@ -24,7 +24,7 @@ import { Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { formatPct, formatRelative, formatUsd } from "@/lib/format";
-import { makeAgents } from "@/mocks";
+import { useAgents } from "@/hooks/api/agents";
 import type { Agent } from "@/types/domain";
 
 export const Route = createFileRoute("/_app/agents/")({
@@ -33,7 +33,8 @@ export const Route = createFileRoute("/_app/agents/")({
 
 function AgentsListRoute() {
   const navigate = useNavigate();
-  const data = useMemo(() => makeAgents(10), []);
+  const { data: agentsList } = useAgents({ workspaceId: "demo-workspace" });
+  const data = useMemo(() => (agentsList?.items ?? []) as unknown as Agent[], [agentsList?.items]);
   const [sorting, setSorting] = useState<SortingState>([{ id: "calls7d", desc: true }]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});

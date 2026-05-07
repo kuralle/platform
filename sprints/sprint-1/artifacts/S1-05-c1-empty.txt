@@ -1,0 +1,12 @@
+web test: 
+web test:  RUN  v4.1.5 /Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/apps/web
+web test: 
+web test:  ✓ src/hooks/api/agents.test.tsx > useAgents > returns empty items list on happy path 65ms
+web test:  ✓ src/hooks/api/agents.test.tsx > useAgents > surfaces error on server failure 56ms
+web test: 
+web test:  Test Files  1 passed (1)
+web test:       Tests  2 passed (2)
+web test:    Start at  17:13:53
+web test:    Duration  1.08s (transform 48ms, setup 159ms, import 142ms, tests 124ms, environment 551ms)
+web test: 
+web test: Exited with code 0

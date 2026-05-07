@@ -1,6 +1,17 @@
 import type { RouterClient } from "@orpc/server";
 
 import { protectedProcedure, publicProcedure } from "../index";
+import { agentsRouter } from "./agents";
+import { conversationsRouter } from "./conversations";
+import { channelsRouter } from "./channels";
+import { kbRouter } from "./kb";
+import { toolsRouter } from "./tools";
+import { batchesRouter } from "./batches";
+import { webhooksRouter } from "./webhooks";
+import { secretsRouter } from "./secrets";
+import { voicesRouter } from "./voices";
+import { complianceRouter } from "./compliance";
+import { receiptsRouter } from "./receipts";
 
 export const appRouter = {
   healthCheck: publicProcedure.handler(() => {
@@ -12,6 +23,17 @@ export const appRouter = {
       user: context.session?.user,
     };
   }),
+  agents: agentsRouter,
+  conversations: conversationsRouter,
+  channels: channelsRouter,
+  kb: kbRouter,
+  tools: toolsRouter,
+  batches: batchesRouter,
+  webhooks: webhooksRouter,
+  secrets: secretsRouter,
+  voices: voicesRouter,
+  compliance: complianceRouter,
+  receipts: receiptsRouter,
 };
 export type AppRouter = typeof appRouter;
 export type AppRouterClient = RouterClient<typeof appRouter>;
