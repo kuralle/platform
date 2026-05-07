@@ -1,0 +1,62 @@
+                                            Partitioned table "public.audit_log_events"
+    Column     |            Type             | Collation | Nullable | Default | Storage  | Compression | Stats target | Description 
+---------------+-----------------------------+-----------+----------+---------+----------+-------------+--------------+-------------
+ id            | text                        |           | not null |         | extended |             |              | 
+ workspace_id  | text                        |           | not null |         | extended |             |              | 
+ actor_user_id | text                        |           |          |         | extended |             |              | 
+ actor_kind    | text                        |           |          |         | extended |             |              | 
+ api_key_id    | text                        |           |          |         | extended |             |              | 
+ event         | text                        |           | not null |         | extended |             |              | 
+ resource_kind | text                        |           |          |         | extended |             |              | 
+ resource_id   | text                        |           |          |         | extended |             |              | 
+ diff          | jsonb                       |           |          |         | extended |             |              | 
+ ip_address    | inet                        |           |          |         | main     |             |              | 
+ user_agent    | text                        |           |          |         | extended |             |              | 
+ created_at    | timestamp without time zone |           | not null | now()   | plain    |             |              | 
+Partition key: RANGE (created_at)
+Indexes:
+    "audit_log_events_pkey" PRIMARY KEY, btree (id, created_at)
+    "audit_log_events_resource_created_idx" btree (resource_kind, resource_id, created_at DESC)
+    "audit_log_events_workspace_created_idx" btree (workspace_id, created_at DESC)
+    "audit_log_events_workspace_event_created_idx" btree (workspace_id, event, created_at DESC)
+Check constraints:
+    "audit_log_events_actor_kind_check" CHECK (actor_kind = ANY (ARRAY['user'::text, 'api_key'::text, 'system'::text]))
+Foreign-key constraints:
+    "audit_log_events_actor_user_id_fkey" FOREIGN KEY (actor_user_id) REFERENCES "user"(id)
+    "audit_log_events_api_key_id_fkey" FOREIGN KEY (api_key_id) REFERENCES apikey(id)
+    "audit_log_events_workspace_id_fkey" FOREIGN KEY (workspace_id) REFERENCES organization(id) ON DELETE CASCADE
+Partitions: audit_log_events_2026_05 FOR VALUES FROM ('2026-05-01 00:00:00') TO ('2026-06-01 00:00:00'),
+            audit_log_events_2026_06 FOR VALUES FROM ('2026-06-01 00:00:00') TO ('2026-07-01 00:00:00'),
+            audit_log_events_2026_07 FOR VALUES FROM ('2026-07-01 00:00:00') TO ('2026-08-01 00:00:00')
+
+---
+                                              Table "public.audit_log_events_2026_05"
+    Column     |            Type             | Collation | Nullable | Default | Storage  | Compression | Stats target | Description 
+---------------+-----------------------------+-----------+----------+---------+----------+-------------+--------------+-------------
+ id            | text                        |           | not null |         | extended |             |              | 
+ workspace_id  | text                        |           | not null |         | extended |             |              | 
+ actor_user_id | text                        |           |          |         | extended |             |              | 
+ actor_kind    | text                        |           |          |         | extended |             |              | 
+ api_key_id    | text                        |           |          |         | extended |             |              | 
+ event         | text                        |           | not null |         | extended |             |              | 
+ resource_kind | text                        |           |          |         | extended |             |              | 
+ resource_id   | text                        |           |          |         | extended |             |              | 
+ diff          | jsonb                       |           |          |         | extended |             |              | 
+ ip_address    | inet                        |           |          |         | main     |             |              | 
+ user_agent    | text                        |           |          |         | extended |             |              | 
+ created_at    | timestamp without time zone |           | not null | now()   | plain    |             |              | 
+Partition of: audit_log_events FOR VALUES FROM ('2026-05-01 00:00:00') TO ('2026-06-01 00:00:00')
+Partition constraint: ((created_at IS NOT NULL) AND (created_at >= '2026-05-01 00:00:00'::timestamp without time zone) AND (created_at < '2026-06-01 00:00:00'::timestamp without time zone))
+Indexes:
+    "audit_log_events_2026_05_pkey" PRIMARY KEY, btree (id, created_at)
+    "audit_log_events_2026_05_resource_kind_resource_id_created__idx" btree (resource_kind, resource_id, created_at DESC)
+    "audit_log_events_2026_05_workspace_id_created_at_idx" btree (workspace_id, created_at DESC)
+    "audit_log_events_2026_05_workspace_id_event_created_at_idx" btree (workspace_id, event, created_at DESC)
+Check constraints:
+    "audit_log_events_actor_kind_check" CHECK (actor_kind = ANY (ARRAY['user'::text, 'api_key'::text, 'system'::text]))
+Foreign-key constraints:
+    TABLE "audit_log_events" CONSTRAINT "audit_log_events_actor_user_id_fkey" FOREIGN KEY (actor_user_id) REFERENCES "user"(id)
+    TABLE "audit_log_events" CONSTRAINT "audit_log_events_api_key_id_fkey" FOREIGN KEY (api_key_id) REFERENCES apikey(id)
+    TABLE "audit_log_events" CONSTRAINT "audit_log_events_workspace_id_fkey" FOREIGN KEY (workspace_id) REFERENCES organization(id) ON DELETE CASCADE
+Access method: heap
+

@@ -11,6 +11,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { organization } from "./auth";
 import { agents, agentVersions } from "./agents";
+import { secrets } from "./secrets";
 
 export const channelConnections = pgTable(
   "channel_connections",
@@ -23,7 +24,9 @@ export const channelConnections = pgTable(
     provider: text("provider").notNull(),
     displayName: text("display_name").notNull(),
     status: text("status").notNull(),
-    credentialsSecretId: text("credentials_secret_id"),
+    credentialsSecretId: text("credentials_secret_id").references(
+      () => secrets.id,
+    ),
     config: jsonb("config").notNull(),
     capabilities: text("capabilities").array().default([]),
     createdAt: timestamp("created_at").defaultNow().notNull(),

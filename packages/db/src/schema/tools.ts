@@ -8,6 +8,7 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { organization } from "./auth";
+import { secrets } from "./secrets";
 
 export const toolCatalogProviders = pgTable(
   "tool_catalog_providers",
@@ -20,7 +21,9 @@ export const toolCatalogProviders = pgTable(
     displayName: text("display_name").notNull(),
     mcpServerUrl: text("mcp_server_url").notNull(),
     authMode: text("auth_mode").default("none"),
-    credentialsSecretId: text("credentials_secret_id"),
+    credentialsSecretId: text("credentials_secret_id").references(
+      () => secrets.id,
+    ),
     status: text("status").default("connected"),
     lastSyncedAt: timestamp("last_synced_at"),
     toolsetIds: text("toolset_ids").array().default([]),
