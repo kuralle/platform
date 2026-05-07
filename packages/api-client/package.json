@@ -1,0 +1,22 @@
+{
+  "name": "@kuralle/api-client",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "check-types": "tsc -b"
+  },
+  "dependencies": {
+    "@kuralle/api": "workspace:*",
+    "@orpc/client": "catalog:",
+    "@orpc/tanstack-query": "catalog:",
+    "@tanstack/react-query": "catalog:"
+  },
+  "devDependencies": {
+    "@kuralle/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

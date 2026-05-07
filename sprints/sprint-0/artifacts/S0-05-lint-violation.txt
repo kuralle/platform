@@ -1,0 +1,18 @@
+$ eslint .
+
+/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/apps/web/src/components/__lint-test__.tsx
+  1:1  error  '@kuralle/api-client' import is restricted from being used by a pattern. Components must not import @kuralle/api-client directly. Use a hook from apps/web/src/hooks/api/ instead  no-restricted-imports
+
+/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/env/src/web.ts
+  9:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 2 problems (1 error, 1 warning)
+
+error: script "lint" exited with code 1
+$ eslint .
+
+/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/env/src/web.ts
+  9:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 1 problem (0 errors, 1 warning)
+

@@ -1,0 +1,8 @@
+src/routers/index.ts(9,14): error TS2345: Argument of type '() => { status: "OK"; }' is not assignable to parameter of type 'ProcedureHandler<{ auth: null; session: { session: { id: string; createdAt: Date; updatedAt: Date; userId: string; expiresAt: Date; token: string; ipAddress?: string | null | undefined; userAgent?: string | ... 1 more ... | undefined; activeOrganizationId?: string | ... 1 more ... | undefined; }; user: { ...; }; } |...'.
+  Type '{ status: "OK"; }' is not assignable to type 'Promisable<{ status: "OK_V2"; }>'.
+    Type '{ status: "OK"; }' is not assignable to type '{ status: "OK_V2"; }'.
+      Types of property 'status' are incompatible.
+        Type '"OK"' is not assignable to type '"OK_V2"'.
+
+---
+After revert:

@@ -18,6 +18,7 @@ import type { Conversation } from "@/types/domain";
 import { ComplianceStatusModal } from "@/components/modals/compliance-status-modal";
 import { WelcomeModal } from "@/components/modals/welcome-modal";
 import { useWorkspace } from "@/contexts/workspace";
+import { useHealthCheck } from "@/hooks/api/health";
 import { formatPct, formatRelative, formatUsd } from "@/lib/format";
 import { makeConversations, makeDashboardKpis } from "@/mocks";
 
@@ -32,6 +33,8 @@ function HomeRoute() {
   const [welcomeOpen, setWelcomeOpen] = useState(false);
   const [complianceOpen, setComplianceOpen] = useState(false);
   const [empty, setEmpty] = useState(false);
+
+  const health = useHealthCheck();
 
   const kpis = useMemo(() => makeDashboardKpis(), []);
   const conversations = useMemo(() => makeConversations(8).slice(0, 6), []);
@@ -134,6 +137,11 @@ function HomeRoute() {
 
   return (
     <div className="mx-auto max-w-[1280px] px-8 py-8">
+      <div className="mb-6">
+        <StatusPill tone={health.isLoading ? "neutral" : health.isError ? "danger" : "live"}>
+          API {health.isLoading ? "…" : health.isError ? "down" : "live"}
+        </StatusPill>
+      </div>
       <PageHeader
         eyebrow={`Workspace · ${workspace.name}`}
         title="Today"
