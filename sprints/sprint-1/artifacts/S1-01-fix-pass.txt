@@ -1,0 +1,82 @@
+## Manager fix-pass artifact (S1-01-fix) — verification chain
+
+### 1. From-scratch migration replay (drop public + drizzle schemas, reapply 0000..0003)
+
+✅ db:migrate applied successfully (0000_legal_vanisher → 0001_crazy_purifiers → 0002_enum_checks → 0003_s1_01_fix)
+
+### 2. Smoke runner output (post-fix-pass; covers all 4 S0 enum CHECKs + 8 new enum CHECKs + 2 indexes + voices seed)
+
+```
+[PASS] Voices stock catalogue count: 5
+[PASS] kb_chunks_embedding_idx rows: 1
+[PASS] kb_documents_workspace_deleted_idx rows: 1
+[PASS] organization.environment='bogus': organization_environment_check fired
+[PASS] organization.region='bogus_region': organization_region_check fired
+[PASS] organization.compliance_mode='bogus_mode': organization_compliance_mode_check fired
+[PASS] user.system_role='bogus_role': user_system_role_check fired
+[PASS] kb_documents.source='bogus': kb_documents_source_check fired
+[PASS] kb_documents.status='bogus': kb_documents_status_check fired
+[PASS] tools.kind='bogus': tools_kind_check fired
+[PASS] tools.status='bogus': tools_status_check fired
+[PASS] tool_catalog_providers.kind='bogus': tool_catalog_providers_kind_check fired
+[PASS] tool_catalog_providers.auth_mode='bogus': tool_catalog_providers_auth_mode_check fired
+[PASS] tool_catalog_providers.status='bogus': tool_catalog_providers_status_check fired
+[PASS] voices.provider='bogus': voices_provider_check fired
+[PASS] Valid organization INSERT succeeded
+[PASS] Cleanup complete
+
+SMOKE RESULT: GREEN
+
+```
+
+### 3. Indexes added by fix-pass
+
+```
+Indexes:
+    "kb_documents_workspace_deleted_idx" btree (workspace_id, deleted_at) WHERE deleted_at IS NULL
+
+```
+
+### 4. CHECK constraints added by fix-pass (8 new tables)
+
+```
+cardinal_number_domain_check
+kb_documents_source_check
+kb_documents_status_check
+organization_compliance_mode_check
+organization_environment_check
+organization_region_check
+tool_catalog_providers_auth_mode_check
+tool_catalog_providers_kind_check
+tool_catalog_providers_status_check
+tools_kind_check
+tools_status_check
+user_system_role_check
+voices_provider_check
+yes_or_no_check
+
+```
+
+### 5. Lint diff: 3 warnings → 1 warning (pre-existing in env/web.ts)
+
+```
+$ eslint .
+
+/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/env/src/web.ts
+  9:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 1 problem (0 errors, 1 warning)
+
+
+```
+
+### 6. check-types --force (turbo cache busted per S0 trap)
+
+```
+
+ Tasks:    6 successful, 6 total
+Cached:    0 cached, 6 total
+  Time:    13.272s 
+
+
+```

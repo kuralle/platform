@@ -10,9 +10,15 @@ import {
 } from "drizzle-orm/pg-core";
 import { organization, user } from "./auth";
 
-const vector = customType<{ data: number[] | null; driverData: string }>({
+const vector = customType<{ data: number[]; driverData: string }>({
   dataType(config) {
     return `vector(${(config as { dimensions: number }).dimensions})`;
+  },
+  toDriver(value) {
+    return `[${value.join(",")}]`;
+  },
+  fromDriver(value) {
+    return value.slice(1, -1).split(",").map(Number);
   },
 });
 

@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import {
   pgTable,
   text,
@@ -28,3 +29,10 @@ export const voices = pgTable(
     index("voices_provider_external_idx").on(table.provider, table.externalId),
   ],
 );
+
+export const voicesRelations = relations(voices, ({ one }) => ({
+  workspace: one(organization, {
+    fields: [voices.workspaceId],
+    references: [organization.id],
+  }),
+}));
