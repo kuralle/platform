@@ -159,10 +159,6 @@ export const conversationTurns = pgTable(
       table.conversationId,
       table.ordinal,
     ),
-    index("conversation_turns_conversation_ordinal_idx").on(
-      table.conversationId,
-      table.ordinal,
-    ),
   ],
 );
 
@@ -228,6 +224,10 @@ export const conversationEvals = pgTable(
 export const conversationsRelations = relations(
   conversations,
   ({ one, many }) => ({
+    workspace: one(organization, {
+      fields: [conversations.workspaceId],
+      references: [organization.id],
+    }),
     agent: one(agents, {
       fields: [conversations.agentId],
       references: [agents.id],
@@ -264,6 +264,10 @@ export const voiceCallsRelations = relations(voiceCalls, ({ one }) => ({
 export const messagingThreadsRelations = relations(
   messagingThreads,
   ({ one }) => ({
+    workspace: one(organization, {
+      fields: [messagingThreads.workspaceId],
+      references: [organization.id],
+    }),
     channelEndpoint: one(channelEndpoints, {
       fields: [messagingThreads.channelEndpointId],
       references: [channelEndpoints.id],

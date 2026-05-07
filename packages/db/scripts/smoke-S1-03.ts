@@ -246,7 +246,107 @@ async function main() {
       noAttachmentMsg,
     );
 
-    // 12. Cleanup
+    // 12. UNIQUE constraints (gate-S1-03 Apply-now item 6)
+    // 12a. channel_endpoints UNIQUE (channel_kind, identifier)
+    let epDupFired = false;
+    try {
+      await client.query(
+        `INSERT INTO channel_endpoints (id, workspace_id, connection_id, channel_kind, identifier, attached_agent_id)
+         VALUES ('${testPrefix}-ep-dup', $1, '${testPrefix}-conn', 'voice', '+15551234567', '${testPrefix}-agent')`,
+        [orgId],
+      );
+    } catch {
+      epDupFired = true;
+    }
+    check(
+      "UNIQUE (channel_kind, identifier) on channel_endpoints blocks dup",
+      epDupFired,
+    );
+
+    // 12b. conversations UNIQUE (workspace_id, thread_key, started_at)
+    // Pull started_at as text (microsecond-stable round-trip) and reuse via SET
+    // — passing Date objects loses sub-millisecond precision in the pg driver.
+    let cvDupFired = false;
+    let cvDupMsg = "";
+    try {
+      await client.query(
+        `INSERT INTO conversations (id, workspace_id, agent_id, agent_version_id, channel_kind, channel_endpoint_id, thread_key, deployment_id, started_at)
+         SELECT '${testPrefix}-cv-dup', $1, '${testPrefix}-agent', $2, 'voice', '${testPrefix}-ep1', 'voice:test-call-sid', $3, started_at
+         FROM conversations WHERE id = '${testPrefix}-cv'`,
+        [orgId, avId, depId],
+      );
+    } catch (e) {
+      cvDupFired = true;
+      cvDupMsg = e instanceof Error ? e.message : String(e);
+    }
+    check(
+      "UNIQUE (workspace_id, thread_key, started_at) on conversations blocks dup",
+      cvDupFired,
+      cvDupMsg,
+    );
+
+    // 12c. conversation_turns UNIQUE (conversation_id, ordinal)
+    let turnOrdDupFired = false;
+    try {
+      await client.query(
+        `INSERT INTO conversation_turns (id, conversation_id, ordinal, speaker, text, timestamp_sec)
+         VALUES ('${testPrefix}-turn-dup-ord', $1, 1, 'agent', 'dup', 0)`,
+        [cvId],
+      );
+    } catch {
+      turnOrdDupFired = true;
+    }
+    check(
+      "UNIQUE (conversation_id, ordinal) on conversation_turns blocks dup",
+      turnOrdDupFired,
+    );
+
+    // 12d. runtime_sessions.conversation_id UNIQUE
+    let sessDupFired = false;
+    try {
+      await client.query(
+        `INSERT INTO runtime_sessions (id, conversation_id, agent_id, agent_version_id, deployment_id, working_memory)
+         VALUES ('${testPrefix}-sess-dup', $1, '${testPrefix}-agent', $2, $3, '{}'::jsonb)`,
+        [cvId, avId, depId],
+      );
+    } catch {
+      sessDupFired = true;
+    }
+    check(
+      "UNIQUE conversation_id on runtime_sessions blocks dup",
+      sessDupFired,
+    );
+
+    // 13. Mutual-FK creation order: channel_endpoint exists, then routing_rule references it,
+    // then UPDATE endpoint with routingRulesId — succeeds (proving the late FK round-trips).
+    const epRouteRes = await client.query(
+      `INSERT INTO channel_endpoints (id, workspace_id, connection_id, channel_kind, identifier, attached_agent_id)
+       VALUES ('${testPrefix}-ep-route', $1, '${testPrefix}-conn', 'voice', '+15559999000', '${testPrefix}-agent')
+       RETURNING id`,
+      [orgId],
+    );
+    check("INSERT endpoint (no routing_rules_id yet)", epRouteRes.rowCount! > 0);
+
+    const ruleRes = await client.query(
+      `INSERT INTO routing_rules (id, channel_endpoint_id, rule_kind, agent_id)
+       VALUES ('${testPrefix}-rule', '${testPrefix}-ep-route', 'default', '${testPrefix}-agent')
+       RETURNING id`,
+    );
+    check("INSERT routing_rules (references endpoint)", ruleRes.rowCount! > 0);
+
+    const updRes = await client.query(
+      `UPDATE channel_endpoints SET routing_rules_id = '${testPrefix}-rule' WHERE id = '${testPrefix}-ep-route'`,
+    );
+    check(
+      "UPDATE channel_endpoint with routing_rules_id (mutual-FK round-trip)",
+      (updRes.rowCount ?? 0) > 0,
+    );
+
+    // 14. Cleanup
+    await client.query(
+      `UPDATE channel_endpoints SET routing_rules_id = NULL WHERE id LIKE '${testPrefix}-%'`,
+    );
+    await client.query(`DELETE FROM routing_rules WHERE id LIKE '${testPrefix}-%'`);
     await client.query(`DELETE FROM session_checkpoints WHERE id LIKE '${testPrefix}-%'`);
     await client.query(`DELETE FROM runtime_sessions WHERE id LIKE '${testPrefix}-%'`);
     await client.query(`DELETE FROM conversation_turns WHERE id LIKE '${testPrefix}-%'`);

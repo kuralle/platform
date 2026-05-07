@@ -1,4 +1,5 @@
 import { relations } from "drizzle-orm";
+import type { AnyPgColumn } from "drizzle-orm/pg-core";
 import {
   pgTable,
   text,
@@ -9,7 +10,7 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { organization } from "./auth";
-import { agents } from "./agents";
+import { agents, agentVersions } from "./agents";
 
 export const channelConnections = pgTable(
   "channel_connections",
@@ -55,8 +56,12 @@ export const channelEndpoints = pgTable(
     identifier: text("identifier").notNull(),
     displayName: text("display_name"),
     attachedAgentId: text("attached_agent_id").references(() => agents.id),
-    attachedAgentVersionId: text("attached_agent_version_id"),
-    routingRulesId: text("routing_rules_id"),
+    attachedAgentVersionId: text("attached_agent_version_id").references(
+      () => agentVersions.id,
+    ),
+    routingRulesId: text("routing_rules_id").references(
+      (): AnyPgColumn => routingRules.id,
+    ),
     publicWebhookUrl: text("public_webhook_url"),
     publicStreamUrl: text("public_stream_url"),
     metadata: jsonb("metadata"),
@@ -107,7 +112,11 @@ export const routingRules = pgTable(
 
 export const channelConnectionsRelations = relations(
   channelConnections,
-  ({ many }) => ({
+  ({ one, many }) => ({
+    workspace: one(organization, {
+      fields: [channelConnections.workspaceId],
+      references: [organization.id],
+    }),
     endpoints: many(channelEndpoints),
   }),
 );
@@ -115,6 +124,10 @@ export const channelConnectionsRelations = relations(
 export const channelEndpointsRelations = relations(
   channelEndpoints,
   ({ one }) => ({
+    workspace: one(organization, {
+      fields: [channelEndpoints.workspaceId],
+      references: [organization.id],
+    }),
     connection: one(channelConnections, {
       fields: [channelEndpoints.connectionId],
       references: [channelConnections.id],
@@ -122,6 +135,15 @@ export const channelEndpointsRelations = relations(
     attachedAgent: one(agents, {
       fields: [channelEndpoints.attachedAgentId],
       references: [agents.id],
+    }),
+    attachedAgentVersion: one(agentVersions, {
+      fields: [channelEndpoints.attachedAgentVersionId],
+      references: [agentVersions.id],
+    }),
+    routingRule: one(routingRules, {
+      fields: [channelEndpoints.routingRulesId],
+      references: [routingRules.id],
+      relationName: "channel_endpoints_routing_rules",
     }),
   }),
 );

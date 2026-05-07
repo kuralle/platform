@@ -1,0 +1,109 @@
+## Manager fix-pass artifact (S1-03-fix)
+
+### 1. Smoke S1-03 (28 PASS / 0 FAIL — was 21/21)
+
+```
+◇ injected env (4) from apps/server/.env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+S1-03 smoke — channels + conversations + runtime sidecars
+
+  ✓ INSERT organization
+  ✓ INSERT agents
+  ✓ INSERT agent_versions
+  ✓ INSERT channel_connections (voice)
+  ✓ INSERT channel_endpoints (voice, matches connection)
+  ✓ Polymorphic CHECK trigger fires (mismatched channelKind)
+  ✓   error contains 'does not match'
+  ✓ INSERT runtime_deployments
+  ✓ INSERT conversation (with deployment FK)
+  ✓ INSERT conversation_turn 1 (messageId='wamid.XYZ123')
+  ✓ MessageId dedup index rejects duplicate (conversation_id, message_id)
+  ✓   error contains 'conversation_turns_message_dedup_idx' or 'duplicate key'
+  ✓ INSERT voice turn 1 (NULL messageId)
+  ✓ INSERT voice turn 2 (NULL messageId) succeeds - partial index doesn't constrain NULL
+  ✓ INSERT runtime_session (UNIQUE conversationId)
+  ✓ INSERT session_checkpoint 1
+  ✓ INSERT session_checkpoint 2
+  ✓ channel_kind CHECK rejects 'bogus'
+  ✓   error contains 'channel_connections_channel_kind_check'
+  ✓ channel_endpoints attachment CHECK rejects NULL agent AND NULL rules
+  ✓   error contains 'channel_endpoints_attachment_check'
+  ✓ UNIQUE (channel_kind, identifier) on channel_endpoints blocks dup
+  ✓ UNIQUE (workspace_id, thread_key, started_at) on conversations blocks dup
+  ✓ UNIQUE (conversation_id, ordinal) on conversation_turns blocks dup
+  ✓ UNIQUE conversation_id on runtime_sessions blocks dup
+  ✓ INSERT endpoint (no routing_rules_id yet)
+  ✓ INSERT routing_rules (references endpoint)
+  ✓ UPDATE channel_endpoint with routing_rules_id (mutual-FK round-trip)
+
+  (cleanup done)
+
+28 passed, 0 failed
+
+```
+
+### 2. CHECK constraints added (16 new, gate item 1)
+
+```
+channel_connections_channel_kind_check
+channel_connections_status_check
+conversation_turns_delivery_status_check
+conversation_turns_eval_verdict_check
+conversation_turns_speaker_check
+conversations_direction_check
+conversations_outcome_check
+routing_rules_rule_kind_check
+runtime_deployments_compliance_mode_check
+runtime_deployments_isolation_kind_check
+runtime_deployments_kind_check
+runtime_deployments_platform_check
+runtime_deployments_resource_tier_check
+runtime_deployments_status_check
+runtime_deployments_termination_reason_check
+session_checkpoints_trigger_check
+voice_calls_hangup_by_check
+
+```
+
+### 3. New FKs on channel_endpoints (gate items 2, 3)
+
+```
+routing_rules_pkey
+routing_rules_channel_endpoint_id_channel_endpoints_id_fk
+routing_rules_agent_id_agents_id_fk
+channel_endpoints_attached_agent_version_id_agent_versions_id_f
+channel_endpoints_routing_rules_id_routing_rules_id_fk
+routing_rules_rule_kind_check
+
+```
+
+### 4. Redundant non-unique conversation_turns_*_ordinal_idx removed (gate item 5)
+
+```
+conversation_turns_conversation_ordinal_uidx
+conversation_turns_message_dedup_idx
+conversation_turns_pkey
+
+```
+
+### 5. From-scratch replay: drop public + drizzle, CREATE EXTENSION vector, db:migrate (0000..0009), all smokes green
+
+### 6. check-types --force / lint / platform / openapi
+
+```
+Cached:    2 cached, 6 total
+  Time:    11.659s 
+
+
+/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/env/src/web.ts
+  9:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 1 problem (0 errors, 1 warning)
+
+
+@kuralle/platform test: 
+@kuralle/platform test: Exited with code 0
+
+server gen:openapi: ✅ OpenAPI spec matches committed openapi.json
+server gen:openapi: Exited with code 0
+
+```
