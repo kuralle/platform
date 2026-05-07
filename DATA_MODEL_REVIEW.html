@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Kuralle · Data Model Review</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root {
+    --p0: #c0392b;
+    --p1: #d68910;
+    --p2: #2874a6;
+    --p3: #6c757d;
+    --amend: #117a65;
+    --bg: #fafaf7;
+    --card: #ffffff;
+    --ink: #1c1c1c;
+    --mute: #6e6e6e;
+    --rule: #e6e6df;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
+  }
+  .wrap {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 48px 32px 96px;
+  }
+  header.top {
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 20px;
+    margin-bottom: 28px;
+  }
+  header.top .eyebrow {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--mute);
+  }
+  header.top h1 {
+    font-size: 28px;
+    margin: 6px 0 4px;
+    letter-spacing: -0.01em;
+  }
+  header.top .meta {
+    font-size: 12px;
+    color: var(--mute);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  .legend {
+    display: flex;
+    gap: 14px;
+    margin-top: 14px;
+    font-size: 12px;
+  }
+  .legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .dot.p0 { background: var(--p0); }
+  .dot.p1 { background: var(--p1); }
+  .dot.p2 { background: var(--p2); }
+  .dot.p3 { background: var(--p3); }
+  .dot.amend { background: var(--amend); }
+
+  nav.toc {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin-bottom: 36px;
+    font-size: 13px;
+  }
+  nav.toc h2 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--mute);
+    margin: 0 0 8px;
+  }
+  nav.toc ol {
+    margin: 0;
+    padding-left: 22px;
+  }
+  nav.toc li { margin: 3px 0; }
+  nav.toc a { color: inherit; text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; }
+
+  section.group {
+    margin-bottom: 40px;
+  }
+  section.group > h2 {
+    font-size: 18px;
+    margin: 0 0 6px;
+    letter-spacing: -0.005em;
+  }
+  section.group > .note {
+    color: var(--mute);
+    font-size: 13px;
+    margin: 0 0 18px;
+  }
+
+  .finding {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-left-width: 4px;
+    border-radius: 4px;
+    margin-bottom: 14px;
+    padding: 16px 18px 14px;
+  }
+  .finding.p0 { border-left-color: var(--p0); }
+  .finding.p1 { border-left-color: var(--p1); }
+  .finding.p2 { border-left-color: var(--p2); }
+  .finding.p3 { border-left-color: var(--p3); }
+  .finding.amend { border-left-color: var(--amend); }
+  .finding header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .finding header .id {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 11px;
+    color: var(--mute);
+    letter-spacing: 0.04em;
+  }
+  .finding header h3 {
+    font-size: 15px;
+    margin: 0;
+    line-height: 1.35;
+  }
+  .finding p {
+    margin: 6px 0;
+  }
+  .finding .body {
+    font-size: 13.5px;
+  }
+  .finding .body code, code.inline {
+    background: #f0efe9;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font: 12.5px ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  .finding pre {
+    background: #1f2024;
+    color: #e6e6df;
+    padding: 12px 14px;
+    border-radius: 4px;
+    font: 12px/1.55 ui-monospace, "SF Mono", Menlo, monospace;
+    overflow-x: auto;
+    margin: 8px 0;
+  }
+  .comment {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border: 1px dashed #cfcfc6;
+    border-radius: 4px;
+    font-size: 13px;
+    color: var(--ink);
+    background: #fbfbf6;
+    min-height: 30px;
+    cursor: text;
+    white-space: pre-wrap;
+    line-height: 1.5;
+  }
+  .comment:empty::before {
+    content: "Click and type your comment here…";
+    color: #aaa;
+    font-style: italic;
+  }
+  .comment-wrap {
+    position: relative;
+    margin-top: 12px;
+  }
+  .comment-wrap > .label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #888;
+    margin-bottom: 4px;
+    display: block;
+  }
+  .comment-wrap.has-content > .label::after {
+    content: " · saved";
+    color: var(--amend);
+  }
+  .comment:focus {
+    outline: 1px solid var(--amend);
+    background: #fff;
+    color: var(--ink);
+  }
+  .actions {
+    align-items: center;
+  }
+  .actions .primary {
+    background: var(--amend);
+    color: white;
+    border-color: var(--amend);
+    font-weight: 600;
+  }
+  .actions .primary:hover {
+    background: #0e6b58;
+  }
+  .actions .ghost {
+    color: var(--mute);
+  }
+  .actions .hint {
+    font-size: 11.5px;
+    color: var(--mute);
+    flex: 1;
+  }
+  .actions .hint code {
+    background: #f0efe9;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font: 11px ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  table.matrix {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 6px;
+    font-size: 12.5px;
+  }
+  table.matrix th, table.matrix td {
+    border-bottom: 1px solid var(--rule);
+    padding: 7px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+  table.matrix th {
+    font-weight: 600;
+    color: var(--mute);
+    background: #f6f6ee;
+  }
+  table.matrix code {
+    font: 12px ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  .actions {
+    display: flex;
+    gap: 8px;
+    margin: 0 0 24px;
+  }
+  .actions button {
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 7px 13px;
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .actions button:hover { background: #f4f3ee; }
+
+  footer.bot {
+    margin-top: 60px;
+    padding-top: 18px;
+    border-top: 1px solid var(--rule);
+    font-size: 12px;
+    color: var(--mute);
+  }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="eyebrow">DATA MODEL · CRITICAL REVIEW</div>
+  <h1>Kuralle · Data Model — gap analysis &amp; amendments</h1>
+  <div class="meta">Source: <code>DATA_MODEL.md</code> + <code>CONVERSATION_BLUEPRINT.md</code> · against AriaFlow primitives + ElevenLabs feature surface · 2026-04-30</div>
+  <div class="legend">
+    <span><i class="dot p0"></i>P0 — blocker (correctness or money)</span>
+    <span><i class="dot p1"></i>P1 — major (feature documented, schema short)</span>
+    <span><i class="dot p2"></i>P2 — operability (defer one sprint, not three)</span>
+    <span><i class="dot p3"></i>P3 — polish</span>
+    <span><i class="dot amend"></i>Amendment (post-discussion)</span>
+  </div>
+</header>
+
+<div class="actions">
+  <button onclick="exportComments()" class="primary">⬇ Export my comments as JSON</button>
+  <span class="hint">Click any dashed box below and type your thoughts. Saved to <code>localStorage</code> as you type. Use export when ready.</span>
+  <button onclick="clearAllComments()" class="ghost">Clear all</button>
+</div>
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#context">0 · Architecture context the critique assumes</a></li>
+    <li><a href="#p0">1 · P0 blockers (correctness / money)</a></li>
+    <li><a href="#p1">2 · P1 majors (documented, unsupported)</a></li>
+    <li><a href="#p2">3 · P2 operability gaps</a></li>
+    <li><a href="#p3">4 · P3 polish</a></li>
+    <li><a href="#cross">5 · Cross-cutting smells</a></li>
+    <li><a href="#amend">6 · Amendments after the WS / DO / Pipecat thread</a></li>
+    <li><a href="#next">7 · Recommended next migration</a></li>
+  </ol>
+</nav>
+
+<!-- ============================================================== -->
+<section class="group" id="context">
+  <h2>0 · Architecture context the critique assumes</h2>
+  <p class="note">If any of these are wrong the gap analysis shifts — flag them.</p>
+
+  <div class="finding amend">
+    <header><span class="id">CTX·1</span><h3>Transport mix: ~95 % plain WebSocket, ~5 % WebRTC (LiveKit / Daily), small slice of SIP-direct (UDP)</h3></header>
+    <div class="body">
+      <p>This is the single most load-bearing assumption. It’s why the schema must keep <code class="inline">workerId</code> + heartbeat + a router-tier story alive — even though we briefly considered the room-only Pipecat shape (which assumes the opposite mix).</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding amend">
+    <header><span class="id">CTX·2</span><h3>Deploy target split by transport</h3></header>
+    <div class="body">
+      <table class="matrix">
+        <tr><th>Transport</th><th>Host</th><th>Routing key</th></tr>
+        <tr><td>Browser WS / Twilio Media Streams / custom WS</td><td>Cloudflare Durable Object</td><td>DO id (= conversation id)</td></tr>
+        <tr><td>SIP direct (UDP) / SIP-via-WS bridge</td><td>Fly machine (per call, <code>auto_destroy</code>)</td><td><code>workerId</code> + WS router tier</td></tr>
+        <tr><td>LiveKit / Daily room (5 %)</td><td>Fly machine joins room as participant</td><td><code>roomName</code> via webhook</td></tr>
+        <tr><td>Chat-only (text)</td><td>Plain HTTP — no room, no machine spawn</td><td><code>conversationId</code></td></tr>
+      </table>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding amend">
+    <header><span class="id">CTX·3</span><h3>AriaFlow primitives in scope</h3></header>
+    <div class="body">
+      <p><code class="inline">Agent</code>, <code class="inline">FlowAgent</code>, <code class="inline">FlowConfig</code>, <code class="inline">SessionStore</code>, <code class="inline">onSessionEnd</code> hook, <code class="inline">streamCallback</code> sinks, <code class="inline">MemoryService</code> for long-term memory. <code class="inline">CompositeAgent</code> deliberately not relied upon (no e2e example in aria yet).</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<section class="group" id="p0">
+  <h2>1 · P0 blockers</h2>
+  <p class="note">Production correctness or money. Once you ship data, each becomes a backfill + behaviour-change problem at the same time.</p>
+
+  <div class="finding p0">
+    <header><span class="id">P0·1</span><h3><code>conversations.workerId</code> + <code>workerKind</code> + heartbeat are missing</h3></header>
+    <div class="body">
+      <p>BLUEPRINT §9 calls out <code class="inline">workerId</code> as a needed addition; DATA_MODEL §8 doesn’t have it. Without this column the Fly+WS path can’t enforce single-owner mutex; the WS router tier can’t locate the right machine; the sweep job can’t finalise calls when a machine dies.</p>
+      <p>Required even though the CF DO path (95 %) doesn’t strictly need it — schema must support all three transports uniformly.</p>
+<pre>conversations {
+  workerKind         enum('cf-do', 'fly-machine', 'livekit-room')  not null
+  workerId           text                  -- DO id | Fly machine id | room name
+  workerHostInternal text                  -- fly-only: .internal hostname
+  workerSpawnedAt    timestamp
+  workerHeartbeatAt  timestamp             -- fly-only: liveness check
+}
+indexes: ...,
+         (workerKind, workerHeartbeatAt) where workerKind = 'fly-machine'
+                                           and endedAt is null</pre>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p0">
+    <header><span class="id">P0·2</span><h3><code>conversation_turns.intervenedByUserId</code> is missing</h3></header>
+    <div class="body">
+      <p>BLUEPRINT §9 schema-addition list, not yet in DATA_MODEL. Without it, the audit trail can’t distinguish “agent said X” from “F3 supervisor injected X.” That’s a HIPAA/FERPA-grade audit gap.</p>
+<pre>conversation_turns {
+  intervenedByUserId text references users(id)
+}</pre>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p0">
+    <header><span class="id">P0·3</span><h3>No <code>conversations.status</code> enum (only <code>endedAt IS NULL</code>)</h3></header>
+    <div class="body">
+      <p>ElevenLabs splits five states: <code class="inline">initiated | in-progress | processing | done | failed</code>. The <code>processing</code> state matters because post-call jobs (summary, eval, extraction) run async — F2 must render partial data with a banner instead of pretending it’s complete.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p0">
+    <header><span class="id">P0·4</span><h3>No <code>terminationReason</code> on conversations</h3></header>
+    <div class="body">
+      <p><code class="inline">outcome</code> is business-level (<code class="inline">booked / qualified / missed</code>); <code class="inline">terminationReason</code> is technical (<code class="inline">caller_hangup / agent_hangup / transferred / agent_error / max_duration / network_drop / server_error / worker_died</code>). Two distinct fields. Without the technical one, every triage degenerates into log-grep.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p0">
+    <header><span class="id">P0·5</span><h3>Money columns use <code>real</code> (float)</h3></header>
+    <div class="body">
+      <p><code class="inline">usage_events.unitCostUsd</code>, <code class="inline">totalCostUsd</code>, <code class="inline">monthly_receipts.recoveredRevenueUsd</code> etc. are <code>real</code>. Floating-point for money drifts under summation. Use <code>numeric(12,6)</code>. Also add <code>currency text default 'USD'</code> on usage_events / monthly_receipts / billing_subscriptions for the EU/UK customer that arrives sooner than expected.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p0">
+    <header><span class="id">P0·6</span><h3>No optimistic lock on <code>agents</code> / <code>workflows</code></h3></header>
+    <div class="body">
+      <p>Two operators editing the same agent silently overwrite each other on save. The <code>agent_revisions</code> table becomes corruption forensics, not an audit trail.</p>
+<pre>agents     { ..., version integer not null default 0 }
+workflows  { ..., version integer not null default 0 }
+-- save: UPDATE ... SET ..., version = version + 1
+--       WHERE id = $1 AND version = $expected
+--       RETURNING version</pre>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p0">
+    <header><span class="id">P0·7</span><h3>No per-turn latency, TTFB, or interruption flag</h3></header>
+    <div class="body">
+      <p><code>conversation_turns</code> has <code>timestampSec</code> but no <code>latencyMs</code> (end-of-user-utterance → start-of-agent-utterance), no <code>firstByteMs</code>, no <code>interrupted</code> / <code>bargeIn</code> flag. These are <em>the</em> voice-UX metrics — without them you can’t compute the latency dashboard customers will demand on day one.</p>
+<pre>conversation_turns {
+  latencyMs    integer       -- user-end → agent-start
+  firstByteMs  integer       -- user-end → first audio out
+  interrupted  boolean default false
+  bargeIn      boolean default false
+}</pre>
+    </div>
+    <div class="comment"></div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<section class="group" id="p1">
+  <h2>2 · P1 majors</h2>
+  <p class="note">Documented features the schema can’t back. Additive — fold over the next two sprints.</p>
+
+  <div class="finding p1">
+    <header><span class="id">P1·1</span><h3>No <code>summary</code> / <code>callSummaryTitle</code> on conversations</h3></header>
+    <div class="body">
+      <p>BLUEPRINT §9 says “add <code>summary text</code>”; DATA_MODEL §8 hasn’t adopted. ElevenLabs ships both <code class="inline">transcript_summary</code> + <code class="inline">call_summary_title</code> — populated by a post-call worker via <code>onSessionEnd</code>.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p1">
+    <header><span class="id">P1·2</span><h3>No search columns for text-search or smart-search</h3></header>
+    <div class="body">
+      <p>BLUEPRINT §8 references <code class="inline">gin(text_tsv)</code>; the column itself isn’t on <code>conversation_turns</code>. No <code class="inline">summary_embedding vector(1536)</code> on <code>conversations</code> for semantic search. ElevenLabs has both endpoints — <em>the workers can’t populate columns that don’t exist</em>.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p1">
+    <header><span class="id">P1·3</span><h3><code>conversation_extracted_fields</code> has no <code>workflowNodeId</code></h3></header>
+    <div class="body">
+      <p>Two extraction nodes both collecting <code>name</code> (intake.name, confirm.name) collide on the <code>(conversationId, label)</code> primary key. Add <code>workflowNodeId</code> to the PK or as a discriminator.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p1">
+    <header><span class="id">P1·4</span><h3>Missing denorms: <code>mainLanguage</code>, <code>messageCount</code>, audio metadata</h3></header>
+    <div class="body">
+      <p>Every list query has to count turns. ElevenLabs returns these inline. Cheap to add; expensive to retrofit through paginated SELECTs. Consider also <code>hasUserAudio</code> / <code>hasResponseAudio</code> for BIPA-style gating (record one side only).</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p1">
+    <header><span class="id">P1·5</span><h3>No <code>conversationInitiationData</code> jsonb</h3></header>
+    <div class="body">
+      <p>The snapshot of dynamic vars + overrides + caller metadata used at call start. Without it a flaky call is unreproducible — you can’t even tell which override was active. ElevenLabs persists this; we should too.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p1">
+    <header><span class="id">P1·6</span><h3>No <code>workflow_revisions</code></h3></header>
+    <div class="body">
+      <p>What happens if a customer edits a workflow during a live call? The running session walks a different graph mid-conversation. Either snapshot workflow into <code>agent_revisions.snapshot</code> (current path — document it explicitly) or add a separate <code>workflow_revisions</code> table with <code>runtime_sessions.workflowRevisionId</code>.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p1">
+    <header><span class="id">P1·7</span><h3><code>workflow_nodes</code> is missing several aria fields</h3></header>
+    <div class="body">
+      <ul>
+        <li><code>inputSchema</code> / <code>outputSchema</code> — required for guard checks (aria <code>FlowNodeConfig</code> 117-119)</li>
+        <li><code>toolHints</code> — required for voice-mode prompt assembly (aria <code>FlowToolHint</code> 38)</li>
+        <li><code>llmOverride: text</code> can’t represent aria’s <code>model: LanguageModel | (ctx) => LanguageModel</code> — bump to <code>jsonb</code></li>
+      </ul>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p1">
+    <header><span class="id">P1·8</span><h3>No edge priority / ordering on <code>workflow_edges</code></h3></header>
+    <div class="body">
+      <p>When multiple edges fire from the same source, which wins? Aria has order; the schema does not. Two <code>conditionType: none</code> edges = race condition.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p1">
+    <header><span class="id">P1·9</span><h3>No <code>consent_records</code> table (TCPA)</h3></header>
+    <div class="body">
+      <p>TCPA requires recording <em>how</em> consent was obtained per phone number — web form timestamp, recorded verbal, signed contract. Not just an opaque DNC bool. Without this, <code>workspace_compliance_posture.tcpa</code> is theatre.</p>
+<pre>consent_records {
+  workspaceId text, phoneE164 text,
+  source enum('web_form','verbal_recording','contract','manual'),
+  evidenceUrl text, capturedAt, expiresAt
+}</pre>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p1">
+    <header><span class="id">P1·10</span><h3>No DNC list table</h3></header>
+    <div class="body">
+      <p><code>batch_recipients.status</code> uses the value <code>dnc</code>, but there’s no table for the workspace DNC list + carrier-merged global DNC. Plus per-call DNC checks need a sub-100 ms lookup, so this needs an indexed table.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p1">
+    <header><span class="id">P1·11</span><h3>No <code>eval_scenarios</code> definition table</h3></header>
+    <div class="body">
+      <p><code>conversation_evals.scenarioId</code> is <code>text</code> — there’s no place to define what scenarios are. ElevenLabs has <code>tests-create / get / list / delete</code>. The configuration side of evals is a real schema surface, not just stored verdicts.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p1">
+    <header><span class="id">P1·12</span><h3><code>webhooks.events text[]</code> has no event registry</h3></header>
+    <div class="body">
+      <p>Customers will subscribe to typos. Define a <code>webhook_event_kinds</code> seed table or PG enum and validate on insert.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p1">
+    <header><span class="id">P1·13</span><h3>No webhook retry / DLQ policy</h3></header>
+    <div class="body">
+      <p><code>webhook_deliveries.attemptCount</code> exists; missing: <code>nextAttemptAt</code>, exponential-backoff config, permanent-failure flag, replay UI. Production webhooks <em>always</em> need a dead-letter queue.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p1">
+    <header><span class="id">P1·14</span><h3>No webhook signing rotation grace</h3></header>
+    <div class="body">
+      <p><code>signingSecret</code> exists; needs <code>previousSigningSecret</code> + <code>rotatedAt</code>. Accept either signature for ~24 h after rotate; otherwise rotation = brief outage on every customer’s receiver.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p1">
+    <header><span class="id">P1·15</span><h3>No <code>usage_events.provider</code> attribution</h3></header>
+    <div class="body">
+      <p><code>kind</code> is <code>llm_input_tokens</code> but doesn’t say openai vs anthropic vs google. Cost-per-provider analytics, capacity planning, and contract negotiation all need this. Single column, big payoff.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding amend">
+    <header><span class="id">P1·16</span><h3>Add <code>conversations.transportKind</code> enum (post-discussion amendment)</h3></header>
+    <div class="body">
+      <p>The WS / SIP / LiveKit fork forces the schema to know per-call <em>how</em> the call connected — for routing, latency analytics, and eval scoping.</p>
+<pre>conversations {
+  transportKind enum('twilio-media-streams',
+                     'twilio-livekit-bridge',
+                     'sip-direct',
+                     'sip-livekit-bridge',
+                     'browser-ws',
+                     'widget-ws',
+                     'livekit-room',
+                     'chat-http')   not null
+}</pre>
+    </div>
+    <div class="comment"></div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<section class="group" id="p2">
+  <h2>3 · P2 operability gaps</h2>
+  <p class="note">Defer one sprint, not three. Track them so they don’t get lost.</p>
+
+  <div class="finding p2">
+    <header><span class="id">P2·1</span><h3>Multi-region enforcement is undefined</h3></header>
+    <div class="body">
+      <p><code>workspaces.region</code> is set but no DB-level enforcement. Decide: physical sharding (one DB per region) or RLS that joins to <code>workspaces.region</code> on every query. Otherwise an EU customer’s data leaks via a missed app-side filter.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p2">
+    <header><span class="id">P2·2</span><h3>No <code>data_subject_requests</code> table (GDPR)</h3></header>
+    <div class="body">
+      <p>Articles 15-22 (access / rectification / erasure / portability) need a tracked compliance posture. MVP can email; the table is the audit story.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p2">
+    <header><span class="id">P2·3</span><h3><code>kb_documents</code> visibility</h3></header>
+    <div class="body">
+      <p>Implicit “any workspace member can attach any doc” is fine for SMB, broken for enterprise. Add <code>visibility enum('workspace','admins-only')</code>.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p2">
+    <header><span class="id">P2·4</span><h3>KB document revisions / dedup</h3></header>
+    <div class="body">
+      <p>Add <code>kb_documents.contentHash</code> for dedup + change detection. Add <code>kb_chunks.documentRevisionId</code> so re-index doesn’t mid-call mix versions of the same doc.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p2">
+    <header><span class="id">P2·5</span><h3><code>conversation_topics</code> normalised</h3></header>
+    <div class="body">
+      <p><code>topics text[]</code> is fine for storage but topics should be normalised entities (id, label, taxonomy parent). ElevenLabs has <code>conv-topics-get</code>.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p2">
+    <header><span class="id">P2·6</span><h3><code>conversation_events</code> stream table</h3></header>
+    <div class="body">
+      <p>Separate from turns — structured <code>HarnessStreamPart</code> log for analytics replay (matches ElevenLabs <code>events-client</code> / <code>events-server</code>). Defer table; keep event types stable so future migration is additive.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p2">
+    <header><span class="id">P2·7</span><h3><code>agents.canHandoffTo: text[]</code> referential integrity</h3></header>
+    <div class="body">
+      <p>Same dangling-reference problem as <code>agents.toolIds[]</code> (open question #6 in the source doc). Tombstone-on-delete pattern or normalise to <code>agent_handoffs</code>.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p2">
+    <header><span class="id">P2·8</span><h3><code>runtime_sessions</code> concurrency</h3></header>
+    <div class="body">
+      <p>Cross-region resume race exists. Add <code>version</code> + UPDATE-WHERE-version pattern, or rely on the <code>workerId</code> mutex for both ownership and resume.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p2">
+    <header><span class="id">P2·9</span><h3>Worker sweep job specification</h3></header>
+    <div class="body">
+      <p>Document the cron explicitly: 30 s tick, scoped to <code>workerKind = 'fly-machine'</code>, marks abandoned conversations as <code>terminationReason = 'worker_died'</code>, fires <code>onSessionEnd</code> hooks. Without this, dead-Fly-machine calls never finalise.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<section class="group" id="p3">
+  <h2>4 · P3 polish</h2>
+  <p class="note">Genuinely deferrable. Track in open-questions, not in next migration.</p>
+
+  <div class="finding p3">
+    <header><span class="id">P3·1</span><h3><code>voice_clones</code> state machine</h3></header>
+    <div class="body"><p>Current <code>voices.isCloned: boolean</code> can’t express uploading / training / ready / failed. Either separate table or extend the row.</p></div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p3">
+    <header><span class="id">P3·2</span><h3><code>agent_groups</code> / folders</h3></header>
+    <div class="body"><p>At 50+ agents the C1 list breaks UX.</p></div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p3">
+    <header><span class="id">P3·3</span><h3><code>notifications</code> inbox</h3></header>
+    <div class="body"><p>Batch finished, daily digest, compliance flip. Need somewhere to land.</p></div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p3">
+    <header><span class="id">P3·4</span><h3><code>feature_flags</code></h3></header>
+    <div class="body"><p>For in-product rollouts. Defer until you have a feature worth gating.</p></div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p3">
+    <header><span class="id">P3·5</span><h3><code>analytics_dashboards</code> saved views</h3></header>
+    <div class="body"><p>Saved filter sets, custom date ranges. ElevenLabs has <code>workspace-dashboard-get/update</code>. Customer asks; not strategic.</p></div>
+    <div class="comment"></div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<section class="group" id="cross">
+  <h2>5 · Cross-cutting smells</h2>
+  <p class="note">Not specific to any column — patterns to fix together.</p>
+
+  <div class="finding p1">
+    <header><span class="id">X·1</span><h3>BLUEPRINT and DATA_MODEL disagree</h3></header>
+    <div class="body">
+      <p>BLUEPRINT §9 lists <code>workerId</code>, <code>summary</code>, <code>intervenedByUserId</code> as “schema additions”; DATA_MODEL §8 / §5 don’t have them. Two source-of-truth docs is one source-of-truth doc + a backlog. Fold §9 into the schema doc.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p2">
+    <header><span class="id">X·2</span><h3>Aria primitive map (§16) hides assumptions</h3></header>
+    <div class="body">
+      <ul>
+        <li><b>Hooks: code-only</b> — but <code>onSessionEnd</code> drives summary/eval/extraction workers. Without a <code>hook_runs</code> table, debugging post-call failures is grep-the-logs.</li>
+        <li><b>EvalRunner → conversation_evals</b> — but the <em>definition</em> side is missing (see P1·11).</li>
+        <li><b>MemoryService → runtime_sessions.workingMemory</b> — that’s session memory. Long-term semantic memory across sessions (the actual <code>MemoryService</code> purpose in aria) has no home.</li>
+      </ul>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p2">
+    <header><span class="id">X·3</span><h3>JSON-shape opacity</h3></header>
+    <div class="body">
+      <p>Several <code>jsonb</code> columns ship without a documented schema: <code>secrets.config</code>, <code>tools.config</code> (kind-dependent shape), <code>telephony_connectors.credentials</code>+<code>config</code>. Commit a Zod schema alongside the migration so validation lives with the data, not in app code that drifts.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding p2">
+    <header><span class="id">X·4</span><h3><code>text[]</code> over junctions — pick a side</h3></header>
+    <div class="body">
+      <p>The doc deliberately picks arrays for read simplicity. Real cost on <code>agents.toolIds[]</code> and <code>agents.canHandoffTo[]</code>: dangling references on delete. Either commit to a tombstone-on-delete pattern across the board (and document the cleanup procedure), or normalise those two specifically.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<section class="group" id="amend">
+  <h2>6 · Amendments after the WS / DO / Pipecat thread</h2>
+  <p class="note">Walk-backs and refinements based on the live discussion.</p>
+
+  <div class="finding amend">
+    <header><span class="id">A·1</span><h3>Confirmed: <code>workerId</code> stays — but as a <code>workerKind</code> + nullable column</h3></header>
+    <div class="body">
+      <p>The room-only Pipecat shape (which I briefly suggested) doesn’t generalise to your 95 % WebSocket traffic. Schema must support all three transports uniformly, with the column <em>nullable</em> on the CF DO path and <em>required</em> on the Fly path. See P0·1.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding amend">
+    <header><span class="id">A·2</span><h3>Add <code>transportKind</code> on conversations</h3></header>
+    <div class="body">
+      <p>New P1·16. Drives routing logic at call start, slices analytics, scopes evals. Derived from <code>phone_numbers.transportKind</code> or <code>widgets.transportKind</code> at insert time.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding amend">
+    <header><span class="id">A·3</span><h3>Walk back: rooms do not eliminate <code>workerId</code></h3></header>
+    <div class="body">
+      <p>I overgeneralised in the Pipecat reply. Rooms simplify the 5 % they apply to. The 95 % still needs the column.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+
+  <div class="finding amend">
+    <header><span class="id">A·4</span><h3>SIP path: <code>workerHostInternal</code> nullable</h3></header>
+    <div class="body">
+      <p>SIP/UDP signaling negotiates RTP ports inline. The <code>workerHostInternal</code> column is for WS-on-Fly only; null for SIP-direct on Fly (no proxy hop), and null for CF DO and LiveKit room kinds.</p>
+    </div>
+    <div class="comment"></div>
+  </div>
+</section>
+
+<!-- ============================================================== -->
+<section class="group" id="next">
+  <h2>7 · Recommended next migration</h2>
+  <p class="note">If you fold only the P0 list back into DATA_MODEL.md, you touch 6 tables and add ~14 columns. ~1 day’s work; saves all the backfill pain later.</p>
+
+  <div class="finding amend">
+    <header><span class="id">NEXT</span><h3>Smallest defensible migration</h3></header>
+    <div class="body">
+<pre>-- conversations
+ADD COLUMN workerKind         enum(...)
+ADD COLUMN workerId           text
+ADD COLUMN workerHostInternal text
+ADD COLUMN workerSpawnedAt    timestamp
+ADD COLUMN workerHeartbeatAt  timestamp
+ADD COLUMN status             enum('initiated','in-progress','processing','done','failed')
+ADD COLUMN terminationReason  text
+ADD COLUMN summary            text
+ADD COLUMN callSummaryTitle   text
+ADD COLUMN mainLanguage       text
+ADD COLUMN messageCount       integer
+ADD COLUMN transportKind      enum(...)
+ADD COLUMN conversationInitiationData jsonb
+
+-- conversation_turns
+ADD COLUMN intervenedByUserId text references users(id)
+ADD COLUMN latencyMs          integer
+ADD COLUMN firstByteMs        integer
+ADD COLUMN interrupted        boolean default false
+
+-- agents, workflows
+ADD COLUMN version            integer not null default 0
+
+-- usage_events, monthly_receipts (and money columns elsewhere)
+ALTER COLUMN unitCostUsd      type numeric(12,6)
+ALTER COLUMN totalCostUsd     type numeric(12,6)
+ADD COLUMN currency           text default 'USD'
+ADD COLUMN provider           text                          -- on usage_events</pre>
+    </div>
+    <div class="comment"></div>
+  </div>
+</section>
+
+<footer class="bot">
+  <p>Click any dashed box and type. Comments save to <code>localStorage</code> as you type — closing the tab won’t lose them. Hit <em>Export</em> to download a JSON file you can paste back to me.</p>
+</footer>
+
+</div>
+
+<script>
+  const STORAGE_KEY = 'kuralle.data-model-review.comments.v1';
+
+  function loadStored() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function saveStored(map) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(map));
+  }
+
+  function setupComments() {
+    const stored = loadStored();
+    document.querySelectorAll('.finding').forEach(card => {
+      const id = card.querySelector('.id')?.textContent?.trim() ?? '';
+      const original = card.querySelector('.comment');
+      if (!original || !id) return;
+
+      // Wrap the comment box with a label
+      const wrap = document.createElement('div');
+      wrap.className = 'comment-wrap';
+
+      const label = document.createElement('span');
+      label.className = 'label';
+      label.textContent = 'your comment';
+
+      original.setAttribute('contenteditable', 'plaintext-only');
+      original.setAttribute('data-finding-id', id);
+      original.setAttribute('spellcheck', 'true');
+
+      // Restore prior content
+      if (stored[id]) {
+        original.textContent = stored[id];
+        wrap.classList.add('has-content');
+      }
+
+      original.addEventListener('input', () => {
+        const text = original.innerText.trim();
+        const map = loadStored();
+        if (text) {
+          map[id] = text;
+          wrap.classList.add('has-content');
+        } else {
+          delete map[id];
+          wrap.classList.remove('has-content');
+        }
+        saveStored(map);
+        updateExportBadge();
+      });
+
+      original.parentNode.insertBefore(wrap, original);
+      wrap.appendChild(label);
+      wrap.appendChild(original);
+    });
+    updateExportBadge();
+  }
+
+  function updateExportBadge() {
+    const stored = loadStored();
+    const count = Object.keys(stored).length;
+    const btn = document.querySelector('.actions .primary');
+    if (!btn) return;
+    btn.textContent = count
+      ? `⬇ Export my ${count} comment${count === 1 ? '' : 's'} as JSON`
+      : '⬇ Export my comments as JSON';
+    btn.disabled = count === 0;
+    btn.style.opacity = count === 0 ? 0.55 : 1;
+  }
+
+  function exportComments() {
+    const stored = loadStored();
+    const out = [];
+    document.querySelectorAll('.finding').forEach(card => {
+      const id = card.querySelector('.id')?.textContent?.trim() ?? '';
+      const title = card.querySelector('h3')?.textContent?.trim() ?? '';
+      if (stored[id]) {
+        out.push({
+          id,
+          title,
+          severity: card.classList.contains('p0') ? 'P0'
+                  : card.classList.contains('p1') ? 'P1'
+                  : card.classList.contains('p2') ? 'P2'
+                  : card.classList.contains('p3') ? 'P3'
+                  : card.classList.contains('amend') ? 'amendment'
+                  : 'unknown',
+          comment: stored[id],
+        });
+      }
+    });
+    const payload = {
+      doc: 'kuralle/DATA_MODEL_REVIEW.html',
+      exportedAt: new Date().toISOString(),
+      totalFindings: document.querySelectorAll('.finding').length,
+      commentsCount: out.length,
+      comments: out,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `data-model-review-comments-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function clearAllComments() {
+    if (!confirm('Clear all your comments? This cannot be undone.')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    document.querySelectorAll('.comment').forEach(c => {
+      c.textContent = '';
+      c.parentElement.classList.remove('has-content');
+    });
+    updateExportBadge();
+  }
+
+  document.addEventListener('DOMContentLoaded', setupComments);
+</script>
+</body>
+</html>
