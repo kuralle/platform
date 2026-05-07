@@ -1,0 +1,45 @@
+=== S0-03 Sign-Up Smoke Test Results ===
+timestamp: 2026-05-07T06:46:06.495Z
+seedEmail: smoke-f70385fa@kuralle-test.local
+
+--- user ---
+  id: CujZw19se46ta9uicvd6u7bXULQQSgBq
+  name: Smoke Test User
+  email: smoke-f70385fa@kuralle-test.local
+  email_verified: false
+  image: null
+  created_at: Thu May 07 2026 06:46:06 GMT+0530 (India Standard Time)
+  updated_at: Thu May 07 2026 06:46:06 GMT+0530 (India Standard Time)
+  system_role: user
+  last_seen_at: null
+
+--- organization ---
+  id: wFV8EuK66o9NbXEDlVsDfRWuoKOFuDJ4
+  name: smoke-f70385fa@kuralle-test.local's personal workspace
+  slug: personal-d1faf3a3aa2964f204090228
+  logo: null
+  created_at: Thu May 07 2026 06:46:06 GMT+0530 (India Standard Time)
+  metadata: null
+  vertical: null
+  environment: production
+  region: us-east-1
+  is_personal: true
+  created_by_user_id: CujZw19se46ta9uicvd6u7bXULQQSgBq
+  compliance_mode: none
+  updated_at: Thu May 07 2026 06:46:06 GMT+0530 (India Standard Time)
+  deleted_at: null
+
+--- member ---
+  id: 6vvtl3u2SVLusyvHzdDdsmNrg234zDTZ
+  organization_id: wFV8EuK66o9NbXEDlVsDfRWuoKOFuDJ4
+  user_id: CujZw19se46ta9uicvd6u7bXULQQSgBq
+  role: owner
+  created_at: Thu May 07 2026 06:46:06 GMT+0530 (India Standard Time)
+  invited_by: null
+  last_active_at: null
+
+--- session ---
+  id: sDaoigGloafWGlQxDnRX6KCt9Se08Qq3
+  activeOrganizationId: wFV8EuK66o9NbXEDlVsDfRWuoKOFuDJ4
+
+ALL FOUR ROWS VERIFIED ✓

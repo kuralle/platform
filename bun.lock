@@ -124,6 +124,7 @@
       },
       "devDependencies": {
         "@kuralle/config": "workspace:*",
+        "pg": "catalog:",
         "typescript": "catalog:",
       },
     },

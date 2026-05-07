@@ -1,0 +1,13 @@
+            List of relations
+ Schema |     Name     | Type  |  Owner  
+--------+--------------+-------+---------
+ public | account      | table | kuralle
+ public | apikey       | table | kuralle
+ public | invitation   | table | kuralle
+ public | member       | table | kuralle
+ public | organization | table | kuralle
+ public | session      | table | kuralle
+ public | user         | table | kuralle
+ public | verification | table | kuralle
+(8 rows)
+

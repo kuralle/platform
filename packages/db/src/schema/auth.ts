@@ -1,31 +1,37 @@
-import { relations, sql } from "drizzle-orm";
-import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
+import { relations } from "drizzle-orm";
+import {
+  pgTable,
+  text,
+  timestamp,
+  boolean,
+  integer,
+  index,
+  uniqueIndex,
+} from "drizzle-orm/pg-core";
 
-export const user = sqliteTable("user", {
+export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  emailVerified: integer("email_verified", { mode: "boolean" }).default(false).notNull(),
+  emailVerified: boolean("email_verified").default(false).notNull(),
   image: text("image"),
-  createdAt: integer("created_at", { mode: "timestamp_ms" })
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-    .notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
+  systemRole: text("system_role").default("user"),
+  lastSeenAt: timestamp("last_seen_at"),
 });
 
-export const session = sqliteTable(
+export const session = pgTable(
   "session",
   {
     id: text("id").primaryKey(),
-    expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
     token: text("token").notNull().unique(),
-    createdAt: integer("created_at", { mode: "timestamp_ms" })
-      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-      .notNull(),
-    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
     ipAddress: text("ip_address"),
@@ -33,11 +39,12 @@ export const session = sqliteTable(
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
+    activeOrganizationId: text("active_organization_id"),
   },
   (table) => [index("session_userId_idx").on(table.userId)],
 );
 
-export const account = sqliteTable(
+export const account = pgTable(
   "account",
   {
     id: text("id").primaryKey(),
@@ -49,45 +56,144 @@ export const account = sqliteTable(
     accessToken: text("access_token"),
     refreshToken: text("refresh_token"),
     idToken: text("id_token"),
-    accessTokenExpiresAt: integer("access_token_expires_at", {
-      mode: "timestamp_ms",
-    }),
-    refreshTokenExpiresAt: integer("refresh_token_expires_at", {
-      mode: "timestamp_ms",
-    }),
+    accessTokenExpiresAt: timestamp("access_token_expires_at"),
+    refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
     scope: text("scope"),
     password: text("password"),
-    createdAt: integer("created_at", { mode: "timestamp_ms" })
-      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-      .notNull(),
-    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
   },
   (table) => [index("account_userId_idx").on(table.userId)],
 );
 
-export const verification = sqliteTable(
+export const verification = pgTable(
   "verification",
   {
     id: text("id").primaryKey(),
     identifier: text("identifier").notNull(),
     value: text("value").notNull(),
-    expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
-    createdAt: integer("created_at", { mode: "timestamp_ms" })
-      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-      .notNull(),
-    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
-      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+    expiresAt: timestamp("expires_at").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
   },
   (table) => [index("verification_identifier_idx").on(table.identifier)],
 );
 
+export const organization = pgTable(
+  "organization",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    slug: text("slug").notNull().unique(),
+    logo: text("logo"),
+    createdAt: timestamp("created_at").notNull(),
+    metadata: text("metadata"),
+    vertical: text("vertical"),
+    environment: text("environment").default("production"),
+    region: text("region").default("us-east-1"),
+    isPersonal: boolean("is_personal").default(false),
+    createdByUserId: text("created_by_user_id").references(() => user.id, {
+      onDelete: "cascade",
+    }),
+    complianceMode: text("compliance_mode").default("none"),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+    deletedAt: timestamp("deleted_at"),
+  },
+  (table) => [uniqueIndex("organization_slug_uidx").on(table.slug)],
+);
+
+export const member = pgTable(
+  "member",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    role: text("role").default("member").notNull(),
+    createdAt: timestamp("created_at").notNull(),
+    invitedBy: text("invited_by").references(() => user.id, {
+      onDelete: "set null",
+    }),
+    lastActiveAt: timestamp("last_active_at"),
+  },
+  (table) => [
+    index("member_organizationId_idx").on(table.organizationId),
+    index("member_userId_idx").on(table.userId),
+  ],
+);
+
+export const invitation = pgTable(
+  "invitation",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    email: text("email").notNull(),
+    role: text("role"),
+    status: text("status").default("pending").notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    inviterId: text("inviter_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+  },
+  (table) => [
+    index("invitation_organizationId_idx").on(table.organizationId),
+    index("invitation_email_idx").on(table.email),
+  ],
+);
+
+export const apikey = pgTable(
+  "apikey",
+  {
+    id: text("id").primaryKey(),
+    configId: text("config_id").default("default").notNull(),
+    name: text("name"),
+    start: text("start"),
+    referenceId: text("reference_id").notNull(),
+    prefix: text("prefix"),
+    key: text("key").notNull(),
+    refillInterval: integer("refill_interval"),
+    refillAmount: integer("refill_amount"),
+    lastRefillAt: timestamp("last_refill_at"),
+    enabled: boolean("enabled").default(true),
+    rateLimitEnabled: boolean("rate_limit_enabled").default(true),
+    rateLimitTimeWindow: integer("rate_limit_time_window").default(86400000),
+    rateLimitMax: integer("rate_limit_max").default(10),
+    requestCount: integer("request_count").default(0),
+    remaining: integer("remaining"),
+    lastRequest: timestamp("last_request"),
+    expiresAt: timestamp("expires_at"),
+    createdAt: timestamp("created_at").notNull(),
+    updatedAt: timestamp("updated_at").notNull(),
+    permissions: text("permissions"),
+    metadata: text("metadata"),
+  },
+  (table) => [
+    index("apikey_configId_idx").on(table.configId),
+    index("apikey_referenceId_idx").on(table.referenceId),
+    index("apikey_key_idx").on(table.key),
+  ],
+);
+
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   accounts: many(account),
+  organizations: many(organization),
+  members: many(member),
+  invitations: many(invitation),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -100,6 +206,50 @@ export const sessionRelations = relations(session, ({ one }) => ({
 export const accountRelations = relations(account, ({ one }) => ({
   user: one(user, {
     fields: [account.userId],
+    references: [user.id],
+  }),
+}));
+
+export const organizationRelations = relations(
+  organization,
+  ({ one, many }) => ({
+    user: one(user, {
+      fields: [organization.createdByUserId],
+      references: [user.id],
+    }),
+    members: many(member),
+    invitations: many(invitation),
+  }),
+);
+
+export const memberUserIdRelations = relations(member, ({ one }) => ({
+  user: one(user, {
+    fields: [member.userId],
+    references: [user.id],
+  }),
+}));
+
+export const memberInvitedByRelations = relations(member, ({ one }) => ({
+  user: one(user, {
+    fields: [member.invitedBy],
+    references: [user.id],
+  }),
+}));
+
+export const memberRelations = relations(member, ({ one }) => ({
+  organization: one(organization, {
+    fields: [member.organizationId],
+    references: [organization.id],
+  }),
+}));
+
+export const invitationRelations = relations(invitation, ({ one }) => ({
+  organization: one(organization, {
+    fields: [invitation.organizationId],
+    references: [organization.id],
+  }),
+  user: one(user, {
+    fields: [invitation.inviterId],
     references: [user.id],
   }),
 }));
