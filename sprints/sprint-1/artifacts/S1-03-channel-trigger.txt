@@ -1,0 +1,15 @@
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+--- Test 1: INSERT with matching channelKind=voice ---
+INSERT 0 1
+SUCCESS: matching channelKind INSERT succeeded
+--- Test 2: INSERT with mismatched channelKind=whatsapp ---
+ERROR:  channel_endpoint.channel_kind=whatsapp does not match channel_connections.channel_kind=voice
+CONTEXT:  PL/pgSQL function channel_endpoint_kind_matches() line 10 at RAISE
+DELETE 1
+DELETE 1
+DELETE 1
+DELETE 1
+DELETE 1

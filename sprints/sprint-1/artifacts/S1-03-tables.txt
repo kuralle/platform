@@ -1,0 +1,153 @@
+=== S1-03 New Tables ===
+            List of relations
+ Schema |     Name      | Type  |  Owner  
+--------+---------------+-------+---------
+ public | conversations | table | kuralle
+(1 row)
+
+               List of relations
+ Schema |        Name         | Type  |  Owner  
+--------+---------------------+-------+---------
+ public | channel_connections | table | kuralle
+(1 row)
+
+              List of relations
+ Schema |       Name        | Type  |  Owner  
+--------+-------------------+-------+---------
+ public | channel_endpoints | table | kuralle
+(1 row)
+
+            List of relations
+ Schema |     Name      | Type  |  Owner  
+--------+---------------+-------+---------
+ public | routing_rules | table | kuralle
+(1 row)
+
+           List of relations
+ Schema |    Name     | Type  |  Owner  
+--------+-------------+-------+---------
+ public | voice_calls | table | kuralle
+(1 row)
+
+              List of relations
+ Schema |       Name        | Type  |  Owner  
+--------+-------------------+-------+---------
+ public | messaging_threads | table | kuralle
+(1 row)
+
+               List of relations
+ Schema |        Name        | Type  |  Owner  
+--------+--------------------+-------+---------
+ public | conversation_turns | table | kuralle
+(1 row)
+
+                 List of relations
+ Schema |          Name           | Type  |  Owner  
+--------+-------------------------+-------+---------
+ public | conversation_tool_calls | table | kuralle
+(1 row)
+
+                    List of relations
+ Schema |             Name              | Type  |  Owner  
+--------+-------------------------------+-------+---------
+ public | conversation_extracted_fields | table | kuralle
+(1 row)
+
+               List of relations
+ Schema |        Name        | Type  |  Owner  
+--------+--------------------+-------+---------
+ public | conversation_evals | table | kuralle
+(1 row)
+
+              List of relations
+ Schema |       Name       | Type  |  Owner  
+--------+------------------+-------+---------
+ public | runtime_sessions | table | kuralle
+(1 row)
+
+               List of relations
+ Schema |        Name         | Type  |  Owner  
+--------+---------------------+-------+---------
+ public | session_checkpoints | table | kuralle
+(1 row)
+
+               List of relations
+ Schema |        Name         | Type  |  Owner  
+--------+---------------------+-------+---------
+ public | runtime_deployments | table | kuralle
+(1 row)
+
+
+=== channel_endpoints (with trigger + CHECK) ===
+                                                        Table "public.channel_endpoints"
+          Column           |            Type             | Collation | Nullable | Default | Storage  | Compression | Stats target | Description 
+---------------------------+-----------------------------+-----------+----------+---------+----------+-------------+--------------+-------------
+ id                        | text                        |           | not null |         | extended |             |              | 
+ workspace_id              | text                        |           | not null |         | extended |             |              | 
+ connection_id             | text                        |           | not null |         | extended |             |              | 
+ channel_kind              | text                        |           | not null |         | extended |             |              | 
+ identifier                | text                        |           | not null |         | extended |             |              | 
+ display_name              | text                        |           |          |         | extended |             |              | 
+ attached_agent_id         | text                        |           |          |         | extended |             |              | 
+ attached_agent_version_id | text                        |           |          |         | extended |             |              | 
+ routing_rules_id          | text                        |           |          |         | extended |             |              | 
+ public_webhook_url        | text                        |           |          |         | extended |             |              | 
+ public_stream_url         | text                        |           |          |         | extended |             |              | 
+ metadata                  | jsonb                       |           |          |         | extended |             |              | 
+ created_at                | timestamp without time zone |           | not null | now()   | plain    |             |              | 
+ released_at               | timestamp without time zone |           |          |         | plain    |             |              | 
+Indexes:
+    "channel_endpoints_pkey" PRIMARY KEY, btree (id)
+    "channel_endpoints_kind_identifier_uidx" UNIQUE, btree (channel_kind, identifier)
+    "channel_endpoints_public_stream_url_idx" btree (public_stream_url)
+    "channel_endpoints_public_webhook_url_idx" btree (public_webhook_url)
+    "channel_endpoints_workspace_kind_agent_idx" btree (workspace_id, channel_kind, attached_agent_id)
+Check constraints:
+    "channel_endpoints_attachment_check" CHECK (attached_agent_id IS NOT NULL OR routing_rules_id IS NOT NULL)
+    "channel_endpoints_channel_kind_check" CHECK (channel_kind = ANY (ARRAY['voice'::text, 'whatsapp'::text, 'messenger'::text, 'instagram'::text, 'web_chat'::text, 'sms'::text]))
+Foreign-key constraints:
+    "channel_endpoints_attached_agent_id_agents_id_fk" FOREIGN KEY (attached_agent_id) REFERENCES agents(id)
+    "channel_endpoints_connection_id_channel_connections_id_fk" FOREIGN KEY (connection_id) REFERENCES channel_connections(id) ON DELETE CASCADE
+    "channel_endpoints_workspace_id_organization_id_fk" FOREIGN KEY (workspace_id) REFERENCES organization(id) ON DELETE CASCADE
+Referenced by:
+    TABLE "conversations" CONSTRAINT "conversations_channel_endpoint_id_channel_endpoints_id_fk" FOREIGN KEY (channel_endpoint_id) REFERENCES channel_endpoints(id)
+    TABLE "messaging_threads" CONSTRAINT "messaging_threads_channel_endpoint_id_channel_endpoints_id_fk" FOREIGN KEY (channel_endpoint_id) REFERENCES channel_endpoints(id)
+    TABLE "routing_rules" CONSTRAINT "routing_rules_channel_endpoint_id_channel_endpoints_id_fk" FOREIGN KEY (channel_endpoint_id) REFERENCES channel_endpoints(id) ON DELETE CASCADE
+Triggers:
+    channel_endpoint_kind_check BEFORE INSERT OR UPDATE ON channel_endpoints FOR EACH ROW EXECUTE FUNCTION channel_endpoint_kind_matches()
+Access method: heap
+
+
+=== conversation_turns (with dedup partial index) ===
+                                                    Table "public.conversation_turns"
+       Column        |            Type             | Collation | Nullable | Default | Storage  | Compression | Stats target | Description 
+---------------------+-----------------------------+-----------+----------+---------+----------+-------------+--------------+-------------
+ id                  | text                        |           | not null |         | extended |             |              | 
+ conversation_id     | text                        |           | not null |         | extended |             |              | 
+ ordinal             | integer                     |           | not null |         | plain    |             |              | 
+ speaker             | text                        |           |          |         | extended |             |              | 
+ text                | text                        |           | not null |         | extended |             |              | 
+ message_id          | text                        |           |          |         | extended |             |              | 
+ media_payload       | jsonb                       |           |          |         | extended |             |              | 
+ delivery_status     | text                        |           |          |         | extended |             |              | 
+ status_updated_at   | timestamp without time zone |           |          |         | plain    |             |              | 
+ timestamp_sec       | integer                     |           | not null |         | plain    |             |              | 
+ eval_verdict        | text                        |           |          |         | extended |             |              | 
+ workflow_node_id    | text                        |           |          |         | extended |             |              | 
+ tokens_input        | integer                     |           |          |         | plain    |             |              | 
+ tokens_output       | integer                     |           |          |         | plain    |             |              | 
+ latency_ms          | integer                     |           |          |         | plain    |             |              | 
+ context_utilization | real                        |           |          |         | plain    |             |              | 
+ model_used          | text                        |           |          |         | extended |             |              | 
+ created_at          | timestamp without time zone |           | not null | now()   | plain    |             |              | 
+Indexes:
+    "conversation_turns_pkey" PRIMARY KEY, btree (id)
+    "conversation_turns_conversation_ordinal_idx" btree (conversation_id, ordinal)
+    "conversation_turns_conversation_ordinal_uidx" UNIQUE, btree (conversation_id, ordinal)
+    "conversation_turns_message_dedup_idx" UNIQUE, btree (conversation_id, message_id) WHERE message_id IS NOT NULL
+Foreign-key constraints:
+    "conversation_turns_conversation_id_conversations_id_fk" FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE
+Referenced by:
+    TABLE "conversation_tool_calls" CONSTRAINT "conversation_tool_calls_turn_id_conversation_turns_id_fk" FOREIGN KEY (turn_id) REFERENCES conversation_turns(id) ON DELETE CASCADE
+Access method: heap
+

@@ -48,6 +48,20 @@
       "when": 1778147834345,
       "tag": "0006_s1_02_index_desc",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1778148459612,
+      "tag": "0007_moaning_arachne",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1778149200000,
+      "tag": "0008_s1_03_meta",
+      "breakpoints": true
     }
   ]
 }
