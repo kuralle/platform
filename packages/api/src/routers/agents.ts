@@ -1,7 +1,11 @@
 import { z } from "zod";
 import { ORPCError } from "@orpc/server";
 import { withWorkspace, agentIRSchema } from "@kuralle/core";
-import { projectAgent, recordSloViolation } from "@kuralle/runtime";
+import {
+  projectAgent,
+  recordSloViolation,
+  SLO_PUBLISH_THRESHOLD_MS,
+} from "@kuralle/runtime";
 import { protectedProcedure } from "../index";
 import {
   agentSchema,
@@ -169,7 +173,7 @@ export const agentsRouter = {
       // Fire-and-forget — a failed slo_violation insert does not roll back
       // the successful publish (TTL would age an uncached entry within 60 s).
       const latencyMs = performance.now() - t0;
-      if (latencyMs > 1000) {
+      if (latencyMs > SLO_PUBLISH_THRESHOLD_MS) {
         recordSloViolation(context.db, {
           workspaceId: input.workspaceId,
           agentId: input.agentId,

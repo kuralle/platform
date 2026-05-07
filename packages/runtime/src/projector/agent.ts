@@ -14,38 +14,6 @@ export type AgentProjectionTx =
   | PgTransaction<NodePgQueryResultHKT, typeof schema, TablesRelational>;
 
 /**
- * Test-only injection seam for SLO violation testing (S2-05).
- *
- * Production code never touches this variable — it stays at 0 and the
- * projector runs at full speed. Tests set it to force a controlled delay
- * so the publish handler's wall-clock measurement exceeds the 1 s SLO
- * threshold, triggering a `usage_events` slo_violation row.
- *
- * Using a module-level variable instead of a `clock` parameter avoids
- * polluting the production call signature — the publish handler's
- * `project` callback (`(tx, vid) => projectAgent(tx, vid, ir)`) already
- * closes over the IR and doesn't thread extra arguments.
- */
-let __injectedDelayMs = 0;
-
-/** Set a delay (in ms) that `projectAgent` will await before returning. */
-export function __setProjectorDelay(ms: number): void {
-  __injectedDelayMs = ms;
-}
-
-/** Reset the injection seam (called in test teardown). */
-export function __resetProjectorDelay(): void {
-  __injectedDelayMs = 0;
-}
-
-function injectableDelay(): Promise<void> {
-  if (__injectedDelayMs > 0) {
-    return new Promise<void>((r) => setTimeout(r, __injectedDelayMs));
-  }
-  return Promise.resolve();
-}
-
-/**
  * Row-count result from `projectAgent`.
  * Deterministic order matches insertion order.
  */
@@ -88,10 +56,6 @@ export async function projectAgent(
   agentVersionId: string,
   ir: AgentIR,
 ): Promise<ProjectionCounts> {
-  // Test-only injection point: production runs immediately; tests set
-  // __injectedDelayMs via __setProjectorDelay() for S2-05.
-  await injectableDelay();
-
   let toolAttachments = 0;
   let kbAttachments = 0;
   let guardrails = 0;

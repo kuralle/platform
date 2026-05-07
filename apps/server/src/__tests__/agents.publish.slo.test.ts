@@ -7,12 +7,22 @@
  * visible.
  *
  * Second test exercises the failure-mode instrumentation: when a publish
- * exceeds 1 s (forced via the __setProjectorDelay test-only injection seam),
- * a usage_events row with kind='slo_violation' is written.
+ * exceeds 1 s (forced via vi.spyOn wrapping `projectAgent` to inject a
+ * controlled delay — kimi-gate F3 fix replacing the prior module-level
+ * `__injectedDelayMs` seam), a usage_events row with kind='slo_violation'
+ * is written with the full payload per AC#2.
  *
  * Reuses the in-process oRPC server setup from agents.publish.test.ts (S2-03).
  */
-import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from "vitest";
+import {
+  describe,
+  it,
+  expect,
+  beforeAll,
+  afterAll,
+  beforeEach,
+  vi,
+} from "vitest";
 import { eq, and } from "drizzle-orm";
 import { appRouter } from "@kuralle/api/routers/index";
 import { MemoryKvStore } from "@kuralle/platform/memory";
@@ -27,7 +37,11 @@ import type { Context } from "@kuralle/api/context";
 import type { AgentIR } from "@kuralle/core";
 import { agents } from "@kuralle/db/schema/agents";
 import { usageEvents } from "@kuralle/db/schema/billing";
-import { __setProjectorDelay, __resetProjectorDelay } from "@kuralle/runtime";
+import * as runtime from "@kuralle/runtime";
+import {
+  SLO_PUBLISH_NAME,
+  SLO_PUBLISH_THRESHOLD_MS,
+} from "@kuralle/runtime";
 
 // ── fixture IR (representative: 5 tools / 2 guardrail nodes / 2 wf nodes / 1 wf edge) ──
 
@@ -157,28 +171,18 @@ describe("agents.publish SLO", () => {
   });
 
   afterAll(async () => {
-    // Restore the CHECK constraint dropped in beforeEach.
-    await client.query(
-      `ALTER TABLE usage_events ADD CONSTRAINT usage_events_kind_check CHECK (kind = ANY (ARRAY['llm_input_tokens'::text, 'llm_output_tokens'::text, 'tts_seconds'::text, 'stt_seconds'::text, 'minutes'::text, 'tool_call'::text, 'rag_query'::text, 'seat'::text, 'container_seconds'::text, 'do_seconds'::text, 'queue_messages'::text]))`,
-    ).catch(() => {
-      // Constraint may already exist from a prior run; ignore.
-    });
     await releaseTestDb(client);
   });
 
   beforeEach(async () => {
     kvStore = new MemoryKvStore();
     await resetSchema(client, WORKSPACE_ID);
-    // The `usage_events_kind_check` CHECK constraint restricts `kind` to
-    // billing event types. `slo_violation` is not yet in the allow-list.
-    // Temporarily drop the constraint for the SLO failure-mode test.
-    // A migration to add `slo_violation` to the CHECK is tracked as a
-    // follow-up (out of scope for S2-05 — no migration files touched).
-    await client.query(
-      `ALTER TABLE usage_events DROP CONSTRAINT IF EXISTS usage_events_kind_check`,
-    );
+    // AMENDMENT-005 migration (0012) extends usage_events.kind CHECK with
+    // 'slo_violation', so no schema mutation is needed here. Older S2-05
+    // versions of this test dropped/re-added the constraint per beforeEach;
+    // that hack is gone.
     ctx = { auth: null, session: null, db, kvStore };
-    __resetProjectorDelay();
+    vi.restoreAllMocks();
   });
 
   async function insertAgent(agentId: string): Promise<void> {
@@ -241,44 +245,74 @@ describe("agents.publish SLO", () => {
       `\n[SLO] agents.publish — 100 sequential publishes: ${histogram(latencies)}`,
     );
 
-    expect(p95).toBeLessThanOrEqual(1000);
+    expect(p95).toBeLessThanOrEqual(SLO_PUBLISH_THRESHOLD_MS);
     expect(p99).toBeLessThanOrEqual(5000);
   }, 60_000);
 
   // ── Test 2: failure-mode instrumentation ─────────────────────────
 
-  it("projector slow-path writes usage_events with kind=slo_violation", async () => {
-    // Activate the test-only delay seam.
-    __setProjectorDelay(1100);
-
-    const agentId = "ag_slo_fail";
-    await insertAgent(agentId);
-
-    const result = await call<PublishResult>(
-      appRouter.agents.publish,
-      { workspaceId: WORKSPACE_ID, agentId, ir: REPRESENTATIVE_IR },
-      ctx,
-    );
-
-    expect(result.versionId).toMatch(/^av_/);
-
-    // Fire-and-forget slo_violation insert should land within 3 s.
-    // Retry with waitFor to handle async timing variance.
-    await vi.waitFor(
-      async () => {
-        const rows = await db
-          .select()
-          .from(usageEvents)
-          .where(
-            and(
-              eq(usageEvents.kind, "slo_violation"),
-              eq(usageEvents.agentVersionId, result.versionId),
-            ),
+  it(
+    "projector slow-path writes usage_events with kind=slo_violation + payload",
+    async () => {
+      // F3 fix: replace the prior module-level __setProjectorDelay seam with
+      // a vi.spyOn wrapper that injects a controlled delay only for this
+      // test. Production code path is untouched; the projector signature did
+      // not change.
+      const realProject = runtime.projectAgent;
+      vi.spyOn(runtime, "projectAgent").mockImplementation(
+        async (...args) => {
+          await new Promise((r) =>
+            setTimeout(r, SLO_PUBLISH_THRESHOLD_MS + 100),
           );
-        expect(rows.length).toBe(1);
-        expect(rows[0]!.quantity!).toBeGreaterThanOrEqual(1100);
-      },
-      { timeout: 3000, interval: 100 },
-    );
-  }, 15_000);
+          return realProject(...args);
+        },
+      );
+
+      const agentId = "ag_slo_fail";
+      await insertAgent(agentId);
+
+      const result = await call<PublishResult>(
+        appRouter.agents.publish,
+        { workspaceId: WORKSPACE_ID, agentId, ir: REPRESENTATIVE_IR },
+        ctx,
+      );
+
+      expect(result.versionId).toMatch(/^av_/);
+
+      // Fire-and-forget slo_violation insert should land within 3 s.
+      await vi.waitFor(
+        async () => {
+          const rows = await db
+            .select()
+            .from(usageEvents)
+            .where(
+              and(
+                eq(usageEvents.kind, "slo_violation"),
+                eq(usageEvents.agentVersionId, result.versionId),
+              ),
+            );
+          expect(rows.length).toBe(1);
+          // F2 fix (post-AMENDMENT-005): assert the full payload contract
+          // from AC#2 — { slo, observedMs, thresholdMs }.
+          expect(rows[0]!.quantity!).toBeGreaterThanOrEqual(
+            SLO_PUBLISH_THRESHOLD_MS,
+          );
+          const payload = rows[0]!.payload as {
+            slo: string;
+            observedMs: number;
+            thresholdMs: number;
+          };
+          expect(payload).toMatchObject({
+            slo: SLO_PUBLISH_NAME,
+            thresholdMs: SLO_PUBLISH_THRESHOLD_MS,
+          });
+          expect(payload.observedMs).toBeGreaterThanOrEqual(
+            SLO_PUBLISH_THRESHOLD_MS,
+          );
+        },
+        { timeout: 3000, interval: 100 },
+      );
+    },
+    15_000,
+  );
 });

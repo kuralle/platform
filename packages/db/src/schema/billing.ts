@@ -48,6 +48,11 @@ export const usageEvents = pgTable(
     quantity: real("quantity").notNull(),
     unitCostUsd: real("unit_cost_usd"),
     totalCostUsd: real("total_cost_usd"),
+    // AMENDMENT-005: jsonb payload for non-billing event kinds (slo_violation
+    // and future operational events). DATA_MODEL.md §13 originally specified
+    // numeric-only metering; this column is nullable so existing billing rows
+    // remain unaffected.
+    payload: jsonb("payload"),
     occurredAt: timestamp("occurred_at").defaultNow().notNull(),
   },
   (table) => [

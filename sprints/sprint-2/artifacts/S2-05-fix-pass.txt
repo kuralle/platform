@@ -1,0 +1,44 @@
+=== S2-05 fix-pass verification ===
+2026-05-08 01:48:17
+
+=== bun -F server test ===
+server test: 
+server test:  Test Files  4 passed (4)
+server test:       Tests  16 passed (16)
+server test:    Start at  01:48:17
+server test:    Duration  5.95s (transform 216ms, setup 0ms, import 1.51s, tests 4.01s, environment 0ms)
+server test: 
+server test: Exited with code 0
+
+=== bun -F @kuralle/core test ===
+@kuralle/core test:       Tests  58 passed (58)
+@kuralle/core test:    Start at  01:48:23
+@kuralle/core test:    Duration  6.09s (transform 164ms, setup 0ms, import 1.79s, tests 3.56s, environment 0ms)
+@kuralle/core test: 
+@kuralle/core test: Exited with code 0
+
+=== bun -F @kuralle/runtime test (3rd attempt — pre-existing flake; passes here) ===
+@kuralle/runtime test:       Tests  6 passed (6)
+@kuralle/runtime test:    Start at  01:48:30
+@kuralle/runtime test:    Duration  1.79s (transform 150ms, setup 0ms, import 469ms, tests 1.24s, environment 0ms)
+@kuralle/runtime test: 
+@kuralle/runtime test: Exited with code 0
+
+=== bun -F web test ===
+web test:       Tests  55 passed (55)
+web test:    Start at  01:48:32
+web test:    Duration  3.49s (transform 841ms, setup 3.29s, import 2.52s, tests 2.03s, environment 12.56s)
+web test: 
+web test: Exited with code 0
+
+=== bun run check-types ===
+Cached:    8 cached, 8 total
+  Time:    56ms >>> FULL TURBO
+
+
+=== bun run lint ===
+/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/env/src/web.ts
+  9:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 1 problem (0 errors, 1 warning)
+
