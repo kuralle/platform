@@ -70,7 +70,7 @@ export class MemoryMessageQueue implements MessageQueue {
     return handle;
   }
 
-  private drain(topic: string): void {
+  private async drain(topic: string): Promise<void> {
     const queue = this.topics.get(topic);
     const consumerList = this.consumers.get(topic);
     if (!queue || !consumerList || consumerList.length === 0) return;
@@ -94,12 +94,19 @@ export class MemoryMessageQueue implements MessageQueue {
         }
       };
 
-      consumer.handler({
-        payload: msg.payload,
-        attempt: msg.attempt,
-        ack,
-        nack,
-      } as ConsumeMessage<unknown>).catch(() => {});
+      try {
+        await consumer.handler({
+          payload: msg.payload,
+          attempt: msg.attempt,
+          ack,
+          nack,
+        } as ConsumeMessage<unknown>);
+      } catch (err) {
+        console.error(
+          `[memory MessageQueue] consumer handler threw on topic "${topic}":`,
+          err,
+        );
+      }
 
       if (!acked && !nacked) {
         queue.push({ ...msg, attempt: msg.attempt + 1 });

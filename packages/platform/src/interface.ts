@@ -271,8 +271,10 @@ export interface ActorHost {
 export interface ActorRef<T> {
   call<K extends keyof T>(
     method: K,
-    ...args: T[K] extends (...a: infer A) => unknown ? A : never
-  ): Promise<T[K] extends (...a: never[]) => Promise<infer R> ? R : never>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- spec match per HEXAGONAL §2.7
+    ...args: T[K] extends (...a: infer A) => any ? A : never
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- spec match per HEXAGONAL §2.7
+  ): Promise<T[K] extends (...a: any[]) => Promise<infer R> ? R : never>;
 }
 
 export interface ActorClass {

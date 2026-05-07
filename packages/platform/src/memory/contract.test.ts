@@ -443,14 +443,9 @@ describe("ActorHost", () => {
     expect(await refB.call("getCounter")).toBe(0);
   });
 
-  it("throws when calling unknown actor", async () => {
-    // Create a ref externally that points to a non-existent actor
-    const bogusRef = b.actorHost.actor(TestActor, "will-be-bogus");
-    // We peek inside by re-creating — but this won't work. Instead, verify
-    // the call succeeds on the real actor but throws with specific condition.
-    // The ActorHost doesn't expose a way to get a ref without creating, so
-    // we test failure through method error propagation.
-    await expect(bogusRef.call("fail")).rejects.toThrow("intentional failure");
+  it("propagates method errors thrown inside an actor", async () => {
+    const ref = b.actorHost.actor(TestActor, "error-actor");
+    await expect(ref.call("fail")).rejects.toThrow("intentional failure");
   });
 
   it("state.blockConcurrencyWhile serializes access", async () => {
