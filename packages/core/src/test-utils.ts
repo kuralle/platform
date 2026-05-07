@@ -1,5 +1,8 @@
-import { Pool, type PoolClient } from "pg";
+import { Pool } from "pg";
+import type { PoolClient } from "pg";
 import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
+
+export type { PoolClient };
 import * as schema from "@kuralle/db/schema";
 
 export const TEST_DB_URL =
@@ -49,9 +52,9 @@ export async function resetSchema(client: PoolClient, workspaceId: string): Prom
 
   await client.query(
     `INSERT INTO organization (id, name, slug, environment, region, compliance_mode, is_personal, created_at, updated_at)
-     VALUES ($1, 'Test Workspace', 'test-workspace', 'sandbox', 'us-east-1', 'none', false, NOW(), NOW())
+     VALUES ($1, $2, $3, 'sandbox', 'us-east-1', 'none', false, NOW(), NOW())
      ON CONFLICT (id) DO NOTHING`,
-    [workspaceId],
+    [workspaceId, `Test Workspace ${workspaceId}`, `test-${workspaceId}`],
   );
 }
 

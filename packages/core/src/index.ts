@@ -29,3 +29,5 @@ export type {
   ConversationUpdate,
 } from "./repositories/conversation.js";
 export { AppendOnlyViolation, WorkspaceScopeViolation } from "./errors.js";
+export { agentIRSchema } from "./schemas/agent-ir.js";
+export type { AgentIR } from "./schemas/agent-ir.js";

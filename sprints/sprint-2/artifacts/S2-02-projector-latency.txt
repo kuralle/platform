@@ -1,0 +1,57 @@
+=== S2-02 Demo Artifact: AgentIR Schema + @kuralle/runtime Projector ===
+
+Generated: 2026-05-07
+Story: S2-02 — AgentIR Zod schema + synchronous projection worker
+
+
+─── Schema Tests (packages/core/src/schemas/agent-ir.test.ts) ──────────
+
+✓ parses a valid minimal AgentIR
+✓ parses a valid AgentIR with optional workflow data (§6)
+✓ rejects unknown top-level fields (strict)
+✓ rejects unknown fields in nested objects (strict)
+✓ rejects missing required field 'name'
+✓ rejects missing required field 'guardrailGraph'
+✓ applies defaults for optional Record fields
+✓ rejects scorerAttachments with invalid weight (negative)
+✓ rejects scorerAttachments with invalid samplingRate (> 1)
+✓ parses guardrailGraph with fully populated nodes
+✓ rejects guardrailNode with unknown fields
+✓ rejects guardrailNode with invalid direction enum
+✓ rejects invalid onTrigger enum
+
+Tests: 13 passed (13)
+
+
+─── Projector Tests (packages/runtime/src/projector/agent.test.ts) ────
+
+✓ round-trip: AgentIR → snapshot + projection → reconstruct = structurally equal (50+ cases)
+✓ returns correct row counts for a representative IR
+✓ p95 latency ≤ 200 ms over 100 projections of representative IR
+✓ throws foreign_key_violation when agentVersionId does not exist
+✓ projection rows reference the correct agentVersionId
+✓ inserts in deterministic order (tool → kb → guardrail → eval → nodes → edges)
+
+Tests: 6 passed (6)
+
+
+─── Latency Histogram ──────────────────────────────────────────────────
+
+Representative IR: Calderon HVAC Dispatcher (5 tools / 3 KB / 4 guardrails
+/ 6 eval criteria / 8 workflow nodes / 10 edges), 100 projections against
+local Postgres.
+
+  min: 1.45 ms
+  p50: 1.85 ms
+  p95: 2.30 ms  ← threshold: 200 ms ✓
+  p99: 4.02 ms
+  max: 4.02 ms
+
+
+─── Verification Pipeline ──────────────────────────────────────────────
+
+bun install          → no changes (clean lockfile)
+bun run check-types  → green (8 packages)
+bun run lint         → green (0 errors, 1 pre-existing warning in env/src/web.ts)
+bun -F @kuralle/core test    → 58 passed (7 test files)
+bun -F @kuralle/runtime test → 6 passed (1 test file)

@@ -1,0 +1,277 @@
+{
+  "name": "Calderon HVAC Dispatcher",
+  "description": "Inbound dispatcher for HVAC operators. Triages emergency / routine / quote / info calls; books service windows; escalates to a human when a caller turns hostile.",
+  "instructions": "You are a calm, professional dispatcher for an HVAC operator-owned business. Triage each call into one of four buckets: (1) emergency no-heat / no-AC, (2) routine maintenance booking, (3) quote follow-up, (4) general info. Always confirm zip code and preferred service window. Never quote pricing. If the caller is hostile, escalate to a human in under 30 seconds.",
+  "model": {
+    "provider": "openai",
+    "name": "gpt-4o",
+    "temperature": 0.4
+  },
+  "defaultOptions": {},
+  "toolAttachments": {
+    "tool_lookup_zip": {
+      "description": "Look up service area coverage by zip code"
+    },
+    "tool_book_appointment": {
+      "description": "Book a service appointment in the CRM",
+      "rules": "Caller must confirm date and time window before booking"
+    },
+    "tool_check_tech_availability": {
+      "description": "Check technician availability for a given time window"
+    },
+    "tool_lookup_customer": {
+      "description": "Look up existing customer by phone number"
+    },
+    "tool_escalate_to_manager": {
+      "description": "Transfer the call to a human service manager"
+    }
+  },
+  "workflowAttachments": {},
+  "subagentAttachments": {
+    "ag_calderon_intake": {
+      "description": "Handles appointment intake for non-emergency calls"
+    }
+  },
+  "integrationTools": {
+    "tcp_service_titan": {
+      "selectedTools": ["search_techs", "create_job", "lookup_customer"]
+    }
+  },
+  "mcpClientAttachments": {
+    "mcp_calderon_crm": {
+      "allowedTools": ["get_customer", "list_appointments", "create_work_order"]
+    }
+  },
+  "kbAttachments": [
+    { "documentId": "kb_calderon_pricing_q4" },
+    { "documentId": "kb_calderon_service_areas" },
+    { "documentId": "kb_calderon_warranty_terms" }
+  ],
+  "guardrailGraph": {
+    "nodes": [
+      {
+        "id": "gr_pii_input",
+        "name": "PII Detection (Input)",
+        "direction": "input",
+        "evaluationModel": "gpt-4o-mini",
+        "prompt": "Check if the caller's message contains PII (SSN, credit card numbers, etc.). If found, trigger block.",
+        "onTrigger": "block",
+        "enabled": true,
+        "ordinal": 1
+      },
+      {
+        "id": "gr_pricing_output",
+        "name": "Pricing Leak Prevention (Output)",
+        "direction": "output",
+        "evaluationModel": "gpt-4o-mini",
+        "prompt": "Check if the agent's response contains any pricing information. The agent must never quote prices. If pricing is detected, trigger redact.",
+        "onTrigger": "redact",
+        "enabled": true,
+        "ordinal": 2
+      },
+      {
+        "id": "gr_profanity_both",
+        "name": "Profanity Filter",
+        "direction": "both",
+        "evaluationModel": "gpt-4o-mini",
+        "prompt": "Check for profanity, hate speech, or abusive language. Flag violations.",
+        "onTrigger": "flag",
+        "enabled": true,
+        "ordinal": 3
+      },
+      {
+        "id": "gr_tcpa_output",
+        "name": "TCPA Compliance (Output)",
+        "direction": "output",
+        "evaluationModel": "gpt-4o-mini",
+        "prompt": "Verify the agent's response includes required TCPA disclosure when scheduling a callback.",
+        "onTrigger": "block",
+        "enabled": true,
+        "ordinal": 4
+      }
+    ],
+    "edges": [
+      {
+        "sourceNodeId": "gr_pii_input",
+        "targetNodeId": "gr_profanity_both",
+        "conditionType": "none"
+      },
+      {
+        "sourceNodeId": "gr_pricing_output",
+        "targetNodeId": "gr_tcpa_output",
+        "conditionType": "none"
+      }
+    ]
+  },
+  "scorerAttachments": {
+    "sc_call_resolution": {
+      "weight": 1.0,
+      "samplingRate": 1.0
+    },
+    "sc_courtesy": {
+      "weight": 0.8,
+      "samplingRate": 0.5
+    },
+    "sc_accuracy": {
+      "weight": 1.2,
+      "samplingRate": 1.0
+    },
+    "sc_speed": {
+      "weight": 0.5,
+      "samplingRate": 0.3
+    },
+    "sc_compliance": {
+      "weight": 2.0,
+      "samplingRate": 1.0
+    },
+    "sc_escalation": {
+      "weight": 1.5,
+      "samplingRate": 0.8
+    }
+  },
+  "voiceConfig": {
+    "pipelineMode": "stt-llm-tts",
+    "ttsModel": "cartesia-sonic-3",
+    "ttsVoiceId": "v_aurora",
+    "sttModel": "deepgram-nova-3-monolingual",
+    "sttLanguage": "en"
+  },
+  "channelConfig": {},
+  "complianceConfig": {
+    "retentionDays": 90,
+    "redactionPatterns": [],
+    "disclosureScript": "This call is being recorded for quality assurance. By continuing, you consent to recording."
+  },
+  "requestContextSchema": {},
+  "workflow": {
+    "nodes": [
+      {
+        "nodeId": "wf_greeting",
+        "kind": "dispatch",
+        "title": "Greeting",
+        "positionX": 50,
+        "positionY": 50
+      },
+      {
+        "nodeId": "wf_triage",
+        "kind": "dispatch",
+        "title": "Intent Triage",
+        "positionX": 250,
+        "positionY": 50
+      },
+      {
+        "nodeId": "wf_emergency",
+        "kind": "dispatch",
+        "title": "Emergency Dispatch",
+        "positionX": 450,
+        "positionY": 0
+      },
+      {
+        "nodeId": "wf_routine",
+        "kind": "transfer-agent",
+        "title": "Routine → Intake Agent",
+        "positionX": 450,
+        "positionY": 50
+      },
+      {
+        "nodeId": "wf_quote",
+        "kind": "extraction",
+        "title": "Quote Intake",
+        "positionX": 450,
+        "positionY": 100,
+        "extractionFields": [
+          {
+            "name": "service_type",
+            "type": "string",
+            "required": true,
+            "description": "Type of service requested (repair, replacement, maintenance)",
+            "ordinal": 1
+          },
+          {
+            "name": "preferred_window",
+            "type": "string",
+            "required": true,
+            "ordinal": 2
+          }
+        ]
+      },
+      {
+        "nodeId": "wf_info",
+        "kind": "dispatch",
+        "title": "General Info",
+        "positionX": 450,
+        "positionY": 150
+      },
+      {
+        "nodeId": "wf_book",
+        "kind": "dispatch",
+        "title": "Book Appointment",
+        "positionX": 650,
+        "positionY": 50
+      },
+      {
+        "nodeId": "wf_end",
+        "kind": "end",
+        "title": "End Call",
+        "positionX": 850,
+        "positionY": 50
+      }
+    ],
+    "edges": [
+      {
+        "sourceNodeId": "wf_greeting",
+        "targetNodeId": "wf_triage",
+        "conditionType": "none"
+      },
+      {
+        "sourceNodeId": "wf_triage",
+        "targetNodeId": "wf_emergency",
+        "conditionType": "llm",
+        "conditionLabel": "emergency"
+      },
+      {
+        "sourceNodeId": "wf_triage",
+        "targetNodeId": "wf_routine",
+        "conditionType": "llm",
+        "conditionLabel": "routine"
+      },
+      {
+        "sourceNodeId": "wf_triage",
+        "targetNodeId": "wf_quote",
+        "conditionType": "llm",
+        "conditionLabel": "quote"
+      },
+      {
+        "sourceNodeId": "wf_triage",
+        "targetNodeId": "wf_info",
+        "conditionType": "llm",
+        "conditionLabel": "info"
+      },
+      {
+        "sourceNodeId": "wf_emergency",
+        "targetNodeId": "wf_book",
+        "conditionType": "none"
+      },
+      {
+        "sourceNodeId": "wf_routine",
+        "targetNodeId": "wf_book",
+        "conditionType": "none"
+      },
+      {
+        "sourceNodeId": "wf_quote",
+        "targetNodeId": "wf_book",
+        "conditionType": "none"
+      },
+      {
+        "sourceNodeId": "wf_info",
+        "targetNodeId": "wf_book",
+        "conditionType": "none"
+      },
+      {
+        "sourceNodeId": "wf_book",
+        "targetNodeId": "wf_end",
+        "conditionType": "none"
+      }
+    ]
+  }
+}
