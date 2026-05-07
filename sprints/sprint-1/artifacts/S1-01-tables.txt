@@ -1,0 +1,69 @@
+=== \dt public.* ===
+                 List of relations
+ Schema |          Name          | Type  |  Owner  
+--------+------------------------+-------+---------
+ public | account                | table | kuralle
+ public | apikey                 | table | kuralle
+ public | invitation             | table | kuralle
+ public | kb_chunks              | table | kuralle
+ public | kb_documents           | table | kuralle
+ public | member                 | table | kuralle
+ public | organization           | table | kuralle
+ public | session                | table | kuralle
+ public | tool_catalog_providers | table | kuralle
+ public | tools                  | table | kuralle
+ public | user                   | table | kuralle
+ public | verification           | table | kuralle
+ public | voices                 | table | kuralle
+(13 rows)
+
+
+=== \d+ kb_chunks ===
+                                                     Table "public.kb_chunks"
+   Column    |            Type             | Collation | Nullable | Default | Storage  | Compression | Stats target | Description 
+-------------+-----------------------------+-----------+----------+---------+----------+-------------+--------------+-------------
+ id          | text                        |           | not null |         | extended |             |              | 
+ document_id | text                        |           | not null |         | extended |             |              | 
+ ordinal     | integer                     |           | not null |         | plain    |             |              | 
+ content     | text                        |           | not null |         | extended |             |              | 
+ embedding   | vector(1024)                |           |          |         | external |             |              | 
+ token_count | integer                     |           |          |         | plain    |             |              | 
+ created_at  | timestamp without time zone |           | not null | now()   | plain    |             |              | 
+Indexes:
+    "kb_chunks_pkey" PRIMARY KEY, btree (id)
+    "kb_chunks_document_ordinal_idx" btree (document_id, ordinal)
+    "kb_chunks_embedding_idx" ivfflat (embedding vector_cosine_ops) WITH (lists='100')
+Foreign-key constraints:
+    "kb_chunks_document_id_kb_documents_id_fk" FOREIGN KEY (document_id) REFERENCES kb_documents(id) ON DELETE CASCADE
+Access method: heap
+
+
+=== pgvector extension ===
+ extname | extversion 
+---------+------------
+ vector  | 0.8.0
+(1 row)
+
+
+=== voices seed ===
+     id     |   name   |  provider  | language | workspace_id 
+------------+----------+------------+----------+--------------
+ v_aurora   | Aurora   | elevenlabs | en-US    | 
+ v_rio      | Rio      | cartesia   | es-MX    | 
+ v_hawthorn | Hawthorn | openai     | en-GB    | 
+ v_lyra     | Lyra     | elevenlabs | en-US    | 
+ v_castor   | Castor   | deepgram   | en-AU    | 
+(5 rows)
+
+
+=== CHECK constraints ===
+              conname               
+------------------------------------
+ cardinal_number_domain_check
+ organization_compliance_mode_check
+ organization_environment_check
+ organization_region_check
+ user_system_role_check
+ yes_or_no_check
+(6 rows)
+

@@ -6,6 +6,20 @@
       "when": 1778134981507,
       "tag": "0000_legal_vanisher",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1778144775287,
+      "tag": "0001_crazy_purifiers",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778144850000,
+      "tag": "0002_enum_checks",
+      "breakpoints": true
     }
   ]
 }

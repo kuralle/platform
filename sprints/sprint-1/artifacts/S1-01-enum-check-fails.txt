@@ -1,0 +1,13 @@
+=== Bad INSERT: environment='bogus' ===
+ERROR:  new row for relation "organization" violates check constraint "organization_environment_check"
+DETAIL:  Failing row contains (test-bad, x, x-e-c, null, 2026-05-07 14:38:58.579638, null, null, bogus, us-east-1, f, null, none, 2026-05-07 14:38:58.579638, null).
+
+=== Expected: organization_environment_check violation ===
+
+=== Bad INSERT: compliance_mode='basic' ===
+ERROR:  new row for relation "organization" violates check constraint "organization_compliance_mode_check"
+DETAIL:  Failing row contains (test-bad2, x, x-c-b, null, 2026-05-07 14:38:58.601229, null, null, production, us-east-1, f, null, basic, 2026-05-07 14:38:58.601229, null).
+
+=== Bad INSERT: system_role='bogus_role' ===
+ERROR:  new row for relation "user" violates check constraint "user_system_role_check"
+DETAIL:  Failing row contains (test-bad-role, x, x@bad.com, f, null, 2026-05-07 14:38:58.622494, 2026-05-07 14:38:58.622494, bogus_role, null).
