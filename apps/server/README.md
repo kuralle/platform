@@ -21,3 +21,21 @@ bun -F @kuralle/db db:push
 ```
 
 Copy `apps/server/.env.example` to `apps/server/.env` and fill in secrets before running the worker locally.
+
+## OpenAPI contract
+
+The canonical OpenAPI 3.1 spec lives at `apps/server/openapi.json`. It is a **build artifact** —
+never edit it by hand. Regenerate with:
+
+```bash
+bun -F server gen:openapi
+```
+
+- The live spec is served by the `OpenAPIReferencePlugin` at `/api-reference/spec.json` (default `specPath`).
+  The Scalar UI is at `/api-reference` (default `docsPath`). Source: `@orpc/openapi` v1.14.0 plugin config.
+- **Every PR that adds or changes a router MUST regenerate the spec** and commit the result.
+- CI fails on drift via `.github/workflows/openapi-drift.yml`.
+- For fast pre-commit feedback, run `bun -F server gen:openapi --check`.
+
+Spec generation uses `OpenAPIGenerator` (programmatic API from `@orpc/openapi`), not a live HTTP
+fetch, so no server boot or DB connection is required. Output is deterministically key-sorted.
