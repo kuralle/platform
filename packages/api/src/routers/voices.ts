@@ -11,7 +11,7 @@ const listInput = z.object({
 const listOutput = z.object({
   items: z.array(voiceSchema),
   cursor: z.string().nullable(),
-});
+}).strict();
 
 export const voicesRouter = {
   list: publicProcedure

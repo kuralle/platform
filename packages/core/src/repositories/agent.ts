@@ -206,10 +206,20 @@ export class AgentRepository {
         );
     });
 
-    await this.kv.delete(cacheKey(this.workspaceId, opts.agentId));
-    await this.kv.delete(
-      `repo:agent_version:${this.workspaceId}:${opts.versionId}`,
-    );
+    // F07: guard cache invalidation. The publish has already committed; a
+    // KvStore outage should not poison the response. The 60s TTL bounds the
+    // staleness if we drop a delete here.
+    try {
+      await this.kv.delete(cacheKey(this.workspaceId, opts.agentId));
+      await this.kv.delete(
+        `repo:agent_version:${this.workspaceId}:${opts.versionId}`,
+      );
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.warn(
+        `[AgentRepository.publishVersion] cache invalidation failed for agent=${opts.agentId} version=${opts.versionId}: ${message}`,
+      );
+    }
 
     return { versionId: opts.versionId, activeVersionId: opts.versionId };
   }

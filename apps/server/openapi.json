@@ -1786,6 +1786,7 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "additionalProperties": false,
                   "properties": {
                     "cursor": {
                       "anyOf": [
@@ -1991,6 +1992,7 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "additionalProperties": false,
                   "properties": {
                     "cursor": {
                       "anyOf": [
@@ -2182,6 +2184,7 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "additionalProperties": false,
                   "properties": {
                     "cursor": {
                       "anyOf": [
@@ -2297,6 +2300,7 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "additionalProperties": false,
                   "properties": {
                     "cursor": {
                       "anyOf": [
@@ -2615,6 +2619,7 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "additionalProperties": false,
                   "properties": {
                     "cursor": {
                       "anyOf": [
@@ -2860,6 +2865,7 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "additionalProperties": false,
                   "properties": {
                     "cursor": {
                       "anyOf": [
@@ -2991,6 +2997,7 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "additionalProperties": false,
                   "properties": {
                     "cursor": {
                       "anyOf": [
@@ -3143,6 +3150,7 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "additionalProperties": false,
                   "properties": {
                     "cursor": {
                       "anyOf": [
@@ -3358,6 +3366,7 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "additionalProperties": false,
                   "properties": {
                     "cursor": {
                       "anyOf": [
@@ -3506,6 +3515,7 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "additionalProperties": false,
                   "properties": {
                     "cursor": {
                       "anyOf": [

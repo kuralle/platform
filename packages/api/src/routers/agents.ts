@@ -128,20 +128,40 @@ export const agentsRouter = {
         });
       }
 
-      const ir = agentIRSchema.parse(input.ir);
+      // F09: agentIRSchema is already in the input contract — oRPC validates.
+      const ir = input.ir;
       const versionNumber = await repos.agents.nextVersionNumber(
         input.agentId,
       );
       const versionId = newId("av");
 
-      const result = await repos.agents.publishVersion({
-        versionId,
-        agentId: input.agentId,
-        versionNumber,
-        publishedByUserId: context.session?.user?.id ?? null,
-        snapshot: ir,
-        project: (tx, vid) => projectAgent(tx, vid, ir),
-      });
+      // F01: wrap the transactional publish so DB-level failures (PK collision
+      // on agent_versions, append-only trigger, FK violation) surface as
+      // ORPCError('CONFLICT') instead of a raw 500. NOT_FOUND is preserved for
+      // the agent existence check above.
+      let result: { versionId: string; activeVersionId: string };
+      try {
+        result = await repos.agents.publishVersion({
+          versionId,
+          agentId: input.agentId,
+          versionNumber,
+          publishedByUserId: context.session?.user?.id ?? null,
+          snapshot: ir,
+          project: (tx, vid) => projectAgent(tx, vid, ir),
+        });
+      } catch (e: unknown) {
+        const cause = (e as Error & { cause?: { code?: string } }).cause;
+        const message = e instanceof Error ? e.message : "publish failed";
+        // 23505 unique_violation, 23503 fk_violation, 0A000 feature_not_supported (append-only trigger)
+        if (
+          cause?.code === "23505" ||
+          cause?.code === "23503" ||
+          cause?.code === "0A000"
+        ) {
+          throw new ORPCError("CONFLICT", { message });
+        }
+        throw e;
+      }
 
       return {
         versionId: result.versionId,
@@ -171,7 +191,8 @@ export const agentsRouter = {
         });
       }
 
-      const ir = agentIRSchema.parse(input.ir);
+      // F09: agentIRSchema already in the input contract — oRPC validates.
+      const ir = input.ir;
       const versionNumber = await repos.agents.nextVersionNumber(
         input.agentId,
       );
