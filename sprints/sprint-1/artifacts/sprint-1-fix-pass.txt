@@ -1,0 +1,43 @@
+## Sprint-level fix-pass artifact (S1-fix)
+
+Resolves codex r2 (sprints/sprint-1/review-sprint-r2.md) Apply-now items 1, 2, 4. Item 3 deferred to S2-03 (BL-S1-OPENAPI-ITEM-SCHEMAS).
+
+### 1. audit_log_events partitions extended through 2027-06
+
+```
+audit_log_events_2026_05
+audit_log_events_2026_06
+audit_log_events_2026_07
+audit_log_events_2026_08
+audit_log_events_2026_09
+audit_log_events_2026_10
+audit_log_events_2026_11
+audit_log_events_2026_12
+audit_log_events_2027_01
+audit_log_events_2027_02
+audit_log_events_2027_03
+audit_log_events_2027_04
+audit_log_events_2027_05
+audit_log_events_2027_06
+
+```
+
+### 2. Forward partition routing verified — 2027-03-15 INSERT lands in audit_log_events_2027_03
+
+### 3. DATA_MODEL.md §15 amendment narrows append-only DB-level enforcement scope to agent_versions only
+
+### 4. vector.fromDriver null-safe (returns [] for null/empty/non-string)
+
+### 5. All 4 smokes green; web test green; platform test 53/53; OpenAPI drift clean; seed idempotent
+
+```
+smoke-S1-01: GREEN
+smoke-S1-02: 16/16
+smoke-S1-03: 28/28
+smoke-S1-04: 41/41
+web test: 38/38
+platform test: 53/53
+openapi --check: clean
+seed idempotency: PASS
+
+```

@@ -1208,6 +1208,46 @@ Nightly hard-delete after 30 days.
 `guardrail_events`, `compliance_evaluations`, `runtime_deployments` (with
 `terminatedAt`). Never deleted via UI; TTL-archived to cold storage per §11.
 
+**Enforcement scope (added 2026-05-07 in [S1-fix] per codex r2 review):** the
+"append-only" property is **semantic** — these tables are never logically
+deleted/rewritten by the product surface. DB-level UPDATE-blocking is applied
+**only to `agent_versions`** (Postgres `BEFORE UPDATE` trigger
+`agent_versions_no_update` from migration 0005, story S1-02), because the
+agent-versions row is a config snapshot with no legitimate field-level
+mutation path.
+
+The other tables on the list have legitimate runtime UPDATE paths even though
+their rows are conceptually append-only:
+
+- `conversation_turns.deliveryStatus`, `statusUpdatedAt`, `evalVerdict` —
+  delivery-status state machine + post-hoc eval scoring (§9:757-760).
+- `webhook_deliveries.attemptCount`, `responseStatus`, `responseBody`,
+  `deliveredAt` — retry-loop state mutates per attempt (§11:986-991).
+- `runtime_deployments.terminatedAt`, `lastHeartbeatAt`,
+  `activeSessionCount`, `terminationReason` — runtime lifecycle reflection
+  (§9:870-879).
+- `audit_log_events`, `usage_events`, `session_checkpoints`,
+  `conversation_tool_calls`, `guardrail_events`, `compliance_evaluations` —
+  no current UPDATE path, but the projector worker (§14, post-S2) is the
+  only legitimate writer; sink-level discipline (HarnessHooks → queue →
+  projector) is the enforcement boundary, not a DB trigger.
+
+Adding `BEFORE UPDATE` triggers to these tables would block the legitimate
+paths above. The append-only property is enforced by:
+
+1. **Application contract** — repository code (S2-01) routes writes through
+   typed sinks; the projector worker (S2-02) is the only writer for hot
+   append-only tables.
+2. **Audit trail** — every UPDATE goes through `audit_log_events.diff` for
+   reconstruction.
+3. **TTL archive (§11)** — partition-rollover to S3 Glacier preserves the
+   immutable history even when working partitions are pruned.
+
+If a future story needs DB-level enforcement on a different table (e.g., a
+compliance regulation requires it), add the trigger then with the
+legitimate-update column allow-list documented in the migration's comment
+block.
+
 ### Encryption
 
 - **At rest:** Postgres native encryption / RDS KMS. No application-level work.

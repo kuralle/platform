@@ -18,6 +18,9 @@ const vector = customType<{ data: number[]; driverData: string }>({
     return `[${value.join(",")}]`;
   },
   fromDriver(value) {
+    if (value == null || typeof value !== "string" || value.length < 2) {
+      return [];
+    }
     return value.slice(1, -1).split(",").map(Number);
   },
 });
