@@ -1,0 +1,10 @@
+@kuralle/platform test: 
+@kuralle/platform test:  RUN  v4.1.5 /Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/platform
+@kuralle/platform test: 
+@kuralle/platform test: 
+@kuralle/platform test:  Test Files  1 passed (1)
+@kuralle/platform test:       Tests  48 passed (48)
+@kuralle/platform test:    Start at  13:35:40
+@kuralle/platform test:    Duration  842ms (transform 263ms, setup 0ms, import 303ms, tests 378ms, environment 0ms)
+@kuralle/platform test: 
+@kuralle/platform test: Exited with code 0

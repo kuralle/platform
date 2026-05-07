@@ -1,0 +1,22 @@
+{
+  "name": "@kuralle/platform",
+  "type": "module",
+  "exports": {
+    "./interface": { "default": "./src/interface.ts" },
+    "./memory": { "default": "./src/memory/index.ts" },
+    "./cloudflare": { "default": "./src/cloudflare/index.ts" },
+    "./node": { "default": "./src/node/index.ts" }
+  },
+  "scripts": {
+    "test": "vitest run",
+    "check-types": "tsc -b"
+  },
+  "dependencies": {
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@kuralle/config": "workspace:*",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

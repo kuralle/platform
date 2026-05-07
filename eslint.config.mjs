@@ -54,4 +54,21 @@ export default tseslint.config(
       "no-restricted-imports": "off",
     },
   },
+  {
+    files: ["packages/{core,api,db,runtime}/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@kuralle/platform/cloudflare", "@kuralle/platform/node"],
+              message:
+                "Domain code must not import from platform adapters. Import from @kuralle/platform/interface instead.",
+            },
+          ],
+        },
+      ],
+    },
+  },
 );

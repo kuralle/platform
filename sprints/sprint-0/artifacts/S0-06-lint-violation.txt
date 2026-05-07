@@ -1,0 +1,12 @@
+$ eslint .
+
+/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/api/src/index.ts
+  2:1   error  '@kuralle/platform/cloudflare' import is restricted from being used by a pattern. Domain code must not import from platform adapters. Import from @kuralle/platform/interface instead  no-restricted-imports
+  2:10  error  'createCloudflareBindings' is defined but never used. Allowed unused vars must match /^_/u                                                                                             @typescript-eslint/no-unused-vars
+
+/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/env/src/web.ts
+  9:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 3 problems (2 errors, 1 warning)
+
+error: script "lint" exited with code 1

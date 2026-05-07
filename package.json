@@ -26,7 +26,8 @@
       "@orpc/client": "^1.14.2",
       "@orpc/tanstack-query": "^1.14.2",
       "@tanstack/react-query": "^5.100.9",
-      "@types/react-dom": "^19.2.3"
+      "@types/react-dom": "^19.2.3",
+      "vitest": "^4.1.5"
     }
   },
   "type": "module",
