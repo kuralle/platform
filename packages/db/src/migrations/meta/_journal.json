@@ -27,6 +27,20 @@
       "when": 1778145600000,
       "tag": "0003_s1_01_fix",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1778146434559,
+      "tag": "0004_round_calypso",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1778146500000,
+      "tag": "0005_s1_02_meta",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,13 @@
+=== S1-02 append-only trigger demo ===
+
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+INSERT succeeded
+
+ERROR:  agent_versions is append-only; UPDATE is not permitted (table=agent_versions, id=demo-av1)
+CONTEXT:  PL/pgSQL function agent_versions_append_only() line 3 at RAISE
+UPDATE succeeded (should not reach here)
+DELETE 1
+DELETE 1
+DELETE 1

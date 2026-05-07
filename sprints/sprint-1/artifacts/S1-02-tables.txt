@@ -1,0 +1,65 @@
+                 List of relations
+ Schema |          Name          | Type  |  Owner  
+--------+------------------------+-------+---------
+ public | agent_eval_criteria    | table | kuralle
+ public | agent_guardrails       | table | kuralle
+ public | agent_kb_attachments   | table | kuralle
+ public | agent_tool_attachments | table | kuralle
+ public | agent_versions         | table | kuralle
+ public | agents                 | table | kuralle
+(6 rows)
+
+---
+                  List of relations
+ Schema |           Name            | Type  |  Owner  
+--------+---------------------------+-------+---------
+ public | workflow_edges_projection | table | kuralle
+ public | workflow_nodes_projection | table | kuralle
+(2 rows)
+
+---
+                                                             Table "public.agent_versions"
+        Column        |            Type             | Collation | Nullable |       Default       | Storage  | Compression | Stats target | Description 
+----------------------+-----------------------------+-----------+----------+---------------------+----------+-------------+--------------+-------------
+ id                   | text                        |           | not null |                     | extended |             |              | 
+ agent_id             | text                        |           | not null |                     | extended |             |              | 
+ version_number       | integer                     |           | not null |                     | plain    |             |              | 
+ version_kind         | text                        |           | not null | 'manual_save'::text | extended |             |              | 
+ parent_version_id    | text                        |           |          |                     | extended |             |              | 
+ change_summary       | text                        |           |          |                     | extended |             |              | 
+ changed_fields       | text[]                      |           |          | '{}'::text[]        | extended |             |              | 
+ published_by_user_id | text                        |           |          |                     | extended |             |              | 
+ published_at         | timestamp without time zone |           |          |                     | plain    |             |              | 
+ snapshot             | jsonb                       |           | not null |                     | extended |             |              | 
+ bundle_storage_key   | text                        |           |          |                     | extended |             |              | 
+ bundle_hash          | text                        |           |          |                     | extended |             |              | 
+ bundle_status        | text                        |           |          |                     | extended |             |              | 
+ bundle_size_bytes    | integer                     |           |          |                     | plain    |             |              | 
+ builder_version      | text                        |           |          |                     | extended |             |              | 
+ built_at             | timestamp without time zone |           |          |                     | plain    |             |              | 
+Indexes:
+    "agent_versions_pkey" PRIMARY KEY, btree (id)
+    "agent_versions_agent_kind_published_idx" btree (agent_id, version_kind, published_at)
+    "agent_versions_agent_published_idx" btree (agent_id, published_at)
+    "agent_versions_agent_version_uidx" UNIQUE, btree (agent_id, version_number)
+    "agent_versions_bundle_hash_idx" btree (bundle_hash)
+Check constraints:
+    "agent_versions_bundle_status_check" CHECK (bundle_status = ANY (ARRAY['pending'::text, 'building'::text, 'ready'::text, 'failed'::text]))
+    "agent_versions_version_kind_check" CHECK (version_kind = ANY (ARRAY['auto_save'::text, 'manual_save'::text, 'publish'::text]))
+Foreign-key constraints:
+    "agent_versions_agent_id_agents_id_fk" FOREIGN KEY (agent_id) REFERENCES agents(id) ON DELETE CASCADE
+    "agent_versions_parent_version_id_agent_versions_id_fk" FOREIGN KEY (parent_version_id) REFERENCES agent_versions(id) ON DELETE SET NULL
+    "agent_versions_published_by_user_id_user_id_fk" FOREIGN KEY (published_by_user_id) REFERENCES "user"(id)
+Referenced by:
+    TABLE "agent_eval_criteria" CONSTRAINT "agent_eval_criteria_agent_version_id_agent_versions_id_fk" FOREIGN KEY (agent_version_id) REFERENCES agent_versions(id) ON DELETE CASCADE
+    TABLE "agent_guardrails" CONSTRAINT "agent_guardrails_agent_version_id_agent_versions_id_fk" FOREIGN KEY (agent_version_id) REFERENCES agent_versions(id) ON DELETE CASCADE
+    TABLE "agent_kb_attachments" CONSTRAINT "agent_kb_attachments_agent_version_id_agent_versions_id_fk" FOREIGN KEY (agent_version_id) REFERENCES agent_versions(id) ON DELETE CASCADE
+    TABLE "agent_tool_attachments" CONSTRAINT "agent_tool_attachments_agent_version_id_agent_versions_id_fk" FOREIGN KEY (agent_version_id) REFERENCES agent_versions(id) ON DELETE CASCADE
+    TABLE "agent_versions" CONSTRAINT "agent_versions_parent_version_id_agent_versions_id_fk" FOREIGN KEY (parent_version_id) REFERENCES agent_versions(id) ON DELETE SET NULL
+    TABLE "agents" CONSTRAINT "agents_active_version_id_agent_versions_id_fk" FOREIGN KEY (active_version_id) REFERENCES agent_versions(id)
+    TABLE "workflow_edges_projection" CONSTRAINT "workflow_edges_projection_agent_version_id_agent_versions_id_fk" FOREIGN KEY (agent_version_id) REFERENCES agent_versions(id) ON DELETE CASCADE
+    TABLE "workflow_nodes_projection" CONSTRAINT "workflow_nodes_projection_agent_version_id_agent_versions_id_fk" FOREIGN KEY (agent_version_id) REFERENCES agent_versions(id) ON DELETE CASCADE
+Triggers:
+    agent_versions_no_update BEFORE UPDATE ON agent_versions FOR EACH ROW EXECUTE FUNCTION agent_versions_append_only()
+Access method: heap
+
