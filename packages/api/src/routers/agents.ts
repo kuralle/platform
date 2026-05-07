@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { ORPCError } from "@orpc/server";
 import { withWorkspace, agentIRSchema } from "@kuralle/core";
-import { projectAgent } from "@kuralle/runtime";
+import { projectAgent, recordSloViolation } from "@kuralle/runtime";
 import { protectedProcedure } from "../index";
 import {
   agentSchema,
@@ -135,6 +135,8 @@ export const agentsRouter = {
       );
       const versionId = newId("av");
 
+      const t0 = performance.now();
+
       // F01: wrap the transactional publish so DB-level failures (PK collision
       // on agent_versions, append-only trigger, FK violation) surface as
       // ORPCError('CONFLICT') instead of a raw 500. NOT_FOUND is preserved for
@@ -161,6 +163,21 @@ export const agentsRouter = {
           throw new ORPCError("CONFLICT", { message });
         }
         throw e;
+      }
+
+      // SLO instrumentation: wall-clock publish latency vs. 1 s threshold.
+      // Fire-and-forget — a failed slo_violation insert does not roll back
+      // the successful publish (TTL would age an uncached entry within 60 s).
+      const latencyMs = performance.now() - t0;
+      if (latencyMs > 1000) {
+        recordSloViolation(context.db, {
+          workspaceId: input.workspaceId,
+          agentId: input.agentId,
+          agentVersionId: result.versionId,
+          observedMs: latencyMs,
+        }).catch(() => {
+          // Best-effort; publish already succeeded.
+        });
       }
 
       return {

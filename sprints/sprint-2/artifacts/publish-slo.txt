@@ -1,0 +1,16 @@
+server test: 
+server test:  RUN  v4.1.5 /Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/apps/server
+server test: 
+server test: stdout | src/__tests__/agents.publish.slo.test.ts > agents.publish SLO > agents.publish meets p95 ≤ 1s SLO over 100 sequential publishes
+server test: 
+server test: [SLO] agents.publish — 100 sequential publishes: n=100  min=1.2ms  p50=1.5ms  p95=2.9ms  p99=3.7ms  max=9.9ms
+server test: 
+server test:  ✓ src/__tests__/agents.publish.slo.test.ts > agents.publish SLO > agents.publish meets p95 ≤ 1s SLO over 100 sequential publishes 253ms
+server test:  ✓ src/__tests__/agents.publish.slo.test.ts > agents.publish SLO > projector slow-path writes usage_events with kind=slo_violation 1167ms
+server test: 
+server test:  Test Files  1 passed (1)
+server test:       Tests  2 passed (2)
+server test:    Start at  01:29:48
+server test:    Duration  2.10s (transform 182ms, setup 0ms, import 533ms, tests 1.47s, environment 0ms)
+server test: 
+server test: Exited with code 0
