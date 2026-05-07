@@ -1,13 +1,17 @@
 /**
  * AgentIR — the canonical snapshot shape stored in `agent_versions.snapshot` jsonb.
  *
- * Verbatin implementation of DATA_MODEL.md §5:347-365.
+ * Verbatim implementation of DATA_MODEL.md §5:347-365 with two ratified amendments:
+ *   - AMENDMENT-003 (sprints/AMENDMENT-003.md): scorerAttachments expands with
+ *     optional per-criterion fields (name?, description?, kind?, rubric?) so
+ *     agent_eval_criteria projection rows carry editor-authored content instead
+ *     of stopgap defaults.
+ *   - AMENDMENT-004 (sprints/AMENDMENT-004.md): optional top-level `workflow` key
+ *     formalizes §6:443-478 inside the §5 snapshot. workflow.nodes/edges feed the
+ *     workflow_nodes_projection / workflow_edges_projection tables on publish.
+ *
  * Every top-level field cites the §5 line it implements.
  * Project-clock date: 2026-05-07.
- *
- * A note on §5 / §6 overlap: §6:443-478 references `agent_versions.snapshot.workflow`
- * as the storage location for workflow node/edge data. The top-level `workflow` key
- * below is an extension from §6, not §5, and is optional (no workflow = no nodes/edges).
  */
 
 import { z } from "zod";
@@ -84,6 +88,13 @@ const scorerAttachmentSchema = z
   .strictObject({
     weight: z.number().min(0), // §5:360
     samplingRate: z.number().min(0).max(1), // §5:360
+    // AMENDMENT-003: per-criterion fields populated by the C8 editor; projector
+    // reads these into agent_eval_criteria. Optional for backward-compat with
+    // pre-amendment snapshots — projector falls back to defaults.
+    name: z.string().optional(), // §5:360 — AMENDMENT-003
+    description: z.string().optional(), // §5:360 — AMENDMENT-003
+    kind: z.enum(["success", "data", "safety"]).optional(), // §5:360 — AMENDMENT-003
+    rubric: z.string().optional(), // §5:360 — AMENDMENT-003
   })
   .strict();
 
@@ -106,7 +117,7 @@ const voiceConfigSchema = z
   .strict();
 
 const channelConfigSchema = z
-  .record(z.string(), z.strictObject({}).passthrough())
+  .record(z.string(), z.object({}).passthrough())
   .default({});
 
 const complianceConfigSchema = z
@@ -118,7 +129,7 @@ const complianceConfigSchema = z
   .strict();
 
 const requestContextSchemaSchema = z
-  .strictObject({})
+  .object({})
   .passthrough()
   .default({});
 
@@ -180,7 +191,7 @@ export const agentIRSchema = z
     description: z.string(), // §5:348
     instructions: z.string(), // §5:349
     model: modelSchema, // §5:350
-    defaultOptions: z.strictObject({}).passthrough().default({}), // §5:351
+    defaultOptions: z.object({}).passthrough().default({}), // §5:351
     toolAttachments: z.record(z.string(), toolAttachmentSchema).default({}), // §5:353
     workflowAttachments: z // §5:354
       .record(z.string(), workflowAttachmentSchema)
@@ -203,7 +214,8 @@ export const agentIRSchema = z
     channelConfig: channelConfigSchema, // §5:363
     complianceConfig: complianceConfigSchema, // §5:364
     requestContextSchema: requestContextSchemaSchema, // §5:365
-    // §6:443 — workflow node/edge data (separate from workflowAttachments)
+    // §6:443 — AMENDMENT-004: optional inline workflow graph that feeds
+    // workflow_nodes_projection + workflow_edges_projection on publish.
     workflow: workflowSchema.optional(),
   })
   .strict();

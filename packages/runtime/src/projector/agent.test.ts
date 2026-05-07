@@ -14,8 +14,6 @@ import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
 import fc from "fast-check";
 import { eq, sql } from "drizzle-orm";
 import * as schema from "@kuralle/db/schema";
-import type { PgTransaction } from "drizzle-orm/pg-core";
-import type { ExtractTablesWithRelations } from "drizzle-orm";
 import {
   createTestDb,
   releaseTestDb,
@@ -25,8 +23,13 @@ import {
   type PoolClient,
 } from "@kuralle/core/test-utils";
 import { agentIRSchema, type AgentIR } from "@kuralle/core";
-import { projectAgent } from "./agent.js";
+import { projectAgent, type AgentProjectionTx } from "./agent.js";
 import calderonIR from "./__fixtures__/calderon-dispatcher-ir.json" with { type: "json" };
+
+/** Coerce a parsed AgentIR into Drizzle's jsonb insert type without `as unknown as` casts. */
+function toJsonb(ir: AgentIR): Record<string, unknown> {
+  return ir as unknown as Record<string, unknown>;
+}
 
 const TEST_WS = "ws_proj_test";
 const TEST_AGENT_ID = "ag_proj_test";
@@ -139,6 +142,10 @@ function guardrailGraphArb(): fc.Arbitrary<AgentIR["guardrailGraph"]> {
 }
 
 function toolAttachmentsArb(): fc.Arbitrary<AgentIR["toolAttachments"]> {
+  // F05: maxKeys here is 10 (intentionally smaller than the 0-50 range
+  // documented at the IR level); fast-check property tests run faster on a
+  // smaller dictionary while still exercising the projection logic. Fixture-
+  // based tests (Calderon HVAC) cover the larger-IR end of the range.
   return fc.dictionary(
     fc.string({ minLength: 3, maxLength: 15 }),
     fc.record({
@@ -150,11 +157,21 @@ function toolAttachmentsArb(): fc.Arbitrary<AgentIR["toolAttachments"]> {
 }
 
 function scorerAttachmentsArb(): fc.Arbitrary<AgentIR["scorerAttachments"]> {
+  // AMENDMENT-003: optional per-criterion fields name/description/kind/rubric.
+  // We generate them sometimes (via fc.option with nil:undefined) so the
+  // round-trip property test exercises both pre- and post-amendment shapes.
   return fc.dictionary(
     fc.string({ minLength: 3, maxLength: 20 }),
     fc.record({
       weight: fc.float({ min: 0, max: 5, noNaN: true }),
       samplingRate: fc.float({ min: 0, max: 1, noNaN: true }),
+      name: fc.option(fc.string({ minLength: 1, maxLength: 60 }), { nil: undefined }),
+      description: fc.option(fc.string({ maxLength: 100 }), { nil: undefined }),
+      kind: fc.option(
+        fc.constantFrom("success" as const, "data" as const, "safety" as const),
+        { nil: undefined },
+      ),
+      rubric: fc.option(fc.string({ maxLength: 100 }), { nil: undefined }),
     }),
     { minKeys: 0, maxKeys: 10 },
   );
@@ -169,16 +186,52 @@ function workflowArb(): fc.Arbitrary<NonNullable<AgentIR["workflow"]>> {
     positionY: fc.option(fc.integer({ min: 0, max: 1000 }), { nil: undefined }),
   });
 
-  return fc.array(nodeArb, { minLength: 0, maxLength: 12 }).chain((nodes) => {
-    if (nodes.length < 2) return fc.constant({ nodes, edges: [] });
-    const nodeIds = nodes.map((n) => n.nodeId);
-    const edgeArb = fc.record({
-      sourceNodeId: fc.constantFrom(...nodeIds),
-      targetNodeId: fc.constantFrom(...nodeIds),
-      conditionType: fc.option(fc.constantFrom("llm", "expression", "none"), { nil: undefined }),
-      conditionLabel: fc.option(fc.string({ maxLength: 20 }), { nil: undefined }),
+  // F07: edges form a valid DAG. We enforce this by ordering nodes (by their
+  // generated index) and only allowing edges that go i → j with i < j. This
+  // also rules out self-loops by construction.
+  return fc.array(nodeArb, { minLength: 0, maxLength: 12 }).chain((rawNodes) => {
+    // De-duplicate node ids deterministically so generated arbitraries with
+    // colliding strings don't break edge resolution.
+    const seenIds = new Set<string>();
+    const nodes = rawNodes.filter((n) => {
+      if (seenIds.has(n.nodeId)) return false;
+      seenIds.add(n.nodeId);
+      return true;
     });
-    return fc.array(edgeArb, { maxLength: 15 }).map((edges) => ({ nodes, edges }));
+
+    if (nodes.length < 2) return fc.constant({ nodes, edges: [] });
+
+    // Enumerate all valid forward edges (i → j with i < j) and pick a subset.
+    const candidateEdges: Array<{ source: string; target: string }> = [];
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        candidateEdges.push({ source: nodes[i]!.nodeId, target: nodes[j]!.nodeId });
+      }
+    }
+
+    return fc
+      .subarray(candidateEdges, { maxLength: Math.min(15, candidateEdges.length) })
+      .chain((picked) =>
+        fc
+          .array(
+            fc.record({
+              conditionType: fc.option(fc.constantFrom("llm", "expression", "none"), {
+                nil: undefined,
+              }),
+              conditionLabel: fc.option(fc.string({ maxLength: 20 }), { nil: undefined }),
+            }),
+            { minLength: picked.length, maxLength: picked.length },
+          )
+          .map((extras) => ({
+            nodes,
+            edges: picked.map((e, idx) => ({
+              sourceNodeId: e.source,
+              targetNodeId: e.target,
+              conditionType: extras[idx]!.conditionType,
+              conditionLabel: extras[idx]!.conditionLabel,
+            })),
+          })),
+      );
   });
 }
 
@@ -209,9 +262,7 @@ const agentIRArb: fc.Arbitrary<AgentIR> = fc.record({
 
 // ── Helpers ─────────────────────────────────────────────────────────
 
-type TxSchema = ExtractTablesWithRelations<typeof schema>;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type TestTx = PgTransaction<any, any, TxSchema>;
+type TestTx = AgentProjectionTx;
 
 /** Insert an agent_version row and return its id. */
 async function insertAgentVersion(
@@ -226,7 +277,7 @@ async function insertAgentVersion(
     agentId,
     versionNumber: 1,
     versionKind,
-    snapshot: ir as unknown as Record<string, unknown>,
+    snapshot: toJsonb(ir),
   });
   return versionId;
 }
@@ -316,7 +367,11 @@ async function reconstructIR(
           edges: wfEdgeRows.map((r) => ({
             sourceNodeId: r.sourceNodeId,
             targetNodeId: r.targetNodeId,
-            conditionType: r.conditionType as "llm" | "expression" | "none" | undefined,
+            conditionType: (r.conditionType ?? undefined) as
+              | "llm"
+              | "expression"
+              | "none"
+              | undefined,
             conditionLabel: r.conditionLabel ?? undefined,
           })),
         }
@@ -343,15 +398,101 @@ async function reconstructIR(
     }
   }
 
-  // Eval criteria: scorerAttachments reconstructed from eval rows (weight only; name/rubric not in original IR)
+  // AMENDMENT-003: scorerAttachments reconstructed from eval rows for the
+  // projection-side fields (weight, name, description, kind, rubric). The
+  // samplingRate field has no projection column — it's a runtime-only field
+  // per the AMENDMENT-003 footnote; we read it from the snapshot.
+  const snapshotScorers = ir.scorerAttachments;
   for (const e of evalRows) {
+    const orig = snapshotScorers[e.id];
     reconstructed.scorerAttachments[e.id] = {
       weight: e.weight ?? 1,
-      samplingRate: 0,
+      samplingRate: orig?.samplingRate ?? 0,
+      name: e.name,
+      description: e.description ?? "",
+      kind: e.kind as "success" | "data" | "safety",
+      rubric: e.rubric,
     };
   }
 
   return reconstructed;
+}
+
+/**
+ * Apply the projector's default-fill semantics to an IR's scorerAttachments
+ * so the original (pre-projection) IR can be compared to the reconstructed
+ * (post-projection-roundtrip) IR. Per AMENDMENT-003: when the IR omits a
+ * scorer field, the projector writes the default; the reconstruction reads
+ * the default. To compare, we apply the same defaults to the original.
+ */
+function applyScorerDefaults(ir: AgentIR): AgentIR {
+  return {
+    ...ir,
+    scorerAttachments: Object.fromEntries(
+      Object.entries(ir.scorerAttachments).map(([id, s]) => [
+        id,
+        {
+          weight: s.weight,
+          samplingRate: s.samplingRate,
+          name: s.name ?? id,
+          description: s.description ?? "",
+          kind: s.kind ?? "success",
+          rubric: s.rubric ?? "",
+        },
+      ]),
+    ),
+  };
+}
+
+/**
+ * Coerce a number to single-precision (Postgres `real`) so doubles in the IR
+ * compare equal to projection rows after the DB round-trip. `agent_eval_criteria.weight`
+ * is `real` per `DATA_MODEL.md §5:431` (4 bytes / IEEE 754 single).
+ */
+function toReal(n: number): number {
+  return Math.fround(n);
+}
+
+/**
+ * Canonicalize an IR so DB-non-deterministic orderings (kb attachments,
+ * guardrail nodes, workflow nodes/edges), float precision (single-precision
+ * `real` columns), and undefined-vs-missing key shapes compare structurally.
+ * Used by the round-trip property test before `toEqual`. The final
+ * JSON.parse(JSON.stringify(...)) round-trip strips `undefined` keys so the
+ * reconstructed-from-DB IR and the JSON-shaped original IR compare cleanly.
+ */
+function canonicalize(ir: AgentIR): AgentIR {
+  const sorted: AgentIR = {
+    ...ir,
+    kbAttachments: [...ir.kbAttachments].sort((a, b) =>
+      a.documentId.localeCompare(b.documentId),
+    ),
+    guardrailGraph: {
+      nodes: [...ir.guardrailGraph.nodes].sort((a, b) =>
+        a.id.localeCompare(b.id),
+      ),
+      edges: [...ir.guardrailGraph.edges].sort((a, b) =>
+        (a.sourceNodeId + a.targetNodeId).localeCompare(b.sourceNodeId + b.targetNodeId),
+      ),
+    },
+    scorerAttachments: Object.fromEntries(
+      Object.entries(ir.scorerAttachments).map(([id, s]) => [
+        id,
+        { ...s, weight: toReal(s.weight) },
+      ]),
+    ),
+    workflow: ir.workflow
+      ? {
+          nodes: [...ir.workflow.nodes].sort((a, b) =>
+            a.nodeId.localeCompare(b.nodeId),
+          ),
+          edges: [...ir.workflow.edges].sort((a, b) =>
+            (a.sourceNodeId + a.targetNodeId).localeCompare(b.sourceNodeId + b.targetNodeId),
+          ),
+        }
+      : ir.workflow,
+  };
+  return JSON.parse(JSON.stringify(sorted)) as AgentIR;
 }
 
 // ── Tests ───────────────────────────────────────────────────────────
@@ -441,82 +582,14 @@ describe("projectAgent", () => {
 
             const reconstructed = await reconstructIR(tx, versionId);
 
-            // Compare snapshot-carried fields (these round-trip exactly)
-            expect(reconstructed.name).toBe(uniqueIr.name);
-            expect(reconstructed.description).toBe(uniqueIr.description);
-            expect(reconstructed.instructions).toBe(uniqueIr.instructions);
-            expect(reconstructed.model).toEqual(uniqueIr.model);
-            expect(reconstructed.voiceConfig).toEqual(uniqueIr.voiceConfig);
-            expect(reconstructed.complianceConfig).toEqual(uniqueIr.complianceConfig);
-
-            // Compare kbAttachments (order from DB is non-deterministic)
-            const sortedReconstructed = [...reconstructed.kbAttachments].sort(
-              (a, b) => a.documentId.localeCompare(b.documentId),
-            );
-            const sortedOriginal = [...uniqueIr.kbAttachments].sort(
-              (a, b) => a.documentId.localeCompare(b.documentId),
-            );
-            expect(sortedReconstructed).toEqual(sortedOriginal);
-
-            // Compare guardrail graph nodes
-            expect(reconstructed.guardrailGraph.nodes.length).toBe(
-              uniqueIr.guardrailGraph.nodes.length,
-            );
-            for (const node of uniqueIr.guardrailGraph.nodes) {
-              const found = reconstructed.guardrailGraph.nodes.find(
-                (n) => n.id === node.id,
-              );
-              expect(found).toBeDefined();
-              expect(found!.name).toBe(node.name);
-              expect(found!.direction).toBe(node.direction);
-              expect(found!.ordinal).toBe(node.ordinal);
-              expect(found!.onTrigger).toBe(node.onTrigger);
-              expect(found!.enabled).toBe(node.enabled);
-            }
-
-            // Compare tool attachments (native)
-            expect(Object.keys(reconstructed.toolAttachments).length).toBe(
-              Object.keys(uniqueIr.toolAttachments).length,
-            );
-            for (const [id, att] of Object.entries(uniqueIr.toolAttachments)) {
-              expect(reconstructed.toolAttachments[id]).toBeDefined();
-              expect(reconstructed.toolAttachments[id]?.description).toBe(
-                att.description,
-              );
-              expect(reconstructed.toolAttachments[id]?.rules).toBe(att.rules);
-            }
-
-            // Compare scorer attachments (weight only — samplingRate not in projection)
-            expect(Object.keys(reconstructed.scorerAttachments).length).toBe(
-              Object.keys(uniqueIr.scorerAttachments).length,
-            );
-            for (const [id, scorer] of Object.entries(uniqueIr.scorerAttachments)) {
-              expect(reconstructed.scorerAttachments[id]).toBeDefined();
-              expect(
-                reconstructed.scorerAttachments[id]?.weight,
-              ).toBeCloseTo(scorer.weight, 5);
-            }
-
-            // Compare workflow nodes
-            if (ir.workflow) {
-              // The original had a workflow key; reconstructed may not if
-              // all nodes/edges were empty (projector skips zero-row inserts).
-              // Accept both: defined workflow with matching counts, or undefined.
-              if (reconstructed.workflow) {
-                expect(reconstructed.workflow.nodes.length).toBe(
-                  ir.workflow.nodes.length,
-                );
-                expect(reconstructed.workflow.edges.length).toBe(
-                  ir.workflow.edges.length,
-                );
-              } else {
-                // Projector skipped because nodes/edges were empty
-                expect(ir.workflow.nodes.length).toBe(0);
-                expect(ir.workflow.edges.length).toBe(0);
-              }
-            } else {
-              expect(reconstructed.workflow).toBeUndefined();
-            }
+            // F03: full structural equality after applying scorer defaults
+            // (per AMENDMENT-003) and canonicalizing array orderings. The two
+            // helpers (`applyScorerDefaults`, `canonicalize`) are the only
+            // round-trip transforms applied — anything else means the projector
+            // or reconstruction is losing information.
+            const expected = canonicalize(applyScorerDefaults(uniqueIr));
+            const actual = canonicalize(reconstructed);
+            expect(actual).toEqual(expected);
           });
         }),
         { numRuns: 50, endOnFailure: true },
@@ -601,7 +674,7 @@ describe("projectAgent", () => {
             agentId,
             versionNumber: i + 1,
             versionKind: "publish",
-            snapshot: ir as unknown as Record<string, unknown>,
+            snapshot: toJsonb(ir),
           });
 
           const t0 = performance.now();

@@ -1,10 +1,18 @@
 import type { PgTransaction } from "drizzle-orm/pg-core";
 import type { ExtractTablesWithRelations } from "drizzle-orm";
+import type { NodePgQueryResultHKT } from "drizzle-orm/node-postgres";
 import * as schema from "@kuralle/db/schema";
 import type { AgentIR } from "@kuralle/core";
 
 /** Schema type for table operations (insert/select from projection tables). */
 type TablesRelational = ExtractTablesWithRelations<typeof schema>;
+
+/** Driver-typed transaction handle this projector accepts. */
+export type AgentProjectionTx = PgTransaction<
+  NodePgQueryResultHKT,
+  typeof schema,
+  TablesRelational
+>;
 
 /**
  * Row-count result from `projectAgent`.
@@ -36,18 +44,16 @@ export interface ProjectionCounts {
  * Returns row counts. Does NOT open or commit the transaction.
  * Any insert failure causes the caller's transaction to roll back.
  *
- * Note on eval_criteria fields not in the IR:
- * `name`, `description`, `kind`, `rubric` are not present in
- * `scorerAttachments : Record<criterionId, {weight, samplingRate}>` (per §5:360).
- * The projector uses `criterionId` as `name`, empty-string defaults for
- * `description`/`rubric`, and `kind = 'success'`. This is flagged as a
- * DATA_MODEL.md ambiguity — the projection table expects these fields
- * but the IR snapshot does not carry them. Future sprints may add a
- * master `eval_criteria` table or expand the IR.
+ * Note on eval_criteria fields:
+ * AMENDMENT-003 expanded `scorerAttachments` (§5:360) with optional `name?`,
+ * `description?`, `kind?`, `rubric?` so the projector can carry editor-authored
+ * content into `agent_eval_criteria`. When the IR omits a field, the projector
+ * falls back to defensible defaults (`name = criterionId`, `description = ""`,
+ * `kind = "success"`, `rubric = ""`) for backward-compat with pre-amendment
+ * snapshots. See `sprints/AMENDMENT-003.md`.
  */
 export async function projectAgent(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  tx: PgTransaction<any, any, TablesRelational>,
+  tx: AgentProjectionTx,
   agentVersionId: string,
   ir: AgentIR,
 ): Promise<ProjectionCounts> {
@@ -128,15 +134,17 @@ export async function projectAgent(
   }
 
   // ── 4. agent_eval_criteria ────────────────────────────────────
+  // AMENDMENT-003: read per-criterion fields from IR; fall back to defaults
+  // for backward-compat with pre-amendment snapshots.
   if (Object.keys(ir.scorerAttachments).length > 0) {
     const evalRows = Object.entries(ir.scorerAttachments).map(
       ([criterionId, scorer], index) => ({
         id: criterionId,
         agentVersionId,
-        name: criterionId,
-        description: "",
-        kind: "success" as const,
-        rubric: "",
+        name: scorer.name ?? criterionId,
+        description: scorer.description ?? "",
+        kind: scorer.kind ?? "success",
+        rubric: scorer.rubric ?? "",
         weight: scorer.weight,
         ordinal: index + 1,
       }),
