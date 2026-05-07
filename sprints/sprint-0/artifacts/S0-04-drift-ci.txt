@@ -1,64 +1,78 @@
+=== S0-04 OpenAPI drift-CI artifact (literal transcripts) ===
+Captured: 2026-05-07T08:35:03Z
+Refreshed in [S0-r2-fix] per codex r2 §2 item 4 (replace narrative with literal output).
+
 === Run (a): Clean pass ===
 
-$ cd apps/server && bun run scripts/gen-openapi.ts --check
-✅ OpenAPI spec matches committed openapi.json
-
-$ echo $?
-0
-
 $ bun -F server gen:openapi
-✅ OpenAPI spec written to /Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/apps/server/openapi.json
+  server gen:openapi: ✅ OpenAPI spec written to /Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/apps/server/openapi.json
+  server gen:openapi: Exited with code 0
 
-$ bun -F server gen:openapi
-✅ OpenAPI spec written to /Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/apps/server/openapi.json
+$ bun -F server gen:openapi  # idempotency check
+  server gen:openapi: ✅ OpenAPI spec written to /Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/apps/server/openapi.json
+  server gen:openapi: Exited with code 0
 
 $ git diff --exit-code apps/server/openapi.json
-(no output — clean exit 0, spec idempotent)
+  (exit $? was: 0)
 
----
-=== Run (b): Deliberate-drift on throwaway branch ===
-
-# Step 1: Edit the router to add helloWorld
-$ cat packages/api/src/routers/index.ts
-// ... (added helloWorld: publicProcedure.handler(() => 'hi'))
-
-# Step 2: Run --check WITHOUT regenerating the spec
 $ bun -F server gen:openapi --check
-❌ OpenAPI spec drift detected! Run 'bun -F server gen:openapi' and commit the result.
+  server gen:openapi: ✅ OpenAPI spec matches committed openapi.json
+  server gen:openapi: Exited with code 0
 
-$ echo $?
-1
+$ jq -r '.paths | keys' apps/server/openapi.json
+  [
+    "/healthCheck",
+    "/privateData"
+  ]
 
-# Step 3: Observe the diff details
-$ bun run scripts/gen-openapi.ts  # writes drifted spec to openapi.json
-✅ OpenAPI spec written to .../openapi.json
+---
+=== Run (b): Deliberate drift on throwaway edit ===
 
-$ diff (temp drifted) (committed spec)
-# Added /helloWorld path in the spec, confirming the gate fires on new procedures.
+$ # Add helloWorld procedure to packages/api/src/routers/index.ts
+$ git diff packages/api/src/routers/index.ts | head -10
+  diff --git a/packages/api/src/routers/index.ts b/packages/api/src/routers/index.ts
+  index 65d41dd..d1a88d9 100644
+  --- a/packages/api/src/routers/index.ts
+  +++ b/packages/api/src/routers/index.ts
+  @@ -6,6 +6,7 @@ export const appRouter = {
+     healthCheck: publicProcedure.handler(() => {
+       return "OK";
+     }),
+  +  helloWorld: publicProcedure.handler(() => "hi"),
+     privateData: protectedProcedure.handler(({ context }) => {
 
-# Step 4: Revert the throwaway edit + regen original spec
-$ git checkout packages/api/src/routers/index.ts
-$ bun -F server gen:openapi
-✅ OpenAPI spec written to .../openapi.json
 $ bun -F server gen:openapi --check
-✅ OpenAPI spec matches committed openapi.json
+  server gen:openapi: ❌ OpenAPI spec drift detected! Run 'bun -F server gen:openapi' and commit the result.
+  server gen:openapi: Exited with code 1
+  (exit $? was the actual: 1)
 
-# Gate fires correctly. Restored to clean state.
+$ # CI gate FAILED as expected — restoring router
+$ git diff packages/api/src/routers/index.ts
+  (clean — restored)
 
----
-=== Spec content sanity check ===
-
-$ bun -e "import spec from './openapi.json' with { type: 'json' }; console.log(Object.keys(spec.paths))"
-["/healthCheck","/privateData"]
-
-$ bun -e "import spec from './openapi.json' with { type: 'json' }; console.log(Object.keys(spec.paths))"
-["/healthCheck","/privateData"]
-
-Both procedures present ✓
+$ bun -F server gen:openapi --check
+  server gen:openapi: ✅ OpenAPI spec matches committed openapi.json
+  server gen:openapi: Exited with code 0
 
 ---
-=== CI workflow YAML ===
-
-File: .github/workflows/openapi-drift.yml
-Triggers: push to main, pull_request
-Steps: checkout → setup-bun@1.3.9 → bun install --frozen-lockfile → bun -F server gen:openapi --check
+=== CI workflow YAML (.github/workflows/openapi-drift.yml) ===
+  name: OpenAPI drift check
+  
+  on:
+    push:
+      branches: [main]
+    pull_request:
+  
+  jobs:
+    drift:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+  
+        - uses: oven-sh/setup-bun@v2
+          with:
+            bun-version: "1.3.9"
+  
+        - run: bun install --frozen-lockfile
+  
+        - run: bun -F server gen:openapi --check

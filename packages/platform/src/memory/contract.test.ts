@@ -162,6 +162,111 @@ describe("MessageQueue", () => {
     expect(attempts[0]).toBe(0);
     await handle.stop();
   });
+
+  // codex r2 edge cases — ack/nack mutual exclusivity + stop() consumer-targeting
+  it("ack() then nack() throws (mutually exclusive)", async () => {
+    let caught: Error | null = null;
+    const handle = b.messageQueue.consume<string>("excl-ack-nack", async (msg) => {
+      await msg.ack();
+      try {
+        await msg.nack({ requeue: true });
+      } catch (err) {
+        caught = err as Error;
+      }
+    });
+
+    await b.messageQueue.publish("excl-ack-nack", "x");
+    await new Promise((r) => setTimeout(r, 50));
+    expect(caught).not.toBeNull();
+    expect((caught as unknown as Error).message).toMatch(/mutually exclusive/);
+    await handle.stop();
+  });
+
+  it("nack() then ack() throws (mutually exclusive)", async () => {
+    let caught: Error | null = null;
+    const handle = b.messageQueue.consume<string>("excl-nack-ack", async (msg) => {
+      await msg.nack({ requeue: false });
+      try {
+        await msg.ack();
+      } catch (err) {
+        caught = err as Error;
+      }
+    });
+
+    await b.messageQueue.publish("excl-nack-ack", "x");
+    await new Promise((r) => setTimeout(r, 50));
+    expect(caught).not.toBeNull();
+    expect((caught as unknown as Error).message).toMatch(/mutually exclusive/);
+    await handle.stop();
+  });
+
+  it("repeated ack() / nack() are idempotent (no throw)", async () => {
+    const handle = b.messageQueue.consume<string>("idempotent-acks", async (msg) => {
+      await msg.ack();
+      await msg.ack();
+    });
+    await b.messageQueue.publish("idempotent-acks", "x");
+    await new Promise((r) => setTimeout(r, 50));
+    await handle.stop();
+  });
+
+  it("stop() removes the exact registered consumer when multiple are active", async () => {
+    const a: string[] = [];
+    const c: string[] = [];
+
+    const handleA = b.messageQueue.consume<string>("multi-stop", async (msg) => {
+      a.push(msg.payload);
+      await msg.ack();
+    });
+    const handleC = b.messageQueue.consume<string>("multi-stop", async (msg) => {
+      c.push(msg.payload);
+      await msg.ack();
+    });
+
+    // round-robin: with 2 consumers, alternate publishes go to A then C.
+    await b.messageQueue.publish("multi-stop", "1");
+    await b.messageQueue.publish("multi-stop", "2");
+    await new Promise((r) => setTimeout(r, 30));
+
+    // stop A only; C should keep receiving.
+    await handleA.stop();
+    await b.messageQueue.publish("multi-stop", "3");
+    await b.messageQueue.publish("multi-stop", "4");
+    await new Promise((r) => setTimeout(r, 30));
+
+    // After A is stopped, all subsequent messages go to C.
+    expect(c).toContain("3");
+    expect(c).toContain("4");
+    expect(a).not.toContain("3");
+    expect(a).not.toContain("4");
+    await handleC.stop();
+  });
+
+  it("drain stops gracefully when all consumers are removed mid-flight", async () => {
+    const received: string[] = [];
+    let processed = 0;
+    const handle = b.messageQueue.consume<string>("stop-mid-drain", async (msg) => {
+      received.push(msg.payload);
+      processed++;
+      // Stop ourselves after the first message; the second pending publish
+      // should NOT be delivered (no consumer to receive it). The drain loop
+      // must terminate cleanly without throwing.
+      if (processed === 1) {
+        // microtask boundary; stop after the handler returns
+        queueMicrotask(() => {
+          void handle.stop();
+        });
+      }
+      await msg.ack();
+    });
+
+    await b.messageQueue.publish("stop-mid-drain", "1");
+    await b.messageQueue.publish("stop-mid-drain", "2");
+    await new Promise((r) => setTimeout(r, 100));
+
+    // First arrived; second is buffered with no consumer, drain returns cleanly.
+    expect(received).toContain("1");
+  });
 });
 
 // ── RuntimePlatform (§2.4)
