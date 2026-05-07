@@ -9,12 +9,17 @@
       "default": "./src/*.ts"
     }
   },
-  "scripts": {},
+  "scripts": {
+    "check-types": "tsc -b"
+  },
   "dependencies": {
+    "@better-auth/api-key": "1.5.5",
     "@kuralle/db": "workspace:*",
     "@kuralle/env": "workspace:*",
+    "@neondatabase/serverless": "catalog:",
     "better-auth": "catalog:",
     "dotenv": "catalog:",
+    "drizzle-orm": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {

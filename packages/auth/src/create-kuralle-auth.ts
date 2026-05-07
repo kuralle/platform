@@ -1,0 +1,231 @@
+import { apiKey, type ApiKeyConfigurationOptions } from "@better-auth/api-key";
+import * as schema from "@kuralle/db/schema/auth";
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import {
+  getOrgAdapter,
+  organization,
+  type OrganizationOptions,
+} from "better-auth/plugins/organization";
+import { defaultAc, defaultRoles } from "better-auth/plugins/organization/access";
+
+export type KuralleAuthEnv = {
+  corsOrigin: string;
+  betterAuthSecret: string;
+  betterAuthUrl: string;
+};
+
+const viewerRole = defaultAc.newRole({ ac: ["read"] });
+
+const organizationPluginOptions = {
+  allowUserToCreateOrganization: true,
+  creatorRole: "owner",
+  roles: {
+    ...defaultRoles,
+    viewer: viewerRole,
+  },
+  schema: {
+    organization: {
+      additionalFields: {
+        vertical: {
+          type: "string",
+          required: false,
+        },
+        environment: {
+          type: "string",
+          required: false,
+          defaultValue: "production",
+        },
+        region: {
+          type: "string",
+          required: false,
+          defaultValue: "us-east-1",
+        },
+        isPersonal: {
+          type: "boolean",
+          required: false,
+          defaultValue: false,
+        },
+        createdByUserId: {
+          type: "string",
+          required: false,
+          references: {
+            model: "user",
+            field: "id",
+            onDelete: "cascade",
+          },
+        },
+        complianceMode: {
+          type: "string",
+          required: false,
+          defaultValue: "none",
+        },
+        updatedAt: {
+          type: "date",
+          required: true,
+          defaultValue: () => new Date(),
+          onUpdate: () => new Date(),
+        },
+        deletedAt: {
+          type: "date",
+          required: false,
+        },
+      },
+    },
+    member: {
+      additionalFields: {
+        invitedBy: {
+          type: "string",
+          required: false,
+          references: {
+            model: "user",
+            field: "id",
+            onDelete: "set null",
+          },
+        },
+        lastActiveAt: {
+          type: "date",
+          required: false,
+        },
+      },
+    },
+  },
+} satisfies OrganizationOptions;
+
+const apiKeyPluginOptions = {
+  references: "organization",
+  schema: {
+    apikey: {
+      additionalFields: {
+        organizationId: {
+          type: "string",
+          required: true,
+          references: {
+            model: "organization",
+            field: "id",
+            onDelete: "cascade",
+          },
+        },
+        revokedAt: {
+          type: "date",
+          required: false,
+        },
+      },
+    },
+  },
+} as ApiKeyConfigurationOptions;
+
+async function slugFromEmailStable(email: string): Promise<string> {
+  const normalized = email.toLowerCase().trim();
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(normalized));
+  const bytes = new Uint8Array(digest).slice(0, 12);
+  const hex = [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("");
+  return `personal-${hex}`;
+}
+
+export function createKuralleBetterAuth(
+  db: Parameters<typeof drizzleAdapter>[0],
+  env: KuralleAuthEnv,
+) {
+  return betterAuth({
+    database: drizzleAdapter(db, {
+      provider: "pg",
+      schema,
+    }),
+    trustedOrigins: [env.corsOrigin],
+    emailAndPassword: {
+      enabled: true,
+    },
+    secret: env.betterAuthSecret,
+    baseURL: env.betterAuthUrl,
+    user: {
+      additionalFields: {
+        systemRole: {
+          type: "string",
+          required: false,
+          defaultValue: "user",
+        },
+        lastSeenAt: {
+          type: "date",
+          required: false,
+        },
+      },
+    },
+    plugins: [organization(organizationPluginOptions), apiKey(apiKeyPluginOptions)],
+    databaseHooks: {
+      user: {
+        create: {
+          after: async (user, ctx) => {
+            if (!user?.id || !user.email || !ctx?.context?.adapter) {
+              return;
+            }
+            const orgAdapter = getOrgAdapter(ctx.context, organizationPluginOptions);
+            const baseSlug = await slugFromEmailStable(user.email);
+            const now = new Date();
+            let slug = baseSlug;
+            for (let attempt = 0; attempt < 8; attempt++) {
+              const collision = await orgAdapter.findOrganizationBySlug(slug);
+              if (!collision) {
+                break;
+              }
+              slug = `${baseSlug}-${attempt + 2}`;
+            }
+            if (await orgAdapter.findOrganizationBySlug(slug)) {
+              throw new Error("Could not allocate a unique workspace slug for personal organization");
+            }
+            const organizationRecord = await orgAdapter.createOrganization({
+              organization: {
+                name: `${user.email}'s personal workspace`,
+                slug,
+                createdAt: now,
+                environment: "production",
+                region: "us-east-1",
+                isPersonal: true,
+                createdByUserId: user.id,
+                complianceMode: "none",
+                updatedAt: now,
+              },
+            });
+            await orgAdapter.createMember({
+              userId: user.id,
+              organizationId: organizationRecord.id,
+              role: "owner",
+            });
+          },
+        },
+      },
+      session: {
+        create: {
+          before: async (session, ctx) => {
+            if (!session.userId || session.activeOrganizationId || !ctx?.context?.adapter) {
+              return;
+            }
+            const orgAdapter = getOrgAdapter(ctx.context, organizationPluginOptions);
+            const organizations = await orgAdapter.listOrganizations(session.userId);
+            const personal = organizations.find(
+              (organizationRow) =>
+                (organizationRow as { id: string; isPersonal?: boolean }).isPersonal === true,
+            );
+            const id = personal?.id;
+            if (!id) {
+              return;
+            }
+            return {
+              data: {
+                ...session,
+                activeOrganizationId: id,
+              },
+            };
+          },
+        },
+      },
+    },
+    advanced: {
+      defaultCookieAttributes: {
+        sameSite: "none",
+        secure: true,
+        httpOnly: true,
+      },
+    },
+  });
+}
