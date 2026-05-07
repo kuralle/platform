@@ -1,45 +1,45 @@
 === S0-03 Sign-Up Smoke Test Results ===
-timestamp: 2026-05-07T06:46:06.495Z
-seedEmail: smoke-f70385fa@kuralle-test.local
+timestamp: 2026-05-07T07:04:55.492Z
+seedEmail: smoke-9a8c8b0d@kuralle-test.local
 
 --- user ---
-  id: CujZw19se46ta9uicvd6u7bXULQQSgBq
+  id: n8vJsRFLy6OlLZheu5Ur7jJPOBdkH4gb
   name: Smoke Test User
-  email: smoke-f70385fa@kuralle-test.local
+  email: smoke-9a8c8b0d@kuralle-test.local
   email_verified: false
   image: null
-  created_at: Thu May 07 2026 06:46:06 GMT+0530 (India Standard Time)
-  updated_at: Thu May 07 2026 06:46:06 GMT+0530 (India Standard Time)
+  created_at: Thu May 07 2026 07:04:55 GMT+0530 (India Standard Time)
+  updated_at: Thu May 07 2026 07:04:55 GMT+0530 (India Standard Time)
   system_role: user
   last_seen_at: null
 
 --- organization ---
-  id: wFV8EuK66o9NbXEDlVsDfRWuoKOFuDJ4
-  name: smoke-f70385fa@kuralle-test.local's personal workspace
-  slug: personal-d1faf3a3aa2964f204090228
+  id: jn08jqnABxoO4YGK9KCvqQjmyXs6HNyd
+  name: smoke-9a8c8b0d@kuralle-test.local's personal workspace
+  slug: personal-67612f236838a26370a9dd9e
   logo: null
-  created_at: Thu May 07 2026 06:46:06 GMT+0530 (India Standard Time)
+  created_at: Thu May 07 2026 07:04:55 GMT+0530 (India Standard Time)
   metadata: null
   vertical: null
   environment: production
   region: us-east-1
   is_personal: true
-  created_by_user_id: CujZw19se46ta9uicvd6u7bXULQQSgBq
+  created_by_user_id: n8vJsRFLy6OlLZheu5Ur7jJPOBdkH4gb
   compliance_mode: none
-  updated_at: Thu May 07 2026 06:46:06 GMT+0530 (India Standard Time)
+  updated_at: Thu May 07 2026 07:04:55 GMT+0530 (India Standard Time)
   deleted_at: null
 
 --- member ---
-  id: 6vvtl3u2SVLusyvHzdDdsmNrg234zDTZ
-  organization_id: wFV8EuK66o9NbXEDlVsDfRWuoKOFuDJ4
-  user_id: CujZw19se46ta9uicvd6u7bXULQQSgBq
+  id: SNsK8sja6yYLxgDfSkIjn4IbV1SOQka6
+  organization_id: jn08jqnABxoO4YGK9KCvqQjmyXs6HNyd
+  user_id: n8vJsRFLy6OlLZheu5Ur7jJPOBdkH4gb
   role: owner
-  created_at: Thu May 07 2026 06:46:06 GMT+0530 (India Standard Time)
+  created_at: Thu May 07 2026 07:04:55 GMT+0530 (India Standard Time)
   invited_by: null
   last_active_at: null
 
 --- session ---
-  id: sDaoigGloafWGlQxDnRX6KCt9Se08Qq3
-  activeOrganizationId: wFV8EuK66o9NbXEDlVsDfRWuoKOFuDJ4
+  id: N0boQfsSchbAlGQ9bfrPAKNKT1U13udJ
+  activeOrganizationId: jn08jqnABxoO4YGK9KCvqQjmyXs6HNyd
 
 ALL FOUR ROWS VERIFIED ✓

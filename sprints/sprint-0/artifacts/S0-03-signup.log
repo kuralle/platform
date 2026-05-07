@@ -1,0 +1,23 @@
+=== S0-03 Sign-up E2E demo log (asciinema-equivalent) ===
+Captured: 2026-05-07T07:04:54Z
+Command: bun -F @kuralle/auth smoke-local
+Environment:
+  Postgres.app 15.12 on localhost:5432
+  DATABASE_URL=postgres://kuralle:kuralle@localhost:5432/kuralle_dev
+  Better-auth 1.5.5 + drizzle-orm/node-postgres + pg wire driver
+
+--- Output ---
+@kuralle/auth smoke-local: [smoke] seedEmail=smoke-9a8c8b0d@kuralle-test.local name="Smoke Test User"
+@kuralle/auth smoke-local: [smoke] Signing up…
+@kuralle/auth smoke-local: [smoke] userId=n8vJsRFLy6OlLZheu5Ur7jJPOBdkH4gb
+@kuralle/auth smoke-local: [smoke] ✓ user: id=n8vJsRFLy6OlLZheu5Ur7jJPOBdkH4gb email=smoke-9a8c8b0d@kuralle-test.local name=Smoke Test User
+@kuralle/auth smoke-local: [smoke] ✓ org: id=jn08jqnABxoO4YGK9KCvqQjmyXs6HNyd name="smoke-9a8c8b0d@kuralle-test.local's personal workspace" isPersonal=true
+@kuralle/auth smoke-local: [smoke] ✓ member: id=SNsK8sja6yYLxgDfSkIjn4IbV1SOQka6 role=owner
+@kuralle/auth smoke-local: [smoke] ✓ session: activeOrganizationId=jn08jqnABxoO4YGK9KCvqQjmyXs6HNyd
+@kuralle/auth smoke-local: [smoke] ✓ ALL FOUR ROWS VERIFIED
+@kuralle/auth smoke-local: [smoke] Artifact written to S0-03-rows.txt
+@kuralle/auth smoke-local: Exited with code 0
+
+--- Exit code: 0 ---
+
+Then S0-03-rows.txt is overwritten with the verified rows (see sibling artifact).
