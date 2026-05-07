@@ -1,0 +1,41 @@
+=== First run (fresh DB) ===
+[seed] organization: 1 row(s)
+[seed] agent ag_calderon_dispatcher: 1 row(s)
+[seed] agent ag_calderon_intake: 1 row(s)
+[seed] agent ag_calderon_titleix: 1 row(s)
+[seed] agent_version av_calderon_dispatcher_v1: 1 row(s)
+[seed] agent_version av_calderon_intake_v1: 1 row(s)
+[seed] agent_version av_calderon_titleix_v1: 1 row(s)
+[seed] channel_connection ch_calderon_voice: 1 row(s)
+[seed] channel_endpoint ce_calderon_e164_main: 1 row(s)
+[seed] conversations + turns: seeded
+[seed] kb_document kb_calderon_pricing_q4: 1 row(s)
+[seed] webhook wh_calderon_main: 1 row(s)
+[seed] Done. Total new rows inserted: 39
+
+=== Second run (idempotency check) ===
+[seed] organization: 0 row(s)
+[seed] agent ag_calderon_dispatcher: 0 row(s)
+[seed] agent ag_calderon_intake: 0 row(s)
+[seed] agent ag_calderon_titleix: 0 row(s)
+[seed] agent_version av_calderon_dispatcher_v1: 0 row(s)
+[seed] agent_version av_calderon_intake_v1: 0 row(s)
+[seed] agent_version av_calderon_titleix_v1: 0 row(s)
+[seed] channel_connection ch_calderon_voice: 0 row(s)
+[seed] channel_endpoint ce_calderon_e164_main: 0 row(s)
+[seed] conversations + turns: seeded
+[seed] kb_document kb_calderon_pricing_q4: 0 row(s)
+[seed] webhook wh_calderon_main: 0 row(s)
+[seed] Done. Total new rows inserted: 0
+
+=== Final row counts ===
+ agent_versions      |     3
+ agents              |     3
+ channel_connections |     1
+ channel_endpoints   |     1
+ conversation_turns  |    23
+ conversations       |     5
+ kb_documents        |     1
+ organization        |     1
+ webhooks            |     1
+

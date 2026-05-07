@@ -1,0 +1,64 @@
+[check] Running seed (first pass)…
+[seed] organization: 0 row(s)
+[seed] agent ag_calderon_dispatcher: 0 row(s)
+[seed] agent ag_calderon_intake: 0 row(s)
+[seed] agent ag_calderon_titleix: 0 row(s)
+[seed] agent_version av_calderon_dispatcher_v1: 0 row(s)
+[seed] agent_version av_calderon_intake_v1: 0 row(s)
+[seed] agent_version av_calderon_titleix_v1: 0 row(s)
+[seed] channel_connection ch_calderon_voice: 0 row(s)
+[seed] channel_endpoint ce_calderon_e164_main: 0 row(s)
+[seed] conversations + turns: seeded
+[seed] kb_document kb_calderon_pricing_q4: 0 row(s)
+[seed] webhook wh_calderon_main: 0 row(s)
+[seed] Done. Total new rows inserted: 0
+
+=== After first run ===
+  organization: 1
+  agents: 3
+  agent_versions: 3
+  channel_connections: 1
+  channel_endpoints: 1
+  conversations: 5
+  conversation_turns: 23
+  kb_documents: 1
+  webhooks: 1
+
+[check] Running seed (second pass)…
+[seed] organization: 0 row(s)
+[seed] agent ag_calderon_dispatcher: 0 row(s)
+[seed] agent ag_calderon_intake: 0 row(s)
+[seed] agent ag_calderon_titleix: 0 row(s)
+[seed] agent_version av_calderon_dispatcher_v1: 0 row(s)
+[seed] agent_version av_calderon_intake_v1: 0 row(s)
+[seed] agent_version av_calderon_titleix_v1: 0 row(s)
+[seed] channel_connection ch_calderon_voice: 0 row(s)
+[seed] channel_endpoint ce_calderon_e164_main: 0 row(s)
+[seed] conversations + turns: seeded
+[seed] kb_document kb_calderon_pricing_q4: 0 row(s)
+[seed] webhook wh_calderon_main: 0 row(s)
+[seed] Done. Total new rows inserted: 0
+
+=== After second run ===
+  organization: 1
+  agents: 3
+  agent_versions: 3
+  channel_connections: 1
+  channel_endpoints: 1
+  conversations: 5
+  conversation_turns: 23
+  kb_documents: 1
+  webhooks: 1
+
+=== Comparison ===
+  organization: 1 vs 1 — MATCH
+  agents: 3 vs 3 — MATCH
+  agent_versions: 3 vs 3 — MATCH
+  channel_connections: 1 vs 1 — MATCH
+  channel_endpoints: 1 vs 1 — MATCH
+  conversations: 5 vs 5 — MATCH
+  conversation_turns: 23 vs 23 — MATCH
+  kb_documents: 1 vs 1 — MATCH
+  webhooks: 1 vs 1 — MATCH
+
+PASS — idempotency verified

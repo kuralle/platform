@@ -12,7 +12,8 @@
   "scripts": {
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "db:seed": "bun scripts/seed-calderon.ts"
   },
   "dependencies": {
     "@kuralle/env": "workspace:*",

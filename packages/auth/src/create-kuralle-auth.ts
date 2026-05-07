@@ -167,6 +167,7 @@ export function createKuralleBetterAuth(
                 region: "us-east-1",
                 isPersonal: true,
                 createdByUserId: user.id,
+                metadata: JSON.stringify({ personal: true }),
                 complianceMode: "none",
                 updatedAt: now,
               },
