@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { voices } from "@kuralle/db/schema/voices";
+import { voiceSchema } from "./voices.schemas";
 import { publicProcedure } from "../index";
 
 const listInput = z.object({
@@ -9,7 +9,7 @@ const listInput = z.object({
 });
 
 const listOutput = z.object({
-  items: z.array(z.unknown()),
+  items: z.array(voiceSchema),
   cursor: z.string().nullable(),
 });
 
@@ -17,12 +17,7 @@ export const voicesRouter = {
   list: publicProcedure
     .input(listInput)
     .output(listOutput)
-    .handler(
-      (): {
-        items: (typeof voices.$inferSelect)[];
-        cursor: string | null;
-      } => {
-        return { items: [], cursor: null };
-      },
-    ),
+    .handler(async () => {
+      return { items: [], cursor: null };
+    }),
 };

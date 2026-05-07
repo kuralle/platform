@@ -1,5 +1,5 @@
 import { and, eq, isNull, desc } from "drizzle-orm";
-import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import type { RepoDb } from "./types.js";
 import * as schema from "@kuralle/db/schema";
 import type { KvStore } from "@kuralle/platform/interface";
 import { AppendOnlyViolation, WorkspaceScopeViolation } from "../errors.js";
@@ -63,7 +63,7 @@ function cacheKey(workspaceId: string, id: string): string {
 
 export class AgentVersionRepository {
   constructor(
-    private readonly db: NodePgDatabase<typeof schema>,
+    private readonly db: RepoDb,
     private readonly workspaceId: string,
     private readonly kv: KvStore,
   ) {}
@@ -112,6 +112,29 @@ export class AgentVersionRepository {
       .innerJoin(schema.agents, eq(schema.agentVersions.agentId, schema.agents.id))
       .where(
         and(
+          eq(schema.agents.workspaceId, this.workspaceId),
+          isNull(schema.agents.deletedAt),
+        ),
+      )
+      .orderBy(desc(schema.agentVersions.publishedAt))
+      .limit(limit);
+
+    return rows.map((r) => toDomain(r.agent_versions));
+  }
+
+  async findByAgentId(agentId: string, opts?: {
+    cursor?: string;
+    limit?: number;
+  }): Promise<AgentVersion[]> {
+    const limit = opts?.limit ?? 50;
+
+    const rows = await this.db
+      .select({ agent_versions: schema.agentVersions })
+      .from(schema.agentVersions)
+      .innerJoin(schema.agents, eq(schema.agentVersions.agentId, schema.agents.id))
+      .where(
+        and(
+          eq(schema.agentVersions.agentId, agentId),
           eq(schema.agents.workspaceId, this.workspaceId),
           isNull(schema.agents.deletedAt),
         ),

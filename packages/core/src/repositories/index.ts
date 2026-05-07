@@ -1,5 +1,4 @@
-import type { NodePgDatabase } from "drizzle-orm/node-postgres";
-import type * as schema from "@kuralle/db/schema";
+import type { RepoDb } from "./types.js";
 import type { KvStore } from "@kuralle/platform/interface";
 import { AgentRepository } from "./agent.js";
 import { AgentVersionRepository } from "./agent-version.js";
@@ -8,8 +7,10 @@ import { ToolRepository } from "./tool.js";
 import { ChannelRepository } from "./channel.js";
 import { ConversationRepository } from "./conversation.js";
 
+export { type RepoDb } from "./types.js";
+
 export function withWorkspace(
-  db: NodePgDatabase<typeof schema>,
+  db: RepoDb,
   workspaceId: string,
   kvStore: KvStore,
 ) {

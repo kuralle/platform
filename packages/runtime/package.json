@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./projector/__fixtures__/calderon-dispatcher-ir.json": "./src/projector/__fixtures__/calderon-dispatcher-ir.json"
   },
   "scripts": {
     "check-types": "tsc --noEmit",

@@ -12,8 +12,12 @@
   "scripts": {},
   "dependencies": {
     "@kuralle/auth": "workspace:*",
+    "@kuralle/core": "workspace:*",
     "@kuralle/db": "workspace:*",
     "@kuralle/env": "workspace:*",
+    "@kuralle/platform": "workspace:*",
+    "@kuralle/runtime": "workspace:*",
+    "drizzle-orm": "catalog:",
     "@orpc/client": "catalog:",
     "@orpc/openapi": "catalog:",
     "@orpc/server": "catalog:",

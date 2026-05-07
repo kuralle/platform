@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { conversations } from "@kuralle/db/schema/conversations";
+import { conversationSchema } from "./conversations.schemas";
 import { protectedProcedure } from "../index";
 
 const listInput = z.object({
@@ -9,7 +9,7 @@ const listInput = z.object({
 });
 
 const listOutput = z.object({
-  items: z.array(z.unknown()),
+  items: z.array(conversationSchema),
   cursor: z.string().nullable(),
 });
 
@@ -17,12 +17,7 @@ export const conversationsRouter = {
   list: protectedProcedure
     .input(listInput)
     .output(listOutput)
-    .handler(
-      (): {
-        items: (typeof conversations.$inferSelect)[];
-        cursor: string | null;
-      } => {
-        return { items: [], cursor: null };
-      },
-    ),
+    .handler(async () => {
+      return { items: [], cursor: null };
+    }),
 };

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { tools } from "@kuralle/db/schema/tools";
+import { toolSchema } from "./tools.schemas";
 import { protectedProcedure } from "../index";
 
 const listInput = z.object({
@@ -9,7 +9,7 @@ const listInput = z.object({
 });
 
 const listOutput = z.object({
-  items: z.array(z.unknown()),
+  items: z.array(toolSchema),
   cursor: z.string().nullable(),
 });
 
@@ -17,12 +17,7 @@ export const toolsRouter = {
   list: protectedProcedure
     .input(listInput)
     .output(listOutput)
-    .handler(
-      (): {
-        items: (typeof tools.$inferSelect)[];
-        cursor: string | null;
-      } => {
-        return { items: [], cursor: null };
-      },
-    ),
+    .handler(async () => {
+      return { items: [], cursor: null };
+    }),
 };

@@ -1,7 +1,9 @@
 import { createContext } from "@kuralle/api/context";
 import { appRouter } from "@kuralle/api/routers/index";
 import { createAuth } from "@kuralle/auth";
+import { createDb } from "@kuralle/db";
 import { env } from "@kuralle/env/server";
+import { MemoryKvStore } from "@kuralle/platform/memory";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { OpenAPIReferencePlugin } from "@orpc/openapi/plugins";
 import { onError } from "@orpc/server";
@@ -10,6 +12,9 @@ import { ZodToJsonSchemaConverter } from "@orpc/zod/zod4";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+
+const db = createDb();
+const kvStore = new MemoryKvStore();
 
 const app = new Hono();
 
@@ -48,7 +53,7 @@ export const rpcHandler = new RPCHandler(appRouter, {
 });
 
 app.use("/*", async (c, next) => {
-  const context = await createContext({ context: c });
+  const context = await createContext({ context: c, db, kvStore });
 
   const rpcResult = await rpcHandler.handle(c.req.raw, {
     prefix: "/rpc",

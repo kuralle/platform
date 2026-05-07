@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { webhooks } from "@kuralle/db/schema/webhooks";
+import { webhookSchema } from "./webhooks.schemas";
 import { protectedProcedure } from "../index";
 
 const listInput = z.object({
@@ -9,7 +9,7 @@ const listInput = z.object({
 });
 
 const listOutput = z.object({
-  items: z.array(z.unknown()),
+  items: z.array(webhookSchema),
   cursor: z.string().nullable(),
 });
 
@@ -17,12 +17,7 @@ export const webhooksRouter = {
   list: protectedProcedure
     .input(listInput)
     .output(listOutput)
-    .handler(
-      (): {
-        items: (typeof webhooks.$inferSelect)[];
-        cursor: string | null;
-      } => {
-        return { items: [], cursor: null };
-      },
-    ),
+    .handler(async () => {
+      return { items: [], cursor: null };
+    }),
 };

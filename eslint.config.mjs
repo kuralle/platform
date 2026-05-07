@@ -106,19 +106,6 @@ export default tseslint.config(
     // to use @kuralle/core repositories. As each router is rewritten, remove its
     // entry from the `ignores` array. When the array is empty, delete it.
     files: ["packages/api/src/routers/**/*.{ts,tsx}"],
-    ignores: [
-      "packages/api/src/routers/agents.ts",
-      "packages/api/src/routers/batches.ts",
-      "packages/api/src/routers/channels.ts",
-      "packages/api/src/routers/compliance.ts",
-      "packages/api/src/routers/conversations.ts",
-      "packages/api/src/routers/kb.ts",
-      "packages/api/src/routers/receipts.ts",
-      "packages/api/src/routers/secrets.ts",
-      "packages/api/src/routers/tools.ts",
-      "packages/api/src/routers/voices.ts",
-      "packages/api/src/routers/webhooks.ts",
-    ],
     rules: {
       "no-restricted-imports": [
         "error",

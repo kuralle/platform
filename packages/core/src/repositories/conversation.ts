@@ -1,5 +1,5 @@
 import { and, eq, desc } from "drizzle-orm";
-import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import type { RepoDb } from "./types.js";
 import * as schema from "@kuralle/db/schema";
 import type { KvStore } from "@kuralle/platform/interface";
 import { WorkspaceScopeViolation } from "../errors.js";
@@ -95,7 +95,7 @@ function cacheKey(workspaceId: string, id: string): string {
 
 export class ConversationRepository {
   constructor(
-    private readonly db: NodePgDatabase<typeof schema>,
+    private readonly db: RepoDb,
     private readonly workspaceId: string,
     private readonly kv: KvStore,
   ) {}

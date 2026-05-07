@@ -1,0 +1,10 @@
+server test: 
+server test:  RUN  v4.1.5 /Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/apps/server
+server test: 
+server test: 
+server test:  Test Files  2 passed (2)
+server test:       Tests  8 passed (8)
+server test:    Start at  23:46:22
+server test:    Duration  1.44s (transform 171ms, setup 0ms, import 773ms, tests 499ms, environment 0ms)
+server test: 
+server test: Exited with code 0

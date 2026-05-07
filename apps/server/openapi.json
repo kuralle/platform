@@ -5,6 +5,1052 @@
   },
   "openapi": "3.1.1",
   "paths": {
+    "/agents/autoSave": {
+      "post": {
+        "operationId": "agents.autoSave",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "agentId": {
+                    "type": "string"
+                  },
+                  "ir": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "channelConfig": {
+                        "additionalProperties": {
+                          "additionalProperties": {},
+                          "type": "object"
+                        },
+                        "default": {},
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "complianceConfig": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "disclosureScript": {
+                            "type": "string"
+                          },
+                          "redactionPatterns": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "retentionDays": {
+                            "maximum": 9007199254740991,
+                            "minimum": 1,
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "retentionDays",
+                          "redactionPatterns",
+                          "disclosureScript"
+                        ],
+                        "type": "object"
+                      },
+                      "defaultOptions": {
+                        "additionalProperties": {},
+                        "default": {},
+                        "type": "object"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "guardrailGraph": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "edges": {
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "conditionLabel": {
+                                  "type": "string"
+                                },
+                                "conditionType": {
+                                  "enum": [
+                                    "llm",
+                                    "expression",
+                                    "none"
+                                  ],
+                                  "type": "string"
+                                },
+                                "sourceNodeId": {
+                                  "type": "string"
+                                },
+                                "targetNodeId": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "sourceNodeId",
+                                "targetNodeId"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "nodes": {
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "direction": {
+                                  "enum": [
+                                    "input",
+                                    "output",
+                                    "both"
+                                  ],
+                                  "type": "string"
+                                },
+                                "enabled": {
+                                  "type": "boolean"
+                                },
+                                "evaluationModel": {
+                                  "type": "string"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "onTrigger": {
+                                  "enum": [
+                                    "block",
+                                    "redact",
+                                    "flag",
+                                    "escalate"
+                                  ],
+                                  "type": "string"
+                                },
+                                "ordinal": {
+                                  "maximum": 9007199254740991,
+                                  "minimum": -9007199254740991,
+                                  "type": "integer"
+                                },
+                                "prompt": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "name",
+                                "direction",
+                                "evaluationModel",
+                                "prompt",
+                                "onTrigger",
+                                "enabled",
+                                "ordinal"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          }
+                        },
+                        "required": [
+                          "nodes",
+                          "edges"
+                        ],
+                        "type": "object"
+                      },
+                      "instructions": {
+                        "type": "string"
+                      },
+                      "integrationTools": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "selectedTools": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            }
+                          },
+                          "required": [
+                            "selectedTools"
+                          ],
+                          "type": "object"
+                        },
+                        "default": {},
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "kbAttachments": {
+                        "default": [],
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "documentId": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "documentId"
+                          ],
+                          "type": "object"
+                        },
+                        "type": "array"
+                      },
+                      "mcpClientAttachments": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "allowedTools": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            }
+                          },
+                          "required": [
+                            "allowedTools"
+                          ],
+                          "type": "object"
+                        },
+                        "default": {},
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "model": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "provider": {
+                            "type": "string"
+                          },
+                          "temperature": {
+                            "maximum": 2,
+                            "minimum": 0,
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "provider",
+                          "name"
+                        ],
+                        "type": "object"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "requestContextSchema": {
+                        "additionalProperties": {},
+                        "default": {},
+                        "type": "object"
+                      },
+                      "scorerAttachments": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "description": {
+                              "type": "string"
+                            },
+                            "kind": {
+                              "enum": [
+                                "success",
+                                "data",
+                                "safety"
+                              ],
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "rubric": {
+                              "type": "string"
+                            },
+                            "samplingRate": {
+                              "maximum": 1,
+                              "minimum": 0,
+                              "type": "number"
+                            },
+                            "weight": {
+                              "minimum": 0,
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "weight",
+                            "samplingRate"
+                          ],
+                          "type": "object"
+                        },
+                        "default": {},
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "subagentAttachments": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "description": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "default": {},
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "toolAttachments": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "description": {
+                              "type": "string"
+                            },
+                            "rules": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "default": {},
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "voiceConfig": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "pipelineMode": {
+                            "type": "string"
+                          },
+                          "sttLanguage": {
+                            "type": "string"
+                          },
+                          "sttModel": {
+                            "type": "string"
+                          },
+                          "ttsModel": {
+                            "type": "string"
+                          },
+                          "ttsVoiceId": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "pipelineMode",
+                          "ttsModel",
+                          "ttsVoiceId",
+                          "sttModel"
+                        ],
+                        "type": "object"
+                      },
+                      "workflow": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "edges": {
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "conditionLabel": {
+                                  "type": "string"
+                                },
+                                "conditionType": {
+                                  "enum": [
+                                    "llm",
+                                    "expression",
+                                    "none"
+                                  ],
+                                  "type": "string"
+                                },
+                                "sourceNodeId": {
+                                  "type": "string"
+                                },
+                                "targetNodeId": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "sourceNodeId",
+                                "targetNodeId"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "nodes": {
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "extractionFields": {
+                                  "items": {
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "description": {
+                                        "type": "string"
+                                      },
+                                      "name": {
+                                        "type": "string"
+                                      },
+                                      "ordinal": {
+                                        "maximum": 9007199254740991,
+                                        "minimum": -9007199254740991,
+                                        "type": "integer"
+                                      },
+                                      "required": {
+                                        "default": false,
+                                        "type": "boolean"
+                                      },
+                                      "type": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "name",
+                                      "type",
+                                      "ordinal"
+                                    ],
+                                    "type": "object"
+                                  },
+                                  "type": "array"
+                                },
+                                "kind": {
+                                  "enum": [
+                                    "subagent",
+                                    "extraction",
+                                    "dispatch",
+                                    "transfer-agent",
+                                    "transfer-number",
+                                    "end"
+                                  ],
+                                  "type": "string"
+                                },
+                                "nodeId": {
+                                  "type": "string"
+                                },
+                                "positionX": {
+                                  "maximum": 9007199254740991,
+                                  "minimum": -9007199254740991,
+                                  "type": "integer"
+                                },
+                                "positionY": {
+                                  "maximum": 9007199254740991,
+                                  "minimum": -9007199254740991,
+                                  "type": "integer"
+                                },
+                                "title": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "nodeId",
+                                "kind",
+                                "title"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          }
+                        },
+                        "required": [
+                          "nodes",
+                          "edges"
+                        ],
+                        "type": "object"
+                      },
+                      "workflowAttachments": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "description": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "default": {},
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "description",
+                      "instructions",
+                      "model",
+                      "guardrailGraph",
+                      "voiceConfig",
+                      "complianceConfig"
+                    ],
+                    "type": "object"
+                  },
+                  "workspaceId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "workspaceId",
+                  "agentId",
+                  "ir"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "versionId": {
+                      "type": "string"
+                    },
+                    "versionNumber": {
+                      "maximum": 9007199254740991,
+                      "minimum": -9007199254740991,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "versionId",
+                    "versionNumber"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/agents/get": {
+      "post": {
+        "operationId": "agents.get",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "agentId": {
+                    "type": "string"
+                  },
+                  "workspaceId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "workspaceId",
+                  "agentId"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "activeVersion": {
+                      "anyOf": [
+                        {
+                          "additionalProperties": false,
+                          "properties": {
+                            "agentId": {
+                              "type": "string"
+                            },
+                            "builderVersion": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "builtAt": {
+                              "anyOf": [
+                                {
+                                  "format": "date-time",
+                                  "type": "string",
+                                  "x-native-type": "date"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "bundleHash": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "bundleSizeBytes": {
+                              "anyOf": [
+                                {
+                                  "maximum": 9007199254740991,
+                                  "minimum": -9007199254740991,
+                                  "type": "integer"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "bundleStatus": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "bundleStorageKey": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "changeSummary": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "changedFields": {
+                              "default": [],
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            },
+                            "id": {
+                              "type": "string"
+                            },
+                            "parentVersionId": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "publishedAt": {
+                              "anyOf": [
+                                {
+                                  "format": "date-time",
+                                  "type": "string",
+                                  "x-native-type": "date"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "publishedByUserId": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "snapshot": {},
+                            "versionKind": {
+                              "type": "string"
+                            },
+                            "versionNumber": {
+                              "maximum": 9007199254740991,
+                              "minimum": -9007199254740991,
+                              "type": "integer"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "agentId",
+                            "versionNumber",
+                            "versionKind",
+                            "parentVersionId",
+                            "changeSummary",
+                            "publishedByUserId",
+                            "publishedAt",
+                            "bundleStorageKey",
+                            "bundleHash",
+                            "bundleStatus",
+                            "bundleSizeBytes",
+                            "builderVersion",
+                            "builtAt"
+                          ],
+                          "type": "object"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "agent": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "activeVersionId": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "authorUserId": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "createdAt": {
+                          "format": "date-time",
+                          "type": "string",
+                          "x-native-type": "date"
+                        },
+                        "deletedAt": {
+                          "anyOf": [
+                            {
+                              "format": "date-time",
+                              "type": "string",
+                              "x-native-type": "date"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "metadata": {
+                          "anyOf": [
+                            {},
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "updatedAt": {
+                          "anyOf": [
+                            {
+                              "format": "date-time",
+                              "type": "string",
+                              "x-native-type": "date"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "workspaceId": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "workspaceId",
+                        "status",
+                        "activeVersionId",
+                        "authorUserId",
+                        "createdAt",
+                        "updatedAt",
+                        "deletedAt"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "agent",
+                    "activeVersion"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/agents/history": {
+      "post": {
+        "operationId": "agents.history",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "agentId": {
+                    "type": "string"
+                  },
+                  "cursor": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "limit": {
+                    "default": 20,
+                    "maximum": 100,
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "workspaceId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "workspaceId",
+                  "agentId"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "cursor": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "items": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "agentId": {
+                            "type": "string"
+                          },
+                          "builderVersion": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "builtAt": {
+                            "anyOf": [
+                              {
+                                "format": "date-time",
+                                "type": "string",
+                                "x-native-type": "date"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "bundleHash": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "bundleSizeBytes": {
+                            "anyOf": [
+                              {
+                                "maximum": 9007199254740991,
+                                "minimum": -9007199254740991,
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "bundleStatus": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "bundleStorageKey": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "changeSummary": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "changedFields": {
+                            "default": [],
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "parentVersionId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "publishedAt": {
+                            "anyOf": [
+                              {
+                                "format": "date-time",
+                                "type": "string",
+                                "x-native-type": "date"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "publishedByUserId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "snapshot": {},
+                          "versionKind": {
+                            "type": "string"
+                          },
+                          "versionNumber": {
+                            "maximum": 9007199254740991,
+                            "minimum": -9007199254740991,
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "agentId",
+                          "versionNumber",
+                          "versionKind",
+                          "parentVersionId",
+                          "changeSummary",
+                          "publishedByUserId",
+                          "publishedAt",
+                          "bundleStorageKey",
+                          "bundleHash",
+                          "bundleStatus",
+                          "bundleSizeBytes",
+                          "builderVersion",
+                          "builtAt"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "cursor"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/agents/list": {
       "post": {
         "operationId": "agents.list",
@@ -47,6 +1093,7 @@
             "content": {
               "application/json": {
                 "schema": {
+                  "additionalProperties": false,
                   "properties": {
                     "cursor": {
                       "anyOf": [
@@ -60,12 +1107,86 @@
                     },
                     "items": {
                       "items": {
-                        "anyOf": [
-                          {},
-                          {
-                            "type": "null"
+                        "additionalProperties": false,
+                        "properties": {
+                          "activeVersionId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "authorUserId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "createdAt": {
+                            "format": "date-time",
+                            "type": "string",
+                            "x-native-type": "date"
+                          },
+                          "deletedAt": {
+                            "anyOf": [
+                              {
+                                "format": "date-time",
+                                "type": "string",
+                                "x-native-type": "date"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "metadata": {
+                            "anyOf": [
+                              {},
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "updatedAt": {
+                            "anyOf": [
+                              {
+                                "format": "date-time",
+                                "type": "string",
+                                "x-native-type": "date"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "workspaceId": {
+                            "type": "string"
                           }
-                        ]
+                        },
+                        "required": [
+                          "id",
+                          "workspaceId",
+                          "status",
+                          "activeVersionId",
+                          "authorUserId",
+                          "createdAt",
+                          "updatedAt",
+                          "deletedAt"
+                        ],
+                        "type": "object"
                       },
                       "type": "array"
                     }
@@ -73,6 +1194,546 @@
                   "required": [
                     "items",
                     "cursor"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/agents/publish": {
+      "post": {
+        "operationId": "agents.publish",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "agentId": {
+                    "type": "string"
+                  },
+                  "ir": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "channelConfig": {
+                        "additionalProperties": {
+                          "additionalProperties": {},
+                          "type": "object"
+                        },
+                        "default": {},
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "complianceConfig": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "disclosureScript": {
+                            "type": "string"
+                          },
+                          "redactionPatterns": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "retentionDays": {
+                            "maximum": 9007199254740991,
+                            "minimum": 1,
+                            "type": "integer"
+                          }
+                        },
+                        "required": [
+                          "retentionDays",
+                          "redactionPatterns",
+                          "disclosureScript"
+                        ],
+                        "type": "object"
+                      },
+                      "defaultOptions": {
+                        "additionalProperties": {},
+                        "default": {},
+                        "type": "object"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "guardrailGraph": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "edges": {
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "conditionLabel": {
+                                  "type": "string"
+                                },
+                                "conditionType": {
+                                  "enum": [
+                                    "llm",
+                                    "expression",
+                                    "none"
+                                  ],
+                                  "type": "string"
+                                },
+                                "sourceNodeId": {
+                                  "type": "string"
+                                },
+                                "targetNodeId": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "sourceNodeId",
+                                "targetNodeId"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "nodes": {
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "direction": {
+                                  "enum": [
+                                    "input",
+                                    "output",
+                                    "both"
+                                  ],
+                                  "type": "string"
+                                },
+                                "enabled": {
+                                  "type": "boolean"
+                                },
+                                "evaluationModel": {
+                                  "type": "string"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "onTrigger": {
+                                  "enum": [
+                                    "block",
+                                    "redact",
+                                    "flag",
+                                    "escalate"
+                                  ],
+                                  "type": "string"
+                                },
+                                "ordinal": {
+                                  "maximum": 9007199254740991,
+                                  "minimum": -9007199254740991,
+                                  "type": "integer"
+                                },
+                                "prompt": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "name",
+                                "direction",
+                                "evaluationModel",
+                                "prompt",
+                                "onTrigger",
+                                "enabled",
+                                "ordinal"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          }
+                        },
+                        "required": [
+                          "nodes",
+                          "edges"
+                        ],
+                        "type": "object"
+                      },
+                      "instructions": {
+                        "type": "string"
+                      },
+                      "integrationTools": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "selectedTools": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            }
+                          },
+                          "required": [
+                            "selectedTools"
+                          ],
+                          "type": "object"
+                        },
+                        "default": {},
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "kbAttachments": {
+                        "default": [],
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "documentId": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "documentId"
+                          ],
+                          "type": "object"
+                        },
+                        "type": "array"
+                      },
+                      "mcpClientAttachments": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "allowedTools": {
+                              "items": {
+                                "type": "string"
+                              },
+                              "type": "array"
+                            }
+                          },
+                          "required": [
+                            "allowedTools"
+                          ],
+                          "type": "object"
+                        },
+                        "default": {},
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "model": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "provider": {
+                            "type": "string"
+                          },
+                          "temperature": {
+                            "maximum": 2,
+                            "minimum": 0,
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "provider",
+                          "name"
+                        ],
+                        "type": "object"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "requestContextSchema": {
+                        "additionalProperties": {},
+                        "default": {},
+                        "type": "object"
+                      },
+                      "scorerAttachments": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "description": {
+                              "type": "string"
+                            },
+                            "kind": {
+                              "enum": [
+                                "success",
+                                "data",
+                                "safety"
+                              ],
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "rubric": {
+                              "type": "string"
+                            },
+                            "samplingRate": {
+                              "maximum": 1,
+                              "minimum": 0,
+                              "type": "number"
+                            },
+                            "weight": {
+                              "minimum": 0,
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "weight",
+                            "samplingRate"
+                          ],
+                          "type": "object"
+                        },
+                        "default": {},
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "subagentAttachments": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "description": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "default": {},
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "toolAttachments": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "description": {
+                              "type": "string"
+                            },
+                            "rules": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "default": {},
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      },
+                      "voiceConfig": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "pipelineMode": {
+                            "type": "string"
+                          },
+                          "sttLanguage": {
+                            "type": "string"
+                          },
+                          "sttModel": {
+                            "type": "string"
+                          },
+                          "ttsModel": {
+                            "type": "string"
+                          },
+                          "ttsVoiceId": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "pipelineMode",
+                          "ttsModel",
+                          "ttsVoiceId",
+                          "sttModel"
+                        ],
+                        "type": "object"
+                      },
+                      "workflow": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "edges": {
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "conditionLabel": {
+                                  "type": "string"
+                                },
+                                "conditionType": {
+                                  "enum": [
+                                    "llm",
+                                    "expression",
+                                    "none"
+                                  ],
+                                  "type": "string"
+                                },
+                                "sourceNodeId": {
+                                  "type": "string"
+                                },
+                                "targetNodeId": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "sourceNodeId",
+                                "targetNodeId"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          },
+                          "nodes": {
+                            "items": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "extractionFields": {
+                                  "items": {
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "description": {
+                                        "type": "string"
+                                      },
+                                      "name": {
+                                        "type": "string"
+                                      },
+                                      "ordinal": {
+                                        "maximum": 9007199254740991,
+                                        "minimum": -9007199254740991,
+                                        "type": "integer"
+                                      },
+                                      "required": {
+                                        "default": false,
+                                        "type": "boolean"
+                                      },
+                                      "type": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "name",
+                                      "type",
+                                      "ordinal"
+                                    ],
+                                    "type": "object"
+                                  },
+                                  "type": "array"
+                                },
+                                "kind": {
+                                  "enum": [
+                                    "subagent",
+                                    "extraction",
+                                    "dispatch",
+                                    "transfer-agent",
+                                    "transfer-number",
+                                    "end"
+                                  ],
+                                  "type": "string"
+                                },
+                                "nodeId": {
+                                  "type": "string"
+                                },
+                                "positionX": {
+                                  "maximum": 9007199254740991,
+                                  "minimum": -9007199254740991,
+                                  "type": "integer"
+                                },
+                                "positionY": {
+                                  "maximum": 9007199254740991,
+                                  "minimum": -9007199254740991,
+                                  "type": "integer"
+                                },
+                                "title": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "nodeId",
+                                "kind",
+                                "title"
+                              ],
+                              "type": "object"
+                            },
+                            "type": "array"
+                          }
+                        },
+                        "required": [
+                          "nodes",
+                          "edges"
+                        ],
+                        "type": "object"
+                      },
+                      "workflowAttachments": {
+                        "additionalProperties": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "description": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        "default": {},
+                        "propertyNames": {
+                          "type": "string"
+                        },
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "description",
+                      "instructions",
+                      "model",
+                      "guardrailGraph",
+                      "voiceConfig",
+                      "complianceConfig"
+                    ],
+                    "type": "object"
+                  },
+                  "workspaceId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "workspaceId",
+                  "agentId",
+                  "ir"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "activeVersionId": {
+                      "type": "string"
+                    },
+                    "versionId": {
+                      "type": "string"
+                    },
+                    "versionNumber": {
+                      "maximum": 9007199254740991,
+                      "minimum": -9007199254740991,
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "versionId",
+                    "versionNumber",
+                    "activeVersionId"
                   ],
                   "type": "object"
                 }
@@ -138,12 +1799,139 @@
                     },
                     "items": {
                       "items": {
-                        "anyOf": [
-                          {},
-                          {
-                            "type": "null"
+                        "additionalProperties": false,
+                        "properties": {
+                          "agentId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "booked": {
+                            "maximum": 9007199254740991,
+                            "minimum": -9007199254740991,
+                            "type": "integer"
+                          },
+                          "channelEndpointId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "channelKind": {
+                            "type": "string"
+                          },
+                          "completed": {
+                            "maximum": 9007199254740991,
+                            "minimum": -9007199254740991,
+                            "type": "integer"
+                          },
+                          "concurrency": {
+                            "maximum": 9007199254740991,
+                            "minimum": -9007199254740991,
+                            "type": "integer"
+                          },
+                          "costUsd": {
+                            "type": "number"
+                          },
+                          "createdAt": {
+                            "format": "date-time",
+                            "type": "string",
+                            "x-native-type": "date"
+                          },
+                          "createdByUserId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "failed": {
+                            "maximum": 9007199254740991,
+                            "minimum": -9007199254740991,
+                            "type": "integer"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "recoveredRevenueUsd": {
+                            "type": "number"
+                          },
+                          "scheduledFor": {
+                            "anyOf": [
+                              {
+                                "format": "date-time",
+                                "type": "string",
+                                "x-native-type": "date"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "totalRecipients": {
+                            "maximum": 9007199254740991,
+                            "minimum": -9007199254740991,
+                            "type": "integer"
+                          },
+                          "updatedAt": {
+                            "anyOf": [
+                              {
+                                "format": "date-time",
+                                "type": "string",
+                                "x-native-type": "date"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "vertical": {
+                            "type": "string"
+                          },
+                          "workspaceId": {
+                            "type": "string"
                           }
-                        ]
+                        },
+                        "required": [
+                          "id",
+                          "workspaceId",
+                          "name",
+                          "agentId",
+                          "channelKind",
+                          "channelEndpointId",
+                          "vertical",
+                          "status",
+                          "scheduledFor",
+                          "concurrency",
+                          "totalRecipients",
+                          "completed",
+                          "booked",
+                          "failed",
+                          "costUsd",
+                          "recoveredRevenueUsd",
+                          "createdByUserId",
+                          "createdAt",
+                          "updatedAt"
+                        ],
+                        "type": "object"
                       },
                       "type": "array"
                     }
@@ -216,12 +2004,125 @@
                     },
                     "items": {
                       "items": {
-                        "anyOf": [
-                          {},
-                          {
-                            "type": "null"
+                        "additionalProperties": false,
+                        "properties": {
+                          "attachedAgentId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "attachedAgentVersionId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "channelKind": {
+                            "type": "string"
+                          },
+                          "connectionId": {
+                            "type": "string"
+                          },
+                          "createdAt": {
+                            "format": "date-time",
+                            "type": "string",
+                            "x-native-type": "date"
+                          },
+                          "displayName": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "identifier": {
+                            "type": "string"
+                          },
+                          "metadata": {
+                            "anyOf": [
+                              {},
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "publicStreamUrl": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "publicWebhookUrl": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "releasedAt": {
+                            "anyOf": [
+                              {
+                                "format": "date-time",
+                                "type": "string",
+                                "x-native-type": "date"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "routingRulesId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "workspaceId": {
+                            "type": "string"
                           }
-                        ]
+                        },
+                        "required": [
+                          "id",
+                          "workspaceId",
+                          "connectionId",
+                          "channelKind",
+                          "identifier",
+                          "displayName",
+                          "attachedAgentId",
+                          "attachedAgentVersionId",
+                          "routingRulesId",
+                          "publicWebhookUrl",
+                          "publicStreamUrl",
+                          "createdAt",
+                          "releasedAt"
+                        ],
+                        "type": "object"
                       },
                       "type": "array"
                     }
@@ -294,12 +2195,49 @@
                     },
                     "items": {
                       "items": {
-                        "anyOf": [
-                          {},
-                          {
-                            "type": "null"
+                        "additionalProperties": false,
+                        "properties": {
+                          "evaluatedAt": {
+                            "format": "date-time",
+                            "type": "string",
+                            "x-native-type": "date"
+                          },
+                          "failures": {
+                            "anyOf": [
+                              {},
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "passed": {
+                            "anyOf": [
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "regulation": {
+                            "type": "string"
+                          },
+                          "workspaceId": {
+                            "type": "string"
                           }
-                        ]
+                        },
+                        "required": [
+                          "id",
+                          "workspaceId",
+                          "regulation",
+                          "passed",
+                          "evaluatedAt"
+                        ],
+                        "type": "object"
                       },
                       "type": "array"
                     }
@@ -372,12 +2310,230 @@
                     },
                     "items": {
                       "items": {
-                        "anyOf": [
-                          {},
-                          {
-                            "type": "null"
+                        "additionalProperties": false,
+                        "properties": {
+                          "agentId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "agentVersionId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "bundleHash": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "channelEndpointId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "channelKind": {
+                            "type": "string"
+                          },
+                          "costUsd": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "deploymentId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "direction": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "durationSec": {
+                            "anyOf": [
+                              {
+                                "maximum": 9007199254740991,
+                                "minimum": -9007199254740991,
+                                "type": "integer"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "endedAt": {
+                            "anyOf": [
+                              {
+                                "format": "date-time",
+                                "type": "string",
+                                "x-native-type": "date"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "evalsPassed": {
+                            "default": 0,
+                            "maximum": 9007199254740991,
+                            "minimum": -9007199254740991,
+                            "type": "integer"
+                          },
+                          "evalsTotal": {
+                            "default": 0,
+                            "maximum": 9007199254740991,
+                            "minimum": -9007199254740991,
+                            "type": "integer"
+                          },
+                          "guardrailEventsArchiveKey": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "metadata": {
+                            "anyOf": [
+                              {},
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "outcome": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "participantId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "participantName": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "recordingStorageKey": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "startedAt": {
+                            "format": "date-time",
+                            "type": "string",
+                            "x-native-type": "date"
+                          },
+                          "threadKey": {
+                            "type": "string"
+                          },
+                          "topics": {
+                            "default": [],
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "turnsArchiveKey": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "workspaceId": {
+                            "type": "string"
                           }
-                        ]
+                        },
+                        "required": [
+                          "id",
+                          "workspaceId",
+                          "agentId",
+                          "agentVersionId",
+                          "bundleHash",
+                          "channelKind",
+                          "channelEndpointId",
+                          "threadKey",
+                          "direction",
+                          "participantId",
+                          "participantName",
+                          "startedAt",
+                          "endedAt",
+                          "durationSec",
+                          "outcome",
+                          "recordingStorageKey",
+                          "costUsd",
+                          "deploymentId",
+                          "turnsArchiveKey",
+                          "guardrailEventsArchiveKey"
+                        ],
+                        "type": "object"
                       },
                       "type": "array"
                     }
@@ -472,12 +2628,157 @@
                     },
                     "items": {
                       "items": {
-                        "anyOf": [
-                          {},
-                          {
-                            "type": "null"
+                        "additionalProperties": false,
+                        "properties": {
+                          "autoSync": {
+                            "type": "boolean"
+                          },
+                          "contentText": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "createdAt": {
+                            "format": "date-time",
+                            "type": "string",
+                            "x-native-type": "date"
+                          },
+                          "createdByUserId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "deletedAt": {
+                            "anyOf": [
+                              {
+                                "format": "date-time",
+                                "type": "string",
+                                "x-native-type": "date"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "embeddingModel": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "folder": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "lastSyncedAt": {
+                            "anyOf": [
+                              {
+                                "format": "date-time",
+                                "type": "string",
+                                "x-native-type": "date"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "ragIndexed": {
+                            "type": "boolean"
+                          },
+                          "sizeBytes": {
+                            "maximum": 9007199254740991,
+                            "minimum": -9007199254740991,
+                            "type": "integer"
+                          },
+                          "source": {
+                            "type": "string"
+                          },
+                          "sourceUrl": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "storageKey": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "updatedAt": {
+                            "anyOf": [
+                              {
+                                "format": "date-time",
+                                "type": "string",
+                                "x-native-type": "date"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "workspaceId": {
+                            "type": "string"
                           }
-                        ]
+                        },
+                        "required": [
+                          "id",
+                          "workspaceId",
+                          "folder",
+                          "name",
+                          "source",
+                          "sourceUrl",
+                          "storageKey",
+                          "contentText",
+                          "sizeBytes",
+                          "status",
+                          "ragIndexed",
+                          "embeddingModel",
+                          "autoSync",
+                          "lastSyncedAt",
+                          "createdByUserId",
+                          "createdAt",
+                          "updatedAt",
+                          "deletedAt"
+                        ],
+                        "type": "object"
                       },
                       "type": "array"
                     }
@@ -572,12 +2873,65 @@
                     },
                     "items": {
                       "items": {
-                        "anyOf": [
-                          {},
-                          {
-                            "type": "null"
+                        "additionalProperties": false,
+                        "properties": {
+                          "comparisonDeltaPct": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "costUsd": {
+                            "type": "number"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "month": {
+                            "type": "string"
+                          },
+                          "pdfStorageKey": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "perAgent": {},
+                          "publishedAt": {
+                            "format": "date-time",
+                            "type": "string",
+                            "x-native-type": "date"
+                          },
+                          "recoveredRevenueUsd": {
+                            "type": "number"
+                          },
+                          "roiMultiplier": {
+                            "type": "number"
+                          },
+                          "workspaceId": {
+                            "type": "string"
                           }
-                        ]
+                        },
+                        "required": [
+                          "id",
+                          "workspaceId",
+                          "month",
+                          "recoveredRevenueUsd",
+                          "costUsd",
+                          "roiMultiplier",
+                          "comparisonDeltaPct",
+                          "publishedAt",
+                          "pdfStorageKey"
+                        ],
+                        "type": "object"
                       },
                       "type": "array"
                     }
@@ -650,12 +3004,86 @@
                     },
                     "items": {
                       "items": {
-                        "anyOf": [
-                          {},
-                          {
-                            "type": "null"
+                        "additionalProperties": false,
+                        "properties": {
+                          "agentId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "createdAt": {
+                            "format": "date-time",
+                            "type": "string",
+                            "x-native-type": "date"
+                          },
+                          "createdByUserId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "kmsKeyId": {
+                            "type": "string"
+                          },
+                          "lastUsedAt": {
+                            "anyOf": [
+                              {
+                                "format": "date-time",
+                                "type": "string",
+                                "x-native-type": "date"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "rotatedAt": {
+                            "anyOf": [
+                              {
+                                "format": "date-time",
+                                "type": "string",
+                                "x-native-type": "date"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "scope": {
+                            "type": "string"
+                          },
+                          "workspaceId": {
+                            "type": "string"
                           }
-                        ]
+                        },
+                        "required": [
+                          "id",
+                          "workspaceId",
+                          "name",
+                          "kmsKeyId",
+                          "scope",
+                          "agentId",
+                          "lastUsedAt",
+                          "createdByUserId",
+                          "createdAt",
+                          "rotatedAt"
+                        ],
+                        "type": "object"
                       },
                       "type": "array"
                     }
@@ -728,12 +3156,145 @@
                     },
                     "items": {
                       "items": {
-                        "anyOf": [
-                          {},
-                          {
-                            "type": "null"
+                        "additionalProperties": false,
+                        "properties": {
+                          "catalogProviderId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "config": {},
+                          "createdAt": {
+                            "format": "date-time",
+                            "type": "string",
+                            "x-native-type": "date"
+                          },
+                          "deletedAt": {
+                            "anyOf": [
+                              {
+                                "format": "date-time",
+                                "type": "string",
+                                "x-native-type": "date"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "description": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "displayName": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "externalToolKey": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "inputSchema": {
+                            "anyOf": [
+                              {},
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "kind": {
+                            "type": "string"
+                          },
+                          "lastValidatedAt": {
+                            "anyOf": [
+                              {
+                                "format": "date-time",
+                                "type": "string",
+                                "x-native-type": "date"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "outputSchema": {
+                            "anyOf": [
+                              {},
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "updatedAt": {
+                            "anyOf": [
+                              {
+                                "format": "date-time",
+                                "type": "string",
+                                "x-native-type": "date"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "workspaceId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
                           }
-                        ]
+                        },
+                        "required": [
+                          "id",
+                          "workspaceId",
+                          "name",
+                          "displayName",
+                          "description",
+                          "kind",
+                          "catalogProviderId",
+                          "externalToolKey",
+                          "status",
+                          "lastValidatedAt",
+                          "createdAt",
+                          "updatedAt",
+                          "deletedAt"
+                        ],
+                        "type": "object"
                       },
                       "type": "array"
                     }
@@ -810,12 +3371,82 @@
                     },
                     "items": {
                       "items": {
-                        "anyOf": [
-                          {},
-                          {
-                            "type": "null"
+                        "additionalProperties": false,
+                        "properties": {
+                          "createdAt": {
+                            "format": "date-time",
+                            "type": "string",
+                            "x-native-type": "date"
+                          },
+                          "externalId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "isCloned": {
+                            "type": "boolean"
+                          },
+                          "language": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "previewUrl": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "provider": {
+                            "type": "string"
+                          },
+                          "style": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "workspaceId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
                           }
-                        ]
+                        },
+                        "required": [
+                          "id",
+                          "workspaceId",
+                          "externalId",
+                          "provider",
+                          "name",
+                          "language",
+                          "style",
+                          "isCloned",
+                          "previewUrl",
+                          "createdAt"
+                        ],
+                        "type": "object"
                       },
                       "type": "array"
                     }
@@ -888,12 +3519,45 @@
                     },
                     "items": {
                       "items": {
-                        "anyOf": [
-                          {},
-                          {
-                            "type": "null"
+                        "additionalProperties": false,
+                        "properties": {
+                          "active": {
+                            "type": "boolean"
+                          },
+                          "createdAt": {
+                            "format": "date-time",
+                            "type": "string",
+                            "x-native-type": "date"
+                          },
+                          "events": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "signingSecret": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          },
+                          "workspaceId": {
+                            "type": "string"
                           }
-                        ]
+                        },
+                        "required": [
+                          "id",
+                          "workspaceId",
+                          "url",
+                          "events",
+                          "signingSecret",
+                          "active",
+                          "createdAt"
+                        ],
+                        "type": "object"
                       },
                       "type": "array"
                     }

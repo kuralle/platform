@@ -1,8 +1,17 @@
-import { and, eq, isNull, desc } from "drizzle-orm";
-import type { NodePgDatabase } from "drizzle-orm/node-postgres";
+import { and, eq, isNull, desc, sql } from "drizzle-orm";
+import type { NeonHttpQueryResultHKT } from "drizzle-orm/neon-http";
+import type { NodePgQueryResultHKT } from "drizzle-orm/node-postgres";
+import type { PgTransaction } from "drizzle-orm/pg-core";
+import type { ExtractTablesWithRelations } from "drizzle-orm";
 import * as schema from "@kuralle/db/schema";
 import type { KvStore } from "@kuralle/platform/interface";
+import type { RepoDb } from "./types.js";
 import { WorkspaceScopeViolation } from "../errors.js";
+
+type SchemaTables = ExtractTablesWithRelations<typeof schema>;
+type AgentTx =
+  | PgTransaction<NeonHttpQueryResultHKT, typeof schema, SchemaTables>
+  | PgTransaction<NodePgQueryResultHKT, typeof schema, SchemaTables>;
 
 export interface Agent {
   id: string;
@@ -50,7 +59,7 @@ function cacheKey(workspaceId: string, id: string): string {
 
 export class AgentRepository {
   constructor(
-    private readonly db: NodePgDatabase<typeof schema>,
+    private readonly db: RepoDb,
     private readonly workspaceId: string,
     private readonly kv: KvStore,
   ) {}
@@ -148,5 +157,72 @@ export class AgentRepository {
       );
 
     await this.kv.delete(cacheKey(this.workspaceId, id));
+  }
+
+  /**
+   * Transactional publish: insert version row, run projector, swap activeVersionId.
+   * The projector callback receives the transaction handle so projection rows
+   * are written atomically with the version insert + pointer swap.
+   *
+   * Caller is responsible for providing the new `versionId`.
+   */
+  async publishVersion(opts: {
+    versionId: string;
+    agentId: string;
+    versionNumber: number;
+    publishedByUserId: string | null;
+    snapshot: unknown;
+    project: (tx: AgentTx, versionId: string) => Promise<unknown>;
+  }): Promise<{ versionId: string; activeVersionId: string }> {
+    const current = await this.findById(opts.agentId);
+    const parentVersionId = current?.activeVersionId ?? null;
+
+    await this.db.transaction(async (tx) => {
+      await tx.insert(schema.agentVersions).values({
+        id: opts.versionId,
+        agentId: opts.agentId,
+        versionNumber: opts.versionNumber,
+        versionKind: "publish",
+        parentVersionId,
+        publishedByUserId: opts.publishedByUserId ?? null,
+        publishedAt: new Date(),
+        snapshot: opts.snapshot as Record<string, unknown>,
+      });
+
+      await opts.project(tx, opts.versionId);
+
+      await tx
+        .update(schema.agents)
+        .set({
+          activeVersionId: opts.versionId,
+          status: "published",
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(schema.agents.id, opts.agentId),
+            eq(schema.agents.workspaceId, this.workspaceId),
+          ),
+        );
+    });
+
+    await this.kv.delete(cacheKey(this.workspaceId, opts.agentId));
+    await this.kv.delete(
+      `repo:agent_version:${this.workspaceId}:${opts.versionId}`,
+    );
+
+    return { versionId: opts.versionId, activeVersionId: opts.versionId };
+  }
+
+  /**
+   * Get the next version number for an agent. Used by publish and autoSave.
+   */
+  async nextVersionNumber(agentId: string): Promise<number> {
+    const [row] = await this.db
+      .select({ max: sql<number>`COALESCE(MAX(${schema.agentVersions.versionNumber}), 0)` })
+      .from(schema.agentVersions)
+      .where(eq(schema.agentVersions.agentId, agentId));
+
+    return (row?.max ?? 0) + 1;
   }
 }
