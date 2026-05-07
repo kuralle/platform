@@ -271,7 +271,7 @@ async function insertAgentVersion(
   versionKind: string,
   ir: AgentIR,
 ): Promise<string> {
-  const versionId = `av_test_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  const versionId = `av_test_${Date.now()}_${crypto.randomUUID().slice(0, 8)}`;
   await tx.insert(schema.agentVersions).values({
     id: versionId,
     agentId,
@@ -507,7 +507,7 @@ describe("projectAgent", () => {
           // fast-check may produce null-prototype objects; JSON round-trip strips them
           const ir: AgentIR = JSON.parse(JSON.stringify(rawIr));
           // Use a unique agent ID per iteration to avoid (agent_id, version_number) uniqueness
-          const agentId = `ag_fc_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+          const agentId = `ag_fc_${Date.now()}_${crypto.randomUUID().slice(0, 8)}`;
           
           // Ensure agent row exists
           await client.query(
@@ -668,7 +668,7 @@ describe("projectAgent", () => {
           };
         }
         await db.transaction(async (tx) => {
-          const versionId = `av_perf_${i}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+          const versionId = `av_perf_${i}_${Date.now()}_${crypto.randomUUID().slice(0, 6)}`;
           await tx.insert(schema.agentVersions).values({
             id: versionId,
             agentId,

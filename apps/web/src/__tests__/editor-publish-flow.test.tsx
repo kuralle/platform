@@ -131,7 +131,7 @@ function EditorTestShell({
   })();
 
   return (
-    <EditorContext.Provider value={{ state, dispatch }}>
+    <EditorContext.Provider value={{ state, dispatch, seeded: seeded.current }}>
       <div>
         <textarea
           aria-label="Behavior instructions"

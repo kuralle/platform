@@ -1,0 +1,46 @@
+=== Sprint 2 [S2-fix] verification ===
+2026-05-08 02:06:37
+
+=== bun -F @kuralle/core test ===
+@kuralle/core test:       Tests  58 passed (58)
+@kuralle/core test:    Start at  02:06:38
+@kuralle/core test:    Duration  5.79s (transform 246ms, setup 0ms, import 1.94s, tests 3.08s, environment 0ms)
+@kuralle/core test: 
+@kuralle/core test: Exited with code 0
+
+=== bun -F @kuralle/runtime test ===
+@kuralle/runtime test:       Tests  6 passed (6)
+@kuralle/runtime test:    Start at  02:06:44
+@kuralle/runtime test:    Duration  2.20s (transform 228ms, setup 0ms, import 591ms, tests 1.52s, environment 0ms)
+@kuralle/runtime test: 
+@kuralle/runtime test: Exited with code 0
+
+=== bun -F server test ===
+server test:       Tests  16 passed (16)
+server test:    Start at  02:06:46
+server test:    Duration  6.16s (transform 249ms, setup 0ms, import 1.64s, tests 3.99s, environment 0ms)
+server test: 
+server test: Exited with code 0
+
+=== bun -F web test ===
+web test:       Tests  55 passed (55)
+web test:    Start at  02:06:53
+web test:    Duration  3.60s (transform 861ms, setup 3.29s, import 2.70s, tests 2.10s, environment 12.90s)
+web test: 
+web test: Exited with code 0
+
+=== bun run check-types ===
+Cached:    3 cached, 8 total
+  Time:    12.865s 
+
+
+=== bun run lint ===
+/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/env/src/web.ts
+  9:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 1 problem (0 errors, 1 warning)
+
+
+=== bun -F server gen:openapi --check ===
+server gen:openapi: ✅ OpenAPI spec matches committed openapi.json
+server gen:openapi: Exited with code 0

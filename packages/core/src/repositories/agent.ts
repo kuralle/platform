@@ -53,6 +53,38 @@ function toDomain(row: typeof schema.agents.$inferSelect): Agent {
   };
 }
 
+/** R2-4: keyset cursor format. `u` = updatedAt ISO, `i` = unique tiebreaker id. */
+interface KeysetCursor {
+  u: string;
+  i: string;
+}
+
+function encodeCursor(c: KeysetCursor): string {
+  return Buffer.from(JSON.stringify(c), "utf8").toString("base64url");
+}
+
+function decodeCursor(raw: string | null | undefined): KeysetCursor | null {
+  if (!raw) return null;
+  try {
+    const parsed: unknown = JSON.parse(
+      Buffer.from(raw, "base64url").toString("utf8"),
+    );
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      "u" in parsed &&
+      "i" in parsed &&
+      typeof (parsed as KeysetCursor).u === "string" &&
+      typeof (parsed as KeysetCursor).i === "string"
+    ) {
+      return parsed as KeysetCursor;
+    }
+  } catch {
+    // fall through — invalid cursor treated as start-of-list
+  }
+  return null;
+}
+
 function cacheKey(workspaceId: string, id: string): string {
   return `repo:agent:${workspaceId}:${id}`;
 }
@@ -87,24 +119,46 @@ export class AgentRepository {
     }, { ttlSeconds: 60 });
   }
 
+  /**
+   * R2-4: keyset cursor pagination on `(updatedAt DESC, id DESC)` with id as
+   * the unique tiebreaker. The cursor is a base64-encoded JSON `{ u, i }`
+   * where `u` is the ISO updatedAt of the previous page's last row and `i`
+   * is its id. Callers receive `{ items, cursor }`; if `cursor` is null the
+   * caller has reached the last page.
+   */
   async findManyByWorkspace(opts?: {
-    cursor?: string;
+    cursor?: string | null;
     limit?: number;
-  }): Promise<Agent[]> {
+  }): Promise<{ items: Agent[]; cursor: string | null }> {
     const limit = opts?.limit ?? 50;
     const conditions = [
       eq(schema.agents.workspaceId, this.workspaceId),
       isNull(schema.agents.deletedAt),
     ];
 
+    const decoded = decodeCursor(opts?.cursor);
+    if (decoded) {
+      conditions.push(
+        sql`(${schema.agents.updatedAt}, ${schema.agents.id}) < (${decoded.u}, ${decoded.i})`,
+      );
+    }
+
     const rows = await this.db
       .select()
       .from(schema.agents)
       .where(and(...conditions))
-      .orderBy(desc(schema.agents.updatedAt))
-      .limit(limit);
+      .orderBy(desc(schema.agents.updatedAt), desc(schema.agents.id))
+      .limit(limit + 1);
 
-    return rows.map(toDomain);
+    const hasMore = rows.length > limit;
+    const page = hasMore ? rows.slice(0, limit) : rows;
+    const last = page[page.length - 1];
+    const cursor =
+      hasMore && last
+        ? encodeCursor({ u: (last.updatedAt ?? new Date()).toISOString(), i: last.id })
+        : null;
+
+    return { items: page.map(toDomain), cursor };
   }
 
   async insert(input: AgentInsert): Promise<Agent> {
@@ -116,6 +170,9 @@ export class AgentRepository {
         status: input.status ?? "draft",
         authorUserId: input.authorUserId ?? null,
         metadata: input.metadata ?? null,
+        // R2-4: set updatedAt at insert time so cursor pagination's
+        // (updatedAt DESC, id DESC) keyset never has NULL comparisons.
+        updatedAt: new Date(),
       })
       .returning();
 
@@ -169,19 +226,48 @@ export class AgentRepository {
   async publishVersion(opts: {
     versionId: string;
     agentId: string;
-    versionNumber: number;
     publishedByUserId: string | null;
     snapshot: unknown;
     project: (tx: AgentTx, versionId: string) => Promise<unknown>;
-  }): Promise<{ versionId: string; activeVersionId: string }> {
-    const current = await this.findById(opts.agentId);
-    const parentVersionId = current?.activeVersionId ?? null;
+  }): Promise<{
+    versionId: string;
+    activeVersionId: string;
+    versionNumber: number;
+  }> {
+    let resolvedVersionNumber = 0;
 
     await this.db.transaction(async (tx) => {
+      // R2-2 fix: derive `parentVersionId` AND `versionNumber` inside the
+      // transaction via uncached SELECTs. The prior implementation read both
+      // from the cached `findById` outside the transaction, opening a
+      // concurrent-publish race that could produce a non-linear version
+      // graph if the cache-delete after a sibling publish failed (cache
+      // staleness window bounded by 60s TTL). Reading inside the tx with the
+      // workspace scope predicate makes the lineage atomically correct.
+      const [currentAgent] = await tx
+        .select({ activeVersionId: schema.agents.activeVersionId })
+        .from(schema.agents)
+        .where(
+          and(
+            eq(schema.agents.id, opts.agentId),
+            eq(schema.agents.workspaceId, this.workspaceId),
+          ),
+        )
+        .limit(1);
+      const parentVersionId = currentAgent?.activeVersionId ?? null;
+
+      const [versionRow] = await tx
+        .select({
+          max: sql<number>`COALESCE(MAX(${schema.agentVersions.versionNumber}), 0)`,
+        })
+        .from(schema.agentVersions)
+        .where(eq(schema.agentVersions.agentId, opts.agentId));
+      resolvedVersionNumber = (versionRow?.max ?? 0) + 1;
+
       await tx.insert(schema.agentVersions).values({
         id: opts.versionId,
         agentId: opts.agentId,
-        versionNumber: opts.versionNumber,
+        versionNumber: resolvedVersionNumber,
         versionKind: "publish",
         parentVersionId,
         publishedByUserId: opts.publishedByUserId ?? null,
@@ -221,7 +307,11 @@ export class AgentRepository {
       );
     }
 
-    return { versionId: opts.versionId, activeVersionId: opts.versionId };
+    return {
+      versionId: opts.versionId,
+      activeVersionId: opts.versionId,
+      versionNumber: resolvedVersionNumber,
+    };
   }
 
   /**

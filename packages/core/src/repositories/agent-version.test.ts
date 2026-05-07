@@ -8,6 +8,7 @@ import {
   releaseTestDb,
   resetSchema,
   closePool,
+  seedWorkspace,
 } from "../test-utils.js";
 import type { PoolClient } from "pg";
 import type { TestDb } from "../test-utils.js";
@@ -65,14 +66,9 @@ describe("AgentVersionRepository", () => {
     });
 
     it("scopes by workspace through agent FK", async () => {
-      // Insert an agent + version in workspace B
+      // Insert an agent + version in workspace B (typed builder; not raw SQL)
       const WS_B = "ws_test_s2_01_b";
-      await client.query(
-        `INSERT INTO organization (id, name, slug, environment, region, compliance_mode, is_personal, created_at, updated_at)
-         VALUES ($1, 'WS B', 'ws-b', 'sandbox', 'us-east-1', 'none', false, NOW(), NOW())
-         ON CONFLICT (id) DO NOTHING`,
-        [WS_B],
-      );
+      await seedWorkspace(db, { id: WS_B, name: "WS B", slug: "ws-b" });
       const agentRepoB = new AgentRepository(db, WS_B, kvStore);
       const versionRepoB = new AgentVersionRepository(db, WS_B, kvStore);
       await agentRepoB.insert({ id: "ag_ws_b", status: "draft" });

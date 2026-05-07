@@ -1,8 +1,38 @@
-import { and, eq, isNull, desc } from "drizzle-orm";
+import { and, eq, isNull, desc, sql } from "drizzle-orm";
 import type { RepoDb } from "./types.js";
 import * as schema from "@kuralle/db/schema";
 import type { KvStore } from "@kuralle/platform/interface";
 import { AppendOnlyViolation, WorkspaceScopeViolation } from "../errors.js";
+
+/** R2-4: keyset cursor — `p` = publishedAt ISO (nullable), `i` = id tiebreaker. */
+interface VersionCursor {
+  p: string | null;
+  i: string;
+}
+
+function encodeVersionCursor(c: VersionCursor): string {
+  return Buffer.from(JSON.stringify(c), "utf8").toString("base64url");
+}
+
+function decodeVersionCursor(raw: string | null | undefined): VersionCursor | null {
+  if (!raw) return null;
+  try {
+    const parsed: unknown = JSON.parse(
+      Buffer.from(raw, "base64url").toString("utf8"),
+    );
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      "i" in parsed &&
+      typeof (parsed as VersionCursor).i === "string"
+    ) {
+      return parsed as VersionCursor;
+    }
+  } catch {
+    // invalid cursor → start of list
+  }
+  return null;
+}
 
 export interface AgentVersion {
   id: string;
@@ -122,27 +152,63 @@ export class AgentVersionRepository {
     return rows.map((r) => toDomain(r.agent_versions));
   }
 
+  /**
+   * R2-4: keyset cursor pagination on `(publishedAt DESC NULLS LAST, id DESC)`.
+   * Returns `{ items, cursor }`; null cursor means last page.
+   */
   async findByAgentId(agentId: string, opts?: {
-    cursor?: string;
+    cursor?: string | null;
     limit?: number;
-  }): Promise<AgentVersion[]> {
+  }): Promise<{ items: AgentVersion[]; cursor: string | null }> {
     const limit = opts?.limit ?? 50;
+    const conditions = [
+      eq(schema.agentVersions.agentId, agentId),
+      eq(schema.agents.workspaceId, this.workspaceId),
+      isNull(schema.agents.deletedAt),
+    ];
+
+    const decoded = decodeVersionCursor(opts?.cursor);
+    if (decoded) {
+      // Tuple-comparison handles the (publishedAt, id) ordering; NULL
+      // publishedAt rows sort last under DESC NULLS LAST and the cursor
+      // representation captures that via `p: null`.
+      if (decoded.p === null) {
+        conditions.push(
+          and(
+            isNull(schema.agentVersions.publishedAt),
+            sql`${schema.agentVersions.id} < ${decoded.i}`,
+          )!,
+        );
+      } else {
+        conditions.push(
+          sql`(${schema.agentVersions.publishedAt} IS NULL OR (${schema.agentVersions.publishedAt}, ${schema.agentVersions.id}) < (${decoded.p}, ${decoded.i}))`,
+        );
+      }
+    }
 
     const rows = await this.db
       .select({ agent_versions: schema.agentVersions })
       .from(schema.agentVersions)
       .innerJoin(schema.agents, eq(schema.agentVersions.agentId, schema.agents.id))
-      .where(
-        and(
-          eq(schema.agentVersions.agentId, agentId),
-          eq(schema.agents.workspaceId, this.workspaceId),
-          isNull(schema.agents.deletedAt),
-        ),
+      .where(and(...conditions))
+      .orderBy(
+        sql`${schema.agentVersions.publishedAt} DESC NULLS LAST`,
+        desc(schema.agentVersions.id),
       )
-      .orderBy(desc(schema.agentVersions.publishedAt))
-      .limit(limit);
+      .limit(limit + 1);
 
-    return rows.map((r) => toDomain(r.agent_versions));
+    const hasMore = rows.length > limit;
+    const page = hasMore ? rows.slice(0, limit) : rows;
+    const last = page[page.length - 1]?.agent_versions;
+    const cursor =
+      hasMore && last
+        ? encodeVersionCursor({
+            p: last.publishedAt ? last.publishedAt.toISOString() : null,
+            i: last.id,
+          })
+        : null;
+
+    return { items: page.map((r) => toDomain(r.agent_versions)), cursor };
   }
 
   async insert(input: AgentVersionInsert): Promise<AgentVersion> {

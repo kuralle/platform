@@ -142,10 +142,8 @@ export default tseslint.config(
   {
     // S2-01: Forbid raw drizzle-orm / @kuralle/db/schema imports from routers.
     // Every DB access from routers must go through a repository.
-    //
-    // Existing S1-05 stub routers are scoped out below until S2-03 rewrites them
-    // to use @kuralle/core repositories. As each router is rewritten, remove its
-    // entry from the `ignores` array. When the array is empty, delete it.
+    // (S2-fix verified zero router files match this pattern; the prior
+    // per-file `ignores` array is gone — the rule fires on all router files.)
     files: ["packages/api/src/routers/**/*.{ts,tsx}"],
     rules: {
       "no-restricted-imports": [

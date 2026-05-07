@@ -48,14 +48,60 @@ export async function releaseTestDb(client: PoolClient): Promise<void> {
 }
 
 export async function resetSchema(client: PoolClient, workspaceId: string): Promise<void> {
+  // TRUNCATE is intentionally raw SQL — Drizzle has no first-class equivalent
+  // and we need CASCADE to clear FK-linked rows in one statement.
   await client.query(`TRUNCATE TABLE ${DOMAIN_TABLES.join(", ")} CASCADE`);
 
-  await client.query(
-    `INSERT INTO organization (id, name, slug, environment, region, compliance_mode, is_personal, created_at, updated_at)
-     VALUES ($1, $2, $3, 'sandbox', 'us-east-1', 'none', false, NOW(), NOW())
-     ON CONFLICT (id) DO NOTHING`,
-    [workspaceId, `Test Workspace ${workspaceId}`, `test-${workspaceId}`],
-  );
+  // Org fixture insert via the typed Drizzle builder. Tests that need a
+  // bespoke workspace shape can call `seedWorkspace(db, { ... })` directly.
+  const db = drizzle(client, { schema });
+  await db
+    .insert(schema.organization)
+    .values({
+      id: workspaceId,
+      name: `Test Workspace ${workspaceId}`,
+      slug: `test-${workspaceId}`,
+      environment: "sandbox",
+      region: "us-east-1",
+      complianceMode: "none",
+      isPersonal: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .onConflictDoNothing();
+}
+
+/**
+ * Insert a workspace org row via the typed Drizzle builder. Tests that
+ * previously called `client.query("INSERT INTO organization ...")` should
+ * use this helper instead.
+ */
+export async function seedWorkspace(
+  db: TestDb,
+  opts: {
+    id: string;
+    name?: string;
+    slug?: string;
+    environment?: "sandbox" | "production";
+    region?: string;
+    complianceMode?: "none" | "hipaa" | "ferpa";
+    isPersonal?: boolean;
+  },
+): Promise<void> {
+  await db
+    .insert(schema.organization)
+    .values({
+      id: opts.id,
+      name: opts.name ?? `Test Workspace ${opts.id}`,
+      slug: opts.slug ?? `test-${opts.id}`,
+      environment: opts.environment ?? "sandbox",
+      region: opts.region ?? "us-east-1",
+      complianceMode: opts.complianceMode ?? "none",
+      isPersonal: opts.isPersonal ?? false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .onConflictDoNothing();
 }
 
 export async function closePool(): Promise<void> {

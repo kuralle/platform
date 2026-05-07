@@ -21,11 +21,14 @@ export const Route = createFileRoute("/_app/agents/$agentId/behavior")({
 function BehaviorTab() {
   const { agentId } = Route.useParams();
   const { workspace } = useWorkspace();
-  const { state, dispatch } = useEditor();
+  const { state, dispatch, seeded } = useEditor();
   const agentQuery = useAgent({ workspaceId: workspace.id, agentId });
 
   const ir = state.ir;
-  if (!ir.instructions) {
+  // R2-1 fix: gate on the explicit `seeded` flag from the parent layout, not
+  // on IR field truthiness. An empty-string `instructions` is a valid IR
+  // state (user cleared the field) and must NOT trigger the loading branch.
+  if (!seeded) {
     return (
       <AgentEditorShell
         agentId={agentId}

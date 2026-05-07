@@ -79,10 +79,11 @@ export const agentsRouter = {
         input.workspaceId,
         context.kvStore,
       );
-      const items = await repos.agents.findManyByWorkspace({
+      // R2-4: cursor is now load-bearing.
+      return await repos.agents.findManyByWorkspace({
         limit: input.limit,
+        cursor: input.cursor ?? null,
       });
-      return { items, cursor: null };
     }),
 
   get: protectedProcedure
@@ -134,23 +135,27 @@ export const agentsRouter = {
 
       // F09: agentIRSchema is already in the input contract — oRPC validates.
       const ir = input.ir;
-      const versionNumber = await repos.agents.nextVersionNumber(
-        input.agentId,
-      );
       const versionId = newId("av");
 
       const t0 = performance.now();
 
-      // F01: wrap the transactional publish so DB-level failures (PK collision
-      // on agent_versions, append-only trigger, FK violation) surface as
-      // ORPCError('CONFLICT') instead of a raw 500. NOT_FOUND is preserved for
-      // the agent existence check above.
-      let result: { versionId: string; activeVersionId: string };
+      // F01 + R2-3: wrap the transactional publish so DB-level failures
+      // surface as ORPCError('CONFLICT') instead of a raw 500. NOT_FOUND is
+      // preserved for the agent existence check above. SQLSTATE coverage:
+      //   23505 unique_violation
+      //   23503 fk_violation
+      //   0A000 feature_not_supported (append-only trigger)
+      //   40001 serialization_failure   (R2-3 added)
+      //   40P01 deadlock_detected       (R2-3 added)
+      let result: {
+        versionId: string;
+        activeVersionId: string;
+        versionNumber: number;
+      };
       try {
         result = await repos.agents.publishVersion({
           versionId,
           agentId: input.agentId,
-          versionNumber,
           publishedByUserId: context.session?.user?.id ?? null,
           snapshot: ir,
           project: (tx, vid) => projectAgent(tx, vid, ir),
@@ -158,11 +163,13 @@ export const agentsRouter = {
       } catch (e: unknown) {
         const cause = (e as Error & { cause?: { code?: string } }).cause;
         const message = e instanceof Error ? e.message : "publish failed";
-        // 23505 unique_violation, 23503 fk_violation, 0A000 feature_not_supported (append-only trigger)
+        const code = cause?.code;
         if (
-          cause?.code === "23505" ||
-          cause?.code === "23503" ||
-          cause?.code === "0A000"
+          code === "23505" ||
+          code === "23503" ||
+          code === "0A000" ||
+          code === "40001" ||
+          code === "40P01"
         ) {
           throw new ORPCError("CONFLICT", { message });
         }
@@ -186,7 +193,7 @@ export const agentsRouter = {
 
       return {
         versionId: result.versionId,
-        versionNumber,
+        versionNumber: result.versionNumber,
         activeVersionId: result.activeVersionId,
       };
     }),
@@ -250,10 +257,10 @@ export const agentsRouter = {
         });
       }
 
-      const items = await repos.agentVersions.findByAgentId(input.agentId, {
+      // R2-4: cursor is now load-bearing.
+      return await repos.agentVersions.findByAgentId(input.agentId, {
         limit: input.limit,
+        cursor: input.cursor ?? null,
       });
-
-      return { items, cursor: null };
     }),
 };

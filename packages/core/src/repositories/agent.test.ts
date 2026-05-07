@@ -6,6 +6,7 @@ import {
   releaseTestDb,
   resetSchema,
   closePool,
+  seedWorkspace,
 } from "../test-utils.js";
 import type { PoolClient } from "pg";
 import type { TestDb } from "../test-utils.js";
@@ -27,13 +28,8 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   await resetSchema(client, workspaceId);
-  // Ensure workspace B org also exists
-  await client.query(
-    `INSERT INTO organization (id, name, slug, environment, region, compliance_mode, is_personal, created_at, updated_at)
-     VALUES ($1, 'Workspace B', 'ws-b', 'sandbox', 'us-east-1', 'none', false, NOW(), NOW())
-     ON CONFLICT (id) DO NOTHING`,
-    [WS_B],
-  );
+  // Ensure workspace B org also exists (typed builder; not raw SQL).
+  await seedWorkspace(db, { id: WS_B, name: "Workspace B", slug: "ws-b" });
 });
 
 afterAll(async () => {
@@ -72,16 +68,29 @@ describe("AgentRepository", () => {
       await repo.insert({ id: "ag_list_1", status: "draft" });
       await repo.insert({ id: "ag_list_2", status: "published" });
 
-      const agents = await repo.findManyByWorkspace();
-      expect(agents).toHaveLength(2);
+      const result = await repo.findManyByWorkspace();
+      expect(result.items).toHaveLength(2);
+      expect(result.cursor).toBeNull();
     });
 
-    it("respects limit", async () => {
+    it("respects limit and yields a cursor when there are more rows", async () => {
       for (let i = 0; i < 5; i++) {
         await repo.insert({ id: `ag_limit_${i}`, status: "draft" });
       }
-      const agents = await repo.findManyByWorkspace({ limit: 2 });
-      expect(agents).toHaveLength(2);
+      const page1 = await repo.findManyByWorkspace({ limit: 2 });
+      expect(page1.items).toHaveLength(2);
+      expect(page1.cursor).not.toBeNull();
+
+      // Cursor advance — next page should not repeat ids from page1.
+      const page2 = await repo.findManyByWorkspace({
+        limit: 2,
+        cursor: page1.cursor,
+      });
+      expect(page2.items).toHaveLength(2);
+      const page1Ids = new Set(page1.items.map((a) => a.id));
+      for (const a of page2.items) {
+        expect(page1Ids.has(a.id)).toBe(false);
+      }
     });
   });
 

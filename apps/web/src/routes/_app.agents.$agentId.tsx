@@ -35,18 +35,21 @@ function AgentEditorLayout() {
   const publish = useAgentPublish();
 
   // Seed the reducer when the agent data loads
-  const seeded = useRef(false);
+  const seededRef = useRef(false);
+  const [seeded, setSeeded] = useState(false);
   useEffect(() => {
-    if (!seeded.current && agentQuery.data?.activeVersion?.snapshot) {
+    if (!seededRef.current && agentQuery.data?.activeVersion?.snapshot) {
       const ir = agentQuery.data.activeVersion.snapshot as Extract<EditorAction, { type: "set" }>["ir"];
       dispatch({ type: "set", ir });
-      seeded.current = true;
+      seededRef.current = true;
+      setSeeded(true);
     }
   }, [agentQuery.data?.activeVersion?.snapshot, dispatch]);
 
-  // Reset seed ref when agentId changes
+  // Reset seed when agentId changes
   useEffect(() => {
-    seeded.current = false;
+    seededRef.current = false;
+    setSeeded(false);
   }, [agentId]);
 
   const isDirty = state.ir !== state.original;
@@ -122,7 +125,7 @@ function AgentEditorLayout() {
   })();
 
   return (
-    <EditorContext.Provider value={{ state, dispatch }}>
+    <EditorContext.Provider value={{ state, dispatch, seeded }}>
       <div className="flex h-[calc(100svh-3.5rem)] flex-col">
         <div className="flex-1 overflow-auto">
           <Outlet />

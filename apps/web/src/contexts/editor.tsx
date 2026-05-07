@@ -23,6 +23,13 @@ function editorReducer(state: EditorState, action: EditorAction): EditorState {
 export interface EditorContextValue {
   state: EditorState;
   dispatch: Dispatch<EditorAction>;
+  /**
+   * `true` once the parent layout has dispatched `{ type: "set", ir }` to
+   * seed the reducer from the server. Tabs should gate their render on this
+   * instead of inspecting IR field values (which are valid in any state,
+   * including empty strings — see codex r2 blocker R2-1).
+   */
+  seeded: boolean;
 }
 
 const EditorContext = createContext<EditorContextValue | null>(null);

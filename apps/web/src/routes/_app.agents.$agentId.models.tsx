@@ -80,11 +80,12 @@ const REALTIME_MODELS: RealtimeModel[] = [
 function ModelsTab() {
   const { agentId } = Route.useParams();
   const { workspace } = useWorkspace();
-  const { state, dispatch } = useEditor();
+  const { state, dispatch, seeded } = useEditor();
   const agentQuery = useAgent({ workspaceId: workspace.id, agentId });
 
   const ir = state.ir;
-  if (!ir.instructions) {
+  // R2-1 fix: gate on `seeded` not on IR field truthiness.
+  if (!seeded) {
     return (
       <AgentEditorShell
         agentId={agentId}
