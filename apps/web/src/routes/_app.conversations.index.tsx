@@ -20,9 +20,23 @@ import {
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
+import { useConversations } from "@/hooks/api/conversations";
+import { useWorkspace } from "@/contexts/workspace";
 import { formatRelative, formatUsd } from "@/lib/format";
-import { makeConversations } from "@/mocks";
-import type { Conversation } from "@/types/domain";
+
+/** API row shape for conversations.list. */
+interface ConversationRow {
+  id: string;
+  agentId: string | null;
+  participantName: string | null;
+  participantId: string | null;
+  outcome: string | null;
+  durationSec: number | null;
+  costUsd: number | null;
+  startedAt: Date;
+  endedAt: Date | null;
+  direction: string | null;
+}
 
 export const Route = createFileRoute("/_app/conversations/")({
   component: ConversationsList,
@@ -30,12 +44,14 @@ export const Route = createFileRoute("/_app/conversations/")({
 
 function ConversationsList() {
   const navigate = useNavigate();
-  const data = useMemo(() => makeConversations(24), []);
+  const { workspace } = useWorkspace();
+  const conversationsQuery = useConversations({ workspaceId: workspace.id, limit: 100 });
+  const data = useMemo(() => (conversationsQuery.data?.items ?? []) as ConversationRow[], [conversationsQuery.data?.items]);
   const [sorting, setSorting] = useState<SortingState>([{ id: "startedAt", desc: true }]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
-  const columns = useMemo<ColumnDef<Conversation>[]>(() => [
+  const columns = useMemo<ColumnDef<ConversationRow>[]>(() => [
     {
       accessorKey: "id",
       header: ({ column }) => <DataTableColumnHeader column={column} label="ID" />,
@@ -45,47 +61,34 @@ function ConversationsList() {
         if (!q) return true;
         return (
           row.original.id.toLowerCase().includes(q) ||
-          row.original.callerId.toLowerCase().includes(q) ||
-          row.original.agentName.toLowerCase().includes(q) ||
-          (row.original.callerName ?? "").toLowerCase().includes(q)
+          (row.original.participantId ?? "").toLowerCase().includes(q) ||
+          (row.original.participantName ?? "").toLowerCase().includes(q) ||
+          (row.original.agentId ?? "").toLowerCase().includes(q)
         );
       },
       cell: ({ row }) => (
         <div className="flex items-center gap-2 font-mono text-[12px] tabular-nums">
-          {row.original.isLive && <LiveDot size={6} tone="live" />}
+          {!row.original.endedAt && <LiveDot size={6} tone="live" />}
           {row.original.id}
         </div>
       ),
     },
     {
-      accessorKey: "agentName",
+      id: "agent",
       header: ({ column }) => <DataTableColumnHeader column={column} label="Agent" />,
-      meta: {
-        label: "Agent",
-        variant: "multiSelect",
-        options: [
-          { label: "Calderon HVAC Inbound", value: "Calderon HVAC Inbound" },
-          { label: "Sundance Plumbing 24/7", value: "Sundance Plumbing 24/7" },
-          { label: "Brookline Dental Reminder", value: "Brookline Dental Reminder" },
-          { label: "Beacon University Admissions", value: "Beacon University Admissions" },
-        ],
-      },
-      filterFn: (row, _id, value) => {
-        const arr = value as string[] | undefined;
-        if (!arr?.length) return true;
-        return arr.includes(row.original.agentName);
-      },
+      accessorFn: (r) => r.agentId ?? "",
+      cell: ({ row }) => row.original.agentId ?? "—",
     },
     {
       id: "caller",
-      accessorFn: (r) => r.callerName ?? r.callerId,
+      accessorFn: (r) => r.participantName ?? r.participantId ?? "",
       header: "Caller",
       enableSorting: false,
       cell: ({ row }) => (
         <div className="flex flex-col">
-          <span className="font-mono text-[12px] tabular-nums">{row.original.callerId}</span>
-          {row.original.callerName && (
-            <span className="text-[11px] text-muted-foreground">{row.original.callerName}</span>
+          <span className="font-mono text-[12px] tabular-nums">{row.original.participantId ?? "—"}</span>
+          {row.original.participantName && (
+            <span className="text-[11px] text-muted-foreground">{row.original.participantName}</span>
           )}
         </div>
       ),
@@ -108,19 +111,21 @@ function ConversationsList() {
       filterFn: (row, _id, value) => {
         const arr = value as string[] | undefined;
         if (!arr?.length) return true;
-        return row.original.isLive || arr.includes(row.original.outcome);
+        const isLive = !row.original.endedAt;
+        return isLive || arr.includes(row.original.outcome ?? "");
       },
       cell: ({ row }) =>
-        row.original.isLive ? (
-          <StatusPill tone="live">Live · {row.original.direction}</StatusPill>
+        !row.original.endedAt ? (
+          <StatusPill tone="live">Live · {row.original.direction ?? "inbound"}</StatusPill>
         ) : (
-          <StatusPill tone={outcomeTone(row.original.outcome)}>{row.original.outcome}</StatusPill>
+          <StatusPill tone={outcomeTone(row.original.outcome ?? "")}>{row.original.outcome ?? "—"}</StatusPill>
         ),
     },
     {
-      accessorKey: "isLive",
+      id: "isLive",
       header: "",
       enableHiding: false,
+      accessorFn: (r) => (r.endedAt == null ? "true" : "false"),
       meta: {
         label: "Live",
         variant: "select",
@@ -129,7 +134,7 @@ function ConversationsList() {
       filterFn: (row, _id, value) => {
         const arr = value as string[] | undefined;
         if (!arr?.length) return true;
-        return arr.includes(String(row.original.isLive));
+        return row.original.endedAt == null;
       },
       cell: () => null,
     },
@@ -139,7 +144,9 @@ function ConversationsList() {
       meta: { label: "Duration" },
       cell: ({ row }) => (
         <div className="text-right font-mono text-[12px] tabular-nums">
-          {Math.floor(row.original.durationSec / 60)}:{String(row.original.durationSec % 60).padStart(2, "0")}
+          {row.original.durationSec != null
+            ? `${Math.floor(row.original.durationSec / 60)}:${String(row.original.durationSec % 60).padStart(2, "0")}`
+            : "—"}
         </div>
       ),
     },
@@ -149,7 +156,7 @@ function ConversationsList() {
       meta: { label: "$ / call" },
       cell: ({ row }) => (
         <div className="text-right font-mono text-[12px] tabular-nums">
-          {formatUsd(row.original.costUsd, { precise: true })}
+          {row.original.costUsd != null ? formatUsd(row.original.costUsd, { precise: true }) : "—"}
         </div>
       ),
     },
@@ -159,7 +166,7 @@ function ConversationsList() {
       meta: { label: "Started" },
       cell: ({ row }) => (
         <div className="text-right text-[12px] text-muted-foreground">
-          {formatRelative(row.original.startedAt)}
+          {formatRelative(typeof row.original.startedAt === "string" ? row.original.startedAt : row.original.startedAt.toISOString())}
         </div>
       ),
       sortingFn: (a, b) => new Date(a.original.startedAt).getTime() - new Date(b.original.startedAt).getTime(),
@@ -195,7 +202,7 @@ function ConversationsList() {
         table={table}
         onRowClick={(c) =>
           navigate({
-            to: c.isLive ? "/conversations/$id/live" : "/conversations/$id",
+            to: c.endedAt == null ? "/conversations/$id/live" : "/conversations/$id",
             params: { id: c.id },
           })
         }

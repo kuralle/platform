@@ -13,14 +13,28 @@ import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowUpRight, BookOpen, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import type { Conversation } from "@/types/domain";
-
 import { ComplianceStatusModal } from "@/components/modals/compliance-status-modal";
 import { WelcomeModal } from "@/components/modals/welcome-modal";
 import { useWorkspace } from "@/contexts/workspace";
 import { useHealthCheck } from "@/hooks/api/health";
+import { useConversations } from "@/hooks/api/conversations";
+import { useAgents } from "@/hooks/api/agents";
 import { formatPct, formatRelative, formatUsd } from "@/lib/format";
-import { makeConversations, makeDashboardKpis } from "@/mocks";
+import { makeDashboardKpis } from "@/mocks";
+
+/** API row shape for conversations.list — subset of fields used by this screen. */
+interface ConversationRow {
+  id: string;
+  agentId: string | null;
+  participantName: string | null;
+  participantId: string | null;
+  outcome: string | null;
+  durationSec: number | null;
+  costUsd: number | null;
+  startedAt: Date;
+  endedAt: Date | null;
+  direction: string | null;
+}
 
 export const Route = createFileRoute("/_app/home")({
   component: HomeRoute,
@@ -37,28 +51,37 @@ function HomeRoute() {
   const health = useHealthCheck();
 
   const kpis = useMemo(() => makeDashboardKpis(), []);
-  const conversations = useMemo(() => makeConversations(8).slice(0, 6), []);
+  const conversationsQuery = useConversations({ workspaceId: workspace.id, limit: 6 });
+  const conversations = useMemo(
+    () => conversationsQuery.data?.items ?? [],
+    [conversationsQuery.data?.items],
+  );
+  void useAgents({ workspaceId: workspace.id });
 
-  const recentColumns = useMemo<ColumnDef<Conversation>[]>(() => [
+  const recentColumns = useMemo<ColumnDef<ConversationRow>[]>(() => [
     {
       accessorKey: "id",
       header: "ID",
       cell: ({ row }) => (
         <div className="flex items-center gap-2 font-mono text-[12px] tabular-nums">
-          {row.original.isLive && <LiveDot size={6} tone="live" />}
+          {!row.original.endedAt && <LiveDot size={6} tone="live" />}
           {row.original.id}
         </div>
       ),
     },
-    { accessorKey: "agentName", header: "Agent" },
+    {
+      id: "agent",
+      header: "Agent",
+      cell: ({ row }) => row.original.agentId ?? "—",
+    },
     {
       id: "caller",
       header: "Caller",
       cell: ({ row }) => (
         <div className="flex flex-col">
-          <span className="font-mono text-[12px] tabular-nums">{row.original.callerId}</span>
-          {row.original.callerName && (
-            <span className="text-[11px] text-muted-foreground">{row.original.callerName}</span>
+          <span className="font-mono text-[12px] tabular-nums">{row.original.participantId ?? "—"}</span>
+          {row.original.participantName && (
+            <span className="text-[11px] text-muted-foreground">{row.original.participantName}</span>
           )}
         </div>
       ),
@@ -67,10 +90,10 @@ function HomeRoute() {
       accessorKey: "outcome",
       header: "Outcome",
       cell: ({ row }) =>
-        row.original.isLive ? (
-          <StatusPill tone="live">Live · {row.original.direction}</StatusPill>
+        !row.original.endedAt ? (
+          <StatusPill tone="live">Live · {row.original.direction ?? "inbound"}</StatusPill>
         ) : (
-          <StatusPill tone={outcomeTone(row.original.outcome)}>{row.original.outcome}</StatusPill>
+          <StatusPill tone={outcomeTone(row.original.outcome ?? "")}>{row.original.outcome ?? "—"}</StatusPill>
         ),
     },
     {
@@ -78,7 +101,9 @@ function HomeRoute() {
       header: () => <div className="text-right">Duration</div>,
       cell: ({ row }) => (
         <div className="text-right font-mono text-[12px] tabular-nums">
-          {Math.floor(row.original.durationSec / 60)}:{String(row.original.durationSec % 60).padStart(2, "0")}
+          {row.original.durationSec != null
+            ? `${Math.floor(row.original.durationSec / 60)}:${String(row.original.durationSec % 60).padStart(2, "0")}`
+            : "—"}
         </div>
       ),
     },
@@ -87,7 +112,7 @@ function HomeRoute() {
       header: () => <div className="text-right">Cost</div>,
       cell: ({ row }) => (
         <div className="text-right font-mono text-[12px] tabular-nums">
-          {formatUsd(row.original.costUsd, { precise: true })}
+          {row.original.costUsd != null ? formatUsd(row.original.costUsd, { precise: true }) : "—"}
         </div>
       ),
     },
@@ -96,7 +121,7 @@ function HomeRoute() {
       header: () => <div className="text-right">Started</div>,
       cell: ({ row }) => (
         <div className="text-right text-[12px] text-muted-foreground">
-          {formatRelative(row.original.startedAt)}
+          {formatRelative(typeof row.original.startedAt === "string" ? row.original.startedAt : row.original.startedAt.toISOString())}
         </div>
       ),
     },
@@ -241,7 +266,7 @@ function HomeRoute() {
         className="mt-3"
         onRowClick={(c) =>
           navigate({
-            to: c.isLive ? "/conversations/$id/live" : "/conversations/$id",
+            to: c.endedAt == null ? "/conversations/$id/live" : "/conversations/$id",
             params: { id: c.id },
           })
         }

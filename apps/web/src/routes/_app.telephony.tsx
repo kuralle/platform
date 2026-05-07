@@ -6,6 +6,9 @@ import { PageHeader } from "@kuralle/ui/components/page-header";
 import { StatusPill } from "@kuralle/ui/components/status-pill";
 import { Link, createFileRoute } from "@tanstack/react-router";
 
+import { useTelephony } from "@/hooks/api/telephony";
+import { useWorkspace } from "@/contexts/workspace";
+
 export const Route = createFileRoute("/_app/telephony")({
   component: TelephonyRoute,
 });
@@ -52,6 +55,9 @@ const CONNECTORS: Connector[] = [
 ];
 
 function TelephonyRoute() {
+  const { workspace } = useWorkspace();
+  void useTelephony({ workspaceId: workspace.id });
+
   return (
     <div className="mx-auto max-w-[1280px] px-8 py-8">
       <PageHeader

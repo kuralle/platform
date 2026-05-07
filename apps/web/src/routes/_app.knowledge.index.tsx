@@ -23,9 +23,26 @@ import { File, Globe, Plus, Type } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { AddDocumentModal } from "@/components/modals/add-document-modal";
+import { useKb } from "@/hooks/api/kb";
+import { useWorkspace } from "@/contexts/workspace";
 import { formatRelative } from "@/lib/format";
-import { formatBytes, makeKbDocuments } from "@/mocks";
-import type { KbDocument } from "@/mocks/kb";
+
+function formatBytes(n: number) {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+/** API row shape for kb.list. */
+interface KbDocumentRow {
+  id: string;
+  name: string;
+  source: string;
+  folder: string | null;
+  status: string;
+  sizeBytes: number;
+  updatedAt: Date | null;
+}
 
 export const Route = createFileRoute("/_app/knowledge/")({
   component: KnowledgeListRoute,
@@ -35,14 +52,16 @@ const SOURCE_ICON = { file: File, url: Globe, text: Type } as const;
 
 function KnowledgeListRoute() {
   const navigate = useNavigate();
-  const data = useMemo(() => makeKbDocuments(8), []);
+  const { workspace } = useWorkspace();
+  const kbQuery = useKb({ workspaceId: workspace.id, limit: 100 });
+  const data = useMemo(() => (kbQuery.data?.items ?? []) as KbDocumentRow[], [kbQuery.data?.items]);
   const [addOpen, setAddOpen] = useState(false);
 
   const [sorting, setSorting] = useState<SortingState>([{ id: "updatedAt", desc: true }]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
-  const columns = useMemo<ColumnDef<KbDocument>[]>(() => [
+  const columns = useMemo<ColumnDef<KbDocumentRow>[]>(() => [
     {
       accessorKey: "name",
       header: ({ column }) => <DataTableColumnHeader column={column} label="Document" />,
@@ -52,12 +71,12 @@ function KnowledgeListRoute() {
         if (!q) return true;
         return (
           row.original.name.toLowerCase().includes(q) ||
-          row.original.folder.toLowerCase().includes(q) ||
+          (row.original.folder ?? "").toLowerCase().includes(q) ||
           row.original.id.toLowerCase().includes(q)
         );
       },
       cell: ({ row }) => {
-        const Icon = SOURCE_ICON[row.original.source];
+        const Icon = SOURCE_ICON[row.original.source as keyof typeof SOURCE_ICON] ?? File;
         return (
           <div className="flex items-center gap-3">
             <span className="grid size-7 place-items-center rounded-md border bg-muted text-muted-foreground">
@@ -66,7 +85,7 @@ function KnowledgeListRoute() {
             <div className="flex min-w-0 flex-col">
               <span className="truncate text-[13px] font-medium">{row.original.name}</span>
               <span className="truncate font-mono text-[11px] tabular-nums text-muted-foreground">
-                {row.original.id} · {row.original.folder}
+                {row.original.id} · {row.original.folder ?? "—"}
               </span>
             </div>
           </div>
@@ -101,7 +120,13 @@ function KnowledgeListRoute() {
       header: ({ column }) => <DataTableColumnHeader column={column} label="Size" className="justify-end" />,
       meta: { label: "Size" },
       cell: ({ row }) => (
-        <div className="text-right font-mono text-[12px] tabular-nums">{formatBytes(row.original.sizeBytes)}</div>
+        <div className="text-right font-mono text-[12px] tabular-nums">
+          {row.original.sizeBytes < 1024
+            ? `${row.original.sizeBytes} B`
+            : row.original.sizeBytes < 1024 * 1024
+              ? `${(row.original.sizeBytes / 1024).toFixed(1)} KB`
+              : `${(row.original.sizeBytes / (1024 * 1024)).toFixed(1)} MB`}
+        </div>
       ),
     },
     {
@@ -140,34 +165,14 @@ function KnowledgeListRoute() {
     },
     {
       id: "agents",
-      accessorFn: (d) => d.dependentAgents.length,
       header: ({ column }) => <DataTableColumnHeader column={column} label="Agents" className="justify-end" />,
       meta: { label: "Agents" },
-      cell: ({ row }) => (
-        <div className="text-right font-mono text-[12px] tabular-nums">
-          {row.original.dependentAgents.length || "—"}
-        </div>
-      ),
+      cell: () => <div className="text-right font-mono text-[12px] tabular-nums">—</div>,
     },
     {
       accessorKey: "folder",
       header: ({ column }) => <DataTableColumnHeader column={column} label="Folder" />,
-      meta: {
-        label: "Folder",
-        variant: "multiSelect",
-        options: [
-          { label: "Pricing", value: "Pricing" },
-          { label: "Operations", value: "Operations" },
-          { label: "Policy", value: "Policy" },
-          { label: "Marketing", value: "Marketing" },
-          { label: "Compliance", value: "Compliance" },
-        ],
-      },
-      filterFn: (row, _id, value) => {
-        const arr = value as string[] | undefined;
-        if (!arr?.length) return true;
-        return arr.includes(row.original.folder);
-      },
+      cell: ({ row }) => row.original.folder ?? "—",
     },
     {
       accessorKey: "updatedAt",
@@ -175,10 +180,12 @@ function KnowledgeListRoute() {
       meta: { label: "Updated" },
       cell: ({ row }) => (
         <div className="text-right text-[12px] text-muted-foreground">
-          {formatRelative(row.original.updatedAt)}
+          {row.original.updatedAt
+            ? formatRelative(typeof row.original.updatedAt === "string" ? row.original.updatedAt : row.original.updatedAt.toISOString())
+            : "—"}
         </div>
       ),
-      sortingFn: (a, b) => new Date(a.original.updatedAt).getTime() - new Date(b.original.updatedAt).getTime(),
+      sortingFn: (a, b) => new Date(a.original.updatedAt ?? 0).getTime() - new Date(b.original.updatedAt ?? 0).getTime(),
     },
   ], []);
 
@@ -197,12 +204,12 @@ function KnowledgeListRoute() {
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
 
+  const totalSize = data.reduce((s, d) => s + d.sizeBytes, 0);
   const totalChars = data.reduce(
     (s, d) => s + (d.source === "text" ? d.sizeBytes : Math.floor(d.sizeBytes / 4)),
     0,
   );
   const charCap = 300_000;
-  const totalSize = data.reduce((s, d) => s + d.sizeBytes, 0);
 
   return (
     <div className="mx-auto max-w-[1280px] px-8 py-8">

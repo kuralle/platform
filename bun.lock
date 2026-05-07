@@ -59,6 +59,7 @@
         "@kuralle/api": "workspace:*",
         "@kuralle/api-client": "workspace:*",
         "@kuralle/auth": "workspace:*",
+        "@kuralle/core": "workspace:*",
         "@kuralle/env": "workspace:*",
         "@kuralle/ui": "workspace:*",
         "@orpc/client": "catalog:",

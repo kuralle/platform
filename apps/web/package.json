@@ -16,6 +16,7 @@
     "@hookform/resolvers": "^5.2.2",
     "@kuralle/api": "workspace:*",
     "@kuralle/auth": "workspace:*",
+    "@kuralle/core": "workspace:*",
     "@kuralle/env": "workspace:*",
     "@kuralle/ui": "workspace:*",
     "@orpc/client": "catalog:",

@@ -9,7 +9,6 @@ export default tseslint.config(
       "packages/env/env.d.ts",
       "scripts/sink-spike/**",
       "apps/web/src/components/configure/agent-editor-shell.tsx",
-      "apps/web/src/routes/_app.agents.$agentId.models.tsx",
       "apps/web/src/routes/_app.agents.$agentId.workflow.tsx",
       "apps/web/src/routes/_app.batches.new.tsx",
       "packages/ui/src/components/data-table.tsx",

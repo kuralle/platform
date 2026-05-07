@@ -1,0 +1,60 @@
+web test:  ✓ src/hooks/api/conversations.test.tsx > useConversations > surfaces error on server failure 57ms
+web test:  ✓ src/hooks/api/phone-numbers.test.tsx > usePhoneNumbers > surfaces error on server failure 55ms
+web test:  ✓ src/hooks/api/agents.test.tsx > useAgents > returns empty items list on happy path 65ms
+web test:  ✓ src/hooks/api/telephony.test.tsx > useTelephony > returns empty items list on happy path 67ms
+web test:  ✓ src/hooks/api/kb.test.tsx > useKb > returns empty items list on happy path 67ms
+web test:  ✓ src/test/primitives.test.tsx > LiveDot > renders with the live tone and pulse class 75ms
+web test:  ✓ src/test/primitives.test.tsx > LiveDot > respects the `static` flag and skips the pulse 5ms
+web test:  ✓ src/test/primitives.test.tsx > StatusPill > emits the correct tone class 5ms
+web test:  ✓ src/test/primitives.test.tsx > StatusPill > hides the dot when hideDot=true 2ms
+web test:  ✓ src/test/primitives.test.tsx > ScopeChip > renders the label inside an indigo pill by default 2ms
+web test:  ✓ src/test/primitives.test.tsx > ComplianceChip > formats label and state 2ms
+web test:  ✓ src/test/primitives.test.tsx > ComplianceChip > renders the suffix when provided 1ms
+web test:  ✓ src/test/primitives.test.tsx > Eyebrow > renders the children inside a small-caps span 1ms
+web test:  ✓ src/test/primitives.test.tsx > KpiTile > renders a currency value in foreground and a positive delta chip 5ms
+web test:  ✓ src/test/primitives.test.tsx > KpiTile > renders a negative delta in destructive 1ms
+web test:  ✓ src/hooks/api/telephony.test.tsx > useTelephony > surfaces error on server failure 56ms
+web test:  ✓ src/hooks/api/kb.test.tsx > useKb > surfaces error on server failure 57ms
+web test:  ✓ src/__tests__/editor-publish-flow.test.tsx > editor publish flow > transitions Idle → Publishing → Live on successful publish 118ms
+web test:  ✓ src/__tests__/editor-publish-flow.test.tsx > editor publish flow > shows Failed with retry on publish error 16ms
+web test:  ✓ src/__tests__/editor-publish-flow.test.tsx > editor publish flow > cancel closes modal without publishing 19ms
+web test:  ✓ src/test/primitives.test.tsx > Sparkline > renders SVG path with the picked tone class 1ms
+web test:  ✓ src/test/primitives.test.tsx > WaveformPlayer > calls onSeek when user clicks the track 17ms
+web test:  ✓ src/test/primitives.test.tsx > WaveformPlayer > seeks back/forward 5s on arrow keys 9ms
+web test:  ✓ src/test/primitives.test.tsx > StickySaveBar > renders the clean copy when there are no changes 3ms
+web test:  ✓ src/test/primitives.test.tsx > StickySaveBar > renders the unsaved copy and enables the buttons 4ms
+web test:  ✓ src/test/primitives.test.tsx > WizardShell > starts on step 0 and advances on Next 8ms
+web test:  ✓ src/test/primitives.test.tsx > WizardShell > hits the finish handler on the last step 7ms
+web test:  ✓ src/test/primitives.test.tsx > WizardShell > blocks Next when isBlocked 2ms
+web test:  ✓ src/hooks/api/agents.test.tsx > useAgents > surfaces error on server failure 56ms
+web test:  ✓ src/hooks/api/agents.test.tsx > useAgent > returns agent with active version on happy path 57ms
+web test:  ✓ src/hooks/api/agents.test.tsx > useAgentPublish > publishes and returns version info on success 62ms
+web test:  ✓ src/hooks/api/agents.test.tsx > useAgentAutoSave > auto-saves and returns version info on success 62ms
+web test:  ✓ src/hooks/api/agents.test.tsx > useAgentHistory > returns version history on happy path 59ms
+web test:  ✓ src/test/format.test.ts > format helpers > formats USD without cents by default 1ms
+web test:  ✓ src/test/format.test.ts > format helpers > formats USD with two decimals when precise 0ms
+web test:  ✓ src/test/format.test.ts > format helpers > formats percentages without decimals 0ms
+web test:  ✓ src/test/format.test.ts > format helpers > compacts large numbers 0ms
+web test:  ✓ src/test/format.test.ts > format helpers > formats durations as m:ss 0ms
+web test:  ✓ src/test/format.test.ts > format helpers > formats relative timestamps in human steps 0ms
+web test:  ✓ src/test/mocks.test.ts > mock factories > makeAgents is deterministic by seed 2ms
+web test:  ✓ src/test/mocks.test.ts > mock factories > makeConversations marks the first two as live 1ms
+web test:  ✓ src/test/mocks.test.ts > mock factories > makeBatches recovers revenue across booked rows 0ms
+web test:  ✓ src/test/mocks.test.ts > mock factories > makePhoneNumbers attaches some, leaves others 0ms
+web test:  ✓ src/test/mocks.test.ts > mock factories > makeDashboardKpis exposes 5 named tiles with the right properties 0ms
+web test:  ✓ src/test/mocks.test.ts > mock factories > makeRoiReceipt sums per-agent rows under recoveredRevenue 0ms
+web test:  ✓ src/test/mocks.test.ts > mock factories > makeTranscript produces ordered timestamps 0ms
+web test:  ✓ src/test/workspace.test.tsx > WorkspaceProvider > seeds the default workspace and exposes mutators 17ms
+web test:  ✓ src/test/workspace.test.tsx > WorkspaceProvider > persists vertical changes to localStorage 10ms
+web test:  ✓ src/test/workspace.test.tsx > WorkspaceProvider > exports a label table with all three verticals 1ms
+web test:  ✓ src/hooks/api/health.test.tsx > useHealthCheck > returns OK data on happy path 63ms
+web test:  ✓ src/hooks/api/channels.test.tsx > useChannels > returns empty items list on happy path 67ms
+web test:  ✓ src/hooks/api/health.test.tsx > useHealthCheck > surfaces error on server failure 54ms
+web test:  ✓ src/hooks/api/channels.test.tsx > useChannels > surfaces error on server failure 56ms
+web test: 
+web test:  Test Files  12 passed (12)
+web test:       Tests  55 passed (55)
+web test:    Start at  00:41:44
+web test:    Duration  2.71s (transform 424ms, setup 2.62s, import 1.68s, tests 1.48s, environment 9.62s)
+web test: 
+web test: Exited with code 0

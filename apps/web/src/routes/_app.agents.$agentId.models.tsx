@@ -6,11 +6,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@kuralle/ui/lib/utils";
 import { createFileRoute } from "@tanstack/react-router";
 import { ShieldAlert } from "lucide-react";
-import { useMemo, useState } from "react";
 
 import { AgentEditorShell } from "@/components/configure/agent-editor-shell";
-import { makeAgents } from "@/mocks";
-import type { PipelineMode, ReasoningEffort } from "@/types/domain";
+import { useWorkspace } from "@/contexts/workspace";
+import { useEditor } from "@/contexts/editor";
+import { useAgent } from "@/hooks/api/agents";
 
 export const Route = createFileRoute("/_app/agents/$agentId/models")({
   component: ModelsTab,
@@ -65,7 +65,6 @@ interface RealtimeModel {
   id: string;
   label: string;
   brand: string;
-  /** Realtime providers that need a customer-supplied API key. */
   byokSecret?: string;
 }
 
@@ -76,87 +75,76 @@ const REALTIME_MODELS: RealtimeModel[] = [
   { id: "elevenlabs-convai",       label: "ElevenLabs ConvAI Realtime", brand: "E" },
 ];
 
-const NOISE_CANCELLATION = ["None", "Quail VF L", "Krisp", "RNNoise"];
-const BACKGROUND_AUDIO = ["None", "Office ambience", "Cafe", "Outdoors", "Call-center floor"];
-
 // ---------- the tab ------------------------------------------------------
 
 function ModelsTab() {
   const { agentId } = Route.useParams();
-  const agents = useMemo(() => makeAgents(10), []);
-  const seed = agents.find((a) => a.id === agentId) ?? agents[0]!;
+  const { workspace } = useWorkspace();
+  const { state, dispatch } = useEditor();
+  const agentQuery = useAgent({ workspaceId: workspace.id, agentId });
 
-  const [pipelineMode, setPipelineMode] = useState<PipelineMode>(seed.pipelineMode);
-
-  // STT-LLM-TTS pipeline state
-  const [llmModel, setLlmModel] = useState(seed.llmModel);
-  const [reasoningEffort, setReasoningEffort] = useState<ReasoningEffort>(seed.reasoningEffort);
-  const [ttsModel, setTtsModel] = useState(seed.tts.model);
-  const [ttsVoiceId, setTtsVoiceId] = useState(seed.tts.voiceId);
-  const [sttModel, setSttModel] = useState(seed.stt.model);
-  const [sttLanguage, setSttLanguage] = useState(seed.stt.language);
-
-  // Realtime state
-  const [realtimeModel, setRealtimeModel] = useState(seed.realtime.model);
-  const [realtimeVoiceId, setRealtimeVoiceId] = useState(seed.realtime.voiceId);
-
-  // Always-visible audio state
-  const [noiseCancellation, setNoiseCancellation] = useState(seed.noiseCancellation);
-  const [backgroundAudio, setBackgroundAudio] = useState(seed.backgroundAudio);
-
-  const [original] = useState({
-    pipelineMode: seed.pipelineMode,
-    llmModel: seed.llmModel,
-    reasoningEffort: seed.reasoningEffort,
-    ttsModel: seed.tts.model,
-    ttsVoiceId: seed.tts.voiceId,
-    sttModel: seed.stt.model,
-    sttLanguage: seed.stt.language,
-    realtimeModel: seed.realtime.model,
-    realtimeVoiceId: seed.realtime.voiceId,
-    noiseCancellation: seed.noiseCancellation,
-    backgroundAudio: seed.backgroundAudio,
-  });
-
-  const changes =
-    (pipelineMode !== original.pipelineMode ? 1 : 0) +
-    (llmModel !== original.llmModel ? 1 : 0) +
-    (reasoningEffort !== original.reasoningEffort ? 1 : 0) +
-    (ttsModel !== original.ttsModel ? 1 : 0) +
-    (ttsVoiceId !== original.ttsVoiceId ? 1 : 0) +
-    (sttModel !== original.sttModel ? 1 : 0) +
-    (sttLanguage !== original.sttLanguage ? 1 : 0) +
-    (realtimeModel !== original.realtimeModel ? 1 : 0) +
-    (realtimeVoiceId !== original.realtimeVoiceId ? 1 : 0) +
-    (noiseCancellation !== original.noiseCancellation ? 1 : 0) +
-    (backgroundAudio !== original.backgroundAudio ? 1 : 0);
-
-  function reset() {
-    setPipelineMode(original.pipelineMode);
-    setLlmModel(original.llmModel);
-    setReasoningEffort(original.reasoningEffort);
-    setTtsModel(original.ttsModel);
-    setTtsVoiceId(original.ttsVoiceId);
-    setSttModel(original.sttModel);
-    setSttLanguage(original.sttLanguage);
-    setRealtimeModel(original.realtimeModel);
-    setRealtimeVoiceId(original.realtimeVoiceId);
-    setNoiseCancellation(original.noiseCancellation);
-    setBackgroundAudio(original.backgroundAudio);
+  const ir = state.ir;
+  if (!ir.instructions) {
+    return (
+      <AgentEditorShell
+        agentId={agentId}
+        agentName={agentQuery.data?.agent?.id ?? agentId}
+        status="draft"
+        changes={0}
+        onSave={() => undefined}
+        onDiscard={() => undefined}
+        hideStickyBar
+      >
+        <div className="grid place-items-center py-20 text-muted-foreground">
+          Loading agent configuration…
+        </div>
+      </AgentEditorShell>
+    );
   }
 
+  const agent = agentQuery.data?.agent;
+  const agentName = agent?.id ? ir.name || agent.id : ir.name || agentId;
+  const status = (agent?.status as "live" | "paused" | "draft") ?? "draft";
+  const pipelineMode = ir.voiceConfig?.pipelineMode ?? "stt-llm-tts";
+  const ttsModel = ir.voiceConfig?.ttsModel ?? "cartesia-sonic-3";
+  const ttsVoiceId = ir.voiceConfig?.ttsVoiceId ?? "v_aurora";
+  const sttModel = ir.voiceConfig?.sttModel ?? "deepgram-nova-3-monolingual";
+  const sttLanguage = ir.voiceConfig?.sttLanguage ?? "en";
+  const llmProvider = ir.model?.provider ?? "anthropic";
+  const llmName = ir.model?.name ?? "claude-haiku-4-5";
+
   const ttsVoice = TTS_VOICES.find((v) => v.id === ttsVoiceId) ?? TTS_VOICES[0]!;
-  const realtimeVoice = TTS_VOICES.find((v) => v.id === realtimeVoiceId) ?? TTS_VOICES[0]!;
-  const realtimeModelDef = REALTIME_MODELS.find((m) => m.id === realtimeModel);
+  const realtimeVoice = TTS_VOICES.find((v) => v.id === ttsVoiceId) ?? TTS_VOICES[0]!;
+  const realtimeModel = REALTIME_MODELS[0]!;
+  const realtimeModelDef = realtimeModel;
+
+  function patchVoice(patch: Partial<typeof ir.voiceConfig>) {
+    dispatch({
+      type: "patch",
+      patch: {
+        voiceConfig: { ...ir.voiceConfig, ...patch },
+      },
+    });
+  }
+
+  function patchModel(patch: Partial<typeof ir.model>) {
+    dispatch({
+      type: "patch",
+      patch: {
+        model: { ...ir.model, ...patch },
+      },
+    });
+  }
 
   return (
     <AgentEditorShell
-      agentId={seed.id}
-      agentName={seed.name}
-      status={seed.status === "archived" ? "draft" : seed.status}
-      changes={changes}
+      agentId={agentId}
+      agentName={agentName}
+      status={status}
+      changes={state.ir !== state.original ? 1 : 0}
       onSave={() => undefined}
-      onDiscard={reset}
+      onDiscard={() => dispatch({ type: "set", ir: state.original })}
+      hideStickyBar
     >
       <div className="grid gap-8">
         <section>
@@ -167,13 +155,13 @@ function ModelsTab() {
               active={pipelineMode === "stt-llm-tts"}
               title="STT-LLM-TTS pipeline"
               description="Configure your STT, LLM, and TTS options separately. Best price / quality trade-offs and full control."
-              onSelect={() => setPipelineMode("stt-llm-tts")}
+              onSelect={() => patchVoice({ pipelineMode: "stt-llm-tts" })}
             />
             <ModeCard
               active={pipelineMode === "realtime"}
               title="Realtime model"
               description="Use a single multimodal model for both reasoning and voice. Lowest latency."
-              onSelect={() => setPipelineMode("realtime")}
+              onSelect={() => patchVoice({ pipelineMode: "realtime" })}
             />
           </div>
         </section>
@@ -189,7 +177,7 @@ function ModelsTab() {
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <Field>
                   <FieldLabel>Model</FieldLabel>
-                  <Select value={ttsModel} onValueChange={(v) => v != null && setTtsModel(v)}>
+                  <Select value={ttsModel} onValueChange={(v) => v != null && patchVoice({ ttsModel: v })}>
                     <SelectTrigger className="h-10">
                       <BrandedValue brand={TTS_MODELS.find((m) => m.id === ttsModel)?.brand}>
                         <SelectValue />
@@ -204,7 +192,7 @@ function ModelsTab() {
                 </Field>
                 <Field>
                   <FieldLabel>Voice</FieldLabel>
-                  <Select value={ttsVoiceId} onValueChange={(v) => v != null && setTtsVoiceId(v)}>
+                  <Select value={ttsVoiceId} onValueChange={(v) => v != null && patchVoice({ ttsVoiceId: v })}>
                     <SelectTrigger className="h-10">
                       <span className="flex items-center gap-2">
                         <span className="text-[14px] font-medium">{ttsVoice.name}</span>
@@ -235,9 +223,9 @@ function ModelsTab() {
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <Field>
                   <FieldLabel>Model</FieldLabel>
-                  <Select value={llmModel} onValueChange={(v) => v != null && setLlmModel(v)}>
+                  <Select value={llmName} onValueChange={(v) => v != null && patchModel({ name: v })}>
                     <SelectTrigger className="h-10">
-                      <BrandedValue brand={LLM_MODELS.find((m) => m.id === llmModel)?.brand}>
+                      <BrandedValue brand={LLM_MODELS.find((m) => m.id === llmName)?.brand}>
                         <SelectValue />
                       </BrandedValue>
                     </SelectTrigger>
@@ -249,16 +237,13 @@ function ModelsTab() {
                   </Select>
                 </Field>
                 <Field>
-                  <FieldLabel>Reasoning effort</FieldLabel>
-                  <Select
-                    value={reasoningEffort}
-                    onValueChange={(v) => setReasoningEffort(v as ReasoningEffort)}
-                  >
+                  <FieldLabel>Provider</FieldLabel>
+                  <Select value={llmProvider} onValueChange={(v) => v != null && patchModel({ provider: v })}>
                     <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="low">Low (fastest, cheapest)</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="high">High (deepest, most expensive)</SelectItem>
+                      <SelectItem value="openai">OpenAI</SelectItem>
+                      <SelectItem value="anthropic">Anthropic</SelectItem>
+                      <SelectItem value="google">Google</SelectItem>
                     </SelectContent>
                   </Select>
                 </Field>
@@ -274,7 +259,7 @@ function ModelsTab() {
               <div className="mt-4 grid gap-4 sm:grid-cols-[2fr_1fr]">
                 <Field>
                   <FieldLabel>Model</FieldLabel>
-                  <Select value={sttModel} onValueChange={(v) => v != null && setSttModel(v)}>
+                  <Select value={sttModel} onValueChange={(v) => v != null && patchVoice({ sttModel: v })}>
                     <SelectTrigger className="h-10">
                       <BrandedValue brand={STT_MODELS.find((m) => m.id === sttModel)?.brand}>
                         <SelectValue />
@@ -289,7 +274,7 @@ function ModelsTab() {
                 </Field>
                 <Field>
                   <FieldLabel>Language</FieldLabel>
-                  <Select value={sttLanguage} onValueChange={(v) => v != null && setSttLanguage(v)}>
+                  <Select value={sttLanguage} onValueChange={(v) => v != null && patchVoice({ sttLanguage: v })}>
                     <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {STT_LANGUAGES.map((l) => (
@@ -323,9 +308,9 @@ function ModelsTab() {
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <Field>
                   <FieldLabel>Model</FieldLabel>
-                  <Select value={realtimeModel} onValueChange={(v) => v != null && setRealtimeModel(v)}>
+                  <Select value={realtimeModel.id} onValueChange={() => undefined}>
                     <SelectTrigger className="h-10">
-                      <BrandedValue brand={REALTIME_MODELS.find((m) => m.id === realtimeModel)?.brand}>
+                      <BrandedValue brand={REALTIME_MODELS.find((m) => m.id === realtimeModel.id)?.brand}>
                         <SelectValue />
                       </BrandedValue>
                     </SelectTrigger>
@@ -347,7 +332,7 @@ function ModelsTab() {
                 </Field>
                 <Field>
                   <FieldLabel>Voice</FieldLabel>
-                  <Select value={realtimeVoiceId} onValueChange={(v) => v != null && setRealtimeVoiceId(v)}>
+                  <Select value={ttsVoiceId} onValueChange={(v) => v != null && patchVoice({ ttsVoiceId: v })}>
                     <SelectTrigger className="h-10">
                       <span className="flex items-center gap-2">
                         <span className="text-[14px] font-medium">{realtimeVoice.name}</span>
@@ -370,46 +355,6 @@ function ModelsTab() {
             </section>
           </>
         )}
-
-        {/* Hidden until we wire the audio pipeline.
-        <section>
-          <Eyebrow>Noise cancellation</Eyebrow>
-          <h2 className="mt-1 font-display text-[18px] font-semibold">Clean up the caller's audio</h2>
-          <p className="mt-1 text-[13px] text-muted-foreground">
-            Reduces background noise in the user's audio input for clearer conversations.
-          </p>
-          <Field className="mt-4 max-w-md">
-            <FieldLabel className="sr-only">Noise cancellation engine</FieldLabel>
-            <Select value={noiseCancellation} onValueChange={setNoiseCancellation}>
-              <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {NOISE_CANCELLATION.map((n) => (
-                  <SelectItem key={n} value={n}>{n}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-        </section>
-
-        <section>
-          <Eyebrow>Background audio</Eyebrow>
-          <h2 className="mt-1 font-display text-[18px] font-semibold">Optional ambience</h2>
-          <p className="mt-1 text-[13px] text-muted-foreground">
-            Plays under the agent so silence doesn't feel like a dead line.
-          </p>
-          <Field className="mt-4 max-w-md">
-            <FieldLabel className="sr-only">Background audio</FieldLabel>
-            <Select value={backgroundAudio} onValueChange={setBackgroundAudio}>
-              <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {BACKGROUND_AUDIO.map((b) => (
-                  <SelectItem key={b} value={b}>{b}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-        </section>
-        */}
       </div>
     </AgentEditorShell>
   );

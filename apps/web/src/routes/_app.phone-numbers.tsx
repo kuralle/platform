@@ -24,8 +24,19 @@ import { Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { ImportNumberWizard } from "@/components/modals/import-number-wizard";
-import { makeAgents, makePhoneNumbers } from "@/mocks";
-import type { PhoneNumber } from "@/types/domain";
+import { usePhoneNumbers } from "@/hooks/api/phone-numbers";
+import { useAgents } from "@/hooks/api/agents";
+import { useWorkspace } from "@/contexts/workspace";
+
+/** API row shape for channels.list (phone number endpoints). */
+interface PhoneNumberRow {
+  id: string;
+  channelKind: string;
+  identifier: string;
+  displayName: string | null;
+  attachedAgentId: string | null;
+  metadata: unknown;
+}
 
 export const Route = createFileRoute("/_app/phone-numbers")({
   component: PhoneNumbersRoute,
@@ -33,60 +44,41 @@ export const Route = createFileRoute("/_app/phone-numbers")({
 
 function PhoneNumbersRoute() {
   const [importOpen, setImportOpen] = useState(false);
-  const numbers = useMemo(() => makePhoneNumbers(8), []);
+  const { workspace } = useWorkspace();
+  const pnQuery = usePhoneNumbers({ workspaceId: workspace.id, limit: 100 });
+  const agentsQuery = useAgents({ workspaceId: workspace.id, limit: 100 });
+  const numbers = useMemo(() => (pnQuery.data?.items ?? []) as PhoneNumberRow[], [pnQuery.data?.items]);
   const agentsById = useMemo(() => {
     const map = new Map<string, string>();
-    makeAgents(10).forEach((a) => map.set(a.id, a.name));
+    (agentsQuery.data?.items ?? []).forEach((a) => map.set(a.id, a.id));
     return map;
-  }, []);
-  const [recording, setRecording] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(numbers.map((n) => [n.id, n.recording])),
-  );
+  }, [agentsQuery.data?.items]);
+  const [recording, setRecording] = useState<Record<string, boolean>>({});
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
-  const columns = useMemo<ColumnDef<PhoneNumber>[]>(() => [
+  const columns = useMemo<ColumnDef<PhoneNumberRow>[]>(() => [
     {
-      accessorKey: "number",
+      accessorKey: "identifier",
       header: ({ column }) => <DataTableColumnHeader column={column} label="Number" />,
       meta: { label: "Number", variant: "text", placeholder: "Search by number" },
-      cell: ({ row }) => <span className="font-mono tabular-nums">{row.original.number}</span>,
+      cell: ({ row }) => <span className="font-mono tabular-nums">{row.original.identifier}</span>,
       filterFn: (row, _id, value) => {
         const q = String(value ?? "").toLowerCase();
         if (!q) return true;
-        return row.original.number.toLowerCase().includes(q);
+        return row.original.identifier.toLowerCase().includes(q);
       },
     },
     {
-      accessorKey: "provider",
-      header: ({ column }) => <DataTableColumnHeader column={column} label="Provider" />,
-      meta: {
-        label: "Provider",
-        variant: "multiSelect",
-        options: [
-          { label: "Twilio Native", value: "twilio-native" },
-          { label: "Twilio BYO", value: "twilio-byo" },
-          { label: "SIP", value: "sip" },
-        ],
-      },
-      filterFn: (row, _id, value) => {
-        const arr = value as string[] | undefined;
-        if (!arr?.length) return true;
-        return arr.includes(row.original.provider);
-      },
+      accessorKey: "channelKind",
+      header: ({ column }) => <DataTableColumnHeader column={column} label="Type" />,
       cell: ({ row }) => (
         <Badge variant="outline" className="text-[10px] uppercase tracking-wide">
-          {row.original.provider.replace("twilio-", "Twilio ")}
+          {row.original.channelKind}
         </Badge>
       ),
-    },
-    {
-      accessorKey: "region",
-      header: ({ column }) => <DataTableColumnHeader column={column} label="Region" />,
-      meta: { label: "Region" },
-      cell: ({ row }) => <span className="text-[12px] text-muted-foreground">{row.original.region}</span>,
     },
     {
       id: "agent",
@@ -94,7 +86,7 @@ function PhoneNumbersRoute() {
       header: "Attached agent",
       cell: ({ row }) =>
         row.original.attachedAgentId ? (
-          <span className="text-[13px]">{agentsById.get(row.original.attachedAgentId)}</span>
+          <span className="text-[13px]">{agentsById.get(row.original.attachedAgentId) ?? row.original.attachedAgentId}</span>
         ) : (
           <span className="text-[13px] text-muted-foreground italic">Not attached</span>
         ),

@@ -30,6 +30,8 @@ interface AgentEditorShellProps {
   changes: number;
   onSave: () => void;
   onDiscard: () => void;
+  /** Suppress the built-in StickySaveBar — parent layout owns it (S2-04). */
+  hideStickyBar?: boolean;
   children: ReactNode;
 }
 
@@ -40,6 +42,7 @@ export function AgentEditorShell({
   changes,
   onSave,
   onDiscard,
+  hideStickyBar,
   children,
 }: AgentEditorShellProps) {
   const router = useRouterState();
@@ -101,7 +104,7 @@ export function AgentEditorShell({
         </nav>
       </div>
       <div className="flex-1 overflow-auto bg-background px-8 py-8">{children}</div>
-      <StickySaveBar changes={changes} onSave={onSave} onDiscard={onDiscard} />
+      {!hideStickyBar && <StickySaveBar changes={changes} onSave={onSave} onDiscard={onDiscard} />}
     </div>
   );
 }

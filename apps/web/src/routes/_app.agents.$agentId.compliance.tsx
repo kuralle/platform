@@ -10,10 +10,11 @@ import { ToggleGroup, ToggleGroupItem } from "@kuralle/ui/components/toggle-grou
 import { cn } from "@kuralle/ui/lib/utils";
 import { createFileRoute } from "@tanstack/react-router";
 import { CircleCheck, ShieldCheck, Trash2 } from "lucide-react";
-import { useMemo, useState } from "react";
 
 import { AgentEditorShell } from "@/components/configure/agent-editor-shell";
-import { makeAgents } from "@/mocks";
+import { useWorkspace } from "@/contexts/workspace";
+import { useEditor } from "@/contexts/editor";
+import { useAgent } from "@/hooks/api/agents";
 
 export const Route = createFileRoute("/_app/agents/$agentId/compliance")({
   component: ComplianceTab,
@@ -49,41 +50,60 @@ const REQUIREMENTS_BY_MODE: Record<string, { id: string; label: string; descript
 
 function ComplianceTab() {
   const { agentId } = Route.useParams();
-  const agents = useMemo(() => makeAgents(10), []);
-  const seed = agents.find((a) => a.id === agentId) ?? agents[0]!;
+  const { workspace } = useWorkspace();
+  const { state, dispatch } = useEditor();
+  const agentQuery = useAgent({ workspaceId: workspace.id, agentId });
 
-  const [mode, setMode] = useState<"none" | "hipaa" | "ferpa" | "tcpa">(seed.complianceMode);
-  const [retentionDays, setRetentionDays] = useState(90);
-  const [disclosureEnabled, setDisclosureEnabled] = useState(true);
-  const [disclosureScript, setDisclosureScript] = useState(
-    "Hi, this is an AI dispatcher for Calderon HVAC. This call is recorded for quality and may be used to schedule service.",
-  );
-  const [redactionChips, setRedactionChips] = useState<string[]>(["DOB", "SSN", "Card #"]);
-  const [original] = useState({ mode: seed.complianceMode, retentionDays, disclosureEnabled, disclosureScript, chips: redactionChips });
+  const ir = state.ir;
+  if (!ir.instructions) {
+    return (
+      <AgentEditorShell
+        agentId={agentId}
+        agentName={agentQuery.data?.agent?.id ?? agentId}
+        status="draft"
+        changes={0}
+        onSave={() => undefined}
+        onDiscard={() => undefined}
+        hideStickyBar
+      >
+        <div className="grid place-items-center py-20 text-muted-foreground">
+          Loading agent configuration…
+        </div>
+      </AgentEditorShell>
+    );
+  }
+
+  const agent = agentQuery.data?.agent;
+  const agentName = agent?.id ? ir.name || agent.id : ir.name || agentId;
+  const status = (agent?.status as "live" | "paused" | "draft") ?? "draft";
+  const mode = "none";
+
+  const cc = ir.complianceConfig ?? { retentionDays: 90, redactionPatterns: [], disclosureScript: "" };
+  const retentionDays = cc.retentionDays;
+  const redactionPatterns = cc.redactionPatterns;
+  const disclosureScript = cc.disclosureScript;
+  const disclosureEnabled = disclosureScript.length > 0;
 
   const requirements = REQUIREMENTS_BY_MODE[mode] ?? [];
 
-  const changes =
-    (mode !== original.mode ? 1 : 0) +
-    (retentionDays !== original.retentionDays ? 1 : 0) +
-    (disclosureEnabled !== original.disclosureEnabled ? 1 : 0) +
-    (disclosureScript !== original.disclosureScript ? 1 : 0) +
-    (redactionChips.length !== original.chips.length ? 1 : 0);
+  function patchCompliance(patch: Partial<typeof cc>) {
+    dispatch({
+      type: "patch",
+      patch: {
+        complianceConfig: { ...cc, ...patch },
+      },
+    });
+  }
 
   return (
     <AgentEditorShell
-      agentId={seed.id}
-      agentName={seed.name}
-      status={seed.status === "archived" ? "draft" : seed.status}
-      changes={changes}
+      agentId={agentId}
+      agentName={agentName}
+      status={status}
+      changes={state.ir !== state.original ? 1 : 0}
       onSave={() => undefined}
-      onDiscard={() => {
-        setMode(original.mode);
-        setRetentionDays(original.retentionDays);
-        setDisclosureEnabled(original.disclosureEnabled);
-        setDisclosureScript(original.disclosureScript);
-        setRedactionChips(original.chips);
-      }}
+      onDiscard={() => dispatch({ type: "set", ir: state.original })}
+      hideStickyBar
     >
       <div className="flex flex-col gap-6">
         <Card className="p-6">
@@ -95,10 +115,7 @@ function ComplianceTab() {
           </p>
           <ToggleGroup
             value={[mode]}
-            onValueChange={(vals) => {
-              const v = vals[0];
-              if (v === "none" || v === "hipaa" || v === "ferpa" || v === "tcpa") setMode(v);
-            }}
+            onValueChange={() => undefined}
             className="mt-5 grid grid-cols-4 gap-3"
           >
             {(["none", "hipaa", "ferpa", "tcpa"] as const).map((m) => (
@@ -144,8 +161,7 @@ function ComplianceTab() {
           <Eyebrow>Retention window</Eyebrow>
           <h2 className="mt-1 font-display text-[18px] font-semibold">{retentionDays} days</h2>
           <p className="mt-1 text-[13px] text-muted-foreground">
-            How long transcripts and recordings are retained before automatic deletion. HIPAA defaults to 0 days at provider
-            (zero-retention) but workspace logs follow this window.
+            How long transcripts and recordings are retained before automatic deletion.
           </p>
           <Slider
             min={0}
@@ -154,7 +170,7 @@ function ComplianceTab() {
             value={[retentionDays]}
             onValueChange={(vals) => {
               const v = typeof vals === "number" ? vals : vals[0];
-              if (v !== undefined) setRetentionDays(v);
+              if (v !== undefined) patchCompliance({ retentionDays: v });
             }}
             className="mt-5"
           />
@@ -164,15 +180,19 @@ function ComplianceTab() {
           <Eyebrow>Redaction</Eyebrow>
           <h2 className="mt-1 font-display text-[18px] font-semibold">Auto-redact patterns at rest</h2>
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            {redactionChips.map((chip) => (
+            {redactionPatterns.map((chip: string, i: number) => (
               <Badge
-                key={chip}
+                key={i}
                 variant="outline"
                 className="gap-1.5 border-destructive/30 bg-destructive/5 text-destructive"
               >
                 {chip}
                 <button
-                  onClick={() => setRedactionChips((cs) => cs.filter((c) => c !== chip))}
+                  onClick={() =>
+                    patchCompliance({
+                      redactionPatterns: redactionPatterns.filter((_p: string, j: number) => j !== i),
+                    })
+                  }
                   aria-label={`Remove ${chip}`}
                   className="text-destructive hover:text-destructive/70"
                 >
@@ -181,7 +201,11 @@ function ComplianceTab() {
               </Badge>
             ))}
             <button
-              onClick={() => setRedactionChips((cs) => [...cs, `Custom #${cs.length + 1}`])}
+              onClick={() =>
+                patchCompliance({
+                  redactionPatterns: [...redactionPatterns, `Pattern #${redactionPatterns.length + 1}`],
+                })
+              }
               className="rounded-md border border-dashed border-border px-2.5 py-0.5 text-[11px] text-muted-foreground hover:border-primary hover:text-primary"
             >
               + add pattern
@@ -195,14 +219,26 @@ function ComplianceTab() {
               <Eyebrow>Disclosure script</Eyebrow>
               <h2 className="mt-1 font-display text-[18px] font-semibold">Spoken at the start of every call</h2>
             </div>
-            <Switch checked={disclosureEnabled} onCheckedChange={setDisclosureEnabled} />
+            <Switch
+              checked={disclosureEnabled}
+              onCheckedChange={(checked) => {
+                if (!checked) {
+                  patchCompliance({ disclosureScript: "" });
+                } else if (!disclosureScript) {
+                  patchCompliance({
+                    disclosureScript:
+                      "Hi, this is an AI dispatcher for Calderon HVAC. This call is recorded for quality and may be used to schedule service.",
+                  });
+                }
+              }}
+            />
           </div>
           <Field className="mt-4">
             <FieldLabel htmlFor="disclosure">Script</FieldLabel>
             <Textarea
               id="disclosure"
               value={disclosureScript}
-              onChange={(e) => setDisclosureScript(e.target.value)}
+              onChange={(e) => patchCompliance({ disclosureScript: e.target.value })}
               disabled={!disclosureEnabled}
               className="min-h-[120px] font-mono text-[13px]"
             />
