@@ -71,36 +71,55 @@ export class OnboardingRepository {
     return toDomain(row);
   }
 
+  // Atomically patches organization.vertical AND upserts onboarding_states
+  // to step=done with the given vertical. Both writes inside one transaction
+  // so an onboarding flow can't end up with the org's vertical updated but
+  // the onboarding state still showing in-flight (or vice versa).
   async markComplete(vertical: string): Promise<OnboardingState> {
     const now = new Date();
-    const existing = await this.getState();
-    if (existing) {
-      const [row] = await this.db
-        .update(schema.onboardingStates)
-        .set({
-          currentStep: "done",
-          completedAt: now,
-          vertical,
-          updatedAt: now,
-        })
-        .where(eq(schema.onboardingStates.workspaceId, this.workspaceId))
-        .returning();
-      if (!row) throw new Error("OnboardingRepository.markComplete: update returned no row");
-      return toDomain(row);
-    }
+    let result: OnboardingState | undefined;
+    const wsId = this.workspaceId;
+    await this.db.transaction(async (tx) => {
+      await tx
+        .update(schema.organization)
+        .set({ vertical, updatedAt: now })
+        .where(eq(schema.organization.id, wsId));
 
-    const [row] = await this.db
-      .insert(schema.onboardingStates)
-      .values({
-        workspaceId: this.workspaceId,
-        currentStep: "done",
-        completedAt: now,
-        vertical,
-        updatedAt: now,
-      })
-      .returning();
+      const [existing] = await tx
+        .select()
+        .from(schema.onboardingStates)
+        .where(eq(schema.onboardingStates.workspaceId, wsId))
+        .limit(1);
 
-    if (!row) throw new Error("OnboardingRepository.markComplete: insert returned no row");
-    return toDomain(row);
+      if (existing) {
+        const [row] = await tx
+          .update(schema.onboardingStates)
+          .set({
+            currentStep: "done",
+            completedAt: now,
+            vertical,
+            updatedAt: now,
+          })
+          .where(eq(schema.onboardingStates.workspaceId, wsId))
+          .returning();
+        if (!row) throw new Error("OnboardingRepository.markComplete: update returned no row");
+        result = toDomain(row);
+      } else {
+        const [row] = await tx
+          .insert(schema.onboardingStates)
+          .values({
+            workspaceId: wsId,
+            currentStep: "done",
+            completedAt: now,
+            vertical,
+            updatedAt: now,
+          })
+          .returning();
+        if (!row) throw new Error("OnboardingRepository.markComplete: insert returned no row");
+        result = toDomain(row);
+      }
+    });
+    if (!result) throw new Error("OnboardingRepository.markComplete: transaction yielded no result");
+    return result;
   }
 }

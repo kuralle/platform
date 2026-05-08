@@ -11,6 +11,7 @@ import { ComplianceRepository } from "./compliance.js";
 import { UsageRepository } from "./usage.js";
 import { WidgetRepository } from "./widget.js";
 import { OnboardingRepository } from "./onboarding.js";
+import { WorkspaceRepository } from "./workspace.js";
 
 export { type RepoDb } from "./types.js";
 
@@ -31,5 +32,6 @@ export function withWorkspace(
     usage: new UsageRepository(db, workspaceId),
     widget: new WidgetRepository(db, workspaceId),
     onboarding: new OnboardingRepository(db, workspaceId),
+    workspace: new WorkspaceRepository(db, workspaceId),
   };
 }

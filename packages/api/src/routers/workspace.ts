@@ -1,8 +1,7 @@
 import { z } from "zod";
 import { ORPCError } from "@orpc/server";
-import { eq } from "drizzle-orm";
 import { createAuth } from "@kuralle/auth";
-import { organization } from "@kuralle/db/schema";
+import { withWorkspace } from "@kuralle/core";
 import { workspaceSettingsSchema } from "./workspace.schemas";
 import { protectedProcedure } from "../index";
 import { assertWorkspaceMember } from "../workspace-access";
@@ -26,32 +25,16 @@ export const workspaceRouter = {
     .output(workspaceSettingsSchema)
     .handler(async ({ input, context }) => {
       await assertWorkspaceMember(context, input.workspaceId);
-      const rows = await context.db
-        .select({
-          id: organization.id,
-          name: organization.name,
-          slug: organization.slug,
-          vertical: organization.vertical,
-          environment: organization.environment,
-          region: organization.region,
-          complianceMode: organization.complianceMode,
-        })
-        .from(organization)
-        .where(eq(organization.id, input.workspaceId))
-        .limit(1);
-      const row = rows[0];
-      if (!row) {
+      const repos = withWorkspace(
+        context.db,
+        input.workspaceId,
+        context.kvStore,
+      );
+      const settings = await repos.workspace.getSettings();
+      if (!settings) {
         throw new ORPCError("NOT_FOUND", { message: "Workspace not found" });
       }
-      return {
-        workspaceId: row.id,
-        name: row.name,
-        slug: row.slug,
-        vertical: row.vertical ?? null,
-        environment: row.environment ?? null,
-        region: row.region ?? null,
-        complianceMode: row.complianceMode ?? null,
-      };
+      return settings;
     }),
 
   update: protectedProcedure
@@ -59,10 +42,16 @@ export const workspaceRouter = {
     .output(workspaceSettingsSchema)
     .handler(async ({ input, context }) => {
       await assertWorkspaceMember(context, input.workspaceId);
+      const repos = withWorkspace(
+        context.db,
+        input.workspaceId,
+        context.kvStore,
+      );
+
+      // better-auth's organization plugin owns name/slug/logo/metadata; the
+      // kuralle-specific additionalFields (vertical/environment/region/
+      // complianceMode) are real Postgres columns updated via the repo.
       if (input.name !== undefined) {
-        // better-auth's organization plugin persists name/slug/logo/metadata; custom
-        // Drizzle columns (vertical, environment, region, complianceMode) are updated
-        // below because they are real Postgres columns outside that narrow surface.
         await createAuth(context.db).api.updateOrganization({
           headers: headersForBetterAuthApi(context),
           body: {
@@ -72,55 +61,17 @@ export const workspaceRouter = {
         });
       }
 
-      const drizzlePatch: Partial<typeof organization.$inferInsert> = {
-        updatedAt: new Date(),
-      };
-      if (input.vertical !== undefined) drizzlePatch.vertical = input.vertical;
-      if (input.environment !== undefined) {
-        drizzlePatch.environment = input.environment;
-      }
-      if (input.region !== undefined) drizzlePatch.region = input.region;
-      if (input.complianceMode !== undefined) {
-        drizzlePatch.complianceMode = input.complianceMode;
-      }
+      await repos.workspace.updateCustomFields({
+        vertical: input.vertical,
+        environment: input.environment,
+        region: input.region,
+        complianceMode: input.complianceMode,
+      });
 
-      if (
-        input.vertical !== undefined ||
-        input.environment !== undefined ||
-        input.region !== undefined ||
-        input.complianceMode !== undefined
-      ) {
-        await context.db
-          .update(organization)
-          .set(drizzlePatch)
-          .where(eq(organization.id, input.workspaceId));
-      }
-
-      const rows = await context.db
-        .select({
-          id: organization.id,
-          name: organization.name,
-          slug: organization.slug,
-          vertical: organization.vertical,
-          environment: organization.environment,
-          region: organization.region,
-          complianceMode: organization.complianceMode,
-        })
-        .from(organization)
-        .where(eq(organization.id, input.workspaceId))
-        .limit(1);
-      const row = rows[0];
-      if (!row) {
+      const settings = await repos.workspace.getSettings();
+      if (!settings) {
         throw new ORPCError("NOT_FOUND", { message: "Workspace not found" });
       }
-      return {
-        workspaceId: row.id,
-        name: row.name,
-        slug: row.slug,
-        vertical: row.vertical ?? null,
-        environment: row.environment ?? null,
-        region: row.region ?? null,
-        complianceMode: row.complianceMode ?? null,
-      };
+      return settings;
     }),
 };

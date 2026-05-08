@@ -14,7 +14,7 @@ import type { TestDb } from "@kuralle/core/test-utils";
 import { onboardingStates, organization } from "@kuralle/db/schema";
 import type { Context } from "../context";
 import { callProcedure } from "./test-call";
-import { signUpWithCookieHeaders } from "./auth-test-helpers";
+import { signUpWithCookieHeaders } from "../test-helpers/auth-test-helpers";
 import type { InferSelectModel } from "drizzle-orm";
 import { session as sessionTable } from "@kuralle/db/schema";
 

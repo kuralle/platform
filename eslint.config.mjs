@@ -6,6 +6,7 @@ export default tseslint.config(
       "**/node_modules/**",
       "**/dist/**",
       ".turbo/**",
+      "**/.wrangler/**",
       "packages/env/env.d.ts",
       "scripts/sink-spike/**",
       "apps/web/src/components/configure/agent-editor-shell.tsx",
@@ -144,6 +145,9 @@ export default tseslint.config(
     // (S2-fix verified zero router files match this pattern; the prior
     // per-file `ignores` array is gone — the rule fires on all router files.)
     files: ["packages/api/src/routers/**/*.{ts,tsx}"],
+    // Tests need drizzle/schema for fixture seeding + DB-state assertions.
+    // Production router code does NOT — it goes through repos in @kuralle/core.
+    ignores: ["**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}"],
     rules: {
       "no-restricted-imports": [
         "error",

@@ -1,8 +1,6 @@
 import { z } from "zod";
-import { eq } from "drizzle-orm";
 import { createAuth } from "@kuralle/auth";
 import { withWorkspace } from "@kuralle/core";
-import { organization, onboardingStates } from "@kuralle/db/schema";
 import {
   onboardingCompleteOutputSchema,
   onboardingStateSchema,
@@ -59,7 +57,15 @@ export const onboardingRouter = {
     .handler(async ({ input, context }) => {
       await assertWorkspaceMember(context, input.workspaceId);
       void input.phone;
+      const repos = withWorkspace(
+        context.db,
+        input.workspaceId,
+        context.kvStore,
+      );
 
+      // Step 1: better-auth owns organization.name → goes through its API
+      // (signed cookie auth). Not inside the repo's transaction because the
+      // auth API is HTTP-shaped, not SQL-shaped.
       await createAuth(context.db).api.updateOrganization({
         headers: headersForBetterAuthApi(context),
         body: {
@@ -68,42 +74,9 @@ export const onboardingRouter = {
         },
       });
 
-      await context.db.transaction(async (tx) => {
-        await tx
-          .update(organization)
-          .set({
-            vertical: input.vertical,
-            updatedAt: new Date(),
-          })
-          .where(eq(organization.id, input.workspaceId));
-
-        const [existing] = await tx
-          .select()
-          .from(onboardingStates)
-          .where(eq(onboardingStates.workspaceId, input.workspaceId))
-          .limit(1);
-
-        const now = new Date();
-        if (existing) {
-          await tx
-            .update(onboardingStates)
-            .set({
-              currentStep: "done",
-              completedAt: now,
-              vertical: input.vertical,
-              updatedAt: now,
-            })
-            .where(eq(onboardingStates.workspaceId, input.workspaceId));
-        } else {
-          await tx.insert(onboardingStates).values({
-            workspaceId: input.workspaceId,
-            currentStep: "done",
-            completedAt: now,
-            vertical: input.vertical,
-            updatedAt: now,
-          });
-        }
-      });
+      // Step 2: organization.vertical + onboarding_states upsert atomically
+      // via the repo's internal transaction.
+      await repos.onboarding.markComplete(input.vertical);
 
       return {
         workspaceId: input.workspaceId,
