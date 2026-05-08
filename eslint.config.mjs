@@ -78,7 +78,6 @@ export default tseslint.config(
       "apps/web/src/components/modals/attach-document-modal.tsx",
       "apps/web/src/routes/_app.agents.$agentId.knowledge.tsx",
       "apps/web/src/routes/_app.batches.index.tsx",
-      "apps/web/src/routes/_app.conversations.$id.index.tsx",
       "apps/web/src/routes/_app.conversations.$id.live.tsx",
       "apps/web/src/routes/_app.knowledge.$docId.tsx",
       "apps/web/src/routes/_app.revenue.receipt.$month.tsx",

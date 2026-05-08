@@ -12,7 +12,11 @@ import { ChevronDown, ChevronLeft, Pause, Play, Wrench } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { formatDuration, formatRelative, formatUsd } from "@/lib/format";
-import { makeConversations } from "@/mocks";
+import { useWorkspace } from "@/contexts/workspace";
+import {
+  useConversation,
+  useConversationLive,
+} from "@/hooks/api/conversations";
 
 export const Route = createFileRoute("/_app/conversations/$id/")({
   component: ConversationDetailRoute,
@@ -20,19 +24,46 @@ export const Route = createFileRoute("/_app/conversations/$id/")({
 
 function ConversationDetailRoute() {
   const { id } = Route.useParams();
-  const conversations = useMemo(() => makeConversations(24), []);
-  const conversation = useMemo(() => conversations.find((c) => c.id === id) ?? conversations[0]!, [conversations, id]);
+  const { workspace } = useWorkspace();
+  const conversationQuery = useConversation({
+    workspaceId: workspace.id,
+    conversationId: id,
+  });
+  const conversation = conversationQuery.data?.conversation;
+  const liveTurns = useConversationLive({
+    workspaceId: workspace.id,
+    conversationId: id,
+    initialTurns: conversationQuery.data?.turns ?? [],
+  }).turns;
 
   const [position, setPosition] = useState(0);
   const [playing, setPlaying] = useState(false);
 
+  const turns = useMemo(() => {
+    const toolCalls = conversationQuery.data?.toolCalls ?? [];
+    return liveTurns.map((turn) => ({
+      id: turn.id,
+      speaker: typeof turn.speaker === "string" ? turn.speaker : "agent",
+      timestampSec:
+        typeof turn.timestampSec === "number" ? turn.timestampSec : 0,
+      text: typeof turn.text === "string" ? turn.text : "",
+      evalVerdict:
+        typeof turn.evalVerdict === "string" ? turn.evalVerdict : null,
+      toolCalls: toolCalls.filter((toolCall) => toolCall.turnId === turn.id),
+    }));
+  }, [conversationQuery.data?.toolCalls, liveTurns]);
+
   const activeTurnId = useMemo(() => {
-    let active = conversation.transcript[0]?.id;
-    for (const t of conversation.transcript) {
+    let active = turns[0]?.id;
+    for (const t of turns) {
       if (t.timestampSec <= position) active = t.id;
     }
     return active;
-  }, [conversation.transcript, position]);
+  }, [turns, position]);
+
+  if (conversationQuery.isLoading || !conversation) {
+    return <div className="mx-auto max-w-[960px] px-8 py-6 text-sm text-muted-foreground">Loading conversation...</div>;
+  }
 
   return (
     <div className="mx-auto flex max-w-[960px] flex-col gap-6 px-8 py-6">
@@ -48,12 +79,12 @@ function ConversationDetailRoute() {
           <div>
             <Eyebrow>Conversation</Eyebrow>
             <h1 className="mt-1 font-display text-[22px] font-semibold tracking-tight">
-              {conversation.callerName ?? conversation.callerId} · {conversation.agentName}
+              {conversation.participantName ?? conversation.participantId ?? "Unknown caller"} · {conversation.agentId ?? "Unassigned agent"}
             </h1>
           </div>
           <div className="flex items-center gap-2">
             <StatusPill tone={conversation.outcome === "booked" ? "success" : "neutral"}>
-              {conversation.outcome}
+              {conversation.outcome ?? "live"}
             </StatusPill>
             <Button variant="outline" onClick={() => setPlaying((p) => !p)}>
               {playing ? <Pause size={14} /> : <Play size={14} />}
@@ -65,7 +96,7 @@ function ConversationDetailRoute() {
 
       <Card className="p-4">
         <WaveformPlayer
-          durationSec={conversation.durationSec}
+          durationSec={conversation.durationSec ?? 0}
           positionSec={position}
           onSeek={setPosition}
         />
@@ -74,16 +105,16 @@ function ConversationDetailRoute() {
       {/* Compact metadata strip — replaces the old left/right pane sidebars. */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <MetricCard label="Evals" value={`${conversation.evalsPassed}/${conversation.evalsTotal}`} sub="passed" />
-        <MetricCard label="Cost" value={formatUsd(conversation.costUsd, { precise: true })} sub="this call" />
-        <MetricCard label="Caller" value={conversation.callerName ?? "Unknown"} sub={conversation.callerId} mono />
-        <MetricCard label="Started" value={formatRelative(conversation.startedAt)} sub={conversation.direction} />
+        <MetricCard label="Cost" value={formatUsd(conversation.costUsd ?? 0, { precise: true })} sub="this call" />
+        <MetricCard label="Caller" value={conversation.participantName ?? "Unknown"} sub={conversation.participantId ?? "—"} mono />
+        <MetricCard label="Started" value={formatRelative(conversation.startedAt.toISOString())} sub={conversation.direction ?? "inbound"} />
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
         <Card className="p-4">
           <Eyebrow>Extracted fields</Eyebrow>
           <ul className="mt-2 grid gap-1.5 text-[12px]">
-            {conversation.extractedFields.map((f) => (
+            {(conversationQuery.data?.extractedFields ?? []).map((f) => (
               <li key={f.label} className="grid grid-cols-[100px_1fr] gap-3">
                 <span className="font-mono text-muted-foreground">{f.label}</span>
                 <span className="font-mono">{f.value}</span>
@@ -107,7 +138,7 @@ function ConversationDetailRoute() {
         <Eyebrow>Transcript</Eyebrow>
         <ScrollArea className="mt-3 max-h-[640px]">
           <div className="flex flex-col gap-2">
-            {conversation.transcript.map((turn) => {
+            {turns.map((turn) => {
               const active = turn.id === activeTurnId;
               return (
                 <button
@@ -146,8 +177,8 @@ function ConversationDetailRoute() {
                         >
                           <CollapsibleTrigger className="flex w-full items-center gap-1.5 text-[11px] text-muted-foreground">
                             <Wrench size={11} />
-                            <span className="font-mono">{tc.name}</span>
-                            <span className="ml-auto font-mono tabular-nums">{tc.durationMs}ms</span>
+                            <span className="font-mono">{tc.toolName}</span>
+                            <span className="ml-auto font-mono tabular-nums">{tc.durationMs ?? 0}ms</span>
                             <ChevronDown size={11} className="transition data-[state=open]:rotate-180" />
                           </CollapsibleTrigger>
                           <CollapsibleContent className="mt-1.5 grid gap-1 font-mono text-[10px]">
@@ -155,7 +186,7 @@ function ConversationDetailRoute() {
                               <span className="text-muted-foreground">in:</span>{" "}
                               {JSON.stringify(tc.input)}
                             </div>
-                            {tc.output && (
+                            {tc.output != null && (
                               <div>
                                 <span className="text-muted-foreground">out:</span>{" "}
                                 {JSON.stringify(tc.output)}

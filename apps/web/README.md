@@ -37,3 +37,12 @@ const { data } = useQuery(client.healthCheck.queryOptions());
 ```
 
 The hook is the contract. The underlying oRPC/TanStack Query client is an implementation detail.
+
+## Conversation live wiring
+
+Conversation detail screens use two hook paths:
+
+- `useConversation` loads the baseline bundle (`conversation`, `turns`, `toolCalls`, `extractedFields`, `evals`).
+- `useConversationLive` requests `conversations.live` in polling mode at 1 Hz and merges new turns into the baseline set by `ordinal`.
+
+Streaming via `eventIterator` is preferred when server/client exports are available, but the current implementation runs the polling fallback contract from the API (`{ kind: 'polling', sinceSequence, nextSequence, items }`) so reconnects remain deterministic. If live updates stall, inspect `useConversationLive` state in React DevTools and verify `nextSequence` is increasing.

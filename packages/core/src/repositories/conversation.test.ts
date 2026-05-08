@@ -9,7 +9,16 @@ import {
 } from "../test-utils.js";
 import type { PoolClient } from "pg";
 import type { TestDb } from "../test-utils.js";
-import { agents, channelConnections, channelEndpoints } from "@kuralle/db/schema";
+import {
+  agents,
+  channelConnections,
+  channelEndpoints,
+  conversations,
+  conversationEvals,
+  conversationExtractedFields,
+  conversationToolCalls,
+  conversationTurns,
+} from "@kuralle/db/schema";
 
 const kvStore = new MemoryKvStore();
 const workspaceId = "ws_test_s2_01";
@@ -62,6 +71,48 @@ describe("ConversationRepository", () => {
     });
   });
 
+  describe("findManyByWorkspaceCursor", () => {
+    it("paginates by (startedAt desc, id desc)", async () => {
+      await db.insert(conversations).values([
+        {
+          id: "cv_cursor_1",
+          workspaceId,
+          channelKind: "whatsapp",
+          threadKey: "whatsapp:cursor:1",
+          startedAt: new Date("2026-01-01T00:00:03.000Z"),
+        },
+        {
+          id: "cv_cursor_2",
+          workspaceId,
+          channelKind: "whatsapp",
+          threadKey: "whatsapp:cursor:2",
+          startedAt: new Date("2026-01-01T00:00:02.000Z"),
+        },
+        {
+          id: "cv_cursor_3",
+          workspaceId,
+          channelKind: "whatsapp",
+          threadKey: "whatsapp:cursor:3",
+          startedAt: new Date("2026-01-01T00:00:01.000Z"),
+        },
+      ]);
+
+      const page1 = await repo.findManyByWorkspaceCursor({ limit: 2 });
+      expect(page1.items.map((item) => item.id)).toEqual([
+        "cv_cursor_1",
+        "cv_cursor_2",
+      ]);
+      expect(page1.cursor).toBeTruthy();
+
+      const page2 = await repo.findManyByWorkspaceCursor({
+        limit: 2,
+        cursor: page1.cursor,
+      });
+      expect(page2.items.map((item) => item.id)).toEqual(["cv_cursor_3"]);
+      expect(page2.cursor).toBeNull();
+    });
+  });
+
   describe("insert", () => {
     it("inserts with defaults", async () => {
       const conv = await repo.insert({
@@ -94,6 +145,101 @@ describe("ConversationRepository", () => {
     it("conversations table has no deletedAt column — softDelete not available", () => {
       // Conversations are never soft-deleted per DATA_MODEL.md
       expect(repo).toBeDefined();
+    });
+  });
+
+  describe("getDetail", () => {
+    it("returns conversation detail bundle with expected counts", async () => {
+      await db.insert(conversations).values({
+        id: "cv_detail_1",
+        workspaceId,
+        channelKind: "whatsapp",
+        threadKey: "whatsapp:detail",
+      });
+      await db.insert(conversationTurns).values([
+        {
+          id: "ct_detail_1",
+          conversationId: "cv_detail_1",
+          ordinal: 1,
+          speaker: "caller",
+          text: "hello",
+          timestampSec: 0,
+        },
+        {
+          id: "ct_detail_2",
+          conversationId: "cv_detail_1",
+          ordinal: 2,
+          speaker: "agent",
+          text: "hi",
+          timestampSec: 1,
+        },
+      ]);
+      await db.insert(conversationToolCalls).values({
+        id: "tc_detail_1",
+        turnId: "ct_detail_2",
+        toolName: "lookup",
+      });
+      await db.insert(conversationExtractedFields).values({
+        conversationId: "cv_detail_1",
+        label: "intent",
+        value: "booking",
+      });
+      await db.insert(conversationEvals).values({
+        id: "ev_detail_1",
+        conversationId: "cv_detail_1",
+        rubricSnapshot: "rubric",
+      });
+
+      const detail = await repo.getDetail("cv_detail_1");
+      expect(detail).not.toBeNull();
+      expect(detail!.conversation.id).toBe("cv_detail_1");
+      expect(detail!.turns).toHaveLength(2);
+      expect(detail!.toolCalls).toHaveLength(1);
+      expect(detail!.extractedFields).toHaveLength(1);
+      expect(detail!.evals).toHaveLength(1);
+    });
+  });
+
+  describe("getTurnsAfterSequence", () => {
+    it("returns turns with ordinal strictly above threshold", async () => {
+      await db.insert(conversations).values({
+        id: "cv_live_filter_1",
+        workspaceId,
+        channelKind: "whatsapp",
+        threadKey: "whatsapp:live-filter",
+      });
+      await db.insert(conversationTurns).values([
+        {
+          id: "ct_live_filter_1",
+          conversationId: "cv_live_filter_1",
+          ordinal: 1,
+          speaker: "caller",
+          text: "one",
+          timestampSec: 0,
+        },
+        {
+          id: "ct_live_filter_2",
+          conversationId: "cv_live_filter_1",
+          ordinal: 2,
+          speaker: "agent",
+          text: "two",
+          timestampSec: 1,
+        },
+        {
+          id: "ct_live_filter_3",
+          conversationId: "cv_live_filter_1",
+          ordinal: 3,
+          speaker: "agent",
+          text: "three",
+          timestampSec: 2,
+        },
+      ]);
+
+      const rows = await repo.getTurnsAfterSequence("cv_live_filter_1", 1);
+      expect(rows.map((row) => row.id)).toEqual([
+        "ct_live_filter_2",
+        "ct_live_filter_3",
+      ]);
     });
   });
 

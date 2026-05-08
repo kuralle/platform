@@ -1,4 +1,13 @@
-import { and, eq, desc } from "drizzle-orm";
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  gt,
+  inArray,
+  lt,
+  or,
+} from "drizzle-orm";
 import type { RepoDb } from "./types.js";
 import * as schema from "@kuralle/db/schema";
 import type { KvStore } from "@kuralle/platform/interface";
@@ -68,6 +77,69 @@ export interface MessagingThreadRecord {
   lastConversationId: string | null;
 }
 
+export interface ConversationTurn {
+  id: string;
+  conversationId: string;
+  ordinal: number;
+  speaker: string | null;
+  text: string;
+  messageId: string | null;
+  mediaPayload: unknown;
+  deliveryStatus: string | null;
+  statusUpdatedAt: Date | null;
+  timestampSec: number;
+  evalVerdict: string | null;
+  workflowNodeId: string | null;
+  tokensInput: number | null;
+  tokensOutput: number | null;
+  latencyMs: number | null;
+  contextUtilization: number | null;
+  modelUsed: string | null;
+  createdAt: Date;
+}
+
+export interface ConversationToolCall {
+  id: string;
+  turnId: string;
+  toolId: string | null;
+  toolName: string;
+  input: unknown;
+  output: unknown;
+  durationMs: number | null;
+  errorMessage: string | null;
+  createdAt: Date;
+}
+
+export interface ConversationExtractedField {
+  conversationId: string;
+  label: string;
+  value: string | null;
+}
+
+export interface ConversationEval {
+  id: string;
+  conversationId: string;
+  criterionId: string | null;
+  rubricSnapshot: string;
+  score: number | null;
+  passed: boolean | null;
+  details: unknown;
+  scoredAt: Date;
+}
+
+export interface ConversationDetail {
+  conversation: Conversation;
+  turns: ConversationTurn[];
+  toolCalls: ConversationToolCall[];
+  extractedFields: ConversationExtractedField[];
+  evals: ConversationEval[];
+}
+
+interface ConversationCursorToken {
+  startedAt: string;
+  id: string;
+}
+
 function toDomain(
   row: typeof schema.conversations.$inferSelect,
 ): Conversation {
@@ -101,6 +173,20 @@ function toDomain(
 
 function cacheKey(workspaceId: string, id: string): string {
   return `repo:conversation:${workspaceId}:${id}`;
+}
+
+function encodeCursor(cursor: ConversationCursorToken): string {
+  return Buffer.from(JSON.stringify(cursor), "utf8").toString("base64");
+}
+
+function decodeCursor(cursor: string): ConversationCursorToken {
+  const parsed = JSON.parse(
+    Buffer.from(cursor, "base64").toString("utf8"),
+  ) as Partial<ConversationCursorToken>;
+  if (typeof parsed.startedAt !== "string" || typeof parsed.id !== "string") {
+    throw new Error("ConversationRepository: invalid cursor");
+  }
+  return { startedAt: parsed.startedAt, id: parsed.id };
 }
 
 export class ConversationRepository {
@@ -145,6 +231,123 @@ export class ConversationRepository {
       .limit(limit);
 
     return rows.map(toDomain);
+  }
+
+  async findManyByWorkspaceCursor(opts?: {
+    cursor?: string | null;
+    limit?: number;
+    agentId?: string;
+  }): Promise<{ items: Conversation[]; cursor: string | null }> {
+    const limit = Math.max(1, Math.min(opts?.limit ?? 20, 100));
+    let cursorFilter: ReturnType<typeof or> | undefined;
+
+    if (opts?.cursor) {
+      const decoded = decodeCursor(opts.cursor);
+      const startedAt = new Date(decoded.startedAt);
+      cursorFilter = or(
+        lt(schema.conversations.startedAt, startedAt),
+        and(
+          eq(schema.conversations.startedAt, startedAt),
+          lt(schema.conversations.id, decoded.id),
+        ),
+      );
+    }
+
+    const workspaceFilter = eq(schema.conversations.workspaceId, this.workspaceId);
+    const agentFilter = opts?.agentId
+      ? eq(schema.conversations.agentId, opts.agentId)
+      : undefined;
+
+    let where = workspaceFilter;
+    if (agentFilter && cursorFilter) {
+      where = and(workspaceFilter, agentFilter, cursorFilter)!;
+    } else if (agentFilter) {
+      where = and(workspaceFilter, agentFilter)!;
+    } else if (cursorFilter) {
+      where = and(workspaceFilter, cursorFilter)!;
+    }
+
+    const rows = await this.db
+      .select()
+      .from(schema.conversations)
+      .where(where)
+      .orderBy(desc(schema.conversations.startedAt), desc(schema.conversations.id))
+      .limit(limit + 1);
+
+    const pageRows = rows.slice(0, limit);
+    const last = pageRows.at(-1);
+    const nextCursor =
+      rows.length > limit && last
+        ? encodeCursor({
+            startedAt: last.startedAt.toISOString(),
+            id: last.id,
+          })
+        : null;
+
+    return {
+      items: pageRows.map(toDomain),
+      cursor: nextCursor,
+    };
+  }
+
+  async getDetail(conversationId: string): Promise<ConversationDetail | null> {
+    const conversation = await this.findById(conversationId);
+    if (!conversation) {
+      return null;
+    }
+
+    const turnsRows = await this.db
+      .select()
+      .from(schema.conversationTurns)
+      .where(eq(schema.conversationTurns.conversationId, conversationId))
+      .orderBy(asc(schema.conversationTurns.ordinal));
+
+    const turnIds = turnsRows.map((turn) => turn.id);
+    const toolCallRows =
+      turnIds.length === 0
+        ? []
+        : await this.db
+            .select()
+            .from(schema.conversationToolCalls)
+            .where(inArray(schema.conversationToolCalls.turnId, turnIds))
+            .orderBy(asc(schema.conversationToolCalls.createdAt));
+
+    const extractedFieldRows = await this.db
+      .select()
+      .from(schema.conversationExtractedFields)
+      .where(eq(schema.conversationExtractedFields.conversationId, conversationId))
+      .orderBy(asc(schema.conversationExtractedFields.label));
+
+    const evalRows = await this.db
+      .select()
+      .from(schema.conversationEvals)
+      .where(eq(schema.conversationEvals.conversationId, conversationId))
+      .orderBy(asc(schema.conversationEvals.scoredAt));
+
+    return {
+      conversation,
+      turns: turnsRows,
+      toolCalls: toolCallRows,
+      extractedFields: extractedFieldRows,
+      evals: evalRows,
+    };
+  }
+
+  async getTurnsAfterSequence(
+    conversationId: string,
+    afterSequence: number,
+  ): Promise<ConversationTurn[]> {
+    const rows = await this.db
+      .select()
+      .from(schema.conversationTurns)
+      .where(
+        and(
+          eq(schema.conversationTurns.conversationId, conversationId),
+          gt(schema.conversationTurns.ordinal, afterSequence),
+        ),
+      )
+      .orderBy(asc(schema.conversationTurns.ordinal));
+    return rows;
   }
 
   async insert(input: ConversationInsert): Promise<Conversation> {

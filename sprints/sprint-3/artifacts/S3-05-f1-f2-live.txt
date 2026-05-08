@@ -1,0 +1,28 @@
+server test: 
+server test:  RUN  v4.1.5 /Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/apps/server
+server test: 
+server test:  ✓ src/__tests__/conversations.test.ts > conversations router > list paginates with cursor 88ms
+server test:  ✓ src/__tests__/conversations.test.ts > conversations router > get returns detail bundle counts 60ms
+server test:  ✓ src/__tests__/conversations.test.ts > conversations router > live polling returns turns after sequence 56ms
+server test: 
+server test:  Test Files  1 passed (1)
+server test:       Tests  3 passed (3)
+server test:    Start at  18:59:41
+server test:    Duration  1.08s (transform 269ms, setup 0ms, import 712ms, tests 266ms, environment 0ms)
+server test: 
+server test: Exited with code 0
+web test: 
+web test:  RUN  v4.1.5 /Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/apps/web
+web test: 
+web test:  ✓ src/hooks/api/conversations.test.tsx > useConversations > returns empty items list on happy path 67ms
+web test:  ✓ src/hooks/api/conversations.test.tsx > useConversations > surfaces error on server failure 55ms
+web test:  ✓ src/hooks/api/conversations.test.tsx > useConversation > returns full detail bundle on happy path 55ms
+web test:  ✓ src/hooks/api/conversations.test.tsx > useConversation > surfaces error on server failure 53ms
+web test:  ✓ src/hooks/api/conversations.test.tsx > useConversationLive > merges polling items with existing turns 55ms
+web test: 
+web test:  Test Files  1 passed (1)
+web test:       Tests  5 passed (5)
+web test:    Start at  18:59:42
+web test:    Duration  1.43s (transform 53ms, setup 189ms, import 177ms, tests 289ms, environment 678ms)
+web test: 
+web test: Exited with code 0
