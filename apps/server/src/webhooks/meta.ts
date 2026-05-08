@@ -17,6 +17,13 @@ interface MetaWebhookDeps {
   kvStore: Parameters<typeof withWorkspace>[2];
 }
 
+interface NormalizedInboundMessage {
+  id: string;
+  from: string;
+  phoneNumberId: string;
+  text: { body: string } | null;
+}
+
 function internalRequestForInboundMessage(body: Record<string, unknown>): Request {
   return new Request("https://messaging-do/internal/inbound", {
     method: "POST",
@@ -56,8 +63,11 @@ export function createMetaWebhookApp(deps: MetaWebhookDeps) {
 
     const parsed = JSON.parse(rawBody) as unknown;
     const events = normalizeWebhook(parsed);
+    const normalizedMessages = events.messages.length
+      ? events.messages
+      : extractInboundMessages(parsed);
 
-    for (const message of events.messages) {
+    for (const message of normalizedMessages) {
       const waId = message.from;
       const threadKey = `whatsapp:${waId}`;
 
@@ -104,5 +114,54 @@ export function createMetaWebhookApp(deps: MetaWebhookDeps) {
   });
 
   return app;
+}
+
+function extractInboundMessages(payload: unknown): NormalizedInboundMessage[] {
+  if (typeof payload !== "object" || payload === null) return [];
+  const entry = (payload as { entry?: unknown[] }).entry;
+  if (!Array.isArray(entry)) return [];
+  const normalized: NormalizedInboundMessage[] = [];
+  for (const item of entry) {
+    const changes = (item as { changes?: unknown[] }).changes;
+    if (!Array.isArray(changes)) continue;
+    for (const change of changes) {
+      const value = (change as { value?: Record<string, unknown> }).value;
+      if (!value) continue;
+      const phoneNumberId =
+        typeof value.metadata === "object" &&
+        value.metadata !== null &&
+        "phone_number_id" in value.metadata &&
+        typeof value.metadata.phone_number_id === "string"
+          ? value.metadata.phone_number_id
+          : "";
+      const messages = Array.isArray(value.messages) ? value.messages : [];
+      for (const message of messages) {
+        const text =
+          typeof message === "object" &&
+          message !== null &&
+          "text" in message &&
+          typeof message.text === "object" &&
+          message.text !== null &&
+          "body" in message.text &&
+          typeof message.text.body === "string"
+            ? { body: message.text.body }
+            : null;
+        if (
+          typeof message === "object" &&
+          message !== null &&
+          typeof message.id === "string" &&
+          typeof message.from === "string"
+        ) {
+          normalized.push({
+            id: message.id,
+            from: message.from,
+            phoneNumberId,
+            text,
+          });
+        }
+      }
+    }
+  }
+  return normalized;
 }
 

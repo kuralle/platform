@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { MemoryMessageQueue } from "@kuralle/platform/memory";
-import { buildHarnessHooks } from "./hooks.js";
+import { buildHarnessHooks, emitCallerTurn } from "./hooks.js";
 import type { HarnessHooksDeps } from "./hooks.js";
 import type { MessagingEvent } from "./events.js";
 import type { RunContext, ToolCallRecord } from "@ariaflowagents/core";
@@ -140,6 +140,7 @@ describe("buildHarnessHooks", () => {
     const ev = first(events);
     expect(ev.kind).toBe("tool.call");
     expect(ev.payload).toEqual({
+      turnId: expect.any(String),
       toolCallId: "call_abc",
       toolName: "lookup_customer",
       args: { phone: "+123" },
@@ -164,6 +165,7 @@ describe("buildHarnessHooks", () => {
     expect(ev.kind).toBe("tool.result");
     const p = ev.payload as Record<string, unknown>;
     expect(p.toolCallId).toBe("call_abc");
+    expect(p.turnId).toEqual(expect.any(String));
     expect(p.toolName).toBe("lookup_customer");
     expect(p.success).toBe(true);
     expect(p.durationMs).toBe(45);
@@ -218,6 +220,7 @@ describe("buildHarnessHooks", () => {
     const ev = first(events);
     expect(ev.kind).toBe("tokens.updated");
     expect(ev.payload).toEqual({
+      turnId: expect.any(String),
       turn: 1,
       nodeId: "greet",
       inputTokens: 565,
@@ -245,6 +248,7 @@ describe("buildHarnessHooks", () => {
     const ev = first(events);
     expect(ev.kind).toBe("turn.end");
     expect(ev.payload).toEqual({
+      turnId: expect.any(String),
       messageId: "msg_001",
       fullText: "Hello, how can I help you?",
       speaker: "assistant",
@@ -260,6 +264,38 @@ describe("buildHarnessHooks", () => {
 
     const events = await collectEvents(queue, "messaging-events");
     expect(events).toHaveLength(0);
+  });
+
+  it("does NOT emit turn.end for assistant message without stable id", async () => {
+    const hooks = buildHarnessHooks(deps);
+    await hooks.onMessage?.(makeContext(), {
+      role: "assistant",
+      content: "No id",
+    } as unknown as Parameters<NonNullable<typeof hooks.onMessage>>[1]);
+    const events = await collectEvents(queue, "messaging-events");
+    expect(events).toHaveLength(0);
+  });
+
+  it("emits caller turn through emitCallerTurn helper", async () => {
+    await emitCallerTurn({
+      queue,
+      conversationId: "cv_test_3turn",
+      sequenceNumber: 17,
+      turnId: "turn_caller",
+      messageId: "user_msg_1",
+      fullText: "Hello from caller",
+      occurredAt: FIXED_CLOCK,
+    });
+    const events = await collectEvents(queue, "messaging-events");
+    const ev = first(events);
+    expect(ev.kind).toBe("turn.end");
+    expect(ev.sequenceNumber).toBe(17);
+    expect(ev.payload).toEqual({
+      turnId: "turn_caller",
+      messageId: "user_msg_1",
+      fullText: "Hello from caller",
+      speaker: "caller",
+    });
   });
 
   it("emits agent.end with success=false+error on onEnd failure", async () => {

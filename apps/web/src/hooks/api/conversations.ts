@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { $api } from "@/providers/api-provider";
@@ -41,15 +42,16 @@ export function useConversationLive(input: {
     refetchInterval: 1000,
   });
 
-  const dedup = new Map<string, { id: string; ordinal: number } & Record<string, unknown>>();
-  for (const turn of input.initialTurns ?? []) {
-    dedup.set(turn.id, turn);
-  }
-  for (const turn of liveQuery.data?.items ?? []) {
-    dedup.set(turn.id, turn as { id: string; ordinal: number } & Record<string, unknown>);
-  }
-
-  const turns = Array.from(dedup.values()).sort((a, b) => a.ordinal - b.ordinal);
+  const turns = useMemo(() => {
+    const dedup = new Map<string, { id: string; ordinal: number } & Record<string, unknown>>();
+    for (const turn of input.initialTurns ?? []) {
+      dedup.set(turn.id, turn);
+    }
+    for (const turn of liveQuery.data?.items ?? []) {
+      dedup.set(turn.id, turn as { id: string; ordinal: number } & Record<string, unknown>);
+    }
+    return Array.from(dedup.values()).sort((a, b) => a.ordinal - b.ordinal);
+  }, [input.initialTurns, liveQuery.data?.items]);
 
   return {
     ...liveQuery,

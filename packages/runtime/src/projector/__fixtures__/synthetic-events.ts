@@ -8,12 +8,14 @@ export function generateConversationEvents(opts: {
   let seq = 1;
   for (let turn = 1; turn <= opts.turnCount; turn += 1) {
     const occurredAt = new Date(Date.now() + turn);
+    const turnId = `turn_${opts.conversationId}_${turn}`;
     events.push({
       kind: "turn.end",
       conversationId: opts.conversationId,
       sequenceNumber: seq++,
       occurredAt,
       payload: {
+        turnId,
         messageId: `msg_${opts.conversationId}_${turn}`,
         fullText: `assistant turn ${turn}`,
         speaker: "assistant",
@@ -25,6 +27,7 @@ export function generateConversationEvents(opts: {
       sequenceNumber: seq++,
       occurredAt,
       payload: {
+        turnId,
         turn,
         inputTokens: 10,
         outputTokens: 5,

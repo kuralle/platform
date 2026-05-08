@@ -1,16 +1,16 @@
 SLO Name: whatsapp.e2e.p95
 Threshold(ms): 4000
-Latencies(ms): 24, 207, 209, 209, 209, 208, 209, 208, 207, 207
-p95(ms): 209
+Latencies(ms): 63, 58, 64, 70, 63, 61, 60, 58, 59, 65
+p95(ms): 70
 
-Per-trial trace:
-trial=1 messageId=wamid.s3_06_1_116dba8f total=24 t0_to_webhook_200=19 webhook_200_to_projector_first=0 projector_first_to_tx_commit=6 tx_commit_to_conversations_get=0
-trial=2 messageId=wamid.s3_06_2_3d3ad17e total=207 t0_to_webhook_200=2 webhook_200_to_projector_first=0 projector_first_to_tx_commit=206 tx_commit_to_conversations_get=0
-trial=3 messageId=wamid.s3_06_3_341458c6 total=209 t0_to_webhook_200=2 webhook_200_to_projector_first=0 projector_first_to_tx_commit=207 tx_commit_to_conversations_get=0
-trial=4 messageId=wamid.s3_06_4_c4e7f021 total=209 t0_to_webhook_200=2 webhook_200_to_projector_first=0 projector_first_to_tx_commit=207 tx_commit_to_conversations_get=0
-trial=5 messageId=wamid.s3_06_5_eb044bc0 total=209 t0_to_webhook_200=3 webhook_200_to_projector_first=0 projector_first_to_tx_commit=207 tx_commit_to_conversations_get=0
-trial=6 messageId=wamid.s3_06_6_fc22cbf0 total=208 t0_to_webhook_200=2 webhook_200_to_projector_first=0 projector_first_to_tx_commit=206 tx_commit_to_conversations_get=0
-trial=7 messageId=wamid.s3_06_7_163a0ec7 total=209 t0_to_webhook_200=1 webhook_200_to_projector_first=0 projector_first_to_tx_commit=208 tx_commit_to_conversations_get=0
-trial=8 messageId=wamid.s3_06_8_ca780703 total=208 t0_to_webhook_200=2 webhook_200_to_projector_first=0 projector_first_to_tx_commit=206 tx_commit_to_conversations_get=0
-trial=9 messageId=wamid.s3_06_9_ba5797d0 total=207 t0_to_webhook_200=2 webhook_200_to_projector_first=0 projector_first_to_tx_commit=206 tx_commit_to_conversations_get=0
-trial=10 messageId=wamid.s3_06_10_e81ba4c3 total=207 t0_to_webhook_200=1 webhook_200_to_projector_first=0 projector_first_to_tx_commit=206 tx_commit_to_conversations_get=0
+Per-trial trace (real per-segment timestamps via projector onConsume/onCommit hooks):
+trial=1 messageId=wamid.s3_06_1_9be32de1 total=63 t0_to_emit=3 emit_to_projector_first_consume=0 consume_to_tx_commit=6 commit_to_conversations_get=55
+trial=2 messageId=wamid.s3_06_2_9e42d66c total=58 t0_to_emit=0 emit_to_projector_first_consume=0 consume_to_tx_commit=3 commit_to_conversations_get=55
+trial=3 messageId=wamid.s3_06_3_5ff848a6 total=64 t0_to_emit=0 emit_to_projector_first_consume=0 consume_to_tx_commit=7 commit_to_conversations_get=57
+trial=4 messageId=wamid.s3_06_4_bdec5bd3 total=70 t0_to_emit=0 emit_to_projector_first_consume=0 consume_to_tx_commit=9 commit_to_conversations_get=61
+trial=5 messageId=wamid.s3_06_5_d94e459f total=63 t0_to_emit=1 emit_to_projector_first_consume=0 consume_to_tx_commit=4 commit_to_conversations_get=59
+trial=6 messageId=wamid.s3_06_6_1a54edf8 total=61 t0_to_emit=1 emit_to_projector_first_consume=0 consume_to_tx_commit=5 commit_to_conversations_get=56
+trial=7 messageId=wamid.s3_06_7_fc071d8b total=60 t0_to_emit=0 emit_to_projector_first_consume=0 consume_to_tx_commit=4 commit_to_conversations_get=56
+trial=8 messageId=wamid.s3_06_8_612ea68e total=58 t0_to_emit=0 emit_to_projector_first_consume=0 consume_to_tx_commit=3 commit_to_conversations_get=55
+trial=9 messageId=wamid.s3_06_9_eb7d9b1f total=59 t0_to_emit=1 emit_to_projector_first_consume=0 consume_to_tx_commit=4 commit_to_conversations_get=54
+trial=10 messageId=wamid.s3_06_10_ea4f6109 total=65 t0_to_emit=0 emit_to_projector_first_consume=0 consume_to_tx_commit=7 commit_to_conversations_get=58

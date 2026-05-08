@@ -10,6 +10,7 @@
     "gen:openapi": "bun run scripts/gen-openapi.ts",
     "test": "vitest run",
     "test:slo": "vitest run --config vitest.slo.config.ts",
+    "test:slo:do": "vitest run --config vitest.slo.do.config.ts",
     "test:wrangler": "vitest run src/durable-objects/MessagingDO.test.ts"
   },
   "dependencies": {
@@ -31,6 +32,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "0.16.3",
     "@cloudflare/workers-types": "catalog:",
     "@kuralle/config": "workspace:*",
     "@kuralle/core": "workspace:*",

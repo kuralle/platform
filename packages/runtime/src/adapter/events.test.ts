@@ -69,6 +69,7 @@ describe("messagingEventSchema", () => {
       ...header,
       kind: "tool.call",
       payload: {
+        turnId: "turn_1",
         toolCallId: "call_abc",
         toolName: "lookup_customer",
         args: { phone: "+1234567890" },
@@ -83,6 +84,7 @@ describe("messagingEventSchema", () => {
       ...header,
       kind: "tool.result",
       payload: {
+        turnId: "turn_1",
         toolCallId: "call_abc",
         toolName: "lookup_customer",
         success: true,
@@ -102,6 +104,7 @@ describe("messagingEventSchema", () => {
       ...header,
       kind: "tool.result",
       payload: {
+        turnId: "turn_1",
         toolCallId: "call_xyz",
         toolName: "continue_to_booking",
         success: true,
@@ -130,6 +133,7 @@ describe("messagingEventSchema", () => {
       ...header,
       kind: "tokens.updated",
       payload: {
+        turnId: "turn_1",
         turn: 1,
         nodeId: "greet",
         inputTokens: 565,
@@ -153,6 +157,7 @@ describe("messagingEventSchema", () => {
       ...header,
       kind: "turn.end",
       payload: {
+        turnId: "turn_1",
         messageId: "wamid_abc123",
         fullText: "Hello, how can I help you?",
         speaker: "assistant",
@@ -167,6 +172,7 @@ describe("messagingEventSchema", () => {
       ...header,
       kind: "turn.end",
       payload: {
+        turnId: "turn_2",
         messageId: "wamid_xyz",
         fullText: "I need help with my HVAC",
         speaker: "caller",

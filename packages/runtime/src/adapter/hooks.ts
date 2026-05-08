@@ -14,6 +14,18 @@ export interface HarnessHooksDeps {
    * Tests override for deterministic asserts.
    */
   clock?: () => Date;
+  initialSequence?: number;
+  onSequenceAllocated?: (value: number) => void;
+}
+
+export interface EmitCallerTurnDeps {
+  queue: MessageQueue;
+  conversationId: string;
+  sequenceNumber: number;
+  turnId: string;
+  messageId: string;
+  fullText: string;
+  occurredAt?: Date;
 }
 
 // ── helpers ──────────────────────────────────────────────────────
@@ -91,7 +103,9 @@ export function buildHarnessHooks(deps: HarnessHooksDeps): HarnessHooks {
 
   // Monotonic counter per conversationId. Single-writer (DO) guarantee
   // per S3-03 means no distributed coordination is needed.
-  let seq = 0;
+  let seq = deps.initialSequence ?? 0;
+  let currentTurnId = crypto.randomUUID();
+  let didEmitAgentEnd = false;
 
   async function emit(
     kind: MessagingEvent["kind"],
@@ -104,6 +118,7 @@ export function buildHarnessHooks(deps: HarnessHooksDeps): HarnessHooks {
       occurredAt: clock(),
       payload,
     } as MessagingEvent;
+    deps.onSequenceAllocated?.(event.sequenceNumber);
     await queue.publish(QUEUE_TOPIC, event);
   }
 
@@ -114,12 +129,15 @@ export function buildHarnessHooks(deps: HarnessHooksDeps): HarnessHooks {
     // FINDINGS: onAgentStart → agent.start event.
     // Lifecycle hook; 1 event per agent activation.
     onAgentStart: async (_context: RunContext, agentId: string) => {
+      currentTurnId = crypto.randomUUID();
+      didEmitAgentEnd = false;
       await emit("agent.start", { agentId });
     },
 
     // FINDINGS: onAgentEnd → agent.end event.
     // Lifecycle hook; 1 event per agent deactivation.
     onAgentEnd: async (_context: RunContext, agentId: string) => {
+      didEmitAgentEnd = true;
       await emit("agent.end", {
         agentId,
         success: true,
@@ -157,6 +175,7 @@ export function buildHarnessHooks(deps: HarnessHooksDeps): HarnessHooks {
     // 1 event per tool invocation. Stream gives same data; hook is durable.
     onToolCall: async (_context: RunContext, call: ToolCallRecord) => {
       await emit("tool.call", {
+        turnId: currentTurnId,
         toolCallId: call.toolCallId,
         toolName: call.toolName,
         args: call.args,
@@ -170,6 +189,7 @@ export function buildHarnessHooks(deps: HarnessHooksDeps): HarnessHooks {
     onToolResult: async (_context: RunContext, call: ToolCallRecord) => {
       const payload: MessagingEvent extends { payload: infer P } ? P : never =
         {
+          turnId: currentTurnId,
           toolCallId: call.toolCallId,
           toolName: call.toolName,
           success: call.success,
@@ -193,6 +213,7 @@ export function buildHarnessHooks(deps: HarnessHooksDeps): HarnessHooks {
     // The projector (S3-04) reads these and writes usage_events rows.
     onTokensUpdate: async (_context, turn) => {
       await emit("tokens.updated", {
+        turnId: currentTurnId,
         turn: turn.turn,
         nodeId: turn.nodeId,
         inputTokens: turn.inputTokens,
@@ -213,23 +234,23 @@ export function buildHarnessHooks(deps: HarnessHooksDeps): HarnessHooks {
     // from accumulated text-deltas" — text-delta double-emission bug.
     // The message content is the durable surface; stream text-deltas are
     // for live UI only.
-    onMessage: async (context, message) => {
-      const role = (message as { role: string }).role;
+    onMessage: async (_context, message) => {
+      const role = message.role;
       if (role !== "assistant") return;
 
-      const content = extractMessageContent(
-        (message as { content: string | unknown[] }).content,
-      );
+      const content = extractMessageContent(message.content);
       if (!content) return;
 
-      // Dedup: avoid duplicate turn.end for the same assistant message
       const msgId =
-        (message as { id?: string }).id ??
-        `${context.session.id}-${Date.now()}`;
+        "id" in message && typeof message.id === "string"
+          ? message.id
+          : undefined;
+      if (!msgId) return;
       if (msgId === lastAssistantMessageId) return;
       lastAssistantMessageId = msgId;
 
       await emit("turn.end", {
+        turnId: currentTurnId,
         messageId: msgId,
         fullText: content,
         speaker: "assistant",
@@ -240,7 +261,8 @@ export function buildHarnessHooks(deps: HarnessHooksDeps): HarnessHooks {
     // This fires when the full stream call finishes — per-turn text is
     // captured by onMessage above.
     onEnd: async (context: RunContext, result) => {
-      if (!result.success && result.error) {
+      if (!result.success && result.error && !didEmitAgentEnd) {
+        didEmitAgentEnd = true;
         await emit("agent.end", {
           agentId: context.agentId,
           success: false,
@@ -251,4 +273,20 @@ export function buildHarnessHooks(deps: HarnessHooksDeps): HarnessHooks {
   };
 
   return hooks;
+}
+
+export async function emitCallerTurn(deps: EmitCallerTurnDeps): Promise<void> {
+  const event: MessagingEvent = {
+    kind: "turn.end",
+    conversationId: deps.conversationId,
+    sequenceNumber: deps.sequenceNumber,
+    occurredAt: deps.occurredAt ?? new Date(),
+    payload: {
+      turnId: deps.turnId,
+      messageId: deps.messageId,
+      fullText: deps.fullText,
+      speaker: "caller",
+    },
+  };
+  await deps.queue.publish(QUEUE_TOPIC, event);
 }

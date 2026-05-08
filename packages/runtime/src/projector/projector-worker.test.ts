@@ -107,8 +107,7 @@ describe("runProjectorWorker", () => {
       expect(firstPass).toHaveLength(100);
       const orderedA = firstPass
         .filter((row) => row.conversationId === "cv_worker_a")
-        .map((row) => row.ordinal)
-        .sort((a, b) => a - b);
+        .map((row) => row.ordinal);
       expect(orderedA).toEqual(Array.from({ length: 50 }, (_, i) => (i + 1) * 2 - 1));
 
       for (const event of interleaved) {
@@ -125,7 +124,12 @@ describe("runProjectorWorker", () => {
         conversationId: "cv_worker_a",
         sequenceNumber: 999,
         occurredAt: new Date(Date.now() - 1500),
-        payload: { messageId: "stale_1", fullText: "stale", speaker: "assistant" },
+        payload: {
+          turnId: "turn_stale",
+          messageId: "stale_1",
+          fullText: "stale",
+          speaker: "assistant",
+        },
       });
       await new Promise((resolve) => setTimeout(resolve, 200));
       const rows = await db

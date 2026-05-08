@@ -1,6 +1,13 @@
 import { AriaFlowAgent } from "@ariaflowagents/cf-agent";
-import type { HarnessConfig } from "@ariaflowagents/core";
-import { buildHarnessHooks, type MessagingEvent } from "@kuralle/runtime";
+import type { AgentConfig, HarnessConfig } from "@ariaflowagents/core";
+import {
+  buildHarnessHooks,
+  emitCallerTurn,
+  type AgentConfigOpts,
+  type MessagingEvent,
+  irToAgentConfig,
+} from "@kuralle/runtime";
+import type { AgentIR } from "@kuralle/core";
 import type { DurableObjectState } from "@cloudflare/workers-types";
 import { shardKeyForConversation } from "./shard.js";
 
@@ -23,6 +30,12 @@ interface QueueProducerBinding {
 }
 
 interface MessagingDoDeps {
+  loadAgentIr?: (conversationId: string) => Promise<{ agentId: string; ir: AgentIR } | null>;
+  resolveModel?: AgentConfigOpts["resolveModel"];
+  resolveTool?: AgentConfigOpts["resolveTool"];
+  resolveIntegrationTools?: AgentConfigOpts["resolveIntegrationTools"];
+  resolveMcpTools?: AgentConfigOpts["resolveMcpTools"];
+  runtimeDefaults?: Pick<AgentConfigOpts, "maxSteps" | "maxTurns" | "toolMaxSteps">;
   loadWorkingMemory: (conversationId: string) => Promise<Record<string, unknown> | null>;
   persistWorkingMemory: (
     conversationId: string,
@@ -40,6 +53,10 @@ export class MessagingDO extends AriaFlowAgent<MessagingDoEnv> {
   private readonly stateRef: DurableObjectState;
   private readonly envRef: MessagingDoEnv;
   private restorePromise: Promise<void> | null = null;
+  private currentConversationId = "";
+  private runtimeAgents: HarnessConfig["agents"] = [];
+  private defaultAgentId = "messaging";
+  private sequenceNumber = 0;
   private workingMemory: Record<string, unknown> = {};
 
   constructor(state: DurableObjectState, env: MessagingDoEnv) {
@@ -49,22 +66,42 @@ export class MessagingDO extends AriaFlowAgent<MessagingDoEnv> {
   }
 
   protected getAgents(): HarnessConfig["agents"] {
-    return [];
+    return this.runtimeAgents;
   }
 
   protected getDefaultAgentId(): string {
-    return "messaging";
+    return this.defaultAgentId;
+  }
+
+  protected getRuntimeConfig(): Partial<HarnessConfig> {
+    if (!this.currentConversationId) {
+      return {};
+    }
+    const queue = this.createQueueAdapter(this.currentConversationId);
+    return {
+      hooks: buildHarnessHooks({
+        queue,
+        conversationId: this.currentConversationId,
+        initialSequence: this.sequenceNumber,
+        onSequenceAllocated: (value) => {
+          this.sequenceNumber = value;
+        },
+      }),
+    };
   }
 
   static threadKeyForWaId(waId: string): string {
     return `whatsapp:${waId}`;
   }
 
-  async fetch(request: Request): Promise<Response> {
-    await this.ensureRestored();
-    const envelope = (await request.json()) as InboundEnvelope;
-    await this.processInbound(envelope);
-    return new Response("OK", { status: 200 });
+  async onRequest(request: Request): Promise<Response> {
+    const url = new URL(request.url);
+    if (url.pathname.endsWith("/internal/inbound")) {
+      const envelope = (await request.json()) as InboundEnvelope;
+      await this.processInbound(envelope);
+      return new Response("OK", { status: 200 });
+    }
+    return super.onRequest(request);
   }
 
   async alarm(): Promise<void> {
@@ -75,6 +112,10 @@ export class MessagingDO extends AriaFlowAgent<MessagingDoEnv> {
     if (this.restorePromise) return this.restorePromise;
     this.restorePromise = this.stateRef.blockConcurrencyWhile(async () => {
       const cached = await this.stateRef.storage.get<RuntimeSessionSnapshot>("runtime-session");
+      const cachedSeq = await this.stateRef.storage.get<number>("runtime-seq");
+      if (typeof cachedSeq === "number") {
+        this.sequenceNumber = cachedSeq;
+      }
       if (cached?.workingMemory) {
         this.workingMemory = cached.workingMemory;
       }
@@ -83,13 +124,40 @@ export class MessagingDO extends AriaFlowAgent<MessagingDoEnv> {
   }
 
   async processInbound(envelope: InboundEnvelope): Promise<void> {
+    this.currentConversationId = envelope.conversationId;
     const deps = this.envRef.__messagingDODeps;
-    if (deps) {
+    await this.stateRef.blockConcurrencyWhile(async () => {
+      if (!deps) return;
       const dbSnapshot = await deps.loadWorkingMemory(envelope.conversationId);
-      if (dbSnapshot) {
-        this.workingMemory = dbSnapshot;
-      }
-    }
+      if (!dbSnapshot) return;
+      this.workingMemory = dbSnapshot;
+      await this.stateRef.storage.put("runtime-session", {
+        workingMemory: this.workingMemory,
+      } satisfies RuntimeSessionSnapshot);
+    });
+
+    await this.resolveAgents(envelope.conversationId);
+
+    const nextSequence = this.sequenceNumber + 1;
+    this.sequenceNumber = nextSequence;
+    await emitCallerTurn({
+      queue: this.createQueueAdapter(envelope.conversationId),
+      conversationId: envelope.conversationId,
+      sequenceNumber: nextSequence,
+      turnId: crypto.randomUUID(),
+      messageId: envelope.messageId,
+      fullText: envelope.text,
+      occurredAt: new Date(),
+    });
+
+    const userMessage = {
+      id: envelope.messageId,
+      role: "user",
+      parts: [{ type: "text", text: envelope.text }],
+    } as const;
+    const existingMessages =
+      "messages" in this && Array.isArray(this.messages) ? this.messages : [];
+    await this.saveMessages([...existingMessages, userMessage]);
 
     this.workingMemory.lastInboundText = envelope.text;
     this.workingMemory.lastInboundAt = new Date().toISOString();
@@ -98,49 +166,60 @@ export class MessagingDO extends AriaFlowAgent<MessagingDoEnv> {
     await this.stateRef.storage.put("runtime-session", {
       workingMemory: this.workingMemory,
     } satisfies RuntimeSessionSnapshot);
+    await this.stateRef.storage.put("runtime-seq", this.sequenceNumber);
 
     if (deps) {
       await deps.persistWorkingMemory(envelope.conversationId, this.workingMemory);
     }
+  }
 
-    const emitted: MessagingEvent[] = [];
-    const hooks = buildHarnessHooks({
-      queue: {
-        publish: async (_topic, payload) => {
-          emitted.push(payload as MessagingEvent);
-        },
-        publishBatch: async (_topic, payloads) => {
-          for (const payload of payloads) emitted.push(payload as MessagingEvent);
-        },
-        consume: () => {
-          return { stop: async () => {} };
-        },
-      },
-      conversationId: envelope.conversationId,
+  private async resolveAgents(conversationId: string): Promise<void> {
+    const deps = this.envRef.__messagingDODeps;
+    if (!deps?.loadAgentIr || !deps.resolveModel) return;
+    const resolved = await deps.loadAgentIr(conversationId);
+    if (!resolved) return;
+    const config = await irToAgentConfig(resolved.ir, {
+      agentId: resolved.agentId,
+      resolveModel: deps.resolveModel,
+      resolveTool: deps.resolveTool,
+      resolveIntegrationTools: deps.resolveIntegrationTools,
+      resolveMcpTools: deps.resolveMcpTools,
+      maxSteps: deps.runtimeDefaults?.maxSteps,
+      maxTurns: deps.runtimeDefaults?.maxTurns,
+      toolMaxSteps: deps.runtimeDefaults?.toolMaxSteps,
     });
+    this.runtimeAgents = [config as AgentConfig];
+    this.defaultAgentId = config.id;
+  }
 
-    await hooks.onAgentStart?.({} as never, "messaging");
-    await hooks.onMessage?.(
-      { session: { id: envelope.conversationId } } as never,
-      {
-        id: envelope.messageId,
-        role: "assistant",
-        content: `Received: ${envelope.text}`,
-      } as never,
-    );
-    await hooks.onAgentEnd?.({} as never, "messaging");
+  private createQueueAdapter(conversationId: string) {
+    return {
+      publish: async (_topic: string, payload: unknown) => {
+        await this.emitQueueEvent(conversationId, payload as MessagingEvent);
+      },
+      publishBatch: async (_topic: string, payloads: unknown[]) => {
+        for (const payload of payloads) {
+          await this.emitQueueEvent(conversationId, payload as MessagingEvent);
+        }
+      },
+      consume: () => ({ stop: async () => {} }),
+    };
+  }
 
-    const queueName = shardKeyForConversation(envelope.conversationId);
+  private async emitQueueEvent(
+    conversationId: string,
+    event: MessagingEvent,
+  ): Promise<void> {
+    const queueName = shardKeyForConversation(conversationId);
     const queueBinding = this.envRef[this.toQueueBindingName(queueName)] as
       | QueueProducerBinding
       | undefined;
     if (queueBinding) {
-      for (const event of emitted) {
-        await queueBinding.send(event);
-      }
+      await queueBinding.send(event);
     }
+    const deps = this.envRef.__messagingDODeps;
     if (deps) {
-      await deps.emitEvents(envelope.conversationId, emitted);
+      await deps.emitEvents(conversationId, [event]);
     }
   }
 

@@ -3,7 +3,14 @@ import type { DurableObjectState } from "@cloudflare/workers-types";
 
 vi.mock("@ariaflowagents/cf-agent", () => {
   class AriaFlowAgent {
+    messages: unknown[] = [];
     constructor() {}
+    async saveMessages(messages: unknown[]) {
+      this.messages = messages;
+    }
+    async onRequest() {
+      return new Response("OK");
+    }
   }
   return { AriaFlowAgent };
 });
@@ -46,8 +53,8 @@ describe("MessagingDO", () => {
   it("restores working memory on cold start", async () => {
     const { MessagingDO } = await import("./MessagingDO.js");
     const first = createDo(MessagingDO);
-    await first.fetch(
-      new Request("https://example.com/inbound", {
+    await first.onRequest(
+      new Request("https://example.com/internal/inbound", {
         method: "POST",
         body: JSON.stringify({
           waId: "94770000000",
@@ -64,8 +71,8 @@ describe("MessagingDO", () => {
     const second = createDo(MessagingDO, {
       loadWorkingMemory: async () => ({ remembered: "from-turn-1" }),
     });
-    await second.fetch(
-      new Request("https://example.com/inbound", {
+    await second.onRequest(
+      new Request("https://example.com/internal/inbound", {
         method: "POST",
         body: JSON.stringify({
           waId: "94770000000",

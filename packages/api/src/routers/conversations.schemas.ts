@@ -98,15 +98,6 @@ export const conversationDetailSchema = z
   })
   .strict();
 
-export const conversationLiveEventSchema = z.discriminatedUnion("type", [
-  z
-    .object({
-      type: z.literal("turn.added"),
-      payload: conversationTurnSchema,
-    })
-    .strict(),
-]);
-
 export const conversationLivePollingSchema = z
   .object({
     kind: z.literal("polling"),

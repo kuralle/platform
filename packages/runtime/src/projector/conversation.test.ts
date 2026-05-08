@@ -66,7 +66,12 @@ describe("projectConversationEvent", () => {
       conversationId: "cv_proj",
       sequenceNumber: 1,
       occurredAt: new Date("2026-05-08T10:00:00.000Z"),
-      payload: { messageId: "mid_1", fullText: "hello", speaker: "assistant" },
+      payload: {
+        turnId: "turn_1",
+        messageId: "mid_1",
+        fullText: "hello",
+        speaker: "assistant",
+      },
     };
     await db.transaction((tx) => projectConversationEvent(tx, event, ctx));
     await db.transaction((tx) => projectConversationEvent(tx, event, ctx));
@@ -84,20 +89,17 @@ describe("projectConversationEvent", () => {
   });
 
   it("writes tool.call row", async () => {
-    await db.insert(schema.conversationTurns).values({
-      id: "turn_seed",
-      conversationId: "cv_proj",
-      ordinal: 1,
-      text: "seed",
-      speaker: "agent",
-      timestampSec: 1,
-    });
     const event: MessagingEvent = {
       kind: "tool.call",
       conversationId: "cv_proj",
       sequenceNumber: 1,
       occurredAt: new Date("2026-05-08T10:00:00.000Z"),
-      payload: { toolCallId: "tc_1", toolName: "lookup", args: { a: 1 } },
+      payload: {
+        turnId: "turn_tool_1",
+        toolCallId: "tc_1",
+        toolName: "lookup",
+        args: { a: 1 },
+      },
     };
     await db.transaction((tx) => projectConversationEvent(tx, event, ctx));
     const rows = await db.select().from(schema.conversationToolCalls);
@@ -106,20 +108,13 @@ describe("projectConversationEvent", () => {
   });
 
   it("writes extraction fields from tool.result transition", async () => {
-    await db.insert(schema.conversationTurns).values({
-      id: "turn_seed2",
-      conversationId: "cv_proj",
-      ordinal: 1,
-      text: "seed",
-      speaker: "agent",
-      timestampSec: 1,
-    });
     const event: MessagingEvent = {
       kind: "tool.result",
       conversationId: "cv_proj",
       sequenceNumber: 1,
       occurredAt: new Date("2026-05-08T10:00:00.000Z"),
       payload: {
+        turnId: "turn_tool_2",
         toolCallId: "tc_2",
         toolName: "continue",
         success: true,
@@ -140,6 +135,7 @@ describe("projectConversationEvent", () => {
       sequenceNumber: 1,
       occurredAt: new Date("2026-05-08T10:00:00.000Z"),
       payload: {
+        turnId: "turn_tok_1",
         turn: 1,
         inputTokens: 100,
         outputTokens: 20,
@@ -152,6 +148,69 @@ describe("projectConversationEvent", () => {
     };
     await db.transaction((tx) => projectConversationEvent(tx, event, ctx));
     const rows = await db.select().from(schema.usageEvents);
+    expect(rows).toHaveLength(2);
+  });
+
+  it("keeps tool calls on in-flight turn id before turn.end", async () => {
+    const toolCall: MessagingEvent = {
+      kind: "tool.call",
+      conversationId: "cv_proj",
+      sequenceNumber: 1,
+      occurredAt: new Date("2026-05-08T10:00:00.000Z"),
+      payload: {
+        turnId: "turn_inflight",
+        toolCallId: "tc_inflight",
+        toolName: "lookup",
+        args: { q: 1 },
+      },
+    };
+    const turnEnd: MessagingEvent = {
+      kind: "turn.end",
+      conversationId: "cv_proj",
+      sequenceNumber: 2,
+      occurredAt: new Date("2026-05-08T10:00:01.000Z"),
+      payload: {
+        turnId: "turn_inflight",
+        messageId: "mid_2",
+        fullText: "assistant text",
+        speaker: "assistant",
+      },
+    };
+    await db.transaction((tx) => projectConversationEvent(tx, toolCall, ctx));
+    await db.transaction((tx) => projectConversationEvent(tx, turnEnd, ctx));
+    const rows = await db.select().from(schema.conversationToolCalls);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.turnId).toBe("turn_inflight");
+  });
+
+  it("uses turn-scoped ids to avoid tool-call collisions across turns", async () => {
+    const first: MessagingEvent = {
+      kind: "tool.call",
+      conversationId: "cv_proj",
+      sequenceNumber: 1,
+      occurredAt: new Date("2026-05-08T10:00:00.000Z"),
+      payload: {
+        turnId: "turn_a",
+        toolCallId: "tc_same",
+        toolName: "lookup",
+        args: {},
+      },
+    };
+    const second: MessagingEvent = {
+      kind: "tool.call",
+      conversationId: "cv_proj",
+      sequenceNumber: 2,
+      occurredAt: new Date("2026-05-08T10:00:01.000Z"),
+      payload: {
+        turnId: "turn_b",
+        toolCallId: "tc_same",
+        toolName: "lookup",
+        args: {},
+      },
+    };
+    await db.transaction((tx) => projectConversationEvent(tx, first, ctx));
+    await db.transaction((tx) => projectConversationEvent(tx, second, ctx));
+    const rows = await db.select().from(schema.conversationToolCalls);
     expect(rows).toHaveLength(2);
   });
 });

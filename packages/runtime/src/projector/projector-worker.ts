@@ -8,6 +8,7 @@ import {
   SLO_PROJECTOR_LAG_NAME,
   SLO_PROJECTOR_LAG_THRESHOLD_MS,
 } from "../instrumentation/slo.js";
+import type { MessagingEvent } from "../adapter/events.js";
 import { projectConversationEvent } from "./conversation.js";
 
 type AnyPgDb = NeonHttpDatabase<typeof schema> | NodePgDatabase<typeof schema>;
@@ -16,6 +17,8 @@ export interface RunProjectorWorkerOpts {
   queue: MessageQueue;
   db: AnyPgDb;
   shardKeys?: string[];
+  onConsume?: (event: MessagingEvent) => void;
+  onCommit?: (event: MessagingEvent) => void;
 }
 
 export function defaultShardKeys(): string[] {
@@ -33,6 +36,7 @@ export function runProjectorWorker(opts: RunProjectorWorkerOpts): ConsumerHandle
       return;
     }
     const event = parsed.data;
+    opts.onConsume?.(event);
 
     const conversation = await opts.db
       .select({
@@ -76,6 +80,7 @@ export function runProjectorWorker(opts: RunProjectorWorkerOpts): ConsumerHandle
         }
       });
       await msg.ack();
+      opts.onCommit?.(event);
     } catch {
       await msg.nack({ requeue: msg.attempt < 3 });
     }

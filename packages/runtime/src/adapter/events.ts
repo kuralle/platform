@@ -38,6 +38,14 @@ const stepEndPayloadSchema = z
 
 const toolCallPayloadSchema = z
   .strictObject({
+    /**
+     * Logical turn id, threaded by the adapter so the projector associates
+     * tool calls with the CORRECT turn even when `tool.call` arrives before
+     * `turn.end`. Same id flows through tool.result + tokens.updated + turn.end.
+     * Per kimi gate fix-pass for [S3-fix] (S3-04 was using `latestTurn` lookup
+     * which returned the previous turn for in-flight tool calls).
+     */
+    turnId: z.string(),
     toolCallId: z.string(),
     toolName: z.string(),
     args: z.unknown(),
@@ -57,6 +65,7 @@ const extractionPayloadSchema = z
 
 const toolResultPayloadSchema = z
   .strictObject({
+    turnId: z.string(),
     toolCallId: z.string(),
     toolName: z.string(),
     success: z.boolean(),
@@ -77,6 +86,7 @@ const toolResultPayloadSchema = z
  */
 const tokensUpdatedPayloadSchema = z
   .strictObject({
+    turnId: z.string(),
     turn: z.number().int().min(0),
     nodeId: z.string().optional(),
     inputTokens: z.number().int().min(0),
@@ -94,6 +104,7 @@ const tokensUpdatedPayloadSchema = z
 
 const turnEndPayloadSchema = z
   .strictObject({
+    turnId: z.string(),
     /**
      * Platform message ID for projector dedup. Sourced from the
      * hook-side message, not stream text-deltas.

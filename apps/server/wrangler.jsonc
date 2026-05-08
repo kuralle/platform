@@ -16,7 +16,12 @@
   "migrations": [
     {
       "tag": "v1-messaging-do",
-      "new_classes": ["MessagingDO"]
+      // cf-agent's AriaFlowAgent extends @cloudflare/ai-chat AIChatAgent, which
+      // uses SQLite for orchestration state via this.sql. SQLite-backed DOs require
+      // new_sqlite_classes per CF migration semantics. Changed from new_classes
+      // during [S3-fix] when pool-workers loaded the real DO class and surfaced
+      // the requirement.
+      "new_sqlite_classes": ["MessagingDO"]
     }
   ],
   "queues": {

@@ -5,6 +5,7 @@ import { createTestDb, releaseTestDb, resetSchema, seedWorkspace } from "@kurall
 import type { PoolClient } from "@kuralle/core/test-utils";
 import type { TestDb } from "@kuralle/core/test-utils";
 import { agents, channelConnections, channelEndpoints } from "@kuralle/db/schema";
+import { messagingThreads } from "@kuralle/db/schema";
 import { createMetaWebhookApp } from "./meta.js";
 import { metaWebhookInbound } from "./meta-fixtures.js";
 
@@ -107,6 +108,9 @@ describe("meta webhook", () => {
     );
     expect(res.status).toBe(200);
     expect(idCalls[0]).toBe("whatsapp:94770000000");
+    const rows = await db.select().from(messagingThreads);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.threadKey).toBe("whatsapp:94770000000");
   });
 
   it("routes same wa_id to the same durable object id", async () => {

@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import type { ExtractTablesWithRelations } from "drizzle-orm";
 import type { NeonHttpQueryResultHKT } from "drizzle-orm/neon-http";
 import type { NodePgQueryResultHKT } from "drizzle-orm/node-postgres";
@@ -18,6 +18,25 @@ export interface ProjectionContext {
   channelEndpointId: string | null;
 }
 
+async function ensureTurnRow(
+  tx: RuntimeTx,
+  turnId: string,
+  conversationId: string,
+  ordinal: number,
+  occurredAt: Date,
+): Promise<void> {
+  await tx
+    .insert(schema.conversationTurns)
+    .values({
+      id: turnId,
+      conversationId,
+      ordinal,
+      text: "",
+      timestampSec: Math.floor(occurredAt.getTime() / 1000),
+    })
+    .onConflictDoNothing();
+}
+
 export async function projectConversationEvent(
   tx: RuntimeTx,
   event: MessagingEvent,
@@ -29,7 +48,7 @@ export async function projectConversationEvent(
     const result = await tx
       .insert(schema.conversationTurns)
       .values({
-        id: `turn_${event.conversationId}_${event.sequenceNumber}`,
+        id: event.payload.turnId,
         conversationId: event.conversationId,
         ordinal: event.sequenceNumber,
         speaker: event.payload.speaker === "assistant" ? "agent" : "caller",
@@ -37,23 +56,32 @@ export async function projectConversationEvent(
         messageId: event.payload.messageId,
         timestampSec: Math.floor(event.occurredAt.getTime() / 1000),
       })
-      .onConflictDoNothing()
+      .onConflictDoUpdate({
+        target: schema.conversationTurns.id,
+        set: {
+          ordinal: event.sequenceNumber,
+          speaker: event.payload.speaker === "assistant" ? "agent" : "caller",
+          text: event.payload.fullText,
+          messageId: event.payload.messageId,
+          timestampSec: Math.floor(event.occurredAt.getTime() / 1000),
+        },
+      })
       .returning();
     rowsInserted += result.length;
     return { rowsInserted };
   }
 
   if (event.kind === "tool.call" || event.kind === "tool.result") {
-    const latestTurn = await tx
-      .select({ id: schema.conversationTurns.id })
-      .from(schema.conversationTurns)
-      .where(eq(schema.conversationTurns.conversationId, event.conversationId))
-      .orderBy(desc(schema.conversationTurns.ordinal))
-      .limit(1);
-    if (latestTurn.length === 0) return { rowsInserted };
-    const turnId = latestTurn[0]!.id;
+    const turnId = event.payload.turnId;
+    await ensureTurnRow(
+      tx,
+      turnId,
+      event.conversationId,
+      event.sequenceNumber,
+      event.occurredAt,
+    );
     const toolCallId = event.payload.toolCallId;
-    const callId = `tool_${event.conversationId}_${toolCallId}`;
+    const callId = `tool_${turnId}_${toolCallId}`;
 
     if (event.kind === "tool.call") {
       const inserted = await tx
@@ -116,6 +144,13 @@ export async function projectConversationEvent(
   }
 
   if (event.kind === "tokens.updated") {
+    await ensureTurnRow(
+      tx,
+      event.payload.turnId,
+      event.conversationId,
+      event.sequenceNumber,
+      event.occurredAt,
+    );
     const base = {
       workspaceId: ctx.workspaceId,
       agentId: ctx.agentId,
