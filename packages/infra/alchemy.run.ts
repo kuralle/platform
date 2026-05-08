@@ -26,6 +26,12 @@ export const server = await Worker("server", {
     BETTER_AUTH_SECRET: alchemy.secret.env.BETTER_AUTH_SECRET!,
     BETTER_AUTH_URL: alchemy.env.BETTER_AUTH_URL!,
     DATABASE_URL: alchemy.secret.env.DATABASE_URL!,
+    META_APP_ID: alchemy.env.META_APP_ID!,
+    META_APP_SECRET: alchemy.secret.env.META_APP_SECRET!,
+    META_SYSTEM_USER_TOKEN: alchemy.secret.env.META_SYSTEM_USER_TOKEN!,
+    META_VERIFY_TOKEN: alchemy.env.META_VERIFY_TOKEN!,
+    META_PHONE_NUMBER_ID: alchemy.env.META_PHONE_NUMBER_ID!,
+    PUBLIC_BASE_URL: alchemy.env.PUBLIC_BASE_URL!,
   },
   dev: {
     port: 3000,

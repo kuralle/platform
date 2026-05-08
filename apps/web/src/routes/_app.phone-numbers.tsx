@@ -45,7 +45,7 @@ export const Route = createFileRoute("/_app/phone-numbers")({
 function PhoneNumbersRoute() {
   const [importOpen, setImportOpen] = useState(false);
   const { workspace } = useWorkspace();
-  const pnQuery = usePhoneNumbers({ workspaceId: workspace.id, limit: 100 });
+  const pnQuery = usePhoneNumbers({ workspaceId: workspace.id });
   const agentsQuery = useAgents({ workspaceId: workspace.id, limit: 100 });
   const numbers = useMemo(() => (pnQuery.data?.items ?? []) as PhoneNumberRow[], [pnQuery.data?.items]);
   const agentsById = useMemo(() => {

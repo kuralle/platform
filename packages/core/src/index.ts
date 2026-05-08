@@ -21,6 +21,9 @@ export type {
   Channel,
   ChannelInsert,
   ChannelUpdate,
+  Endpoint,
+  EndpointInsert,
+  EndpointUpdate,
 } from "./repositories/channel.js";
 export { ConversationRepository } from "./repositories/conversation.js";
 export type {

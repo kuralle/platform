@@ -1950,36 +1950,29 @@
         }
       }
     },
-    "/channels/list": {
+    "/channels/connect": {
       "post": {
-        "operationId": "channels.list",
+        "operationId": "channels.connect",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
+                "additionalProperties": false,
                 "properties": {
-                  "cursor": {
-                    "anyOf": [
-                      {
-                        "type": "string"
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
+                  "displayName": {
+                    "type": "string"
                   },
-                  "limit": {
-                    "default": 20,
-                    "maximum": 100,
-                    "minimum": 1,
-                    "type": "integer"
+                  "provider": {
+                    "const": "meta-whatsapp-cloud"
                   },
                   "workspaceId": {
                     "type": "string"
                   }
                 },
                 "required": [
-                  "workspaceId"
+                  "workspaceId",
+                  "provider",
+                  "displayName"
                 ],
                 "type": "object"
               }
@@ -1994,16 +1987,187 @@
                 "schema": {
                   "additionalProperties": false,
                   "properties": {
-                    "cursor": {
-                      "anyOf": [
-                        {
-                          "type": "string"
+                    "availablePhoneNumbers": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "displayPhoneNumber": {
+                            "type": "string"
+                          },
+                          "phoneNumberId": {
+                            "type": "string"
+                          },
+                          "qualityRating": {
+                            "type": "string"
+                          }
                         },
-                        {
-                          "type": "null"
-                        }
-                      ]
+                        "required": [
+                          "phoneNumberId",
+                          "displayPhoneNumber"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
                     },
+                    "connectionId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "connectionId",
+                    "availablePhoneNumbers"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/channels/endpoints/attach": {
+      "post": {
+        "operationId": "channels.endpoints.attach",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "agentId": {
+                    "type": "string"
+                  },
+                  "connectionId": {
+                    "type": "string"
+                  },
+                  "phoneNumberId": {
+                    "type": "string"
+                  },
+                  "workspaceId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "workspaceId",
+                  "connectionId",
+                  "phoneNumberId",
+                  "agentId"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "endpointId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "endpointId"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/channels/endpoints/detach": {
+      "post": {
+        "operationId": "channels.endpoints.detach",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "endpointId": {
+                    "type": "string"
+                  },
+                  "workspaceId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "workspaceId",
+                  "endpointId"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "alreadyReleased": {
+                      "type": "boolean"
+                    },
+                    "released": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "released"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/channels/endpoints/list": {
+      "post": {
+        "operationId": "channels.endpoints.list",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "connectionId": {
+                    "type": "string"
+                  },
+                  "workspaceId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "workspaceId",
+                  "connectionId"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
                     "items": {
                       "items": {
                         "additionalProperties": false,
@@ -2123,6 +2287,333 @@
                           "publicStreamUrl",
                           "createdAt",
                           "releasedAt"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "items"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/channels/endpoints/listByKind": {
+      "post": {
+        "operationId": "channels.endpoints.listByKind",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "type": "string"
+                  },
+                  "workspaceId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "workspaceId",
+                  "kind"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "items": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "attachedAgentId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "attachedAgentVersionId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "channelKind": {
+                            "type": "string"
+                          },
+                          "connectionId": {
+                            "type": "string"
+                          },
+                          "createdAt": {
+                            "format": "date-time",
+                            "type": "string",
+                            "x-native-type": "date"
+                          },
+                          "displayName": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "identifier": {
+                            "type": "string"
+                          },
+                          "metadata": {
+                            "anyOf": [
+                              {},
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "publicStreamUrl": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "publicWebhookUrl": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "releasedAt": {
+                            "anyOf": [
+                              {
+                                "format": "date-time",
+                                "type": "string",
+                                "x-native-type": "date"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "routingRulesId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "workspaceId": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "workspaceId",
+                          "connectionId",
+                          "channelKind",
+                          "identifier",
+                          "displayName",
+                          "attachedAgentId",
+                          "attachedAgentVersionId",
+                          "routingRulesId",
+                          "publicWebhookUrl",
+                          "publicStreamUrl",
+                          "createdAt",
+                          "releasedAt"
+                        ],
+                        "type": "object"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "items"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/channels/list": {
+      "post": {
+        "operationId": "channels.list",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "cursor": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "limit": {
+                    "default": 20,
+                    "maximum": 100,
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "workspaceId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "workspaceId"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "cursor": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "items": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "capabilities": {
+                            "items": {
+                              "type": "string"
+                            },
+                            "type": "array"
+                          },
+                          "channelKind": {
+                            "type": "string"
+                          },
+                          "config": {},
+                          "createdAt": {
+                            "format": "date-time",
+                            "type": "string",
+                            "x-native-type": "date"
+                          },
+                          "credentialsSecretId": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "deletedAt": {
+                            "anyOf": [
+                              {
+                                "format": "date-time",
+                                "type": "string",
+                                "x-native-type": "date"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "displayName": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "provider": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string"
+                          },
+                          "updatedAt": {
+                            "anyOf": [
+                              {
+                                "format": "date-time",
+                                "type": "string",
+                                "x-native-type": "date"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "workspaceId": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "workspaceId",
+                          "channelKind",
+                          "provider",
+                          "displayName",
+                          "status",
+                          "credentialsSecretId",
+                          "capabilities",
+                          "createdAt",
+                          "updatedAt",
+                          "deletedAt"
                         ],
                         "type": "object"
                       },

@@ -3,17 +3,15 @@ import { useQuery } from "@tanstack/react-query";
 import { $api } from "@/providers/api-provider";
 
 /**
- * Returns phone-number channel endpoints for a workspace.
- * Wraps `channels.list` — no dedicated phoneNumbers router exists as of S2-04.
- * Flag: DATA_MODEL.md §8 maps phone numbers to channel_endpoints; when a
- * dedicated `phoneNumbers` router lands (S3+), switch this wrapper.
+ * Returns telephony phone-number endpoints for a workspace.
+ * Wraps `channels.endpoints.listByKind({ kind: 'telephony' })` — the per-kind
+ * endpoint lookup landed in S3-01. The phone-numbers screen consumes the
+ * endpoint shape (identifier, attachedAgentId, metadata).
  */
-export function usePhoneNumbers(input: {
-  workspaceId: string;
-  cursor?: string | null;
-  limit?: number;
-}) {
+export function usePhoneNumbers(input: { workspaceId: string }) {
   return useQuery({
-    ...$api.channels.list.queryOptions({ input }),
+    ...$api.channels.endpoints.listByKind.queryOptions({
+      input: { workspaceId: input.workspaceId, kind: "telephony" },
+    }),
   });
 }

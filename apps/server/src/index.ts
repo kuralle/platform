@@ -4,6 +4,7 @@ import { createAuth } from "@kuralle/auth";
 import { createDb } from "@kuralle/db";
 import { env } from "@kuralle/env/server";
 import { MemoryKvStore } from "@kuralle/platform/memory";
+import { getEnv } from "./env.js";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { OpenAPIReferencePlugin } from "@orpc/openapi/plugins";
 import { onError } from "@orpc/server";
@@ -53,7 +54,7 @@ export const rpcHandler = new RPCHandler(appRouter, {
 });
 
 app.use("/*", async (c, next) => {
-  const context = await createContext({ context: c, db, kvStore });
+  const context = await createContext({ context: c, db, kvStore, env: getEnv() });
 
   const rpcResult = await rpcHandler.handle(c.req.raw, {
     prefix: "/rpc",

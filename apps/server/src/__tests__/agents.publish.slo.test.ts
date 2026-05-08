@@ -181,7 +181,20 @@ describe("agents.publish SLO", () => {
     // 'slo_violation', so no schema mutation is needed here. Older S2-05
     // versions of this test dropped/re-added the constraint per beforeEach;
     // that hack is gone.
-    ctx = { auth: null, session: null, db, kvStore };
+    ctx = {
+      auth: null,
+      session: null,
+      db,
+      kvStore,
+      env: {
+        META_APP_ID: "",
+        META_APP_SECRET: "",
+        META_SYSTEM_USER_TOKEN: "",
+        META_VERIFY_TOKEN: "",
+        META_PHONE_NUMBER_ID: "",
+        PUBLIC_BASE_URL: "http://localhost:3000",
+      },
+    };
     vi.restoreAllMocks();
   });
 

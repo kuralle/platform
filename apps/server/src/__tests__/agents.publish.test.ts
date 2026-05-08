@@ -158,6 +158,14 @@ describe("agents router round-trip", () => {
       session: null,
       db,
       kvStore,
+      env: {
+        META_APP_ID: "",
+        META_APP_SECRET: "",
+        META_SYSTEM_USER_TOKEN: "",
+        META_VERIFY_TOKEN: "",
+        META_PHONE_NUMBER_ID: "",
+        PUBLIC_BASE_URL: "http://localhost:3000",
+      },
     };
   });
 

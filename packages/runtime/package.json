@@ -11,8 +11,12 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@ariaflowagents/core": "1.0.0",
+    "@ariaflowagents/messaging": "1.0.0",
+    "@ariaflowagents/messaging-meta": "1.0.0",
     "@kuralle/db": "workspace:*",
     "@kuralle/core": "workspace:*",
+    "@kuralle/platform": "workspace:*",
     "drizzle-orm": "catalog:",
     "zod": "catalog:"
   },

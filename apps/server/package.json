@@ -10,6 +10,9 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@ariaflowagents/core": "1.0.0",
+    "@ariaflowagents/messaging": "1.0.0",
+    "@ariaflowagents/messaging-meta": "1.0.0",
     "@kuralle/api": "workspace:*",
     "@kuralle/auth": "workspace:*",
     "@kuralle/db": "workspace:*",
@@ -32,6 +35,7 @@
     "@types/node": "catalog:",
     "@types/pg": "^8.11.11",
     "alchemy": "catalog:",
+    "drizzle-orm": "catalog:",
     "pg": "catalog:",
     "tsdown": "^0.21.9",
     "typescript": "catalog:",

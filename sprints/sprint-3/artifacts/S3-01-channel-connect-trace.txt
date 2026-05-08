@@ -1,0 +1,20 @@
+server test: 
+server test:  RUN  v4.1.5 /Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/apps/server
+server test: 
+server test:  ✓ dist/src/__tests__/channels.connect.test.js > channels router round-trip > connect inserts secret + connection rows and returns available numbers 81ms
+server test:  ✓ dist/src/__tests__/channels.connect.test.js > channels router round-trip > attach inserts endpoint and calls subscribeApp with the right webhook URL 63ms
+server test:  ✓ dist/src/__tests__/channels.connect.test.js > channels router round-trip > detach soft-deletes endpoint, calls unsubscribeApp, and is idempotent 62ms
+server test:  ✓ dist/src/__tests__/channels.connect.test.js > channels router round-trip > polymorphic CHECK trigger rejects mismatched channel_kind on endpoint insert 69ms
+server test:  ✓ dist/src/__tests__/channels.connect.test.js > channels router round-trip > endpoints.listByKind returns endpoints filtered by kind 70ms
+server test:  ✓ src/__tests__/channels.connect.test.ts > channels router round-trip > connect inserts secret + connection rows and returns available numbers 82ms
+server test:  ✓ src/__tests__/channels.connect.test.ts > channels router round-trip > attach inserts endpoint and calls subscribeApp with the right webhook URL 54ms
+server test:  ✓ src/__tests__/channels.connect.test.ts > channels router round-trip > detach soft-deletes endpoint, calls unsubscribeApp, and is idempotent 67ms
+server test:  ✓ src/__tests__/channels.connect.test.ts > channels router round-trip > polymorphic CHECK trigger rejects mismatched channel_kind on endpoint insert 67ms
+server test:  ✓ src/__tests__/channels.connect.test.ts > channels router round-trip > endpoints.listByKind returns endpoints filtered by kind 68ms
+server test: 
+server test:  Test Files  2 passed (2)
+server test:       Tests  10 passed (10)
+server test:    Start at  11:26:32
+server test:    Duration  1.88s (transform 224ms, setup 0ms, import 891ms, tests 791ms, environment 0ms)
+server test: 
+server test: Exited with code 0

@@ -22,9 +22,9 @@ describe("useTelephony", () => {
 
   it("returns empty items list on happy path", async () => {
     server.use(
-      http.post(`${BASE_URL}/channels/list`, () =>
+      http.post(`${BASE_URL}/channels/endpoints/listByKind`, () =>
         HttpResponse.json({
-          json: { items: [], cursor: null },
+          json: { items: [] },
         }),
       ),
     );
@@ -38,12 +38,11 @@ describe("useTelephony", () => {
       expect(result.current.isSuccess).toBe(true);
     });
     expect(result.current.data?.items).toEqual([]);
-    expect(result.current.data?.cursor).toBeNull();
   });
 
   it("surfaces error on server failure", async () => {
     server.use(
-      http.post(`${BASE_URL}/channels/list`, () =>
+      http.post(`${BASE_URL}/channels/endpoints/listByKind`, () =>
         new HttpResponse(null, { status: 500 }),
       ),
     );
