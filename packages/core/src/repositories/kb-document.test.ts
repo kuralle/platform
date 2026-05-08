@@ -62,6 +62,21 @@ describe("KbDocumentRepository", () => {
     });
   });
 
+  describe("findByWorkspace", () => {
+    it("paginates with cursor", async () => {
+      await repo.insert({ id: "kb_p1", name: "p1", source: "file", sizeBytes: 1 });
+      await repo.insert({ id: "kb_p2", name: "p2", source: "file", sizeBytes: 1 });
+      const first = await repo.findByWorkspace({ limit: 1 });
+      expect(first.items).toHaveLength(1);
+      expect(first.cursor).not.toBeNull();
+      const second = await repo.findByWorkspace({
+        cursor: first.cursor,
+        limit: 10,
+      });
+      expect(second.items.length).toBeGreaterThanOrEqual(1);
+    });
+  });
+
   describe("insert", () => {
     it("inserts with default status indexing", async () => {
       const doc = await repo.insert({

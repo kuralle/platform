@@ -192,7 +192,8 @@ export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   accounts: many(account),
   organizations: many(organization),
-  members: many(member),
+  members: many(member, { relationName: "memberUser" }),
+  membersInvited: many(member, { relationName: "memberInvitedBy" }),
   invitations: many(invitation),
 }));
 
@@ -222,21 +223,17 @@ export const organizationRelations = relations(
   }),
 );
 
-export const memberUserIdRelations = relations(member, ({ one }) => ({
+export const memberRelations = relations(member, ({ one }) => ({
   user: one(user, {
     fields: [member.userId],
     references: [user.id],
+    relationName: "memberUser",
   }),
-}));
-
-export const memberInvitedByRelations = relations(member, ({ one }) => ({
-  user: one(user, {
+  invitedByUser: one(user, {
     fields: [member.invitedBy],
     references: [user.id],
+    relationName: "memberInvitedBy",
   }),
-}));
-
-export const memberRelations = relations(member, ({ one }) => ({
   organization: one(organization, {
     fields: [member.organizationId],
     references: [organization.id],

@@ -104,6 +104,13 @@
       "when": 1778256000001,
       "tag": "0014_s3_04_conversation_turns_message_id_uidx",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1778342400001,
+      "tag": "0015_w1_widget_onboarding",
+      "breakpoints": true
     }
   ]
 }

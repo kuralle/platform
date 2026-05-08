@@ -20,3 +20,31 @@ export const monthlyReceiptSchema = z
     pdfStorageKey: z.string().nullable(),
   })
   .strict();
+
+const usageBreakdownRowSchema = z
+  .object({
+    kind: z.string(),
+    count: z.number().int(),
+    totalCostUsd: z.number(),
+  })
+  .strict();
+
+const usageByAgentRowSchema = z
+  .object({
+    agentId: z.string(),
+    count: z.number().int(),
+    totalCostUsd: z.number(),
+  })
+  .strict();
+
+export const monthlyUsageReportSchema = z
+  .object({
+    workspaceId: z.string(),
+    year: z.number().int(),
+    month: z.number().int().min(1).max(12),
+    totalCalls: z.number().int(),
+    totalCostUsd: z.number(),
+    byKind: z.array(usageBreakdownRowSchema),
+    byAgent: z.array(usageByAgentRowSchema),
+  })
+  .strict();

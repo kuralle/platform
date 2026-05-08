@@ -33,6 +33,7 @@ export async function createContext({ context, db, kvStore, env }: CreateContext
     db,
     kvStore,
     env,
+    requestHeaders: context.req.raw.headers,
   };
 }
 

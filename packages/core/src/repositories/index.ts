@@ -6,6 +6,11 @@ import { KbDocumentRepository } from "./kb-document.js";
 import { ToolRepository } from "./tool.js";
 import { ChannelRepository } from "./channel.js";
 import { ConversationRepository } from "./conversation.js";
+import { BatchRepository } from "./batch.js";
+import { ComplianceRepository } from "./compliance.js";
+import { UsageRepository } from "./usage.js";
+import { WidgetRepository } from "./widget.js";
+import { OnboardingRepository } from "./onboarding.js";
 
 export { type RepoDb } from "./types.js";
 
@@ -21,5 +26,10 @@ export function withWorkspace(
     tools: new ToolRepository(db, workspaceId, kvStore),
     channels: new ChannelRepository(db, workspaceId, kvStore),
     conversations: new ConversationRepository(db, workspaceId, kvStore),
+    batches: new BatchRepository(db, workspaceId),
+    compliance: new ComplianceRepository(db, workspaceId),
+    usage: new UsageRepository(db, workspaceId),
+    widget: new WidgetRepository(db, workspaceId),
+    onboarding: new OnboardingRepository(db, workspaceId),
   };
 }

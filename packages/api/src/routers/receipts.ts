@@ -1,23 +1,38 @@
 import { z } from "zod";
-import { monthlyReceiptSchema } from "./receipts.schemas";
+import { withWorkspace } from "@kuralle/core";
+import { monthlyUsageReportSchema } from "./receipts.schemas";
 import { protectedProcedure } from "../index";
+import { assertWorkspaceMember } from "../workspace-access";
 
-const listInput = z.object({
+const getMonthlyInput = z.object({
   workspaceId: z.string(),
-  cursor: z.string().nullable().optional(),
-  limit: z.number().int().min(1).max(100).default(20),
+  year: z.number().int(),
+  month: z.number().int().min(1).max(12),
 });
 
-const listOutput = z.object({
-  items: z.array(monthlyReceiptSchema),
-  cursor: z.string().nullable(),
-}).strict();
-
 export const receiptsRouter = {
-  list: protectedProcedure
-    .input(listInput)
-    .output(listOutput)
-    .handler(async () => {
-      return { items: [], cursor: null };
+  getMonthly: protectedProcedure
+    .input(getMonthlyInput)
+    .output(monthlyUsageReportSchema)
+    .handler(async ({ input, context }) => {
+      await assertWorkspaceMember(context, input.workspaceId);
+      const repos = withWorkspace(
+        context.db,
+        input.workspaceId,
+        context.kvStore,
+      );
+      const report = await repos.usage.getMonthlyUsageReport({
+        year: input.year,
+        month: input.month,
+      });
+      return {
+        workspaceId: input.workspaceId,
+        year: input.year,
+        month: input.month,
+        totalCalls: report.totalCallsCount,
+        totalCostUsd: report.totalCostUsd,
+        byKind: report.byKind,
+        byAgent: report.byAgent,
+      };
     }),
 };

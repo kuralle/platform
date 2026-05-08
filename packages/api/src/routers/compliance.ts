@@ -1,23 +1,69 @@
 import { z } from "zod";
-import { complianceEvaluationSchema } from "./compliance.schemas";
+import { withWorkspace } from "@kuralle/core";
+import { compliancePostureSchema } from "./compliance.schemas";
 import { protectedProcedure } from "../index";
+import { assertWorkspaceMember } from "../workspace-access";
 
-const listInput = z.object({
+const workspaceIdInput = z.object({
   workspaceId: z.string(),
-  cursor: z.string().nullable().optional(),
-  limit: z.number().int().min(1).max(100).default(20),
 });
 
-const listOutput = z.object({
-  items: z.array(complianceEvaluationSchema),
-  cursor: z.string().nullable(),
-}).strict();
+const updateInput = workspaceIdInput.extend({
+  hipaa: z.string().nullable().optional(),
+  ferpa: z.string().nullable().optional(),
+  tcpa: z.string().nullable().optional(),
+  euAiAct: z.string().nullable().optional(),
+  details: z.unknown().optional(),
+});
 
 export const complianceRouter = {
-  list: protectedProcedure
-    .input(listInput)
-    .output(listOutput)
-    .handler(async () => {
-      return { items: [], cursor: null };
+  getPosture: protectedProcedure
+    .input(workspaceIdInput)
+    .output(compliancePostureSchema)
+    .handler(async ({ input, context }) => {
+      await assertWorkspaceMember(context, input.workspaceId);
+      const repos = withWorkspace(
+        context.db,
+        input.workspaceId,
+        context.kvStore,
+      );
+      const row = await repos.compliance.getPosture();
+      return {
+        workspaceId: input.workspaceId,
+        hipaa: row?.hipaa ?? null,
+        ferpa: row?.ferpa ?? null,
+        tcpa: row?.tcpa ?? null,
+        euAiAct: row?.euAiAct ?? null,
+        evaluatedAt: row?.evaluatedAt ?? null,
+        details: row?.details ?? null,
+      };
+    }),
+
+  updatePosture: protectedProcedure
+    .input(updateInput)
+    .output(compliancePostureSchema)
+    .handler(async ({ input, context }) => {
+      await assertWorkspaceMember(context, input.workspaceId);
+      const repos = withWorkspace(
+        context.db,
+        input.workspaceId,
+        context.kvStore,
+      );
+      const row = await repos.compliance.upsertPosture({
+        hipaa: input.hipaa,
+        ferpa: input.ferpa,
+        tcpa: input.tcpa,
+        euAiAct: input.euAiAct,
+        details: input.details,
+      });
+      return {
+        workspaceId: row.workspaceId,
+        hipaa: row.hipaa,
+        ferpa: row.ferpa,
+        tcpa: row.tcpa,
+        euAiAct: row.euAiAct,
+        evaluatedAt: row.evaluatedAt,
+        details: row.details,
+      };
     }),
 };

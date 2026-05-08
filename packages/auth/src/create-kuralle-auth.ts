@@ -74,14 +74,11 @@ const organizationPluginOptions = {
     },
     member: {
       additionalFields: {
+        // No `references` here: the Drizzle column still has an FK, but better-auth's
+        // adapter errors when member has two declared refs from userId and invitedBy.
         invitedBy: {
           type: "string",
           required: false,
-          references: {
-            model: "user",
-            field: "id",
-            onDelete: "set null",
-          },
         },
         lastActiveAt: {
           type: "date",

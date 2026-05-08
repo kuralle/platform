@@ -33,6 +33,11 @@ export type {
   ConversationUpdate,
   MessagingThreadRecord,
 } from "./repositories/conversation.js";
-export { AppendOnlyViolation, WorkspaceScopeViolation } from "./errors.js";
+export {
+  AppendOnlyViolation,
+  WorkspaceScopeViolation,
+  WorkspaceAccessDeniedError,
+} from "./errors.js";
+export { requireWorkspaceMembership } from "./auth-guard.js";
 export { agentIRSchema } from "./schemas/agent-ir.js";
 export type { AgentIR } from "./schemas/agent-ir.js";

@@ -35,7 +35,26 @@ const DOMAIN_TABLES = [
   "kb_chunks",
   "kb_documents",
   "tool_catalog_providers",
+  "batch_recipients",
+  "batches",
+  "usage_events",
+  "workspace_compliance_posture",
+  "monthly_receipts",
+  "member",
 ] as const;
+
+/** Introduced in migration 0015 — may be absent until `db:migrate` runs on the test DB. */
+const OPTIONAL_DOMAIN_TABLES = ["widget_configs", "onboarding_states"] as const;
+
+async function truncateTableIfExists(client: PoolClient, table: string): Promise<void> {
+  try {
+    await client.query(`TRUNCATE TABLE ${table} CASCADE`);
+  } catch (e: unknown) {
+    const code = (e as { code?: string }).code;
+    if (code === "42P01") return;
+    throw e;
+  }
+}
 
 export async function createTestDb(): Promise<{ db: TestDb; client: PoolClient }> {
   const client = await pool.connect();
@@ -51,6 +70,9 @@ export async function resetSchema(client: PoolClient, workspaceId: string): Prom
   // TRUNCATE is intentionally raw SQL — Drizzle has no first-class equivalent
   // and we need CASCADE to clear FK-linked rows in one statement.
   await client.query(`TRUNCATE TABLE ${DOMAIN_TABLES.join(", ")} CASCADE`);
+  for (const t of OPTIONAL_DOMAIN_TABLES) {
+    await truncateTableIfExists(client, t);
+  }
 
   // Org fixture insert via the typed Drizzle builder. Tests that need a
   // bespoke workspace shape can call `seedWorkspace(db, { ... })` directly.
@@ -106,4 +128,32 @@ export async function seedWorkspace(
 
 export async function closePool(): Promise<void> {
   await pool.end();
+}
+
+export async function seedWorkspaceMember(
+  db: TestDb,
+  opts: { workspaceId: string; userId: string; email: string },
+): Promise<void> {
+  await db
+    .insert(schema.user)
+    .values({
+      id: opts.userId,
+      name: "Test User",
+      email: opts.email,
+      emailVerified: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .onConflictDoNothing();
+
+  await db
+    .insert(schema.member)
+    .values({
+      id: `m_${opts.userId}_${opts.workspaceId}`,
+      organizationId: opts.workspaceId,
+      userId: opts.userId,
+      role: "owner",
+      createdAt: new Date(),
+    })
+    .onConflictDoNothing();
 }

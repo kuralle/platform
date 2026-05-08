@@ -1,4 +1,4 @@
-import { and, eq, isNull, desc } from "drizzle-orm";
+import { and, eq, isNull, desc, sql } from "drizzle-orm";
 import type { RepoDb } from "./types.js";
 import * as schema from "@kuralle/db/schema";
 import type { KvStore } from "@kuralle/platform/interface";
@@ -113,6 +113,37 @@ function chunkCacheKey(workspaceId: string, id: string): string {
   return `repo:kb_chunk:${workspaceId}:${id}`;
 }
 
+interface KeysetCursor {
+  u: string;
+  i: string;
+}
+
+function encodeCursor(c: KeysetCursor): string {
+  return Buffer.from(JSON.stringify(c), "utf8").toString("base64url");
+}
+
+function decodeCursor(raw: string | null | undefined): KeysetCursor | null {
+  if (!raw) return null;
+  try {
+    const parsed: unknown = JSON.parse(
+      Buffer.from(raw, "base64url").toString("utf8"),
+    );
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      "u" in parsed &&
+      "i" in parsed &&
+      typeof (parsed as KeysetCursor).u === "string" &&
+      typeof (parsed as KeysetCursor).i === "string"
+    ) {
+      return parsed as KeysetCursor;
+    }
+  } catch {
+    // invalid cursor → first page
+  }
+  return null;
+}
+
 export class KbDocumentRepository {
   constructor(
     private readonly db: RepoDb,
@@ -147,20 +178,69 @@ export class KbDocumentRepository {
     cursor?: string;
     limit?: number;
   }): Promise<KbDocument[]> {
-    const limit = opts?.limit ?? 50;
+    const { items } = await this.findByWorkspace({
+      cursor: opts?.cursor ?? null,
+      limit: opts?.limit,
+    });
+    return items;
+  }
+
+  /**
+   * Keyset pagination on `(updatedAt DESC, id DESC)` (mirrors AgentRepository).
+   */
+  async findByWorkspace(opts: {
+    workspaceId?: string;
+    cursor?: string | null;
+    limit?: number;
+  }): Promise<{ items: KbDocument[]; cursor: string | null }> {
+    if (opts.workspaceId !== undefined && opts.workspaceId !== this.workspaceId) {
+      throw new WorkspaceScopeViolation(
+        "kb_document",
+        "*",
+        this.workspaceId,
+        opts.workspaceId,
+      );
+    }
+    const limit = opts.limit ?? 50;
+    const conditions = [
+      eq(schema.kbDocuments.workspaceId, this.workspaceId),
+      isNull(schema.kbDocuments.deletedAt),
+    ];
+
+    const decoded = decodeCursor(opts.cursor);
+    if (decoded) {
+      conditions.push(
+        sql`(${schema.kbDocuments.updatedAt}, ${schema.kbDocuments.id}) < (${decoded.u}, ${decoded.i})`,
+      );
+    }
+
     const rows = await this.db
       .select()
       .from(schema.kbDocuments)
-      .where(
-        and(
-          eq(schema.kbDocuments.workspaceId, this.workspaceId),
-          isNull(schema.kbDocuments.deletedAt),
-        ),
-      )
-      .orderBy(desc(schema.kbDocuments.updatedAt))
-      .limit(limit);
+      .where(and(...conditions))
+      .orderBy(desc(schema.kbDocuments.updatedAt), desc(schema.kbDocuments.id))
+      .limit(limit + 1);
 
-    return rows.map(toDomain);
+    const hasMore = rows.length > limit;
+    const page = hasMore ? rows.slice(0, limit) : rows;
+    const last = page[page.length - 1];
+    const cursor =
+      hasMore && last
+        ? encodeCursor({
+            u: (last.updatedAt ?? new Date()).toISOString(),
+            i: last.id,
+          })
+        : null;
+
+    return { items: page.map(toDomain), cursor };
+  }
+
+  async create(input: KbDocumentInsert): Promise<KbDocument> {
+    return this.insert(input);
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.softDelete(id);
   }
 
   async insert(input: KbDocumentInsert): Promise<KbDocument> {
@@ -179,6 +259,7 @@ export class KbDocumentRepository {
         status: input.status ?? "indexing",
         embeddingModel: input.embeddingModel ?? null,
         createdByUserId: input.createdByUserId ?? null,
+        updatedAt: new Date(),
       })
       .returning();
 

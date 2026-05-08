@@ -127,6 +127,7 @@ describe("channels router round-trip", () => {
         META_PHONE_NUMBER_ID: "111111",
         PUBLIC_BASE_URL: "http://localhost:3000",
       },
+      requestHeaders: new Headers(),
     };
   });
 

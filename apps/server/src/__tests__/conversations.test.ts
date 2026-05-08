@@ -66,6 +66,7 @@ describe("conversations router", () => {
         META_PHONE_NUMBER_ID: "",
         PUBLIC_BASE_URL: "http://localhost:3000",
       },
+      requestHeaders: new Headers(),
     };
   });
 

@@ -12,6 +12,9 @@ import { secretsRouter } from "./secrets";
 import { voicesRouter } from "./voices";
 import { complianceRouter } from "./compliance";
 import { receiptsRouter } from "./receipts";
+import { workspaceRouter } from "./workspace";
+import { widgetRouter } from "./widget";
+import { onboardingRouter } from "./onboarding";
 
 export const appRouter = {
   healthCheck: publicProcedure.handler(() => {
@@ -34,6 +37,9 @@ export const appRouter = {
   voices: voicesRouter,
   compliance: complianceRouter,
   receipts: receiptsRouter,
+  workspace: workspaceRouter,
+  widget: widgetRouter,
+  onboarding: onboardingRouter,
 };
 export type AppRouter = typeof appRouter;
 export type AppRouterClient = RouterClient<typeof appRouter>;

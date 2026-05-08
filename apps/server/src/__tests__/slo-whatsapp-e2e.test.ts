@@ -192,6 +192,7 @@ describe("S3-06 whatsapp inbound -> F2 visible projector-pipeline SLO", () => {
         META_PHONE_NUMBER_ID: "111111",
         PUBLIC_BASE_URL: "http://localhost:3000",
       },
+      requestHeaders: new Headers(),
     };
   });
 

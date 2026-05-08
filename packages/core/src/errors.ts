@@ -15,3 +15,11 @@ export class WorkspaceScopeViolation extends Error {
     );
   }
 }
+
+export class WorkspaceAccessDeniedError extends Error {
+  public readonly name = "WorkspaceAccessDeniedError";
+
+  constructor(message = "Caller is not a member of this workspace") {
+    super(message);
+  }
+}

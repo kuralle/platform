@@ -9,7 +9,9 @@
       "default": "./src/*.ts"
     }
   },
-  "scripts": {},
+  "scripts": {
+    "test": "vitest run"
+  },
   "dependencies": {
     "@kuralle/auth": "workspace:*",
     "@kuralle/core": "workspace:*",
@@ -27,7 +29,10 @@
   },
   "devDependencies": {
     "@kuralle/config": "workspace:*",
+    "@types/node": "catalog:",
     "hono": "catalog:",
-    "typescript": "catalog:"
+    "pg": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   }
 }

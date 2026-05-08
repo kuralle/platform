@@ -1,4 +1,4 @@
-import { beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { Hono } from "hono";
 import { MemoryKvStore } from "@kuralle/platform/memory";
 import { createTestDb, releaseTestDb, resetSchema, seedWorkspace } from "@kuralle/core/test-utils";

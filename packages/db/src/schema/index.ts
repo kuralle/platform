@@ -12,3 +12,5 @@ export * from "./audit";
 export * from "./billing";
 export * from "./compliance";
 export * from "./batches";
+export * from "./widget";
+export * from "./onboarding";
