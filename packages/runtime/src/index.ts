@@ -21,3 +21,9 @@ export type {
   VerifyHmacOpts,
 } from "./clients/index.js";
 export { mockMetaClient } from "./test-utils.js";
+export {
+  irToAgentConfig,
+  buildHarnessHooks,
+  messagingEventSchema,
+} from "./adapter/index.js";
+export type { AgentConfigOpts, HarnessHooksDeps, MessagingEvent } from "./adapter/index.js";

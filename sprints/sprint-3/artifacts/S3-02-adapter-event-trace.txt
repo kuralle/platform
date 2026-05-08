@@ -1,0 +1,51 @@
+@kuralle/runtime test:  ✓ src/projector/agent.test.ts > projectAgent > round-trip: AgentIR → snapshot + projection → reconstruct = structurally equal (50+ cases) 500ms
+@kuralle/runtime test:  ✓ src/projector/agent.test.ts > projectAgent > returns correct row counts for a representative IR 88ms
+@kuralle/runtime test:  ✓ src/projector/agent.test.ts > projectAgent > p95 latency ≤ 200 ms over 100 projections of representative IR 369ms
+@kuralle/runtime test:  ✓ src/projector/agent.test.ts > projectAgent > throws foreign_key_violation when agentVersionId does not exist 94ms
+@kuralle/runtime test:  ✓ src/projector/agent.test.ts > projectAgent > projection rows reference the correct agentVersionId 93ms
+@kuralle/runtime test:  ✓ src/projector/agent.test.ts > projectAgent > inserts in deterministic order (tool → kb → guardrail → eval → nodes → edges) 63ms
+@kuralle/runtime test:  ✓ src/adapter/hooks.test.ts > buildHarnessHooks > emits agent.start on onAgentStart 54ms
+@kuralle/runtime test:  ✓ src/adapter/hooks.test.ts > buildHarnessHooks > emits agent.end on onAgentEnd 52ms
+@kuralle/runtime test:  ✓ src/adapter/hooks.test.ts > buildHarnessHooks > emits step.start on onStepStart 51ms
+@kuralle/runtime test:  ✓ src/adapter/hooks.test.ts > buildHarnessHooks > emits step.end on onStepEnd 50ms
+@kuralle/runtime test:  ✓ src/adapter/hooks.test.ts > buildHarnessHooks > emits tool.call on onToolCall 52ms
+@kuralle/runtime test:  ✓ src/adapter/hooks.test.ts > buildHarnessHooks > emits tool.result (no extraction) on onToolResult 50ms
+@kuralle/runtime test:  ✓ src/adapter/hooks.test.ts > buildHarnessHooks > emits tool.result with extraction when __flow_transition is true 52ms
+@kuralle/runtime test:  ✓ src/adapter/hooks.test.ts > buildHarnessHooks > emits tokens.updated on onTokensUpdate 51ms
+@kuralle/runtime test:  ✓ src/adapter/hooks.test.ts > buildHarnessHooks > emits turn.end for assistant messages via onMessage 51ms
+@kuralle/runtime test:  ✓ src/adapter/hooks.test.ts > buildHarnessHooks > does NOT emit turn.end for user messages via onMessage 51ms
+@kuralle/runtime test:  ✓ src/adapter/hooks.test.ts > buildHarnessHooks > emits agent.end with success=false+error on onEnd failure 52ms
+@kuralle/runtime test:  ✓ src/adapter/hooks.test.ts > buildHarnessHooks > does NOT emit on onEnd when success is true 51ms
+@kuralle/runtime test:  ✓ src/adapter/hooks.test.ts > buildHarnessHooks > sequenceNumber is strictly increasing across hook calls 53ms
+@kuralle/runtime test:  ✓ src/adapter/hooks.test.ts > buildHarnessHooks > emits 22 events for the 3-turn fixture matching FINDINGS counts 53ms
+@kuralle/runtime test:  ✓ src/adapter/events.test.ts > messagingEventSchema > parses agent.start 2ms
+@kuralle/runtime test:  ✓ src/adapter/events.test.ts > messagingEventSchema > parses agent.end (success) 1ms
+@kuralle/runtime test:  ✓ src/adapter/events.test.ts > messagingEventSchema > parses agent.end (failure with error) 0ms
+@kuralle/runtime test:  ✓ src/adapter/events.test.ts > messagingEventSchema > parses step.start 0ms
+@kuralle/runtime test:  ✓ src/adapter/events.test.ts > messagingEventSchema > parses step.end 0ms
+@kuralle/runtime test:  ✓ src/adapter/events.test.ts > messagingEventSchema > parses tool.call 0ms
+@kuralle/runtime test:  ✓ src/adapter/events.test.ts > messagingEventSchema > parses tool.result (success, no extraction) 0ms
+@kuralle/runtime test:  ✓ src/adapter/events.test.ts > messagingEventSchema > parses tool.result with extraction payload (__flow_transition) 1ms
+@kuralle/runtime test:  ✓ src/adapter/events.test.ts > messagingEventSchema > parses tokens.updated with full FINDINGS shape 1ms
+@kuralle/runtime test:  ✓ src/adapter/events.test.ts > messagingEventSchema > parses turn.end (assistant) 0ms
+@kuralle/runtime test:  ✓ src/adapter/events.test.ts > messagingEventSchema > parses turn.end (caller) 0ms
+@kuralle/runtime test:  ✓ src/adapter/events.test.ts > messagingEventSchema > rejects unknown kind 0ms
+@kuralle/runtime test:  ✓ src/adapter/events.test.ts > messagingEventSchema > rejects missing required header field 'conversationId' 0ms
+@kuralle/runtime test:  ✓ src/adapter/events.test.ts > messagingEventSchema > rejects missing required payload field (agentId on agent.start) 0ms
+@kuralle/runtime test:  ✓ src/adapter/events.test.ts > messagingEventSchema > rejects extra fields on payload (.strict()) 0ms
+@kuralle/runtime test:  ✓ src/adapter/events.test.ts > messagingEventSchema > rejects tokens.updated missing required field inputTokens 0ms
+@kuralle/runtime test:  ✓ src/adapter/events.test.ts > messagingEventSchema > rejects turn.end with invalid speaker enum 0ms
+@kuralle/runtime test:  ✓ src/adapter/events.test.ts > messagingEventSchema > rejects step.end with negative tokensUsed 0ms
+@kuralle/runtime test:  ✓ src/adapter/agent-config.test.ts > irToAgentConfig > produces an AgentConfig from the Calderon dispatcher IR fixture 2ms
+@kuralle/runtime test:  ✓ src/adapter/agent-config.test.ts > irToAgentConfig > produces extraction config when requestContextSchema has entries 1ms
+@kuralle/runtime test:  ✓ src/adapter/agent-config.test.ts > irToAgentConfig > defaults maxTurns/maxSteps/toolMaxSteps when opts omit them 0ms
+@kuralle/runtime test:  ✓ src/adapter/agent-config.test.ts > irToAgentConfig > respects explicit maxTurns/maxSteps/toolMaxSteps from opts 0ms
+@kuralle/runtime test:  ✓ src/adapter/agent-config.test.ts > irToAgentConfig > skips disabled guardrail nodes 0ms
+@kuralle/runtime test:  ✓ src/clients/meta-whatsapp.test.ts > MetaWhatsAppClient > listPhoneNumbers > fetches phone numbers from Graph API 2ms
+@kuralle/runtime test:  ✓ src/clients/meta-whatsapp.test.ts > MetaWhatsAppClient > listPhoneNumbers > returns empty array when no phone numbers exist 0ms
+@kuralle/runtime test:  ✓ src/clients/meta-whatsapp.test.ts > MetaWhatsAppClient > subscribeApp > posts to subscribed_apps 0ms
+@kuralle/runtime test:  ✓ src/clients/meta-whatsapp.test.ts > MetaWhatsAppClient > unsubscribeApp > posts with DELETE method override 0ms
+@kuralle/runtime test:  ✓ src/clients/meta-whatsapp.test.ts > MetaWhatsAppClient > verifyHmac > delegates to verifySignature 1ms
+@kuralle/runtime test:  ✓ src/clients/meta-whatsapp.test.ts > MetaWhatsAppClient > verifyHmac > returns false for invalid signature 0ms
+@kuralle/runtime test:  Test Files  5 passed (5)
+@kuralle/runtime test:       Tests  49 passed (49)
