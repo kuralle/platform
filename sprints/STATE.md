@@ -6,40 +6,40 @@
 
 ## Active sprint
 
-**Sprint number:** `3`
-**Sprint name:** First channel + first conversation
+**Sprint number:** `4`
+**Sprint name:** Voice + supervisor
 **Status:** `not-started`
-**Goal:** A real WhatsApp inbound message is received, routed by E.164 to a workspace+agent, processed by an AriaFlow-backed MessagingDO via the runtime adapter, and persisted via Cloudflare Queue → projector worker into `conversations` + `conversation_turns` + `usage_events`; F1 list and F2 detail render the live conversation through generated hooks.
-**WBS section:** [`sprints/WBS.md` § Sprint 3](./WBS.md)
+**Goal:** Owner-Operator dials their assigned Twilio number, the agent answers within 3 s cold or 600 ms warm, transcript streams into F3 with ≤ 1.5 s lag (USER_JOURNEYS §2 SLO #3), and the full 5-min-to-first-call promise (SLO #1) holds end-to-end through a recorded demo.
+**WBS section:** [`sprints/WBS.md` § Sprint 4](./WBS.md)
 
-## Load-bearing reading for sprint 3
+## Load-bearing reading for sprint 4
 
-The session running sprint 3 must read these in this order before delegating any story:
+The session running sprint 4 must read these in this order before delegating any story:
 
-1. `sprints/WBS.md` § Sprint 3 (S3-01 .. S3-06) — full read; this is the plan.
+1. `sprints/WBS.md` § Sprint 4 (S4-01 .. S4-05) — full read; this is the plan.
 2. `sprints/SESSION_KICKOFF_PROMPT.md` — the loop you are running.
-3. `sprints/sprint-2/HANDOFF.md` — read-me-first; one page; the carry-overs and traps.
-4. `sprints/sprint-2/WARMDOWN.md` — depth on what's working / not / decisions / metrics. Especially §4 (known issues), §5 (decisions made — three RFC amendments), §8 (backlog updates), §9 (retrospective + try-next).
-5. `sprints/AMENDMENT-001.md` (frontend client) and `sprints/AMENDMENT-002.md` (apikey divergence) — both still in flight.
-6. `sprints/AMENDMENT-003.md` (scorer per-criterion fields), `AMENDMENT-004.md` (workflow top-level key), `AMENDMENT-005.md` (`usage_events.payload jsonb` + `'slo_violation'` kind) — three amendments ratified in S2; AMENDMENT-005 is load-bearing for any S3 telemetry that writes `usage_events`.
-7. **`DATA_MODEL.md §8`** — channels (S3-01 builds Meta WhatsApp connector wizard; the polymorphic CHECK trigger on `channel_endpoints.channelKind ↔ channel_connections.channelKind` is in §15).
-8. **`DATA_MODEL.md §9`** — conversations + voice_calls + messaging_threads + conversation_turns (with `messageId` dedup unique index) + runtime_sessions + session_checkpoints + runtime_deployments. The conversation graph S3-04 lands.
-9. `DATA_MODEL.md §13` — `usage_events` (post-AMENDMENT-005). S3 projector writes billing kinds; `payload` left NULL for those.
-10. **`DATA_MODEL.md §14`** — sink architecture: 16 sharded Cloudflare Queues, projector worker draining them. S3-04 ships this.
-11. `DATA_MODEL.md §15` — append-only enforcement scope. The DB trigger applies ONLY to `agent_versions`. Don't add UPDATE-blocking triggers to `conversation_turns`.
-12. `HEXAGONAL_ARCHITECTURE.md §1` — Anti-Corruption Layer; `runtime/adapter/` is reserved for the AriaFlow translation. S3-02 lands `AgentIR` → `AriaFlow.AgentConfig` mapping.
-13. `INTERFACE_DESIGNS_RuntimeHost.md §5` (synthesis chosen for `RuntimeHost`); §C (DO hibernation contract). S3 ships the messaging half (`MessagingRuntimeHost`); voice is S4.
-14. `USER_JOURNEYS.md §5 (3b)` (M5 connector wizard for WhatsApp) + `§9b` (the WhatsApp messager journey).
-15. `scripts/sink-spike/FINDINGS.md` — empirical AriaFlow event volumes (~7 events/turn at message mode; ~9 hooks/turn). The S3-02 adapter pins to these.
-16. `packages/core/src/repositories/conversation.ts` — read-only repository today; S3-04 expands it with the projector wiring. **The publish path in `packages/core/src/repositories/agent.ts:170-225` is the blueprint for the conversations projector**: open tx → insert → project → swap → commit → fire-and-forget cache invalidate.
-17. `packages/runtime/src/projector/agent.ts` — current synchronous projector pattern; S3 builds an analogous `conversation` projector with idempotent `messageId` dedup.
-18. `packages/runtime/src/instrumentation/slo.ts` — `recordSloViolation` + named threshold constants. S3 may instrument additional SLOs (queue backlog, projector lag).
-19. `apps/server/openapi.json` — current canonical contract (17 ops); S3-01 grows it with channel procedures; S3-05 with conversation hooks.
-20. `apps/web/src/hooks/api/conversations.ts` — currently `useConversations` query. S3-05 extends with `useConversation`, `useConversationLive` (streaming or polling fallback per `USER_JOURNEYS.md §6`).
+3. `sprints/sprint-3/HANDOFF.md` — read-me-first; one page; the carry-overs and traps. Especially BL-S3-01 (production `loadAgentIr` deps maps directly to S4-01 design).
+4. `sprints/sprint-3/WARMDOWN.md` — depth on what's working / not / decisions / metrics. Especially §4 (KI-3-01 onChatMessage gap maps to BL-S3-01), §6 (metrics), §7 (backlog BL-S3-01..05), §8 (retrospective; especially try-next about pre-flighting workerd tests for DO code).
+5. `sprints/AMENDMENT-001.md` (frontend client = `@orpc/tanstack-query`) and `sprints/AMENDMENT-002.md` (apikey divergence) — still in flight.
+6. `sprints/AMENDMENT-003.md` (scorer per-criterion fields), `AMENDMENT-004.md` (workflow top-level key), `AMENDMENT-005.md` (`usage_events.payload jsonb` + `'slo_violation'` kind) — load-bearing for S4-05 load test telemetry.
+7. **`INTERFACE_DESIGNS_RuntimeHost.md §5`** — synthesis chosen for `RuntimeHost`; **S4 ships the voice half (`VoiceRuntimeHost`)** mirroring the messaging-half pattern from S3-03. **§C** — DO hibernation contract; same shape applies to `WorkspaceVoiceDO`.
+8. **`USER_JOURNEYS.md §3`** — Journey 1 (the 5-min first-call promise; SLO #1). **`§9a`** — voice caller experience. **`§10b`** — cold-start mechanics + pre-warm cron.
+9. `USER_JOURNEYS.md §6` — Journey 4 + F3 supervisor. F3 wiring lands in S4-03.
+10. `USER_JOURNEYS.md §2` — SLOs #1 (5-min first-call) and #3 (≤ 1.5 s F3 lag). Both gated by S4 stories.
+11. `DATA_MODEL.md §9` — `runtime_deployments` lifecycle (`provisioning → ready → draining → terminated`), `voice_calls` sidecar, `session_checkpoints`. S4-01 lands the runtime_deployments lifecycle DO management.
+12. `HEXAGONAL_ARCHITECTURE.md §2.8` — `LlmGateway` per-workspace routing via Cloudflare AI Gateway. S4-02 wires this.
+13. `scripts/sink-spike/FINDINGS.md` — voice extrapolation (~200-400 events per call at `eventMode='message'`; ~600 events/s/workspace at peak 40-concurrent target). S4-05 load test pins to these.
+14. **`apps/server/src/durable-objects/MessagingDO.ts`** — read FULLY (post-`[S3-fix-2]` state). The `WorkspaceVoiceDO` mirrors the same `AriaFlowAgent` subclass + dep-injection (`__messagingDODeps`) + `state.blockConcurrencyWhile`-gated DB restore + `onChatMessage` invocation discipline. `processInbound` lines 172-198 are the reusable pattern for triggering the agent loop from a non-WebSocket event.
+15. **`apps/server/src/__tests__/slo-do-real-loop.test.ts`** + **`apps/server/vitest.slo.do.config.ts`** — workerd-backed test pattern via `@cloudflare/vitest-pool-workers@0.16.3`. **S4-01 must use this from day one** — do not wait for a kimi gate to discover plain Node vitest can't load CF-runtime types.
+16. `apps/server/wrangler.jsonc` — `new_sqlite_classes` migration pattern (changed from `new_classes` in `[S3-fix]`). S4's `WorkspaceVoiceDO` will follow the same pattern if it extends an `AIChatAgent` base.
+17. `packages/runtime/src/adapter/hooks.ts` + `events.ts` — the AriaFlow adapter with turnId-threading. S4 voice events likely reuse the same `MessagingEvent` discriminated union; if voice needs additional variants (e.g., `audio.tap`, `barge.in`), extend the schema rather than duplicating.
+18. `packages/runtime/src/projector/conversation.ts` — `ensureTurnRow` + turnId-keyed associations. Voice-side projection of `voice_calls` mirrors this pattern.
+19. `packages/runtime/src/instrumentation/slo.ts` — existing `SLO_PUBLISH_*`, `SLO_PROJECTOR_LAG_*`, `SLO_WHATSAPP_E2E_*`. S4 adds `SLO_VOICE_FIRST_CALL_*` (5-min target) and `SLO_F3_LAG_*` (≤1.5s target).
+20. `apps/server/openapi.json` — current canonical contract (23 ops post-S3); S4-02 grows it with Twilio webhook procedure(s); S4-03 with supervisor procedures.
 
 ## Last completed sprint
 
-`2` — Editor IR pipeline.
+`3` — First channel + first conversation.
 
 ## Last completed at
 
@@ -52,7 +52,8 @@ The session running sprint 3 must read these in this order before delegating any
 | 0 | complete | 2026-05-07 | [`sprint-0/WARMDOWN.md`](./sprint-0/WARMDOWN.md) |
 | 1 | complete | 2026-05-07 | [`sprint-1/WARMDOWN.md`](./sprint-1/WARMDOWN.md) |
 | 2 | complete | 2026-05-08 | [`sprint-2/WARMDOWN.md`](./sprint-2/WARMDOWN.md) |
-| 3 | not-started | — | — |
+| 3 | complete | 2026-05-08 | [`sprint-3/WARMDOWN.md`](./sprint-3/WARMDOWN.md) |
+| 4 | not-started | — | — |
 
 When a sprint completes, append a row here from `WARMDOWN.md`.
 
@@ -73,6 +74,11 @@ When a sprint completes, append a row here from `WARMDOWN.md`.
 - **BL-S2-MUTATION-INVALIDATE-COVERAGE:** `useAgentPublish` invalidates `agents.list` queries; not `agents.get/history`. Hook-level invalidation needs a sweep. Earliest landing: future UX-polish sprint.
 - **BL-S2-FORBIDDEN-MOCK-IGNORE-EXPIRY:** the 8 deferred screens in `eslint.config.mjs:75-87` `ignores` array have no expiry enforcement. Source: codex r2 nit. Earliest landing: a future ops/discipline sprint.
 - **BL-S2-RAW-SQL-FIXTURE-CLEANUP:** runtime test setup uses raw `client.query("INSERT INTO agents/tools/kb_documents ...")` for fixture inserts. `test-utils.ts` is converted; runtime tests defer for volume. Source: manager finding (user-flagged). Earliest landing: any sprint with test-quality scope.
+- **BL-S3-01:** wire production-grade `loadAgentIr` + `resolveModel` deps so `MessagingDO.processInbound` generates assistant turns from inbound webhook events. (Currently caller turn only.) Maps directly to S4-01 — voice runtime owns the broader runtime-invocation question. Source: `sprints/sprint-3/WARMDOWN.md §4 KI-3-01`.
+- **BL-S3-02:** workspace `bun run check-types --force` RC investigation. Suspected `@ariaflowagents/cf-agent` deep type chain × drizzle partial-index inference. Mitigated by per-package memory rule. Earliest landing: standalone spike before S5.
+- **BL-S3-03:** `packages/platform/src/node/message-queue.test.ts` ioredis-mock integration OR drop the dep. Earliest landing: any sprint with platform polish.
+- **BL-S3-04:** extract `RuntimeTx` driver union (currently imports both `drizzle-orm/neon-http` and `drizzle-orm/node-postgres` directly in `packages/runtime/src/projector/conversation.ts`) to a shared internal types file. Earliest landing: any sprint with runtime polish.
+- **BL-S3-05:** extend `slo-do-real-loop.test.ts` to 10-trial p95 once `onChatMessage` invocation is wired with deterministic test model + agent IR. Follow-up to BL-S3-01.
 
 ## Open RFC amendments
 
