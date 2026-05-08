@@ -21,21 +21,38 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { useBatches } from "@/hooks/api/batches";
+import { useActiveWorkspaceId } from "@/contexts/workspace";
 import { formatPct, formatUsd } from "@/lib/format";
-import { makeBatches } from "@/mocks";
-import type { Batch } from "@/types/domain";
 
 export const Route = createFileRoute("/_app/batches/")({
   component: BatchesListRoute,
 });
 
+interface BatchRow {
+  id: string;
+  name: string;
+  agentId: string | null;
+  channelKind: string;
+  vertical: string;
+  status: string;
+  totalRecipients: number;
+  completed: number | null;
+  booked: number | null;
+  failed: number | null;
+  costUsd: number | null;
+  recoveredRevenueUsd: number | null;
+}
+
 function BatchesListRoute() {
-  const data = useMemo(() => makeBatches(6), []);
+  const workspaceId = useActiveWorkspaceId();
+  const { data, isLoading } = useBatches({ workspaceId });
+  const batches = useMemo(() => (data?.items ?? []) as unknown as BatchRow[], [data?.items]);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
-  const columns = useMemo<ColumnDef<Batch>[]>(() => [
+  const columns = useMemo<ColumnDef<BatchRow>[]>(() => [
     {
       id: "pie",
       header: "",
@@ -44,9 +61,9 @@ function BatchesListRoute() {
       cell: ({ row }) => (
         <StatusPie
           total={row.original.totalRecipients}
-          completed={row.original.completed}
-          booked={row.original.booked}
-          failed={row.original.failed}
+          completed={row.original.completed ?? 0}
+          booked={row.original.booked ?? 0}
+          failed={row.original.failed ?? 0}
         />
       ),
     },
@@ -70,9 +87,9 @@ function BatchesListRoute() {
       ),
     },
     {
-      accessorKey: "agentName",
-      header: "Agent",
-      cell: ({ row }) => <span className="text-[13px] text-muted-foreground">{row.original.agentName}</span>,
+      accessorKey: "channelKind",
+      header: "Channel",
+      cell: ({ row }) => <span className="text-[13px] text-muted-foreground">{row.original.channelKind}</span>,
     },
     {
       accessorKey: "vertical",
@@ -123,7 +140,7 @@ function BatchesListRoute() {
       meta: { label: "Recipients" },
       cell: ({ row }) => (
         <div className="text-right font-mono tabular-nums">
-          <div>{row.original.completed.toLocaleString()}</div>
+          <div>{(row.original.completed ?? 0).toLocaleString()}</div>
           <div className="text-[11px] text-muted-foreground">/{row.original.totalRecipients.toLocaleString()}</div>
         </div>
       ),
@@ -133,16 +150,17 @@ function BatchesListRoute() {
       header: ({ column }) => <DataTableColumnHeader column={column} label="Booked" className="justify-end" />,
       meta: { label: "Booked" },
       cell: ({ row }) => (
-        <div className="text-right font-mono tabular-nums">{row.original.booked.toLocaleString()}</div>
+        <div className="text-right font-mono tabular-nums">{(row.original.booked ?? 0).toLocaleString()}</div>
       ),
     },
     {
       id: "bookingPct",
-      accessorFn: (b) => (b.completed ? b.booked / b.completed : 0),
+      accessorFn: (b) => (b.completed ? (b.booked ?? 0) / b.completed : 0),
       header: ({ column }) => <DataTableColumnHeader column={column} label="Booking %" className="justify-end" />,
       meta: { label: "Booking %" },
       cell: ({ row }) => {
-        const pct = row.original.completed ? row.original.booked / row.original.completed : 0;
+        const completed = row.original.completed ?? 0;
+        const pct = completed ? (row.original.booked ?? 0) / completed : 0;
         return <div className="text-right font-mono tabular-nums">{formatPct(pct)}</div>;
       },
     },
@@ -151,7 +169,7 @@ function BatchesListRoute() {
       header: ({ column }) => <DataTableColumnHeader column={column} label="Cost" className="justify-end" />,
       meta: { label: "Cost" },
       cell: ({ row }) => (
-        <div className="text-right font-mono tabular-nums">{formatUsd(row.original.costUsd, { precise: true })}</div>
+        <div className="text-right font-mono tabular-nums">{formatUsd(row.original.costUsd ?? 0, { precise: true })}</div>
       ),
     },
     {
@@ -159,13 +177,13 @@ function BatchesListRoute() {
       header: ({ column }) => <DataTableColumnHeader column={column} label="Recovered $" className="justify-end" />,
       meta: { label: "Recovered $" },
       cell: ({ row }) => (
-        <div className="text-right font-mono tabular-nums">{formatUsd(row.original.recoveredRevenueUsd)}</div>
+        <div className="text-right font-mono tabular-nums">{formatUsd(row.original.recoveredRevenueUsd ?? 0)}</div>
       ),
     },
   ], []);
 
   const table = useReactTable({
-    data,
+    data: batches,
     columns,
     state: { sorting, columnFilters, columnVisibility },
     onSortingChange: setSorting,
@@ -178,6 +196,14 @@ function BatchesListRoute() {
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
+
+  if (isLoading) {
+    return (
+      <div className="mx-auto max-w-[1280px] px-8 py-8">
+        <PageHeader eyebrow="Operate" title="Outbound batches" description="Loading…" />
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-[1280px] px-8 py-8">

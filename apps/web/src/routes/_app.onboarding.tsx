@@ -1,3 +1,4 @@
+import { Alert, AlertDescription, AlertTitle } from "@kuralle/ui/components/alert";
 import { Card } from "@kuralle/ui/components/card";
 import { Eyebrow } from "@kuralle/ui/components/eyebrow";
 import { Field, FieldLabel } from "@kuralle/ui/components/field";
@@ -8,7 +9,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Building2, GraduationCap, Wrench } from "lucide-react";
 import { useState } from "react";
 
-import { useWorkspace, VERTICAL_DESCRIPTION, VERTICAL_LABEL } from "@/contexts/workspace";
+import { useActiveWorkspaceId, useWorkspace, VERTICAL_DESCRIPTION, VERTICAL_LABEL } from "@/contexts/workspace";
+import { useOnboardingState, useCompleteOnboarding } from "@/hooks/api/onboarding";
 import type { Vertical } from "@/types/domain";
 
 export const Route = createFileRoute("/_app/onboarding")({
@@ -24,8 +26,26 @@ const VERTICAL_ICON: Record<Vertical, React.ComponentType<{ size?: number; class
 function OnboardingRoute() {
   const navigate = useNavigate();
   const { workspace, setVertical } = useWorkspace();
+  const workspaceId = useActiveWorkspaceId();
+  const { data: _onboardingState } = useOnboardingState({ workspaceId });
+  const completeOnboarding = useCompleteOnboarding();
+
   const [name, setName] = useState(workspace.name);
   const [phone, setPhone] = useState("");
+
+  const handleFinish = () => {
+    completeOnboarding.mutate(
+      {
+        workspaceId,
+        name: name || workspace.name,
+        vertical: workspace.vertical,
+        phone: phone || undefined,
+      },
+      {
+        onSuccess: () => navigate({ to: "/home", search: { welcome: false } }),
+      },
+    );
+  };
 
   return (
     <div className="mx-auto max-w-3xl px-8 py-10">
@@ -125,10 +145,17 @@ function OnboardingRoute() {
                 ),
               },
             ]}
-            onFinish={() => navigate({ to: "/home", search: { welcome: false } })}
+            finishLabel={completeOnboarding.isPending ? "Saving…" : "Complete setup"}
+            onFinish={handleFinish}
           />
         </div>
       </Card>
+      {completeOnboarding.isError && (
+        <Alert variant="destructive" className="mt-4">
+          <AlertTitle>Failed to complete onboarding</AlertTitle>
+          <AlertDescription>{(completeOnboarding.error as Error)?.message ?? "Unknown error"}</AlertDescription>
+        </Alert>
+      )}
     </div>
   );
 }

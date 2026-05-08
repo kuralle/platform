@@ -1,3 +1,4 @@
+import { Alert, AlertDescription, AlertTitle } from "@kuralle/ui/components/alert";
 import { Button } from "@kuralle/ui/components/button";
 import { Card } from "@kuralle/ui/components/card";
 import { Eyebrow } from "@kuralle/ui/components/eyebrow";
@@ -9,10 +10,13 @@ import { Slider } from "@kuralle/ui/components/slider";
 import { StickySaveBar } from "@kuralle/ui/components/sticky-save-bar";
 import { Switch } from "@kuralle/ui/components/switch";
 import { Tabs, TabsList, TabsTrigger } from "@kuralle/ui/components/tabs";
+import { Skeleton } from "@kuralle/ui/components/skeleton";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
-import { useWorkspace } from "@/contexts/workspace";
+import { useActiveWorkspaceId } from "@/contexts/workspace";
+import { useWorkspaceSettings, useUpdateWorkspace } from "@/hooks/api/workspace";
+import type { Environment, Region } from "@/types/domain";
 
 export const Route = createFileRoute("/_app/workspace/settings")({
   component: WorkspaceSettingsRoute,
@@ -30,15 +34,73 @@ const SECTIONS = [
 type SectionId = (typeof SECTIONS)[number]["id"];
 
 function WorkspaceSettingsRoute() {
-  const { workspace, setEnvironment, setRegion } = useWorkspace();
+  const workspaceId = useActiveWorkspaceId();
+  const { data: settings, isLoading, isError } = useWorkspaceSettings({ workspaceId });
+  const updateWorkspace = useUpdateWorkspace();
+
   const [active, setActive] = useState<SectionId>("general");
-  const [name, setName] = useState(workspace.name);
+  const [name, setName] = useState("");
+  const [vertical, setVertical] = useState("");
+  const [environment, setEnvironment] = useState("");
+  const [region, setRegion] = useState("");
   const [retention, setRetention] = useState(90);
   const [apiKey] = useState("kur_live_8a3c…f912");
   const [requireSso, setRequireSso] = useState(true);
   const [require2fa, setRequire2fa] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
-  const changes = (name !== workspace.name ? 1 : 0) + (retention !== 90 ? 1 : 0) + (requireSso !== true ? 1 : 0) + (require2fa !== false ? 1 : 0);
+  if (settings && !initialized) {
+    setName(settings.name);
+    setVertical(settings.vertical ?? "");
+    setEnvironment(settings.environment ?? "production");
+    setRegion(settings.region ?? "us-east-1");
+    setInitialized(true);
+  }
+
+  const changes =
+    (initialized && name !== (settings?.name ?? "") ? 1 : 0) +
+    (retention !== 90 ? 1 : 0) +
+    (requireSso !== true ? 1 : 0) +
+    (require2fa !== false ? 1 : 0);
+
+  const handleSave = () => {
+    updateWorkspace.mutate(
+      {
+        workspaceId,
+        name: name || undefined,
+        vertical: vertical || null,
+        environment: (environment || undefined) as Environment | undefined,
+        region: (region || undefined) as Region | undefined,
+      },
+      {
+        onSuccess: () => setInitialized(false),
+      },
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex h-[calc(100svh-3.5rem)] flex-col">
+        <div className="flex-1 overflow-auto">
+          <div className="mx-auto max-w-3xl px-8 py-8">
+            <PageHeader eyebrow="Workspace" title="Settings" description="Loading…" />
+            <Skeleton className="mt-6 h-[400px]" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="mx-auto max-w-3xl px-8 py-8">
+        <Alert variant="destructive">
+          <AlertTitle>Failed to load workspace settings</AlertTitle>
+          <AlertDescription>Try refreshing the page.</AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-[calc(100svh-3.5rem)] flex-col">
@@ -47,7 +109,7 @@ function WorkspaceSettingsRoute() {
           <PageHeader
             eyebrow="Workspace"
             title="Settings"
-            description={`Configure ${workspace.name} — auth, secrets, retention, and billing.`}
+            description={`Configure ${settings?.name ?? "workspace"} — auth, secrets, retention, and billing.`}
           />
           <Tabs value={active} onValueChange={(v) => setActive(v as SectionId)} className="mb-6">
             <TabsList className="flex-wrap">
@@ -74,8 +136,19 @@ function WorkspaceSettingsRoute() {
                 <Eyebrow>Environment</Eyebrow>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   <Field>
+                    <FieldLabel>Vertical</FieldLabel>
+                    <Select value={vertical} onValueChange={(v) => { if (v != null) setVertical(v); }}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="home-services">Home Services</SelectItem>
+                        <SelectItem value="appointment-services">Appointment Services</SelectItem>
+                        <SelectItem value="education">Education</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field>
                     <FieldLabel>Active environment</FieldLabel>
-                    <Select value={workspace.environment} onValueChange={(v) => setEnvironment(v as typeof workspace.environment)}>
+                    <Select value={environment} onValueChange={(v) => { if (v != null) setEnvironment(v); }}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="production">Production</SelectItem>
@@ -86,7 +159,7 @@ function WorkspaceSettingsRoute() {
                   </Field>
                   <Field>
                     <FieldLabel>Data region</FieldLabel>
-                    <Select value={workspace.region} onValueChange={(v) => setRegion(v as typeof workspace.region)}>
+                    <Select value={region} onValueChange={(v) => { if (v != null) setRegion(v); }}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="us-east-1">US East (Ashburn)</SelectItem>
@@ -178,11 +251,6 @@ function WorkspaceSettingsRoute() {
                 <p className="mt-1 text-[13px] text-muted-foreground">
                   Includes unlimited agents, HIPAA / FERPA add-ons, SSO, audit log retention 6 yrs.
                 </p>
-                <div className="mt-4 grid gap-2 text-[13px]">
-                  <Row label="Calls (May)" value="3,184" />
-                  <Row label="Cost YTD" value={<span className="font-mono tabular-nums text-foreground">$3,996</span>} />
-                  <Row label="Recovered YTD" value={<span className="font-mono tabular-nums text-foreground">$182,400</span>} />
-                </div>
               </Card>
             </div>
           )}
@@ -206,23 +274,25 @@ function WorkspaceSettingsRoute() {
       </div>
       <StickySaveBar
         changes={changes}
-        onSave={() => undefined}
+        onSave={handleSave}
         onDiscard={() => {
-          setName(workspace.name);
+          if (settings) {
+            setName(settings.name);
+            setVertical(settings.vertical ?? "");
+            setEnvironment(settings.environment ?? "production");
+            setRegion(settings.region ?? "us-east-1");
+          }
           setRetention(90);
           setRequireSso(true);
           setRequire2fa(false);
         }}
       />
-    </div>
-  );
-}
-
-function Row({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="grid grid-cols-[140px_1fr] gap-3">
-      <span className="text-[12px] text-muted-foreground">{label}</span>
-      <span>{value}</span>
+      {updateWorkspace.isError && (
+        <Alert variant="destructive" className="mx-auto max-w-3xl">
+          <AlertTitle>Failed to save</AlertTitle>
+          <AlertDescription>{(updateWorkspace.error as Error)?.message ?? "Unknown error"}</AlertDescription>
+        </Alert>
+      )}
     </div>
   );
 }

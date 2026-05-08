@@ -1,3 +1,4 @@
+import { Alert, AlertDescription, AlertTitle } from "@kuralle/ui/components/alert";
 import { Button } from "@kuralle/ui/components/button";
 import { Card } from "@kuralle/ui/components/card";
 import { Eyebrow } from "@kuralle/ui/components/eyebrow";
@@ -5,13 +6,17 @@ import { Field, FieldLabel } from "@kuralle/ui/components/field";
 import { Input } from "@kuralle/ui/components/input";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@kuralle/ui/components/resizable";
 import { ScrollArea } from "@kuralle/ui/components/scroll-area";
+import { StickySaveBar } from "@kuralle/ui/components/sticky-save-bar";
 import { Switch } from "@kuralle/ui/components/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@kuralle/ui/components/tabs";
 import { Textarea } from "@kuralle/ui/components/textarea";
 import { cn } from "@kuralle/ui/lib/utils";
 import { createFileRoute } from "@tanstack/react-router";
 import { Bot, Mic, Phone } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+import { useActiveWorkspaceId } from "@/contexts/workspace";
+import { useWidgetConfig, useUpdateWidgetConfig } from "@/hooks/api/widget";
 
 export const Route = createFileRoute("/_app/widget")({
   component: WidgetRoute,
@@ -30,11 +35,68 @@ const SECTIONS = [
 ] as const;
 
 function WidgetRoute() {
+  const workspaceId = useActiveWorkspaceId();
+  const { data: config, isLoading } = useWidgetConfig({ workspaceId });
+  const updateWidget = useUpdateWidgetConfig();
+
   const [modality, setModality] = useState<"voice" | "chat" | "both">("both");
   const [accent, setAccent] = useState("#0EA5A6");
-  const [greeting, setGreeting] = useState("Hi! Ask me anything about Calderon HVAC.");
+  const [greeting, setGreeting] = useState("Hi! Ask me anything.");
   const [ctaLabel, setCtaLabel] = useState("Talk to dispatcher");
   const [showFeedback, setShowFeedback] = useState(true);
+  const [initialized, setInitialized] = useState(false);
+
+  useEffect(() => {
+    if (config && !initialized) {
+      if (config.modality) setModality(config.modality as "voice" | "chat" | "both");
+      if (config.feedbackEnabled != null) setShowFeedback(config.feedbackEnabled);
+      if (config.strings && typeof config.strings === "object") {
+        const s = config.strings as Record<string, string>;
+        if (s.greeting) setGreeting(s.greeting);
+        if (s.ctaLabel) setCtaLabel(s.ctaLabel);
+      }
+      setInitialized(true);
+    }
+  }, [config, initialized]);
+
+  const changes = config
+    ? ((modality !== (config.modality ?? "both") ? 1 : 0) +
+       (showFeedback !== (config.feedbackEnabled ?? true) ? 1 : 0) +
+       (greeting !== ((config.strings as Record<string, string>)?.greeting ?? "Hi! Ask me anything.") ? 1 : 0))
+    : 0;
+
+  const handleSave = () => {
+    updateWidget.mutate({
+      workspaceId,
+      modality,
+      feedbackEnabled: showFeedback,
+      strings: { greeting, ctaLabel },
+      theme: { accent },
+    });
+  };
+
+  const handleDiscard = () => {
+    if (config) {
+      setModality((config.modality as "voice" | "chat" | "both") ?? "both");
+      setShowFeedback(config.feedbackEnabled ?? true);
+      const s = (config.strings as Record<string, string>) ?? {};
+      setGreeting(s.greeting ?? "Hi! Ask me anything.");
+      setCtaLabel(s.ctaLabel ?? "Talk to dispatcher");
+      setAccent("#0EA5A6");
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="grid h-[calc(100svh-3.5rem)] grid-rows-[auto_1fr]">
+        <div className="border-b bg-card px-8 py-4">
+          <Eyebrow>Distribute</Eyebrow>
+          <h1 className="mt-1 font-display text-[24px] font-semibold tracking-tight">Widget customizer</h1>
+        </div>
+        <div className="flex items-center justify-center text-muted-foreground">Loading…</div>
+      </div>
+    );
+  }
 
   return (
     <div className="grid h-[calc(100svh-3.5rem)] grid-rows-[auto_1fr]">
@@ -51,7 +113,7 @@ function WidgetRoute() {
             <div className="relative h-full w-full max-w-[720px] rounded-lg border bg-card shadow-[0_24px_60px_rgba(11,18,32,0.06)]">
               <div className="grid h-full grid-rows-[auto_1fr_auto]">
                 <div className="border-b px-6 py-4">
-                  <div className="font-display text-[16px] font-semibold">calderonhvac.com / preview</div>
+                  <div className="font-display text-[16px] font-semibold">preview</div>
                 </div>
                 <div className="flex items-center justify-center text-muted-foreground text-[12px]">
                   Page content shown by your CMS
@@ -65,7 +127,7 @@ function WidgetRoute() {
                       <Bot size={16} />
                     </span>
                     <div className="min-w-0 flex-1">
-                      <div className="text-[13px] font-medium">Calderon HVAC</div>
+                      <div className="text-[13px] font-medium">Widget preview</div>
                       <div className="text-[11px] text-muted-foreground">Online · replies in seconds</div>
                     </div>
                   </div>
@@ -167,6 +229,19 @@ function WidgetRoute() {
           </ScrollArea>
         </ResizablePanel>
       </ResizablePanelGroup>
+      {changes > 0 && (
+        <StickySaveBar
+          changes={changes}
+          onSave={handleSave}
+          onDiscard={handleDiscard}
+        />
+      )}
+      {updateWidget.isError && (
+        <Alert variant="destructive">
+          <AlertTitle>Failed to save widget config</AlertTitle>
+          <AlertDescription>{(updateWidget.error as Error)?.message ?? "Unknown error"}</AlertDescription>
+        </Alert>
+      )}
     </div>
   );
 }

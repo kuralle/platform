@@ -74,6 +74,11 @@ export function useWorkspace() {
   return ctx;
 }
 
+export function useActiveWorkspaceId(): string {
+  const { workspace } = useWorkspace();
+  return workspace.id;
+}
+
 export const VERTICAL_LABEL: Record<Vertical, string> = {
   "home-services": "Home Services",
   "appointment-services": "Appointment Services",

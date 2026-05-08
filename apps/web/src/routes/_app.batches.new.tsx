@@ -11,8 +11,12 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { CheckCircle2, ShieldCheck, Upload } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { useActiveWorkspaceId, useWorkspace } from "@/contexts/workspace";
+import { useAgents } from "@/hooks/api/agents";
+import { useTelephony } from "@/hooks/api/telephony";
+import { useCreateBatch } from "@/hooks/api/batches";
 import { formatUsd } from "@/lib/format";
-import { makeAgents, makePhoneNumbers } from "@/mocks";
+import type { Vertical } from "@/types/domain";
 
 export const Route = createFileRoute("/_app/batches/new")({
   component: NewBatchRoute,
@@ -20,15 +24,42 @@ export const Route = createFileRoute("/_app/batches/new")({
 
 function NewBatchRoute() {
   const navigate = useNavigate();
-  const agents = useMemo(() => makeAgents(10), []);
-  const numbers = useMemo(() => makePhoneNumbers(8), []);
-  const [agentId, setAgentId] = useState(agents[0]!.id);
-  const [numberId, setNumberId] = useState(numbers.find((n) => n.attachedAgentId)?.id ?? numbers[0]!.id);
-  const [recipients] = useState(384);
+  const workspaceId = useActiveWorkspaceId();
+  const { workspace } = useWorkspace();
+  const { data: agentsList } = useAgents({ workspaceId });
+  const { data: endpointsList } = useTelephony({ workspaceId });
+  const createBatch = useCreateBatch();
+
+  const agents = useMemo(() => (agentsList?.items ?? []) as unknown as { id: string; name: string }[], [agentsList?.items]);
+  const numbers = useMemo(() => (endpointsList?.items ?? []) as unknown as { id: string; number?: string; phoneNumber?: string }[], [endpointsList?.items]);
+
+  const [name, setName] = useState("");
+  const [agentId, setAgentId] = useState(agents[0]?.id ?? "");
+  const [numberId, setNumberId] = useState(numbers[0]?.id ?? "");
+  const [recipients, setRecipients] = useState(100);
   const [concurrency, setConcurrency] = useState(8);
   const [scheduleNow, setScheduleNow] = useState(true);
 
   const estCost = (recipients * 0.32).toFixed(2);
+
+  const handleFinish = () => {
+    createBatch.mutate(
+      {
+        workspaceId,
+        name: name || "Untitled batch",
+        agentId: agentId || null,
+        channelKind: "voice",
+        channelEndpointId: numberId || null,
+        vertical: (workspace.vertical ?? "home-services") as Vertical,
+        scheduledFor: scheduleNow ? null : new Date(),
+        totalRecipients: recipients,
+        concurrency,
+      },
+      {
+        onSuccess: () => navigate({ to: "/batches" }),
+      },
+    );
+  };
 
   return (
     <div className="mx-auto max-w-3xl px-8 py-8">
@@ -51,14 +82,10 @@ function NewBatchRoute() {
                     <Field>
                       <FieldLabel>Agent</FieldLabel>
                       <Select value={agentId} onValueChange={(v) => v != null && setAgentId(v)}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
                           {agents.map((a) => (
-                            <SelectItem key={a.id} value={a.id}>
-                              {a.name}
-                            </SelectItem>
+                            <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -66,14 +93,10 @@ function NewBatchRoute() {
                     <Field>
                       <FieldLabel>Outbound number</FieldLabel>
                       <Select value={numberId} onValueChange={(v) => v != null && setNumberId(v)}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
                           {numbers.map((n) => (
-                            <SelectItem key={n.id} value={n.id}>
-                              {n.number}
-                            </SelectItem>
+                            <SelectItem key={n.id} value={n.id}>{n.phoneNumber ?? n.number ?? n.id}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -82,19 +105,37 @@ function NewBatchRoute() {
                 ),
               },
               {
+                id: "name",
+                title: "Name",
+                description: "Give this batch a name so you can find it later.",
+                render: () => (
+                  <Field>
+                    <FieldLabel>Batch name</FieldLabel>
+                    <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Win-back Q4" />
+                  </Field>
+                ),
+              },
+              {
                 id: "recipients",
                 title: "Recipients",
                 description: "Upload a CSV with phone numbers. We'll DNC-scrub before sending.",
                 render: () => (
-                  <Card className="border-dashed bg-muted/50 p-8 text-center">
-                    <Upload size={28} className="mx-auto text-muted-foreground" />
-                    <p className="mt-3 text-[13px] text-muted-foreground">
-                      Drop a CSV or <span className="cursor-pointer underline-offset-2 hover:underline">browse</span>.
-                    </p>
-                    <p className="mt-2 font-mono text-[11px] tabular-nums text-muted-foreground">
-                      {recipients} recipients loaded · 12 invalid · 4 DNC scrubbed
-                    </p>
-                  </Card>
+                  <div className="grid gap-4">
+                    <Card className="border-dashed bg-muted/50 p-8 text-center">
+                      <Upload size={28} className="mx-auto text-muted-foreground" />
+                      <p className="mt-3 text-[13px] text-muted-foreground">
+                        Drop a CSV or <span className="cursor-pointer underline-offset-2 hover:underline">browse</span>.
+                      </p>
+                    </Card>
+                    <Field>
+                      <FieldLabel>Total recipients</FieldLabel>
+                      <Input
+                        type="number"
+                        value={recipients}
+                        onChange={(e) => setRecipients(Math.max(0, parseInt(e.target.value) || 0))}
+                      />
+                    </Field>
+                  </div>
                 ),
               },
               {
@@ -126,7 +167,7 @@ function NewBatchRoute() {
                       <ShieldCheck />
                       <AlertTitle>TCPA window check</AlertTitle>
                       <AlertDescription>
-                        14 recipients fall outside their local 8am–9pm window. We'll auto-defer those.
+                        We'll auto-defer recipients outside their local 8am–9pm window.
                       </AlertDescription>
                     </Alert>
                   </div>
@@ -167,11 +208,12 @@ function NewBatchRoute() {
                     <Card className="p-4">
                       <Eyebrow>Estimate</Eyebrow>
                       <div className="mt-2 grid gap-1 text-[13px]">
+                        <Row label="Name" value={name || "Untitled batch"} />
                         <Row label="Agent" value={agents.find((a) => a.id === agentId)?.name ?? "—"} />
-                        <Row label="Number" value={numbers.find((n) => n.id === numberId)?.number ?? "—"} />
+                        <Row label="Number" value={numbers.find((n) => n.id === numberId)?.phoneNumber ?? numbers.find((n) => n.id === numberId)?.number ?? "—"} />
                         <Row label="Recipients" value={`${recipients}`} />
                         <Row label="Concurrency" value={`${concurrency}`} />
-                        <Row label="Schedule" value={scheduleNow ? "ASAP" : "2026-05-01 10:00"} />
+                        <Row label="Schedule" value={scheduleNow ? "ASAP" : "Scheduled"} />
                         <hr className="my-2 border-border" />
                         <Row
                           label="Cost estimate"
@@ -194,11 +236,17 @@ function NewBatchRoute() {
                 ),
               },
             ]}
-            finishLabel="Launch batch"
-            onFinish={() => navigate({ to: "/batches" })}
+            finishLabel={createBatch.isPending ? "Launching…" : "Launch batch"}
+            onFinish={handleFinish}
           />
         </div>
       </Card>
+      {createBatch.isError && (
+        <Alert variant="destructive" className="mt-4">
+          <AlertTitle>Failed to create batch</AlertTitle>
+          <AlertDescription>{(createBatch.error as Error)?.message ?? "Unknown error"}</AlertDescription>
+        </Alert>
+      )}
     </div>
   );
 }
