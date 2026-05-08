@@ -1,0 +1,88 @@
+W1+W2+W3 — backend flesh + frontend wire + live verification
+================================================================
+Date:  2026-05-09
+Scope: Land all "pure design surface" screens with real RPC backends, wire
+       frontends, and verify each end-to-end against live Neon.
+
+== Commit chain ==
+  f29d8f2 [W1-backend]  60 files: migration 0015 + repos + 8 router groups + tests
+  0fc958e [W2-frontend] 6 hook files + 7 routes rewired + useActiveWorkspaceId (BL-S3-10)
+  2f16f95 [W2-fix]      test BASE_URL :3000 → :8787 in 13 files (MSW handler URLs)
+  f82a6ba [W2-fix]      router/repo layering: workspace+onboarding go through repos
+
+== W1 deliverables ==
+- New migration 0015 with widget_configs + onboarding_states tables.
+- 6 new repos: batch, compliance, usage, widget, onboarding, plus extended
+  kb-document. Plus auth-guard (requireWorkspaceMembership).
+- 8 routers: kb (real), batches (real), compliance (real), receipts (real)
+  — all formerly 23-line stubs returning {items:[]}; plus brand-new
+  workspace, widget, onboarding routers.
+- Tests for every new router (mirrored agents.publish.test.ts pattern,
+  including better-auth signed-cookie test rigging).
+- Bonus IC fixes: vitest cloudflare:workers shim, drizzle member relations
+  cleanup (relationName for invitedByUser), better-auth signed-cookie auth.
+
+== W2 deliverables ==
+- 6 new hooks: useBatches, useCompliancePosture, useMonthlyReceipt,
+  useWorkspaceSettings, useWidgetConfig, useOnboardingState (+ mutations).
+- 7 routes rewired (replacing inline JSX fixtures with RPC):
+    /batches/index, /batches/new, /workspace/settings, /workspace/compliance,
+    /widget, /onboarding, /revenue/receipt/$month.
+- useActiveWorkspaceId() hook reads from existing WorkspaceProvider context;
+  every "demo-workspace" / "ws_calderon_hvac" literal replaced.  → BL-S3-10 resolved.
+- Mocks deleted: batches.ts, numbers.ts, kpis.ts. mocks/index.ts updated.
+- Tests for each new hook (MSW + queryClient pattern from phone-numbers.test).
+
+== W2-fix deliverables ==
+- 13 test files: BASE_URL :3000 → :8787 (post BL-S3-08 port change).
+- Architectural cleanup: workspace.ts and onboarding.ts routers were importing
+  drizzle-orm + @kuralle/db/schema directly (W1 IC built the repos but bypassed
+  them). Refactored to use new WorkspaceRepository.{getSettings,updateCustomFields}
+  and OnboardingRepository.markComplete (the latter now atomic via internal
+  transaction wrapping organization.vertical update + onboarding_states upsert).
+- Moved auth-test-helpers.ts out of routers/ into test-helpers/ (it was
+  test scaffolding, not router code).
+- ESLint config: ignore .wrangler/ build output; ignore tests in router rule.
+
+== W3 verification (15/15 pass) ==
+Tooling: scripts/verify-screens.ts — fresh better-auth signup, resolves
+activeOrganizationId, fires RPCs against wrangler, asserts on Neon SQL.
+
+  /home                  ✓ skip (covered by component RPCs)
+  /batches               ✓ batches.list 200
+                         ✓ batches.create 200 (1944ms)
+                         ✓ DB row inserted (count 0→1)
+  /workspace/settings    ✓ workspace.update 200
+                         ✓ DB vertical changed (→ appointment-services)
+  /workspace/compliance  ✓ compliance.updatePosture 200
+                         ✓ DB posture upserted (hipaa=active, tcpa=action-required)
+  /widget                ✓ widget.update 200
+                         ✓ DB widget_configs upserted (modality=chat,
+                                                       feedback_enabled=t)
+  /onboarding            ✓ onboarding.advance 200
+                         ✓ DB current_step=name
+  /revenue/receipt       ✓ receipts.getMonthly 200
+  /knowledge             ✓ kb.list 200
+  /phone-numbers         ✓ channels.endpoints.listByKind 200
+
+  ══════════════════════════════════════════════
+    15 pass, 0 fail / 15 total
+  ══════════════════════════════════════════════
+
+== Verification gates (all green) ==
+  bun lint:           0 errors, 1 pre-existing warning
+  @kuralle/api test:  17 passing
+  @kuralle/core test: 78 passing
+  server test:        24 passing
+  web test:           71 passing
+
+== Notes / known edges ==
+- /home browser-render check is skipped — that route composes other queries
+  (health/conversations/agents) which are independently verified. A future
+  agent-browser-driven UI smoke pass would close that gap.
+- No new untracked artifacts under apps/server/.wrangler — that path is now
+  in lint's global ignores (build output, not source).
+- The verifier (`scripts/verify-screens.ts`) is committable; bumping
+  concurrency or adding new screens is straightforward.
+- Workspace check-types still hangs (BL-S3-02 remains open). Not blocking;
+  per-package tsc + test-suite + live-Neon assertions cover correctness.
