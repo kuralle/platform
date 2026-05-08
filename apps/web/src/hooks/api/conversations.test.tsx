@@ -10,7 +10,7 @@ import {
   useConversationLive,
 } from "./conversations";
 
-const BASE_URL = "http://localhost:3000/rpc";
+const BASE_URL = "http://localhost:8787/rpc";
 
 function wrapper({ children }: { children: React.ReactNode }) {
   const qc = new QueryClient({

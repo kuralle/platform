@@ -6,7 +6,7 @@ import { beforeAll, afterAll, afterEach, describe, expect, it } from "vitest";
 import { server } from "@/test/msw-server";
 import { usePhoneNumbers } from "./phone-numbers";
 
-const BASE_URL = "http://localhost:3000/rpc";
+const BASE_URL = "http://localhost:8787/rpc";
 
 function wrapper({ children }: { children: React.ReactNode }) {
   const qc = new QueryClient({

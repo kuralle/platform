@@ -45,7 +45,7 @@ import { useAgentAutoSave, useAgentPublish } from "@/hooks/api/agents";
 import { EditorContext, useEditorReducer } from "@/contexts/editor";
 import { PublishConfirmationModal } from "@/components/editor/publish-confirmation-modal";
 
-const BASE_URL = "http://localhost:3000/rpc";
+const BASE_URL = "http://localhost:8787/rpc";
 const AUTO_SAVE_DELAY_MS = 30_000;
 
 const SEED_IR: AgentIR = {
