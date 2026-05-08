@@ -1,7 +1,16 @@
 {
   "name": "kuralle-server",
   "main": "src/index.ts",
-  "compatibility_date": "2026-05-08",
+  // Latest supported by wrangler 4.86.0 (the pinned dev binary). pool-workers
+  // uses miniflare 4.20260507.1 which would accept 2026-05-08 too; standardize
+  // on the wrangler-binary-supported date so plain `wrangler dev` boots.
+  "compatibility_date": "2026-05-03",
+  // nodejs_compat is required because the workspace pulls in Node built-ins
+  // (e.g., `path` via mime-types via Hono's static middleware chain). Without
+  // it, `wrangler dev` errors with "Could not resolve 'path'" at boot. Same
+  // flag is mirrored in vitest.slo.do.config.ts's miniflare options for the
+  // pool-workers test pool.
+  "compatibility_flags": ["nodejs_compat"],
   "dev": {
     "port": 8787
   },
