@@ -9,6 +9,8 @@ export {
   SLO_PUBLISH_NAME,
   SLO_PROJECTOR_LAG_THRESHOLD_MS,
   SLO_PROJECTOR_LAG_NAME,
+  SLO_WHATSAPP_E2E_THRESHOLD_MS,
+  SLO_WHATSAPP_E2E_NAME,
 } from "./instrumentation/slo.js";
 export {
   createMetaWhatsAppClient,

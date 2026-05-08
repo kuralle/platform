@@ -14,6 +14,10 @@ export const SLO_PUBLISH_NAME = "agent.publish.p95" as const;
 export const SLO_PROJECTOR_LAG_THRESHOLD_MS = 1000;
 export const SLO_PROJECTOR_LAG_NAME = "projector.lag.p95" as const;
 
+/** SLO threshold for WhatsApp inbound → F2 visible end-to-end (S3-06). */
+export const SLO_WHATSAPP_E2E_THRESHOLD_MS = 4000;
+export const SLO_WHATSAPP_E2E_NAME = "whatsapp.e2e.p95" as const;
+
 /**
  * Record an SLO violation in `usage_events`.
  *

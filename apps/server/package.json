@@ -9,6 +9,7 @@
     "dev:wrangler": "wrangler dev --config wrangler.jsonc",
     "gen:openapi": "bun run scripts/gen-openapi.ts",
     "test": "vitest run",
+    "test:slo": "vitest run --config vitest.slo.config.ts",
     "test:wrangler": "vitest run src/durable-objects/MessagingDO.test.ts"
   },
   "dependencies": {
