@@ -2,20 +2,31 @@
   "name": "@kuralle/platform",
   "type": "module",
   "exports": {
-    "./interface": { "default": "./src/interface.ts" },
-    "./memory": { "default": "./src/memory/index.ts" },
-    "./cloudflare": { "default": "./src/cloudflare/index.ts" },
-    "./node": { "default": "./src/node/index.ts" }
+    "./interface": {
+      "default": "./src/interface.ts"
+    },
+    "./memory": {
+      "default": "./src/memory/index.ts"
+    },
+    "./cloudflare": {
+      "default": "./src/cloudflare/index.ts"
+    },
+    "./node": {
+      "default": "./src/node/index.ts"
+    }
   },
   "scripts": {
     "test": "vitest run",
     "check-types": "tsc -b"
   },
   "dependencies": {
+    "bullmq": "^5.76.6",
+    "ioredis-mock": "^8.13.1",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@kuralle/config": "workspace:*",
+    "@types/ioredis-mock": "^8.2.7",
     "typescript": "catalog:",
     "vitest": "catalog:"
   }

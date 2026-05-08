@@ -11,6 +11,8 @@ export const SLO_PUBLISH_THRESHOLD_MS = 1000;
 
 /** SLO name written into `usage_events.payload.slo`. */
 export const SLO_PUBLISH_NAME = "agent.publish.p95" as const;
+export const SLO_PROJECTOR_LAG_THRESHOLD_MS = 1000;
+export const SLO_PROJECTOR_LAG_NAME = "projector.lag.p95" as const;
 
 /**
  * Record an SLO violation in `usage_events`.

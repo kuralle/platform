@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "@kuralle/config": "workspace:*",
+    "@types/pg": "^8.20.0",
     "pg": "catalog:",
     "typescript": "catalog:"
   }

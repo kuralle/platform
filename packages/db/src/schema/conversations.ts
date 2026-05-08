@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   pgTable,
   text,
@@ -159,6 +159,9 @@ export const conversationTurns = pgTable(
       table.conversationId,
       table.ordinal,
     ),
+    uniqueIndex("conversation_turns_conversation_message_id_uidx")
+      .on(table.conversationId, table.messageId)
+      .where(sql`message_id IS NOT NULL`),
   ],
 );
 

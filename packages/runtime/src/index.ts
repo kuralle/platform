@@ -1,9 +1,14 @@
 export { projectAgent } from "./projector/agent.js";
 export type { AgentProjectionTx, ProjectionCounts } from "./projector/agent.js";
+export { projectConversationEvent } from "./projector/conversation.js";
+export type { RuntimeTx, ProjectionContext } from "./projector/conversation.js";
+export { runProjectorWorker, defaultShardKeys } from "./projector/projector-worker.js";
 export {
   recordSloViolation,
   SLO_PUBLISH_THRESHOLD_MS,
   SLO_PUBLISH_NAME,
+  SLO_PROJECTOR_LAG_THRESHOLD_MS,
+  SLO_PROJECTOR_LAG_NAME,
 } from "./instrumentation/slo.js";
 export {
   createMetaWhatsAppClient,
