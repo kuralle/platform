@@ -57,11 +57,23 @@ export function useDetachEndpoint() {
   const qc = useQueryClient();
   return useMutation({
     ...$api.channels.endpoints.detach.mutationOptions(),
-    onSuccess: (_data, variables) => {
+    onSuccess: (data, variables) => {
+      // Invalidate the connection-scoped endpoint list using the
+      // server-returned connectionId (mutation input only carries
+      // endpointId + workspaceId). Kimi-gate fix-pass for the
+      // broken `connectionId: ""` query key.
       void qc.invalidateQueries({
         queryKey: $api.channels.endpoints.list.queryKey({
-          input: { workspaceId: variables.workspaceId, connectionId: "" },
+          input: {
+            workspaceId: variables.workspaceId,
+            connectionId: data.connectionId,
+          },
         }),
+      });
+      // Cross-kind endpoint lists (telephony / whatsapp screens) reset
+      // via a prefix-match invalidation on the listByKind subtree.
+      void qc.invalidateQueries({
+        queryKey: ["channels", "endpoints", "listByKind"],
       });
     },
   });

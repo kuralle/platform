@@ -1,0 +1,6 @@
+@kuralle/db db:migrate: No config path provided, using default 'drizzle.config.ts'
+@kuralle/db db:migrate: Reading config file '/Users/mithushancj/Documents/asyncdot/openscoped/voice-platform/kuralle/packages/db/drizzle.config.ts'
+@kuralle/db db:migrate: ◇ injected env (4) from ../../apps/server/.env // tip: ◈ encrypted .env [www.dotenvx.com]
+@kuralle/db db:migrate: Using 'pg' driver for database querying
+@kuralle/db: [⣷] applying migrations...[2K[1G[✓] migrations applied successfully!
+@kuralle/db db:migrate: Exited with code 0

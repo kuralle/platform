@@ -76,6 +76,10 @@ const endpointsDetachInput = workspaceIdInput.extend({
 const endpointsDetachOutput = z.object({
   released: z.boolean(),
   alreadyReleased: z.boolean().optional(),
+  // Returned so client-side hooks can invalidate the connection-scoped
+  // endpoint list without storing it locally — fix-pass for kimi gate
+  // R2-1 (`useDetachEndpoint` was invalidating `connectionId: ""`).
+  connectionId: z.string(),
 }).strict();
 
 export const channelsRouter = {
@@ -113,6 +117,11 @@ export const channelsRouter = {
         accessToken: systemUserToken,
         appSecret,
       });
+
+      // Note: this connector flow stores raw provider credentials handed to
+      // us by the operator (not a Meta Embedded-Signup callback). Meta-side
+      // signed-request validation belongs in the inbound webhook handler
+      // (S3-03) where `verifyHmac` runs against `X-Hub-Signature-256`.
 
       let availablePhoneNumbers: Awaited<ReturnType<typeof listPhoneNumbers>>;
       try {
@@ -283,6 +292,7 @@ export const channelsRouter = {
           released: true,
           alreadyReleased:
             result.status === "already_released" ? true : undefined,
+          connectionId: result.endpoint.connectionId,
         };
       }),
   },

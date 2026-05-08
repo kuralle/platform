@@ -26,6 +26,7 @@ export const channelEndpointSchema = z
     connectionId: z.string(),
     channelKind: z.string(),
     identifier: z.string(),
+    // §8 — nullable in DB; nullable here to avoid Zod boundary failures.
     displayName: z.string().nullable(),
     attachedAgentId: z.string().nullable(),
     attachedAgentVersionId: z.string().nullable(),

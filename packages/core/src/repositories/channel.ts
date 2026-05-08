@@ -407,8 +407,9 @@ export class ChannelRepository {
     if (!resultRow) {
       throw new Error("ChannelRepository.connectWithCredentials: no row returned");
     }
-    await this.kv.delete(cacheKey(this.workspaceId, (resultRow as typeof schema.channelConnections.$inferSelect).id));
-    return toDomain(resultRow);
+    const row: typeof schema.channelConnections.$inferSelect = resultRow;
+    await this.kv.delete(cacheKey(this.workspaceId, row.id));
+    return toDomain(row);
   }
 
   /**
@@ -450,8 +451,9 @@ export class ChannelRepository {
     if (!resultRow) {
       throw new Error("ChannelRepository.attachEndpoint: no row returned");
     }
-    await this.kv.delete(endpointCacheKey(this.workspaceId, (resultRow as typeof schema.channelEndpoints.$inferSelect).id));
-    return toEndpointDomain(resultRow);
+    const row: typeof schema.channelEndpoints.$inferSelect = resultRow;
+    await this.kv.delete(endpointCacheKey(this.workspaceId, row.id));
+    return toEndpointDomain(row);
   }
 
   /**

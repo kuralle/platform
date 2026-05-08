@@ -2119,12 +2119,16 @@
                     "alreadyReleased": {
                       "type": "boolean"
                     },
+                    "connectionId": {
+                      "type": "string"
+                    },
                     "released": {
                       "type": "boolean"
                     }
                   },
                   "required": [
-                    "released"
+                    "released",
+                    "connectionId"
                   ],
                   "type": "object"
                 }
