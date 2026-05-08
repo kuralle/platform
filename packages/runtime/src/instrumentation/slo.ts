@@ -1,10 +1,10 @@
-import type { NeonHttpDatabase } from "drizzle-orm/neon-http";
+import type { NeonDatabase } from "drizzle-orm/neon-serverless";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { usageEvents } from "@kuralle/db/schema";
 import type * as schema from "@kuralle/db/schema";
 
 /** Database handle accepted by this helper (matches ApiDb / RepoDb). */
-type AnyPgDb = NeonHttpDatabase<typeof schema> | NodePgDatabase<typeof schema>;
+type AnyPgDb = NeonDatabase<typeof schema> | NodePgDatabase<typeof schema>;
 
 /** SLO threshold for `agents.publish` per USER_JOURNEYS.md §2 SLO #2. */
 export const SLO_PUBLISH_THRESHOLD_MS = 1000;

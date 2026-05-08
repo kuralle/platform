@@ -1,4 +1,5 @@
 export { withWorkspace } from "./repositories/index.js";
+export type { RepoDb } from "./repositories/types.js";
 export { AgentRepository } from "./repositories/agent.js";
 export type { Agent, AgentInsert, AgentUpdate } from "./repositories/agent.js";
 export { AgentVersionRepository } from "./repositories/agent-version.js";

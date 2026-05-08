@@ -47,7 +47,11 @@ describe("meta webhook", () => {
     });
 
     app = new Hono();
-    app.route("/webhooks/meta", createMetaWebhookApp({ db, kvStore: new MemoryKvStore() }));
+    app.use("*", async (c, next) => {
+      c.set("db", db);
+      await next();
+    });
+    app.route("/webhooks/meta", createMetaWebhookApp({ kvStore: new MemoryKvStore() }));
   });
 
   it("GET handshake happy path", async () => {

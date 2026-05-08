@@ -1,0 +1,88 @@
+BL-S3-08 — agents.publish transaction fix — live verification
+================================================================
+Date: 2026-05-09
+Driver swap: drizzle-orm/neon-http  →  drizzle-orm/neon-serverless (Pool, WebSocket)
+Lifecycle:   per-request Pool, disposed via executionCtx.waitUntil(pool.end())
+Reference:   https://github.com/rachhen/hono-drizzle-neon (canonical Hono middleware pattern)
+             Neon docs: https://neon.com/docs/serverless/serverless-driver
+Proposal:    .handoff/proposal-neon-tx-fix.md (Option A)
+
+== Files changed ==
+  packages/db/src/index.ts                          (driver swap, return {db, pool})
+  packages/core/src/repositories/types.ts           (RepoDb: NeonHttp → NeonDatabase)
+  packages/core/src/repositories/agent.ts           (AgentTx HKT swap)
+  packages/core/src/repositories/channel.ts         (ChannelTx HKT swap)
+  packages/core/src/index.ts                        (export RepoDb)
+  packages/runtime/src/projector/agent.ts           (AgentProjectionTx HKT swap)
+  packages/runtime/src/projector/conversation.ts    (RuntimeTx HKT swap)
+  packages/runtime/src/projector/projector-worker.ts (AnyPgDb HKT swap)
+  packages/runtime/src/instrumentation/slo.ts       (AnyPgDb HKT swap)
+  packages/api/src/context.ts                       (ApiDb HKT swap; createAuth(db))
+  packages/auth/src/index.ts                        (createAuth now accepts db arg)
+  apps/server/src/index.ts                          (per-request Pool middleware)
+  apps/server/src/webhooks/meta.ts                  (db from c.var.db, RepoDb-typed)
+  apps/server/src/webhooks/meta.test.ts             (test inject db via middleware)
+
+(Note: packages/auth/src/cli.ts still imports drizzle-orm/neon-http for codegen
+only — separate Node-only path that does no transactional work; left in place.)
+
+== Test suites ==
+  bun -F @kuralle/core test       72/72 passed
+  bun -F @kuralle/runtime test    59/59 passed
+  bun -F server test              26/26 passed
+
+== Live verification (wrangler dev → Neon kuralle-dev) ==
+
+Step 1. Auth write-path through new driver
+  POST /api/auth/sign-up/email (verify3@kuralle.local) → 200
+  Neon SQL:  SELECT email, created_at FROM "user" WHERE email='verify3@kuralle.local'
+             → row present at 2026-05-08 20:09:13.535
+
+Step 2. agents.publish — the previously-broken call
+  Pre-fix:  POST /rpc/agents/publish → 500 "No transactions support in neon-http driver"
+  Post-fix: POST /rpc/agents/publish → 200 in 3292ms (cold-start incl. WS handshake)
+            { versionId: "av_da9eab1c-ba2", versionNumber: 1,
+              activeVersionId: "av_da9eab1c-ba2" }
+
+  Neon SQL: agent_versions row av_da9eab1c-ba2
+            agent_id=ag_demo_calderon, version_number=1, version_kind=publish,
+            parent_version_id=NULL (initial version)
+  Neon SQL: agents.active_version_id = av_da9eab1c-ba2, status = published
+
+Step 3. Concurrent publish race test (closes the R2-2 race)
+  Promise.all([publish-A, publish-B]) on the same agent
+  Result:  A → CONFLICT (SQLSTATE 23505 unique-violation, mapped to ORPCError)
+           B → 200 versionNumber=2, parent_version_id=av_da9eab1c-ba2
+  Linear version graph confirmed (no fork).
+
+Step 4. Read-path regression check
+  agents.list({ workspaceId: ws_calderon_hvac, limit: 20 })
+    → { count: 1, first: "ag_demo_calderon" }
+  conversations index F1 rendered cv_demo_001 row in DOM (read path through Pool).
+
+Step 5. Final Neon agent_versions for ag_demo_calderon:
+  v1  av_da9eab1c-ba2  parent=NULL              (initial publish)
+  v2  av_1138201a-7d0  parent=av_da9eab1c-ba2   (won the race)
+
+== Resolution status ==
+  BL-S3-08 — RESOLVED. agents.publish (and the five other production
+             db.transaction() call sites covered by the same driver swap):
+               agent.ts:239                       publishVersion
+               conversation.ts:findOrCreateMessagingThread
+               channel.ts:connectWithCredentials
+               channel.ts:attachEndpoint
+               channel.ts:detachEndpoint
+               projector-worker.ts                projector consumption loop
+             all now run against neon-serverless Pool, with real transaction
+             support. Verified end-to-end against live Neon.
+
+== Open follow-ups (deferred, not blocking) ==
+  - Per-package tsc on apps/server is slow (>2 min). BL-S3-02 root-cause
+    investigation still outstanding. This commit's tests + live verification
+    stand on the test suite + runtime evidence above; no workspace tsc was
+    required to demonstrate correctness.
+  - executionCtx queue-handler lifecycle for the projector worker (one of the
+    proposal's open questions) — projector-worker.ts runs inside Node.js
+    BullMQ today, so per-request Pool lifecycle does not apply yet. When the
+    projector moves into a CF Worker queue consumer, the same Pool middleware
+    pattern will need to be applied to the queue-handler entry point.

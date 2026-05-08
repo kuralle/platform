@@ -1,6 +1,6 @@
 import type { PgTransaction } from "drizzle-orm/pg-core";
 import type { ExtractTablesWithRelations } from "drizzle-orm";
-import type { NeonHttpQueryResultHKT } from "drizzle-orm/neon-http";
+import type { NeonQueryResultHKT } from "drizzle-orm/neon-serverless";
 import type { NodePgQueryResultHKT } from "drizzle-orm/node-postgres";
 import * as schema from "@kuralle/db/schema";
 import type { AgentIR } from "@kuralle/core";
@@ -10,7 +10,7 @@ type TablesRelational = ExtractTablesWithRelations<typeof schema>;
 
 /** Driver-typed transaction handle this projector accepts. */
 export type AgentProjectionTx =
-  | PgTransaction<NeonHttpQueryResultHKT, typeof schema, TablesRelational>
+  | PgTransaction<NeonQueryResultHKT, typeof schema, TablesRelational>
   | PgTransaction<NodePgQueryResultHKT, typeof schema, TablesRelational>;
 
 /**

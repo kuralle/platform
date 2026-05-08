@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { and, eq, isNull } from "drizzle-orm";
 import { withWorkspace } from "@kuralle/core";
-import type { createDb } from "@kuralle/db";
+import type { RepoDb } from "@kuralle/core";
 import * as schema from "@kuralle/db/schema";
 import { normalizeWebhook, verifySignature } from "@ariaflowagents/messaging-meta/server";
 import type { DurableObjectNamespace } from "@cloudflare/workers-types";
@@ -12,8 +12,14 @@ interface MetaWebhookBindings {
   MESSAGING_DO: DurableObjectNamespace;
 }
 
+// Accept either driver — production uses NeonDatabase (per-request Pool),
+// tests use NodePgDatabase. Both satisfy the structural drizzle shape this
+// webhook needs.
+interface MetaWebhookVariables {
+  db: RepoDb;
+}
+
 interface MetaWebhookDeps {
-  db: ReturnType<typeof createDb>;
   kvStore: Parameters<typeof withWorkspace>[2];
 }
 
@@ -33,7 +39,10 @@ function internalRequestForInboundMessage(body: Record<string, unknown>): Reques
 }
 
 export function createMetaWebhookApp(deps: MetaWebhookDeps) {
-  const app = new Hono<{ Bindings: MetaWebhookBindings }>();
+  const app = new Hono<{
+    Bindings: MetaWebhookBindings;
+    Variables: MetaWebhookVariables;
+  }>();
 
   app.get("/", (c) => {
     const mode = c.req.query("hub.mode");
@@ -71,7 +80,8 @@ export function createMetaWebhookApp(deps: MetaWebhookDeps) {
       const waId = message.from;
       const threadKey = `whatsapp:${waId}`;
 
-      const endpointRows = await deps.db
+      const db = c.var.db;
+      const endpointRows = await db
         .select()
         .from(schema.channelEndpoints)
         .where(
@@ -85,7 +95,7 @@ export function createMetaWebhookApp(deps: MetaWebhookDeps) {
       const endpoint = endpointRows[0];
       if (!endpoint) continue;
 
-      const repos = withWorkspace(deps.db as never, endpoint.workspaceId, deps.kvStore);
+      const repos = withWorkspace(db as never, endpoint.workspaceId, deps.kvStore);
       const { conversationId } = await repos.conversations.findOrCreateMessagingThread({
         workspaceId: endpoint.workspaceId,
         channelEndpointId: endpoint.id,

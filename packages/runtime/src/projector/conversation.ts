@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import type { ExtractTablesWithRelations } from "drizzle-orm";
-import type { NeonHttpQueryResultHKT } from "drizzle-orm/neon-http";
+import type { NeonQueryResultHKT } from "drizzle-orm/neon-serverless";
 import type { NodePgQueryResultHKT } from "drizzle-orm/node-postgres";
 import type { PgTransaction } from "drizzle-orm/pg-core";
 import * as schema from "@kuralle/db/schema";
@@ -9,7 +9,7 @@ import type { MessagingEvent } from "../adapter/events.js";
 type TablesRelational = ExtractTablesWithRelations<typeof schema>;
 
 export type RuntimeTx =
-  | PgTransaction<NeonHttpQueryResultHKT, typeof schema, TablesRelational>
+  | PgTransaction<NeonQueryResultHKT, typeof schema, TablesRelational>
   | PgTransaction<NodePgQueryResultHKT, typeof schema, TablesRelational>;
 
 export interface ProjectionContext {

@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import type { NeonHttpDatabase } from "drizzle-orm/neon-http";
+import type { NeonDatabase } from "drizzle-orm/neon-serverless";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import * as schema from "@kuralle/db/schema";
 import type { ConsumeMessage, ConsumerHandle, MessageQueue } from "@kuralle/platform/interface";
@@ -11,7 +11,7 @@ import {
 import type { MessagingEvent } from "../adapter/events.js";
 import { projectConversationEvent } from "./conversation.js";
 
-type AnyPgDb = NeonHttpDatabase<typeof schema> | NodePgDatabase<typeof schema>;
+type AnyPgDb = NeonDatabase<typeof schema> | NodePgDatabase<typeof schema>;
 
 export interface RunProjectorWorkerOpts {
   queue: MessageQueue;

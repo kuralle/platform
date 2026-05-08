@@ -1,5 +1,5 @@
 import { and, eq, isNull, desc, sql } from "drizzle-orm";
-import type { NeonHttpQueryResultHKT } from "drizzle-orm/neon-http";
+import type { NeonQueryResultHKT } from "drizzle-orm/neon-serverless";
 import type { NodePgQueryResultHKT } from "drizzle-orm/node-postgres";
 import type { PgTransaction } from "drizzle-orm/pg-core";
 import type { ExtractTablesWithRelations } from "drizzle-orm";
@@ -10,7 +10,7 @@ import { WorkspaceScopeViolation } from "../errors.js";
 
 type SchemaTables = ExtractTablesWithRelations<typeof schema>;
 type AgentTx =
-  | PgTransaction<NeonHttpQueryResultHKT, typeof schema, SchemaTables>
+  | PgTransaction<NeonQueryResultHKT, typeof schema, SchemaTables>
   | PgTransaction<NodePgQueryResultHKT, typeof schema, SchemaTables>;
 
 export interface Agent {

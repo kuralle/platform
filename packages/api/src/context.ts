@@ -1,11 +1,11 @@
 import { createAuth } from "@kuralle/auth";
 import type * as schema from "@kuralle/db/schema";
 import type { KvStore } from "@kuralle/platform/interface";
-import type { NeonHttpDatabase } from "drizzle-orm/neon-http";
+import type { NeonDatabase } from "drizzle-orm/neon-serverless";
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import type { Context as HonoContext } from "hono";
 
-export type ApiDb = NeonHttpDatabase<typeof schema> | NodePgDatabase<typeof schema>;
+export type ApiDb = NeonDatabase<typeof schema> | NodePgDatabase<typeof schema>;
 
 export interface ServerEnv {
   META_APP_ID: string;
@@ -24,7 +24,7 @@ export type CreateContextOptions = {
 };
 
 export async function createContext({ context, db, kvStore, env }: CreateContextOptions) {
-  const session = await createAuth().api.getSession({
+  const session = await createAuth(db).api.getSession({
     headers: context.req.raw.headers,
   });
   return {
