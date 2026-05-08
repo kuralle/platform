@@ -6,10 +6,13 @@
     "build": "tsdown",
     "check-types": "tsc -b",
     "compile": "bun build --compile --minify --sourcemap --bytecode ./src/index.ts --outfile server",
+    "dev:wrangler": "wrangler dev --config wrangler.jsonc",
     "gen:openapi": "bun run scripts/gen-openapi.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:wrangler": "vitest run src/durable-objects/MessagingDO.test.ts"
   },
   "dependencies": {
+    "@ariaflowagents/cf-agent": "1.0.0",
     "@ariaflowagents/core": "1.0.0",
     "@ariaflowagents/messaging": "1.0.0",
     "@ariaflowagents/messaging-meta": "1.0.0",

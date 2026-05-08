@@ -1,0 +1,49 @@
+{
+  "name": "kuralle-server",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-05-08",
+  "dev": {
+    "port": 8787
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "MESSAGING_DO",
+        "class_name": "MessagingDO"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1-messaging-do",
+      "new_classes": ["MessagingDO"]
+    }
+  ],
+  "queues": {
+    "producers": [
+      { "binding": "TURNS_SHARD_0", "queue": "turns-shard-0" },
+      { "binding": "TURNS_SHARD_1", "queue": "turns-shard-1" },
+      { "binding": "TURNS_SHARD_2", "queue": "turns-shard-2" },
+      { "binding": "TURNS_SHARD_3", "queue": "turns-shard-3" },
+      { "binding": "TURNS_SHARD_4", "queue": "turns-shard-4" },
+      { "binding": "TURNS_SHARD_5", "queue": "turns-shard-5" },
+      { "binding": "TURNS_SHARD_6", "queue": "turns-shard-6" },
+      { "binding": "TURNS_SHARD_7", "queue": "turns-shard-7" },
+      { "binding": "TURNS_SHARD_8", "queue": "turns-shard-8" },
+      { "binding": "TURNS_SHARD_9", "queue": "turns-shard-9" },
+      { "binding": "TURNS_SHARD_10", "queue": "turns-shard-10" },
+      { "binding": "TURNS_SHARD_11", "queue": "turns-shard-11" },
+      { "binding": "TURNS_SHARD_12", "queue": "turns-shard-12" },
+      { "binding": "TURNS_SHARD_13", "queue": "turns-shard-13" },
+      { "binding": "TURNS_SHARD_14", "queue": "turns-shard-14" },
+      { "binding": "TURNS_SHARD_15", "queue": "turns-shard-15" }
+    ]
+  },
+  "vars": {
+    "META_APP_ID": "",
+    "META_VERIFY_TOKEN": "",
+    "META_PHONE_NUMBER_ID": "",
+    "PUBLIC_BASE_URL": "http://localhost:8787"
+  }
+}
+

@@ -9,6 +9,7 @@ import {
 } from "../test-utils.js";
 import type { PoolClient } from "pg";
 import type { TestDb } from "../test-utils.js";
+import { agents, channelConnections, channelEndpoints } from "@kuralle/db/schema";
 
 const kvStore = new MemoryKvStore();
 const workspaceId = "ws_test_s2_01";
@@ -93,6 +94,48 @@ describe("ConversationRepository", () => {
     it("conversations table has no deletedAt column — softDelete not available", () => {
       // Conversations are never soft-deleted per DATA_MODEL.md
       expect(repo).toBeDefined();
+    });
+  });
+
+  describe("findOrCreateMessagingThread", () => {
+    it("is idempotent for the same thread key", async () => {
+      await db.insert(agents).values({
+        id: "ag_test_1",
+        workspaceId,
+        status: "draft",
+      });
+      await db.insert(channelConnections).values({
+        id: "ch_test_1",
+        workspaceId,
+        channelKind: "whatsapp",
+        provider: "meta-whatsapp-cloud",
+        displayName: "WhatsApp",
+        status: "connected",
+        config: {},
+      });
+      await db.insert(channelEndpoints).values({
+        id: "ce_test_1",
+        workspaceId,
+        connectionId: "ch_test_1",
+        channelKind: "whatsapp",
+        identifier: "111111",
+        attachedAgentId: "ag_test_1",
+      });
+
+      const first = await repo.findOrCreateMessagingThread({
+        workspaceId,
+        channelEndpointId: "ce_test_1",
+        threadKey: "whatsapp:94770000000",
+      });
+      const second = await repo.findOrCreateMessagingThread({
+        workspaceId,
+        channelEndpointId: "ce_test_1",
+        threadKey: "whatsapp:94770000000",
+      });
+
+      expect(second.conversationId).toBe(first.conversationId);
+      expect(second.thread.threadKey).toBe(first.thread.threadKey);
+      expect(second.thread.workspaceId).toBe(workspaceId);
     });
   });
 });

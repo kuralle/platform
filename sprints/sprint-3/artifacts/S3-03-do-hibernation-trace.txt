@@ -1,0 +1,14 @@
+MessagingDO hibernation/restore test trace (local vitest run)
+
+Command:
+  bun -F server test:wrangler
+
+Result:
+  Test Files  1 passed (1)
+  Tests       2 passed (2)
+  Duration    776ms
+
+Scenarios covered:
+  - restores working memory on cold start
+  - maps same wa_id to same thread key
+

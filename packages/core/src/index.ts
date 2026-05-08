@@ -30,6 +30,7 @@ export type {
   Conversation,
   ConversationInsert,
   ConversationUpdate,
+  MessagingThreadRecord,
 } from "./repositories/conversation.js";
 export { AppendOnlyViolation, WorkspaceScopeViolation } from "./errors.js";
 export { agentIRSchema } from "./schemas/agent-ir.js";

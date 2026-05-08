@@ -58,6 +58,16 @@ export interface ConversationUpdate {
   agentVersionId?: string;
 }
 
+export interface MessagingThreadRecord {
+  workspaceId: string;
+  threadKey: string;
+  channelEndpointId: string | null;
+  lastInboundAt: Date | null;
+  windowExpiresAt: Date | null;
+  lastTemplateAt: Date | null;
+  lastConversationId: string | null;
+}
+
 function toDomain(
   row: typeof schema.conversations.$inferSelect,
 ): Conversation {
@@ -177,6 +187,119 @@ export class ConversationRepository {
 
     await this.kv.delete(cacheKey(this.workspaceId, id));
     return toDomain(row);
+  }
+
+  async findOrCreateMessagingThread(input: {
+    workspaceId: string;
+    channelEndpointId: string;
+    threadKey: string;
+    channelKind?: string;
+    participantId?: string;
+    direction?: string;
+  }): Promise<{ thread: MessagingThreadRecord; conversationId: string }> {
+    if (input.workspaceId !== this.workspaceId) {
+      throw new WorkspaceScopeViolation(
+        "messaging_thread",
+        input.threadKey,
+        this.workspaceId,
+        input.workspaceId,
+      );
+    }
+
+    return this.db.transaction(async (tx) => {
+      const existingThreadRows = await tx
+        .select()
+        .from(schema.messagingThreads)
+        .where(
+          and(
+            eq(schema.messagingThreads.workspaceId, this.workspaceId),
+            eq(schema.messagingThreads.threadKey, input.threadKey),
+          ),
+        )
+        .limit(1);
+
+      if (existingThreadRows.length > 0) {
+        const existingThread = existingThreadRows[0]!;
+        if (existingThread.lastConversationId) {
+          return {
+            thread: existingThread,
+            conversationId: existingThread.lastConversationId,
+          };
+        }
+
+        const [createdConversation] = await tx
+          .insert(schema.conversations)
+          .values({
+            id: `cv_${crypto.randomUUID().slice(0, 12)}`,
+            workspaceId: this.workspaceId,
+            channelKind: input.channelKind ?? "whatsapp",
+            channelEndpointId: input.channelEndpointId,
+            threadKey: input.threadKey,
+            participantId: input.participantId ?? null,
+            direction: input.direction ?? "inbound",
+            startedAt: new Date(),
+          })
+          .returning();
+        if (!createdConversation) {
+          throw new Error(
+            "ConversationRepository.findOrCreateMessagingThread: no conversation returned",
+          );
+        }
+        const [updatedThread] = await tx
+          .update(schema.messagingThreads)
+          .set({ lastConversationId: createdConversation.id })
+          .where(
+            and(
+              eq(schema.messagingThreads.workspaceId, this.workspaceId),
+              eq(schema.messagingThreads.threadKey, input.threadKey),
+            ),
+          )
+          .returning();
+        if (!updatedThread) {
+          throw new Error(
+            "ConversationRepository.findOrCreateMessagingThread: failed to update messaging thread",
+          );
+        }
+        return { thread: updatedThread, conversationId: createdConversation.id };
+      }
+
+      const [createdConversation] = await tx
+        .insert(schema.conversations)
+        .values({
+          id: `cv_${crypto.randomUUID().slice(0, 12)}`,
+          workspaceId: this.workspaceId,
+          channelKind: input.channelKind ?? "whatsapp",
+          channelEndpointId: input.channelEndpointId,
+          threadKey: input.threadKey,
+          participantId: input.participantId ?? null,
+          direction: input.direction ?? "inbound",
+          startedAt: new Date(),
+        })
+        .returning();
+      if (!createdConversation) {
+        throw new Error(
+          "ConversationRepository.findOrCreateMessagingThread: no conversation returned",
+        );
+      }
+
+      const [createdThread] = await tx
+        .insert(schema.messagingThreads)
+        .values({
+          workspaceId: this.workspaceId,
+          threadKey: input.threadKey,
+          channelEndpointId: input.channelEndpointId,
+          lastInboundAt: new Date(),
+          windowExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+          lastConversationId: createdConversation.id,
+        })
+        .returning();
+      if (!createdThread) {
+        throw new Error(
+          "ConversationRepository.findOrCreateMessagingThread: no messaging thread returned",
+        );
+      }
+      return { thread: createdThread, conversationId: createdConversation.id };
+    });
   }
 
   // No softDelete — conversations table has no deletedAt column per DATA_MODEL.md
