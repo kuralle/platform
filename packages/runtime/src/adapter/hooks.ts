@@ -187,19 +187,25 @@ export function buildHarnessHooks(deps: HarnessHooksDeps): HarnessHooks {
     // ({ targetNode, data }) inline. This is the extraction feed for the
     // projector's conversation_extracted_fields writer.
     onToolResult: async (_context: RunContext, call: ToolCallRecord) => {
-      const payload: MessagingEvent extends { payload: infer P } ? P : never =
-        {
-          turnId: currentTurnId,
-          toolCallId: call.toolCallId,
-          toolName: call.toolName,
-          success: call.success,
-          durationMs: call.durationMs,
-          error: call.error?.message,
-        } as unknown as MessagingEvent["payload"];
+      // [S3-fix-2] r2 finding #5: typed payload, no double-cast. Build a
+      // concrete tool.result payload and append `extraction` via the documented
+      // optional field (Zod's `.strict()` will catch any drift at parse time).
+      type ToolResultPayload = Extract<
+        MessagingEvent,
+        { kind: "tool.result" }
+      >["payload"];
+      const payload: ToolResultPayload = {
+        turnId: currentTurnId,
+        toolCallId: call.toolCallId,
+        toolName: call.toolName,
+        success: call.success,
+        durationMs: call.durationMs,
+        error: call.error?.message,
+      };
 
       // FINDINGS: tool-result extraction payload rides on __flow_transition === true
       if (isFlowTransitionResult(call.result)) {
-        (payload as Record<string, unknown>).extraction = {
+        payload.extraction = {
           targetNode: call.result.targetNode ?? "",
           data: call.result.data ?? {},
         };

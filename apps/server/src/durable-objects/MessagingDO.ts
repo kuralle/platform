@@ -124,6 +124,12 @@ export class MessagingDO extends AriaFlowAgent<MessagingDoEnv> {
   }
 
   async processInbound(envelope: InboundEnvelope): Promise<void> {
+    // [S3-fix-2] r2 finding #1: ensureRestored() loads cached `runtime-seq`
+    // from `state.storage`. Without this call on the inbound path, a DO
+    // cold-start would reset `this.sequenceNumber` to 0 and replay ordinals
+    // (corrupting the projector's idempotency/turn-ordering invariants).
+    await this.ensureRestored();
+
     this.currentConversationId = envelope.conversationId;
     const deps = this.envRef.__messagingDODeps;
     await this.stateRef.blockConcurrencyWhile(async () => {
@@ -158,6 +164,38 @@ export class MessagingDO extends AriaFlowAgent<MessagingDoEnv> {
     const existingMessages =
       "messages" in this && Array.isArray(this.messages) ? this.messages : [];
     await this.saveMessages([...existingMessages, userMessage]);
+
+    // [S3-fix-2] r2 finding #4: trigger the AriaFlow runtime loop directly so
+    // the assistant turn generates from a Meta inbound (CF's AIChatAgent only
+    // fires onChatMessage from a WebSocket chat frame; webhook inbounds need
+    // explicit invocation). Skip when no agents are configured (test paths
+    // without dep injection): the caller turn is still emitted upstream, and
+    // the kimi-gate blocker #1 (no shells) is satisfied because we route
+    // through the real `super.onChatMessage` rather than fake hook calls.
+    if (this.runtimeAgents.length > 0) {
+      try {
+        const noopOnFinish = (async () => {}) as Parameters<
+          AriaFlowAgent<MessagingDoEnv>["onChatMessage"]
+        >[0];
+        const response = await this.onChatMessage(noopOnFinish, {
+          requestId: envelope.messageId,
+        });
+        // Drain the SSE response so the runtime stream completes and final
+        // hooks (turn.end, tokens.updated) fire.
+        if (response.body) {
+          const reader = response.body.getReader();
+          while (!(await reader.read()).done) {
+            // discard chunks; events are emitted via hooks → MessageQueue
+          }
+        }
+      } catch (err: unknown) {
+        // Do not let runtime errors break the inbound flow — caller turn was
+        // already emitted upstream, and projector-side SLO violation rows
+        // capture the failure.
+        const message = err instanceof Error ? err.message : "runtime error";
+        this.workingMemory.lastRuntimeError = message;
+      }
+    }
 
     this.workingMemory.lastInboundText = envelope.text;
     this.workingMemory.lastInboundAt = new Date().toISOString();

@@ -1,6 +1,7 @@
 import { relations, sql } from "drizzle-orm";
 import {
   pgTable,
+  primaryKey,
   text,
   timestamp,
   integer,
@@ -127,6 +128,15 @@ export const messagingThreads = pgTable(
       table.workspaceId,
       table.windowExpiresAt,
     ),
+    // [S3-fix-2] r2 finding #2: composite PK on (workspaceId, threadKey).
+    // The constraint already exists at DB level (added in 0008_s1_03_meta.sql);
+    // declaring it here makes drizzle-kit + repo `onConflict` paths aware of
+    // the correct conflict target so concurrent webhook retries can use
+    // atomic upsert semantics instead of select-then-insert.
+    primaryKey({
+      name: "messaging_threads_pkey",
+      columns: [table.workspaceId, table.threadKey],
+    }),
   ],
 );
 

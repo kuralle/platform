@@ -1,11 +1,17 @@
 /**
- * S3-06 SLO test (Node-side projector pipeline).
+ * S3-06 SLO test (Node-side projector ingestion slice).
  *
- * **Scope (honest framing):** this test exercises the projector pipeline —
- * webhook handler → memory queue → projector worker → DB → conversations.get
- * — using a `turn.end` event shaped EXACTLY as the real `MessagingDO` emits via
+ * **Scope (honest framing — narrowed in [S3-fix-2] per r2 finding #3):** this
+ * test exercises ONLY the projector ingestion slice —
+ * `emitCallerTurn` → memory queue → projector worker → DB → conversations.get —
+ * using a `turn.end` event shaped EXACTLY as the real `MessagingDO` emits via
  * `emitCallerTurn` (verified by `packages/runtime/src/adapter/hooks.test.ts`
  * and `packages/runtime/src/projector/conversation.test.ts`).
+ *
+ * **The webhook handler is NOT invoked here.** The fixtures seed
+ * `messaging_threads` + `conversations` rows directly so the projector has a
+ * parent to attach turns to. End-to-end webhook→DO→projector verification
+ * lives in `slo-do-real-loop.test.ts` (workerd-side via pool-workers).
  *
  * What this test DOES verify:
  *   - p95 latency from webhook receipt to F2 visibility ≤ 4s (SLO threshold).

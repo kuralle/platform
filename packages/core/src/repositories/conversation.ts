@@ -409,8 +409,36 @@ export class ConversationRepository {
       );
     }
 
+    // [S3-fix-2] r2 finding #2: atomic upsert pattern. The previous
+    // select-then-insert raced under concurrent webhook retries and could
+    // throw on the (workspace_id, thread_key) PK collision rather than
+    // gracefully no-op. New flow:
+    //   1. INSERT messaging_threads ... ON CONFLICT DO NOTHING — claims the
+    //      row if no concurrent writer beat us.
+    //   2. SELECT the row (yours or the winner's) — guarantees we have a
+    //      thread row to attach a conversation to.
+    //   3. If the thread already had a lastConversationId, return it.
+    //   4. Otherwise insert a new conversation and update the thread atomically.
     return this.db.transaction(async (tx) => {
-      const existingThreadRows = await tx
+      // Step 1: best-effort claim.
+      await tx
+        .insert(schema.messagingThreads)
+        .values({
+          workspaceId: this.workspaceId,
+          threadKey: input.threadKey,
+          channelEndpointId: input.channelEndpointId,
+          lastInboundAt: new Date(),
+          windowExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        })
+        .onConflictDoNothing({
+          target: [
+            schema.messagingThreads.workspaceId,
+            schema.messagingThreads.threadKey,
+          ],
+        });
+
+      // Step 2: read the canonical row (ours OR the winner's).
+      const threadRows = await tx
         .select()
         .from(schema.messagingThreads)
         .where(
@@ -420,52 +448,19 @@ export class ConversationRepository {
           ),
         )
         .limit(1);
-
-      if (existingThreadRows.length > 0) {
-        const existingThread = existingThreadRows[0]!;
-        if (existingThread.lastConversationId) {
-          return {
-            thread: existingThread,
-            conversationId: existingThread.lastConversationId,
-          };
-        }
-
-        const [createdConversation] = await tx
-          .insert(schema.conversations)
-          .values({
-            id: `cv_${crypto.randomUUID().slice(0, 12)}`,
-            workspaceId: this.workspaceId,
-            channelKind: input.channelKind ?? "whatsapp",
-            channelEndpointId: input.channelEndpointId,
-            threadKey: input.threadKey,
-            participantId: input.participantId ?? null,
-            direction: input.direction ?? "inbound",
-            startedAt: new Date(),
-          })
-          .returning();
-        if (!createdConversation) {
-          throw new Error(
-            "ConversationRepository.findOrCreateMessagingThread: no conversation returned",
-          );
-        }
-        const [updatedThread] = await tx
-          .update(schema.messagingThreads)
-          .set({ lastConversationId: createdConversation.id })
-          .where(
-            and(
-              eq(schema.messagingThreads.workspaceId, this.workspaceId),
-              eq(schema.messagingThreads.threadKey, input.threadKey),
-            ),
-          )
-          .returning();
-        if (!updatedThread) {
-          throw new Error(
-            "ConversationRepository.findOrCreateMessagingThread: failed to update messaging thread",
-          );
-        }
-        return { thread: updatedThread, conversationId: createdConversation.id };
+      const thread = threadRows[0];
+      if (!thread) {
+        throw new Error(
+          "ConversationRepository.findOrCreateMessagingThread: thread missing after upsert",
+        );
       }
 
+      // Step 3: existing conversation wins.
+      if (thread.lastConversationId) {
+        return { thread, conversationId: thread.lastConversationId };
+      }
+
+      // Step 4: create + attach conversation atomically.
       const [createdConversation] = await tx
         .insert(schema.conversations)
         .values({
@@ -485,23 +480,22 @@ export class ConversationRepository {
         );
       }
 
-      const [createdThread] = await tx
-        .insert(schema.messagingThreads)
-        .values({
-          workspaceId: this.workspaceId,
-          threadKey: input.threadKey,
-          channelEndpointId: input.channelEndpointId,
-          lastInboundAt: new Date(),
-          windowExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-          lastConversationId: createdConversation.id,
-        })
+      const [updatedThread] = await tx
+        .update(schema.messagingThreads)
+        .set({ lastConversationId: createdConversation.id })
+        .where(
+          and(
+            eq(schema.messagingThreads.workspaceId, this.workspaceId),
+            eq(schema.messagingThreads.threadKey, input.threadKey),
+          ),
+        )
         .returning();
-      if (!createdThread) {
+      if (!updatedThread) {
         throw new Error(
-          "ConversationRepository.findOrCreateMessagingThread: no messaging thread returned",
+          "ConversationRepository.findOrCreateMessagingThread: failed to update messaging thread",
         );
       }
-      return { thread: createdThread, conversationId: createdConversation.id };
+      return { thread: updatedThread, conversationId: createdConversation.id };
     });
   }
 
