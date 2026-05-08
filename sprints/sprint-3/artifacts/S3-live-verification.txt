@@ -1,0 +1,38 @@
+S3 Live Verification — 2026-05-09
+
+Setup
+-----
+- Spun up Neon project `kuralle-dev` (silent-glade-76127740, aws-us-east-1).
+- Applied all 14 migrations to Neon (60 tables created).
+- Seeded ws_calderon_hvac org + agent + channel + conversation cv_demo_001 + 2 turns.
+- Updated apps/server/.env DATABASE_URL → Neon.
+- Updated apps/web/.env VITE_SERVER_URL → http://localhost:8787 (was :3000).
+- Booted `wrangler dev` (server, :8787) + `bun start` (web, :3001).
+
+Verified via agent-browser
+--------------------------
+1. POST /api/auth/sign-up/email → 200 OK; user persisted to Neon.
+2. POST /api/auth/sign-in/email → 200 OK; session cookie set.
+3. POST /rpc/conversations/list (workspaceId=ws_calderon_hvac) → 200 OK; 1 item.
+4. F1 (/conversations) DOM rendered the seeded row:
+     ["cv_demo_001", "ag_demo_calderon", "demo-caller / Sarah from demo",
+      "Live · inbound", "—", "—", "8m ago"]
+5. F2 (/conversations/cv_demo_001) rendered the bundle:
+     - Header: Sarah from demo · ag_demo_calderon · RESOLVED
+     - Stats: EVALS 0/0 passed, COST $0.00
+     - Caller info, started time
+     - TRANSCRIPT (both turns):
+         CALLER: "Hi, I need to schedule HVAC service for next Tuesday"
+         AGENT:  "I can help with that. What time works for you?"
+
+Bug found during live verification
+----------------------------------
+F2 turn timestamps render as "29637777:26" (raw minutes:seconds from
+epoch math). Should display "5 minutes ago" or absolute time. Logged
+as BL-S3-07 (presentation polish).
+
+Conclusion
+----------
+Sprint 3 data path verified live: Neon → wrangler → oRPC → TanStack
+Query → F1/F2 render. The auth boundary, the procedure layer, the
+repository layer, and the UI all wired correctly end-to-end.
