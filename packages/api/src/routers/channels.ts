@@ -8,6 +8,7 @@ import {
   unsubscribeApp,
 } from "@kuralle/runtime";
 import { protectedProcedure } from "../index";
+import { assertWorkspaceMember } from "../workspace-access";
 import {
   channelConnectionSchema,
   channelEndpointSchema,
@@ -87,6 +88,7 @@ export const channelsRouter = {
     .input(listInput)
     .output(listOutput)
     .handler(async ({ input, context }) => {
+      await assertWorkspaceMember(context, input.workspaceId);
       const repos = withWorkspace(
         context.db,
         input.workspaceId,
@@ -103,6 +105,7 @@ export const channelsRouter = {
     .input(connectInput)
     .output(connectOutput)
     .handler(async ({ input, context }) => {
+      await assertWorkspaceMember(context, input.workspaceId);
       const appSecret = context.env.META_APP_SECRET;
       const systemUserToken = context.env.META_SYSTEM_USER_TOKEN;
       const appId = context.env.META_APP_ID;
@@ -171,6 +174,7 @@ export const channelsRouter = {
       .input(endpointsListInput)
       .output(endpointsListOutput)
       .handler(async ({ input, context }) => {
+        await assertWorkspaceMember(context, input.workspaceId);
         const repos = withWorkspace(
           context.db,
           input.workspaceId,
@@ -186,6 +190,7 @@ export const channelsRouter = {
       .input(endpointsListByKindInput)
       .output(endpointsListByKindOutput)
       .handler(async ({ input, context }) => {
+        await assertWorkspaceMember(context, input.workspaceId);
         const repos = withWorkspace(
           context.db,
           input.workspaceId,
@@ -199,6 +204,7 @@ export const channelsRouter = {
       .input(endpointsAttachInput)
       .output(endpointsAttachOutput)
       .handler(async ({ input, context }) => {
+        await assertWorkspaceMember(context, input.workspaceId);
         const repos = withWorkspace(
           context.db,
           input.workspaceId,
@@ -254,6 +260,7 @@ export const channelsRouter = {
       .input(endpointsDetachInput)
       .output(endpointsDetachOutput)
       .handler(async ({ input, context }) => {
+        await assertWorkspaceMember(context, input.workspaceId);
         const repos = withWorkspace(
           context.db,
           input.workspaceId,
