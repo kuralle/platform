@@ -6,7 +6,7 @@ import { Eyebrow } from "@kuralle/ui/components/eyebrow";
 import { Skeleton } from "@kuralle/ui/components/skeleton";
 import { type ColumnDef, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { ChevronLeft, Download, Printer } from "lucide-react";
+import { ChevronLeft, Printer } from "lucide-react";
 import { useMemo } from "react";
 
 import { useActiveWorkspaceId } from "@/contexts/workspace";
@@ -105,9 +105,6 @@ function RoiReceiptRoute() {
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={print} className="gap-1.5">
               <Printer size={14} /> Print
-            </Button>
-            <Button className="gap-1.5">
-              <Download size={14} /> Download PDF
             </Button>
           </div>
         </div>

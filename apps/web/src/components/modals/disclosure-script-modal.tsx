@@ -15,6 +15,8 @@ import { Textarea } from "@kuralle/ui/components/textarea";
 import { CheckCircle2, ShieldAlert } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { useWorkspace } from "@/contexts/workspace";
+
 interface DisclosureScriptModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -30,6 +32,8 @@ const TEMPLATES = {
 };
 
 export function DisclosureScriptModal({ open, onOpenChange }: DisclosureScriptModalProps) {
+  const { workspace } = useWorkspace();
+  const brandName = workspace.name.trim();
   const [tpl, setTpl] = useState<keyof typeof TEMPLATES>("ca_sb1001");
   const [script, setScript] = useState(TEMPLATES.ca_sb1001);
   const [verbal, setVerbal] = useState(true);
@@ -38,12 +42,15 @@ export function DisclosureScriptModal({ open, onOpenChange }: DisclosureScriptMo
 
   const lint = useMemo(() => {
     const issues: { ok: boolean; label: string }[] = [];
-    issues.push({ ok: script.includes("{brand}") || script.includes("Calderon"), label: "Identifies the brand or operator." });
+    const namesBrand =
+      script.includes("{brand}") ||
+      (brandName.length > 0 && script.toLowerCase().includes(brandName.toLowerCase()));
+    issues.push({ ok: namesBrand, label: "Identifies the brand or operator." });
     issues.push({ ok: /record/i.test(script), label: "Mentions recording." });
     issues.push({ ok: /(opt[- ]out|STOP|press 0|human)/i.test(script), label: "Provides an opt-out path." });
     issues.push({ ok: script.length < 280, label: "Under 280 characters (one breath)." });
     return issues;
-  }, [script]);
+  }, [script, brandName]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

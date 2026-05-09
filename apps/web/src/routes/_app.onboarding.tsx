@@ -7,13 +7,15 @@ import { Input } from "@kuralle/ui/components/input";
 import { WizardShell } from "@kuralle/ui/components/wizard-shell";
 import { cn } from "@kuralle/ui/lib/utils";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { Building2, GraduationCap, Wrench } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { useActiveWorkspaceId, VERTICAL_DESCRIPTION, VERTICAL_LABEL } from "@/contexts/workspace";
 import { useOnboardingState, useCompleteOnboarding } from "@/hooks/api/onboarding";
 import { useCreateAgent } from "@/hooks/api/agents";
 import { useWorkspaceSettings } from "@/hooks/api/workspace";
+import { $api } from "@/providers/api-provider";
 import type { Vertical } from "@/types/domain";
 
 export const Route = createFileRoute("/_app/onboarding")({
@@ -28,17 +30,21 @@ const VERTICAL_ICON: Record<Vertical, React.ComponentType<{ size?: number; class
 
 function OnboardingRoute() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const workspaceId = useActiveWorkspaceId();
   const { data: wsSettings } = useWorkspaceSettings({ workspaceId });
   const { data: _onboardingState } = useOnboardingState({ workspaceId });
   const completeOnboarding = useCompleteOnboarding();
   const createAgent = useCreateAgent();
+  const finishOnceRef = useRef(false);
 
   const [name, setName] = useState(wsSettings?.name ?? "");
   const [phone, setPhone] = useState("");
   const [vertical, setVertical] = useState<Vertical>((wsSettings?.vertical as Vertical) ?? "home-services");
 
   const handleFinish = () => {
+    if (finishOnceRef.current || completeOnboarding.isPending || createAgent.isPending) return;
+    finishOnceRef.current = true;
     completeOnboarding.mutate(
       {
         workspaceId,
@@ -47,18 +53,39 @@ function OnboardingRoute() {
         phone: phone || undefined,
       },
       {
-        onSuccess: () => {
-          createAgent.mutate(
-            { workspaceId },
-            {
-              onSuccess: (data) => {
-                void navigate({
-                  to: "/agents/$agentId/behavior",
-                  params: { agentId: data.agentId },
-                });
+        onSuccess: async () => {
+          try {
+            const list = await queryClient.fetchQuery({
+              ...$api.agents.list.queryOptions({ input: { workspaceId } }),
+            });
+            const existing = list.items[0];
+            if (existing) {
+              void navigate({
+                to: "/agents/$agentId/behavior",
+                params: { agentId: existing.id },
+              });
+              return;
+            }
+            createAgent.mutate(
+              { workspaceId },
+              {
+                onSuccess: (data) => {
+                  void navigate({
+                    to: "/agents/$agentId/behavior",
+                    params: { agentId: data.agentId },
+                  });
+                },
+                onError: () => {
+                  finishOnceRef.current = false;
+                },
               },
-            },
-          );
+            );
+          } catch {
+            finishOnceRef.current = false;
+          }
+        },
+        onError: () => {
+          finishOnceRef.current = false;
         },
       },
     );

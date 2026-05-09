@@ -116,7 +116,7 @@ function SignInScreen() {
                 type="email"
                 required
                 autoComplete="email"
-                placeholder="rj@calderonhvac.com"
+                placeholder="you@company.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="h-11"
@@ -176,9 +176,7 @@ function SignInScreen() {
         </div>
 
         <p className="mt-6 text-center text-[12px] text-muted-foreground">
-          By {mode === "sign-in" ? "signing in" : "creating an account"}, you agree to our{" "}
-          <a className="underline-offset-2 hover:underline" href="#">Terms</a> and{" "}
-          <a className="underline-offset-2 hover:underline" href="#">Acceptable Use Policy</a>.
+          Closed testing — legal terms are not published yet.
         </p>
       </div>
     </div>

@@ -114,7 +114,7 @@ function WorkspaceSettingsRoute() {
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="home-services">Home Services</SelectItem>
-                      <SelectItem value="appointment-services">Appointment Services</SelectItem>
+                      <SelectItem value="appointment-services">Healthcare & Appointments</SelectItem>
                       <SelectItem value="education">Education</SelectItem>
                     </SelectContent>
                   </Select>
