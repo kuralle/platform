@@ -53,13 +53,22 @@ export interface ConsumeMessage<T> {
   payload: T;
   attempt: number;
   ack(): Promise<void>;
-  nack(opts?: { requeue?: boolean; reason?: string }): Promise<void>;
+  nack(opts?: { requeue?: boolean; reason?: string; cause?: unknown }): Promise<void>;
+}
+
+export interface MessagePoisonInfo {
+  topic: string;
+  payload: unknown;
+  attemptsMade: number;
+  reason?: string;
+  cause?: unknown;
 }
 
 export interface ConsumeOpts {
   concurrency?: number;
   visibilityTimeoutMs?: number;
   maxRetries?: number;
+  onPoison?: (info: MessagePoisonInfo) => Promise<void>;
 }
 
 export interface ConsumerHandle {

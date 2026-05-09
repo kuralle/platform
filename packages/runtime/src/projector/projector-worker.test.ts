@@ -71,6 +71,12 @@ beforeEach(async () => {
 });
 
 describe("runProjectorWorker", () => {
+  beforeEach(async () => {
+    await client.query("TRUNCATE TABLE turn_events_dlq").catch((e: { code?: string }) => {
+      if (e.code !== "42P01") throw e;
+    });
+  });
+
   async function waitForTurns(expected: number): Promise<void> {
     for (let i = 0; i < 30; i += 1) {
       const rows = await db
@@ -143,4 +149,41 @@ describe("runProjectorWorker", () => {
     },
     30_000,
   );
+
+  it("dead-letters after three failed attempts for missing conversation", async () => {
+    const queue = new MemoryMessageQueue();
+    const worker = runProjectorWorker({ queue, db, shardKeys: ["turns-shard-0"] });
+    const logs: string[] = [];
+    const orig = console.error;
+    console.error = (...args: unknown[]) => {
+      logs.push(args.map((a) => (typeof a === "string" ? a : JSON.stringify(a))).join(" "));
+      orig(...args);
+    };
+    try {
+      const event = {
+        kind: "turn.end" as const,
+        conversationId: "cv_missing_dlq",
+        sequenceNumber: 1,
+        occurredAt: new Date(),
+        payload: {
+          turnId: "turn_dlq",
+          messageId: "msg_dlq",
+          fullText: "x",
+          speaker: "assistant" as const,
+        },
+      };
+      await queue.publish("turns-shard-0", event);
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      const dlqRows = await db.select().from(schema.turnEventsDlq);
+      expect(dlqRows).toHaveLength(1);
+      expect(dlqRows[0]?.messageId).toBe("cv_missing_dlq:1");
+      expect(dlqRows[0]?.attempts).toBe(3);
+      expect(dlqRows[0]?.errorMessage).toBe("conversation-not-found");
+      const errLines = logs.filter((l) => l.includes('"at":"projector-worker"') && l.includes("conversation-not-found"));
+      expect(errLines.length).toBeGreaterThanOrEqual(3);
+    } finally {
+      console.error = orig;
+      await worker.stop();
+    }
+  });
 });

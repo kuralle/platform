@@ -14,3 +14,4 @@ export * from "./compliance";
 export * from "./batches";
 export * from "./widget";
 export * from "./onboarding";
+export * from "./dlq";

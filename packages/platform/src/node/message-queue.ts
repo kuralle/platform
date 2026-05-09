@@ -75,6 +75,13 @@ export class NodeMessageQueue implements MessageQueue {
             done = true;
             shouldRequeue = nackOpts?.requeue ?? true;
             if (!shouldRequeue) {
+              await opts?.onPoison?.({
+                topic,
+                payload: job.data,
+                attemptsMade: job.attemptsMade,
+                reason: nackOpts?.reason,
+                cause: nackOpts?.cause,
+              });
               await job.discard();
             }
             throw new Error(nackOpts?.reason ?? "nack");

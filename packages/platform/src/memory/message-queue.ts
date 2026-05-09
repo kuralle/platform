@@ -14,7 +14,7 @@ interface EnqueuedMessage<T> {
 
 interface Consumer<T> {
   handler: (msg: ConsumeMessage<T>) => Promise<void>;
-  opts?: ConsumeOpts;
+  opts: ConsumeOpts | undefined;
 }
 
 export class MemoryMessageQueue implements MessageQueue {
@@ -50,11 +50,12 @@ export class MemoryMessageQueue implements MessageQueue {
   consume<T>(
     topic: string,
     handler: (msg: ConsumeMessage<T>) => Promise<void>,
-    _opts?: ConsumeOpts,
+    consumeOpts?: ConsumeOpts,
   ): ConsumerHandle {
     const consumerSet = this.consumers.get(topic) ?? new Set<Consumer<unknown>>();
     const consumer: Consumer<unknown> = {
       handler: handler as (msg: ConsumeMessage<unknown>) => Promise<void>,
+      opts: consumeOpts,
     };
     consumerSet.add(consumer);
     this.consumers.set(topic, consumerSet);
@@ -110,7 +111,7 @@ export class MemoryMessageQueue implements MessageQueue {
         if (acked) return; // idempotent on repeated ack
         acked = true;
       };
-      const nack = async (nackOpts?: { requeue?: boolean; reason?: string }) => {
+      const nack = async (nackOpts?: { requeue?: boolean; reason?: string; cause?: unknown }) => {
         if (acked) {
           throw new Error(
             `[memory MessageQueue] nack() called after ack() on topic "${topic}" message ${msg.id}; ack/nack are mutually exclusive`,
@@ -120,6 +121,14 @@ export class MemoryMessageQueue implements MessageQueue {
         nacked = true;
         if (nackOpts?.requeue) {
           queue.push({ ...msg, attempt: msg.attempt + 1 });
+        } else {
+          await consumer.opts?.onPoison?.({
+            topic,
+            payload: msg.payload,
+            attemptsMade: msg.attempt,
+            reason: nackOpts?.reason,
+            cause: nackOpts?.cause,
+          });
         }
       };
 
