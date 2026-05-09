@@ -100,7 +100,7 @@ function useSessionSafely(): { activeOrganizationId: string | null } | null {
 
 export const VERTICAL_LABEL: Record<Vertical, string> = {
   "home-services": "Home Services",
-  "appointment-services": "Appointment Services",
+  "appointment-services": "Healthcare & Appointments",
   "education": "Education",
 };
 
@@ -108,7 +108,7 @@ export const VERTICAL_DESCRIPTION: Record<Vertical, string> = {
   "home-services":
     "HVAC, plumbing, electrical, generic field-service operators. TCPA-default compliance.",
   "appointment-services":
-    "Dental, medical, veterinary, salon. HIPAA-default compliance and BAA workflows.",
+    "Dental, medical, veterinary practices. HIPAA-default compliance and BAA workflows.",
   "education":
     "Higher-ed admissions, K-12, bootcamps. FERPA-default with identity-verification gates.",
 };
