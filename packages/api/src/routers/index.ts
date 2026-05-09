@@ -15,6 +15,7 @@ import { receiptsRouter } from "./receipts";
 import { workspaceRouter } from "./workspace";
 import { widgetRouter } from "./widget";
 import { onboardingRouter } from "./onboarding";
+import { homeRouter } from "./home";
 
 export const appRouter = {
   healthCheck: publicProcedure.handler(() => {
@@ -40,6 +41,7 @@ export const appRouter = {
   workspace: workspaceRouter,
   widget: widgetRouter,
   onboarding: onboardingRouter,
+  home: homeRouter,
 };
 export type AppRouter = typeof appRouter;
 export type AppRouterClient = RouterClient<typeof appRouter>;

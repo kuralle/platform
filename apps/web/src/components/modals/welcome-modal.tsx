@@ -10,6 +10,7 @@ import {
 import { Eyebrow } from "@kuralle/ui/components/eyebrow";
 import { Check, Phone, Sparkles, Users } from "lucide-react";
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 
 interface WelcomeModalProps {
   open: boolean;
@@ -83,7 +84,14 @@ export function WelcomeModal({ open, onOpenChange }: WelcomeModalProps) {
           <span className="font-mono text-[12px] tabular-nums text-muted-foreground">
             {STEPS.length - remaining} of {STEPS.length} complete
           </span>
-          <Button onClick={() => onOpenChange(false)}>{remaining === 0 ? "Done" : "Got it"}</Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              {remaining === 0 ? "Done" : "Dismiss"}
+            </Button>
+            <Button nativeButton={false} render={<Link to="/onboarding" />} onClick={() => onOpenChange(false)}>
+              Get started
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

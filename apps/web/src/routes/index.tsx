@@ -11,6 +11,6 @@ export const Route = createFileRoute("/")({
     if (!session.data) {
       throw redirect({ to: "/auth/sign-in" });
     }
-    throw redirect({ to: "/home", search: { welcome: false } });
+    throw redirect({ to: "/home", search: { welcome: false, firstrun: false } });
   },
 });

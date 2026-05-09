@@ -21,20 +21,9 @@ import { useConversations } from "@/hooks/api/conversations";
 import { useAgents } from "@/hooks/api/agents";
 import { useWorkspaceSettings } from "@/hooks/api/workspace";
 import { useCompliancePosture } from "@/hooks/api/compliance";
-import { formatPct, formatRelative, formatUsd } from "@/lib/format";
+import { useDashboard } from "@/hooks/api/home";
+import { formatRelative, formatUsd } from "@/lib/format";
 import type { ComplianceState, KpiTilePoint } from "@/types/domain";
-
-// S2-04 fix-pass F05: B1 KPI tiles are inline placeholders until S3 wires
-// real telemetry from `usage_events` (live calls + p95 latency) and an
-// aggregator (calls today + booking rate + recovered revenue). Mock import
-// removed to satisfy the no-mock-from-production-screen rule.
-const PLACEHOLDER_KPIS: KpiTilePoint[] = [
-  { label: "Live calls", value: 0, delta: 0, spark: [], live: true },
-  { label: "Calls today", value: 0, delta: 0, spark: [] },
-  { label: "Booking rate", value: 0, delta: 0, spark: [] },
-  { label: "Recovered revenue", value: 0, currency: true, delta: 0, spark: [] },
-  { label: "p95 latency", value: 0, delta: 0, spark: [] },
-];
 
 /** API row shape for conversations.list — subset of fields used by this screen. */
 interface ConversationRow {
@@ -52,7 +41,10 @@ interface ConversationRow {
 
 export const Route = createFileRoute("/_app/home")({
   component: HomeRoute,
-  validateSearch: (s) => ({ welcome: typeof s.welcome === "string" }),
+  validateSearch: (s) => ({
+    welcome: s.welcome === "true",
+    firstrun: s.firstrun === "1",
+  }),
 });
 
 function HomeRoute() {
@@ -60,18 +52,45 @@ function HomeRoute() {
   const { data: wsSettings } = useWorkspaceSettings({ workspaceId });
   const { data: posture } = useCompliancePosture({ workspaceId });
   const navigate = useNavigate();
-  const [welcomeOpen, setWelcomeOpen] = useState(false);
+  const search = Route.useSearch();
+  const [welcomeOpen, setWelcomeOpen] = useState(search.welcome);
   const [complianceOpen, setComplianceOpen] = useState(false);
 
   const health = useHealthCheck();
+  const dashboard = useDashboard({ workspaceId });
 
-  const kpis = PLACEHOLDER_KPIS;
+  const kpis: KpiTilePoint[] = useMemo(() => {
+    const d = dashboard.data;
+    if (!d) {
+      return [
+        { label: "Live calls", value: 0, delta: 0, spark: [], live: true },
+        { label: "Calls today", value: 0, delta: 0, spark: [] },
+        { label: "7-day trend", value: 0, delta: 0, spark: [] },
+      ];
+    }
+    return [
+      { label: "Live calls", value: d.liveCalls, delta: 0, spark: [], live: true },
+      { label: "Calls today", value: d.todayCalls, delta: 0, spark: [] },
+      {
+        label: "7-day trend",
+        value: d.weeklyTrend.count,
+        delta: d.weeklyTrend.deltaPct ?? 0,
+        spark: [],
+      },
+    ];
+  }, [dashboard.data]);
+
   const conversationsQuery = useConversations({ workspaceId, limit: 6 });
   const conversations = useMemo(
     () => conversationsQuery.data?.items ?? [],
     [conversationsQuery.data?.items],
   );
   void useAgents({ workspaceId });
+
+  function dismissWelcome() {
+    setWelcomeOpen(false);
+    navigate({ to: "/home", search: { welcome: false, firstrun: false } });
+  }
 
   const recentColumns = useMemo<ColumnDef<ConversationRow>[]>(() => [
     {
@@ -196,7 +215,7 @@ function HomeRoute() {
       />
 
       {/* KPI row */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {kpis.map((kpi) => (
           <KpiTile
             key={kpi.label}
@@ -204,13 +223,13 @@ function HomeRoute() {
             value={
               kpi.currency
                 ? formatUsd(kpi.value)
-                : kpi.label === "Booking rate"
-                  ? formatPct(kpi.value)
-                  : kpi.label === "p95 latency"
-                    ? `${kpi.value}ms`
-                    : kpi.value.toLocaleString()
+                : kpi.label === "7-day trend"
+                  ? dashboard.data?.weeklyTrend.deltaPct == null
+                    ? `${kpi.value}`
+                    : `${kpi.value}`
+                  : kpi.value.toLocaleString()
             }
-            delta={kpi.delta}
+            delta={dashboard.data?.weeklyTrend.deltaPct == null && kpi.label === "7-day trend" ? 0 : kpi.delta}
             spark={kpi.spark}
             currency={kpi.currency}
             live={kpi.live}
@@ -283,7 +302,7 @@ function HomeRoute() {
         }
       />
 
-      <WelcomeModal open={welcomeOpen} onOpenChange={setWelcomeOpen} />
+      <WelcomeModal open={welcomeOpen} onOpenChange={(open) => { if (!open) dismissWelcome(); }} />
       <ComplianceStatusModal open={complianceOpen} onOpenChange={setComplianceOpen} />
     </div>
   );
