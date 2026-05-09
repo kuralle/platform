@@ -42,6 +42,19 @@ export function useAgentAutoSave() {
   });
 }
 
+/** Creates a new agent with an initial draft version. Invalidates agents.list on success. */
+export function useCreateAgent() {
+  const qc = useQueryClient();
+  return useMutation({
+    ...$api.agents.create.mutationOptions(),
+    onSuccess: (_data, variables) => {
+      void qc.invalidateQueries({
+        queryKey: $api.agents.list.queryKey({ input: { workspaceId: variables.workspaceId } }),
+      });
+    },
+  });
+}
+
 /** Returns paginated version history for an agent. */
 export function useAgentHistory(input: {
   workspaceId: string;

@@ -11,6 +11,7 @@ import { useState } from "react";
 
 import { useActiveWorkspaceId, VERTICAL_DESCRIPTION, VERTICAL_LABEL } from "@/contexts/workspace";
 import { useOnboardingState, useCompleteOnboarding } from "@/hooks/api/onboarding";
+import { useCreateAgent } from "@/hooks/api/agents";
 import { useWorkspaceSettings } from "@/hooks/api/workspace";
 import type { Vertical } from "@/types/domain";
 
@@ -30,6 +31,7 @@ function OnboardingRoute() {
   const { data: wsSettings } = useWorkspaceSettings({ workspaceId });
   const { data: _onboardingState } = useOnboardingState({ workspaceId });
   const completeOnboarding = useCompleteOnboarding();
+  const createAgent = useCreateAgent();
 
   const [name, setName] = useState(wsSettings?.name ?? "");
   const [phone, setPhone] = useState("");
@@ -44,7 +46,19 @@ function OnboardingRoute() {
         phone: phone || undefined,
       },
       {
-        onSuccess: () => navigate({ to: "/home", search: { welcome: false } }),
+        onSuccess: () => {
+          createAgent.mutate(
+            { workspaceId },
+            {
+              onSuccess: (data) => {
+                void navigate({
+                  to: "/agents/$agentId/behavior",
+                  params: { agentId: data.agentId },
+                });
+              },
+            },
+          );
+        },
       },
     );
   };

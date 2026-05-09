@@ -19,12 +19,12 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { formatPct, formatRelative, formatUsd } from "@/lib/format";
-import { useAgents } from "@/hooks/api/agents";
+import { useAgents, useCreateAgent } from "@/hooks/api/agents";
 import { useActiveWorkspaceId } from "@/contexts/workspace";
 import type { Agent } from "@/types/domain";
 
@@ -36,6 +36,7 @@ function AgentsListRoute() {
   const navigate = useNavigate();
   const workspaceId = useActiveWorkspaceId();
   const { data: agentsList } = useAgents({ workspaceId });
+  const createAgent = useCreateAgent();
   const data = useMemo(() => (agentsList?.items ?? []) as unknown as Agent[], [agentsList?.items]);
   const [sorting, setSorting] = useState<SortingState>([{ id: "calls7d", desc: true }]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -191,7 +192,23 @@ function AgentsListRoute() {
         title="Agents"
         description="Every agent is a prompt + voice + compliance contract. Click in to tune behaviour, model, or eval criteria."
         actions={
-          <Button nativeButton={false} render={<Link to="/agents/$agentId/behavior" params={{ agentId: "ag_a00" }} />}>
+          <Button
+            nativeButton={false}
+            disabled={createAgent.isPending}
+            onClick={() => {
+              createAgent.mutate(
+                { workspaceId },
+                {
+                  onSuccess: (data) => {
+                    void navigate({
+                      to: "/agents/$agentId/behavior",
+                      params: { agentId: data.agentId },
+                    });
+                  },
+                },
+              );
+            }}
+          >
             <Plus size={16} /> New agent
           </Button>
         }

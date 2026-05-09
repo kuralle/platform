@@ -46,6 +46,12 @@ const historyOutput = z
   })
   .strict();
 
+const createOutput = z
+  .object({
+    agentId: z.string(),
+  })
+  .strict();
+
 const publishOutput = z
   .object({
     versionId: z.string(),
@@ -70,6 +76,63 @@ function newId(prefix: string): string {
 // ── router ─────────────────────────────────────────────────────────
 
 export const agentsRouter = {
+  create: protectedProcedure
+    .input(
+      workspaceIdInput.extend({
+        snapshot: agentIRSchema.optional(),
+      }),
+    )
+    .output(createOutput)
+    .handler(async ({ input, context }) => {
+      const repos = withWorkspace(
+        context.db,
+        input.workspaceId,
+        context.kvStore,
+      );
+
+      const agentId = newId("ag");
+      const versionId = newId("av");
+
+      const snapshot = input.snapshot ?? {
+        name: "Untitled agent",
+        description: "",
+        instructions: "",
+        model: { provider: "openai", name: "gpt-4o", temperature: 0.4 },
+        defaultOptions: {},
+        toolAttachments: {},
+        workflowAttachments: {},
+        subagentAttachments: {},
+        integrationTools: {},
+        mcpClientAttachments: {},
+        kbAttachments: [],
+        guardrailGraph: { nodes: [], edges: [] },
+        scorerAttachments: {},
+        voiceConfig: {
+          pipelineMode: "stt-llm-tts",
+          ttsModel: "cartesia-sonic-3",
+          ttsVoiceId: "v_aurora",
+          sttModel: "deepgram-nova-3-monolingual",
+          sttLanguage: "en",
+        },
+        channelConfig: {},
+        complianceConfig: {
+          retentionDays: 90,
+          redactionPatterns: [],
+          disclosureScript: "",
+        },
+        requestContextSchema: {},
+      };
+
+      await repos.agents.create({
+        agentId,
+        versionId,
+        authorUserId: context.session?.user?.id ?? null,
+        snapshot,
+      });
+
+      return { agentId };
+    }),
+
   list: protectedProcedure
     .input(workspaceIdInput.merge(cursorInput))
     .output(listOutput)

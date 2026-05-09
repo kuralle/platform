@@ -4,11 +4,12 @@ import { Card } from "@kuralle/ui/components/card";
 import { Eyebrow } from "@kuralle/ui/components/eyebrow";
 import { PageHeader } from "@kuralle/ui/components/page-header";
 import { Tabs, TabsList, TabsTrigger } from "@kuralle/ui/components/tabs";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Sparkles } from "lucide-react";
 import { useState } from "react";
 
 import { useActiveWorkspaceId } from "@/contexts/workspace";
+import { useCreateAgent } from "@/hooks/api/agents";
 import { useWorkspaceSettings } from "@/hooks/api/workspace";
 import type { Vertical } from "@/types/domain";
 
@@ -38,8 +39,10 @@ const TEMPLATES_BY_VERTICAL: Record<Vertical, { id: string; name: string; sub: s
 };
 
 function TemplatesRoute() {
+  const navigate = useNavigate();
   const workspaceId = useActiveWorkspaceId();
   const { data: wsSettings } = useWorkspaceSettings({ workspaceId });
+  const createAgent = useCreateAgent();
   const [tab, setTab] = useState<Vertical>((wsSettings?.vertical as Vertical) ?? "home-services");
   const templates = TEMPLATES_BY_VERTICAL[tab];
 
@@ -79,9 +82,22 @@ function TemplatesRoute() {
             </div>
             <Button
               nativeButton={false}
-              render={<Link to="/agents/$agentId/behavior" params={{ agentId: "ag_a00" }} />}
               variant="outline"
               className="mt-auto gap-2"
+              disabled={createAgent.isPending}
+              onClick={() => {
+                createAgent.mutate(
+                  { workspaceId },
+                  {
+                    onSuccess: (data) => {
+                      void navigate({
+                        to: "/agents/$agentId/behavior",
+                        params: { agentId: data.agentId },
+                      });
+                    },
+                  },
+                );
+              }}
             >
               <Sparkles size={14} /> Start from this template
             </Button>

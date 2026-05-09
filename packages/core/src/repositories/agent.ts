@@ -315,6 +315,63 @@ export class AgentRepository {
   }
 
   /**
+   * Transactional create: insert agent row + initial draft version, then set
+   * activeVersionId on the agent — all in one transaction so the agent is
+   * never in an inconsistent state (no activeVersionId).
+   */
+  async create(opts: {
+    agentId: string;
+    versionId: string;
+    authorUserId: string | null;
+    snapshot: unknown;
+  }): Promise<{ agent: Agent; versionId: string }> {
+    await this.db.transaction(async (tx) => {
+      await tx.insert(schema.agents).values({
+        id: opts.agentId,
+        workspaceId: this.workspaceId,
+        status: "draft",
+        authorUserId: opts.authorUserId ?? null,
+        metadata: null,
+        updatedAt: new Date(),
+      });
+
+      await tx.insert(schema.agentVersions).values({
+        id: opts.versionId,
+        agentId: opts.agentId,
+        versionNumber: 1,
+        versionKind: "manual_save",
+        parentVersionId: null,
+        publishedByUserId: opts.authorUserId ?? null,
+        publishedAt: null,
+        snapshot: opts.snapshot as Record<string, unknown>,
+      });
+
+      await tx
+        .update(schema.agents)
+        .set({
+          activeVersionId: opts.versionId,
+          updatedAt: new Date(),
+        })
+        .where(eq(schema.agents.id, opts.agentId));
+    });
+
+    const agent = await this.findById(opts.agentId);
+    if (!agent) throw new Error("AgentRepository.create: agent not found after insert");
+
+    try {
+      await this.kv.delete(cacheKey(this.workspaceId, opts.agentId));
+      await this.kv.delete(`repo:agent_version:${this.workspaceId}:${opts.versionId}`);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.warn(
+        `[AgentRepository.create] cache invalidation failed for agent=${opts.agentId}: ${message}`,
+      );
+    }
+
+    return { agent, versionId: opts.versionId };
+  }
+
+  /**
    * Get the next version number for an agent. Used by publish and autoSave.
    */
   async nextVersionNumber(agentId: string): Promise<number> {
