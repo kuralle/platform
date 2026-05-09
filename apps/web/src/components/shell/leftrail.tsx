@@ -60,8 +60,8 @@ const SECTIONS: NavSection[] = [
     id: "distribute",
     label: "Distribute",
     items: [
-      { to: "/telephony", label: "Telephony", icon: Workflow },
-      { to: "/phone-numbers", label: "Phone numbers", icon: Phone },
+      { to: "/phone-numbers", label: "Numbers", icon: Phone },
+      { to: "/telephony", label: "Carriers & connectors", icon: Workflow },
       { to: "/widget", label: "Widget", icon: Activity },
     ],
   },
