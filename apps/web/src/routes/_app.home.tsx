@@ -15,12 +15,14 @@ import { useMemo, useState } from "react";
 
 import { ComplianceStatusModal } from "@/components/modals/compliance-status-modal";
 import { WelcomeModal } from "@/components/modals/welcome-modal";
-import { useWorkspace } from "@/contexts/workspace";
+import { useActiveWorkspaceId } from "@/contexts/workspace";
 import { useHealthCheck } from "@/hooks/api/health";
 import { useConversations } from "@/hooks/api/conversations";
 import { useAgents } from "@/hooks/api/agents";
+import { useWorkspaceSettings } from "@/hooks/api/workspace";
+import { useCompliancePosture } from "@/hooks/api/compliance";
 import { formatPct, formatRelative, formatUsd } from "@/lib/format";
-import type { KpiTilePoint } from "@/types/domain";
+import type { ComplianceState, KpiTilePoint } from "@/types/domain";
 
 // S2-04 fix-pass F05: B1 KPI tiles are inline placeholders until S3 wires
 // real telemetry from `usage_events` (live calls + p95 latency) and an
@@ -54,7 +56,9 @@ export const Route = createFileRoute("/_app/home")({
 });
 
 function HomeRoute() {
-  const { workspace } = useWorkspace();
+  const workspaceId = useActiveWorkspaceId();
+  const { data: wsSettings } = useWorkspaceSettings({ workspaceId });
+  const { data: posture } = useCompliancePosture({ workspaceId });
   const navigate = useNavigate();
   const [welcomeOpen, setWelcomeOpen] = useState(false);
   const [complianceOpen, setComplianceOpen] = useState(false);
@@ -62,12 +66,12 @@ function HomeRoute() {
   const health = useHealthCheck();
 
   const kpis = PLACEHOLDER_KPIS;
-  const conversationsQuery = useConversations({ workspaceId: workspace.id, limit: 6 });
+  const conversationsQuery = useConversations({ workspaceId, limit: 6 });
   const conversations = useMemo(
     () => conversationsQuery.data?.items ?? [],
     [conversationsQuery.data?.items],
   );
-  void useAgents({ workspaceId: workspace.id });
+  void useAgents({ workspaceId });
 
   const recentColumns = useMemo<ColumnDef<ConversationRow>[]>(() => [
     {
@@ -176,7 +180,7 @@ function HomeRoute() {
         </StatusPill>
       </div>
       <PageHeader
-        eyebrow={`Workspace · ${workspace.name}`}
+        eyebrow={`Workspace · ${wsSettings?.name ?? "Workspace"}`}
         title="Today"
         description={`Live activity, recent calls, and compliance posture for ${formatRelative(new Date().toISOString()).replace(" ago", "")}.`}
         actions={
@@ -240,12 +244,12 @@ function HomeRoute() {
           <div className="mt-3 flex flex-col gap-2">
             <ComplianceChip
               label="HIPAA"
-              state={workspace.compliance.hipaa}
-              suffix={workspace.compliance.hipaa === "inactive" ? "not in scope" : undefined}
+              state={(posture?.hipaa ?? "inactive") as ComplianceState}
+              suffix={posture?.hipaa === "inactive" ? "not in scope" : undefined}
             />
-            <ComplianceChip label="FERPA" state={workspace.compliance.ferpa} suffix="not in scope" />
-            <ComplianceChip label="TCPA" state={workspace.compliance.tcpa} suffix="PEWC + DNC ✓" />
-            <ComplianceChip label="EU AI Act" state={workspace.compliance.euAiAct} suffix="risk class needed" />
+            <ComplianceChip label="FERPA" state={(posture?.ferpa ?? "inactive") as ComplianceState} suffix="not in scope" />
+            <ComplianceChip label="TCPA" state={(posture?.tcpa ?? "active") as ComplianceState} suffix="PEWC + DNC ✓" />
+            <ComplianceChip label="EU AI Act" state={(posture?.euAiAct ?? "action-required") as ComplianceState} suffix="risk class needed" />
           </div>
           <Button
             variant="ghost"

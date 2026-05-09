@@ -9,8 +9,9 @@ import { type ColumnDef, getCoreRowModel, useReactTable } from "@tanstack/react-
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo } from "react";
 
-import { useActiveWorkspaceId, useWorkspace } from "@/contexts/workspace";
+import { useActiveWorkspaceId } from "@/contexts/workspace";
 import { useCompliancePosture } from "@/hooks/api/compliance";
+import { useWorkspaceSettings } from "@/hooks/api/workspace";
 import { formatRelative } from "@/lib/format";
 
 export const Route = createFileRoute("/_app/workspace/compliance")({
@@ -34,8 +35,8 @@ const PLACEHOLDER_AUDIT: AuditRow[] = [
 ];
 
 function ComplianceRoute() {
-  const { workspace } = useWorkspace();
   const workspaceId = useActiveWorkspaceId();
+  const { data: wsSettings } = useWorkspaceSettings({ workspaceId });
   const { data: posture, isLoading, isError } = useCompliancePosture({ workspaceId });
 
   const regulations: Reg[] = useMemo(() => [
@@ -101,7 +102,7 @@ function ComplianceRoute() {
       <PageHeader
         eyebrow="Workspace"
         title="Compliance posture"
-        description={`Live audit-grade view of ${workspace.name}'s posture across the four governing regulations.`}
+        description={`Live audit-grade view of ${wsSettings?.name ?? "Workspace"}'s posture across the four governing regulations.`}
       />
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

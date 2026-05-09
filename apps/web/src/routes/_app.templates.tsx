@@ -8,7 +8,8 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { Sparkles } from "lucide-react";
 import { useState } from "react";
 
-import { useWorkspace } from "@/contexts/workspace";
+import { useActiveWorkspaceId } from "@/contexts/workspace";
+import { useWorkspaceSettings } from "@/hooks/api/workspace";
 import type { Vertical } from "@/types/domain";
 
 export const Route = createFileRoute("/_app/templates")({
@@ -37,8 +38,9 @@ const TEMPLATES_BY_VERTICAL: Record<Vertical, { id: string; name: string; sub: s
 };
 
 function TemplatesRoute() {
-  const { workspace, setVertical } = useWorkspace();
-  const [tab, setTab] = useState<Vertical>(workspace.vertical);
+  const workspaceId = useActiveWorkspaceId();
+  const { data: wsSettings } = useWorkspaceSettings({ workspaceId });
+  const [tab, setTab] = useState<Vertical>((wsSettings?.vertical as Vertical) ?? "home-services");
   const templates = TEMPLATES_BY_VERTICAL[tab];
 
   return (
@@ -52,7 +54,6 @@ function TemplatesRoute() {
         value={tab}
         onValueChange={(v) => {
           setTab(v as Vertical);
-          setVertical(v as Vertical);
         }}
       >
         <TabsList>

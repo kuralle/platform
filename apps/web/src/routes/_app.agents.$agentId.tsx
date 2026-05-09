@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { EditorContext, useEditorReducer, type EditorAction } from "@/contexts/editor";
 import { useAgent, useAgentAutoSave, useAgentPublish } from "@/hooks/api/agents";
-import { useWorkspace } from "@/contexts/workspace";
+import { useActiveWorkspaceId } from "@/contexts/workspace";
 import { PublishConfirmationModal } from "@/components/editor/publish-confirmation-modal";
 import { Button } from "@kuralle/ui/components/button";
 
@@ -26,11 +26,11 @@ export const Route = createFileRoute("/_app/agents/$agentId")({
 
 function AgentEditorLayout() {
   const { agentId } = Route.useParams();
-  const { workspace } = useWorkspace();
+  const workspaceId = useActiveWorkspaceId();
   const [state, dispatch] = useEditorReducer();
   const [publishOpen, setPublishOpen] = useState(false);
 
-  const agentQuery = useAgent({ workspaceId: workspace.id, agentId });
+  const agentQuery = useAgent({ workspaceId, agentId });
   const autoSave = useAgentAutoSave();
   const publish = useAgentPublish();
 
@@ -64,7 +64,7 @@ function AgentEditorLayout() {
     autoSaveTimer.current = setTimeout(() => {
       autoSave.mutate(
         {
-          workspaceId: workspace.id,
+          workspaceId,
           agentId,
           ir: state.ir,
         },
@@ -82,7 +82,7 @@ function AgentEditorLayout() {
     return () => {
       if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     };
-  }, [state.ir, isDirty, autoSave, dispatch, workspace.id, agentId, agentQuery.data]);
+  }, [state.ir, isDirty, autoSave, dispatch, workspaceId, agentId, agentQuery.data]);
 
   // Cancel auto-save timer when publish fires
   useEffect(() => {
@@ -107,12 +107,12 @@ function AgentEditorLayout() {
 
   const handlePublish = useCallback(() => {
     publish.mutate({
-      workspaceId: workspace.id,
+      workspaceId,
       agentId,
       ir: state.ir,
     });
     setPublishOpen(false);
-  }, [publish, workspace.id, agentId, state.ir]);
+  }, [publish, workspaceId, agentId, state.ir]);
 
   // Derive sticky bar status text
   const stickyStatus = (() => {

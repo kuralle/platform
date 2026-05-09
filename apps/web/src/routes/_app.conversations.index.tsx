@@ -21,7 +21,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
 import { useConversations } from "@/hooks/api/conversations";
-import { useWorkspace } from "@/contexts/workspace";
+import { useActiveWorkspaceId } from "@/contexts/workspace";
 import { formatRelative, formatUsd } from "@/lib/format";
 
 /** API row shape for conversations.list. */
@@ -44,8 +44,8 @@ export const Route = createFileRoute("/_app/conversations/")({
 
 function ConversationsList() {
   const navigate = useNavigate();
-  const { workspace } = useWorkspace();
-  const conversationsQuery = useConversations({ workspaceId: workspace.id, limit: 100 });
+  const workspaceId = useActiveWorkspaceId();
+  const conversationsQuery = useConversations({ workspaceId, limit: 100 });
   const data = useMemo(() => (conversationsQuery.data?.items ?? []) as ConversationRow[], [conversationsQuery.data?.items]);
   const [sorting, setSorting] = useState<SortingState>([{ id: "startedAt", desc: true }]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);

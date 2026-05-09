@@ -24,7 +24,7 @@ import { useMemo, useState } from "react";
 
 import { AddDocumentModal } from "@/components/modals/add-document-modal";
 import { useKb } from "@/hooks/api/kb";
-import { useWorkspace } from "@/contexts/workspace";
+import { useActiveWorkspaceId } from "@/contexts/workspace";
 import { formatRelative } from "@/lib/format";
 
 function formatBytes(n: number) {
@@ -52,8 +52,8 @@ const SOURCE_ICON = { file: File, url: Globe, text: Type } as const;
 
 function KnowledgeListRoute() {
   const navigate = useNavigate();
-  const { workspace } = useWorkspace();
-  const kbQuery = useKb({ workspaceId: workspace.id, limit: 100 });
+  const workspaceId = useActiveWorkspaceId();
+  const kbQuery = useKb({ workspaceId, limit: 100 });
   const data = useMemo(() => (kbQuery.data?.items ?? []) as KbDocumentRow[], [kbQuery.data?.items]);
   const [addOpen, setAddOpen] = useState(false);
 

@@ -9,8 +9,9 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Building2, GraduationCap, Wrench } from "lucide-react";
 import { useState } from "react";
 
-import { useActiveWorkspaceId, useWorkspace, VERTICAL_DESCRIPTION, VERTICAL_LABEL } from "@/contexts/workspace";
+import { useActiveWorkspaceId, VERTICAL_DESCRIPTION, VERTICAL_LABEL } from "@/contexts/workspace";
 import { useOnboardingState, useCompleteOnboarding } from "@/hooks/api/onboarding";
+import { useWorkspaceSettings } from "@/hooks/api/workspace";
 import type { Vertical } from "@/types/domain";
 
 export const Route = createFileRoute("/_app/onboarding")({
@@ -25,20 +26,21 @@ const VERTICAL_ICON: Record<Vertical, React.ComponentType<{ size?: number; class
 
 function OnboardingRoute() {
   const navigate = useNavigate();
-  const { workspace, setVertical } = useWorkspace();
   const workspaceId = useActiveWorkspaceId();
+  const { data: wsSettings } = useWorkspaceSettings({ workspaceId });
   const { data: _onboardingState } = useOnboardingState({ workspaceId });
   const completeOnboarding = useCompleteOnboarding();
 
-  const [name, setName] = useState(workspace.name);
+  const [name, setName] = useState(wsSettings?.name ?? "");
   const [phone, setPhone] = useState("");
+  const [vertical, setVertical] = useState<Vertical>((wsSettings?.vertical as Vertical) ?? "home-services");
 
   const handleFinish = () => {
     completeOnboarding.mutate(
       {
         workspaceId,
-        name: name || workspace.name,
-        vertical: workspace.vertical,
+        name: name || wsSettings?.name || "",
+        vertical,
         phone: phone || undefined,
       },
       {
@@ -80,7 +82,7 @@ function OnboardingRoute() {
                   <div className="grid gap-3">
                     {(Object.keys(VERTICAL_LABEL) as Vertical[]).map((v) => {
                       const Icon = VERTICAL_ICON[v];
-                      const active = workspace.vertical === v;
+                      const active = vertical === v;
                       return (
                         <button
                           key={v}
@@ -138,7 +140,7 @@ function OnboardingRoute() {
                   <Card className="p-6 text-center">
                     <p className="font-display text-[18px] font-semibold">All set.</p>
                     <p className="mt-1 text-[13px] text-muted-foreground">
-                      Your workspace inherits {VERTICAL_LABEL[workspace.vertical]} defaults. We'll be in your dashboard in
+                      Your workspace inherits {VERTICAL_LABEL[vertical]} defaults. We'll be in your dashboard in
                       a moment.
                     </p>
                   </Card>

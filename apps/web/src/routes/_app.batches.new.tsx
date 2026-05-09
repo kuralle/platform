@@ -11,10 +11,11 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { CheckCircle2, ShieldCheck, Upload } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { useActiveWorkspaceId, useWorkspace } from "@/contexts/workspace";
+import { useActiveWorkspaceId } from "@/contexts/workspace";
 import { useAgents } from "@/hooks/api/agents";
 import { useTelephony } from "@/hooks/api/telephony";
 import { useCreateBatch } from "@/hooks/api/batches";
+import { useWorkspaceSettings } from "@/hooks/api/workspace";
 import { formatUsd } from "@/lib/format";
 import type { Vertical } from "@/types/domain";
 
@@ -25,7 +26,7 @@ export const Route = createFileRoute("/_app/batches/new")({
 function NewBatchRoute() {
   const navigate = useNavigate();
   const workspaceId = useActiveWorkspaceId();
-  const { workspace } = useWorkspace();
+  const { data: wsSettings } = useWorkspaceSettings({ workspaceId });
   const { data: agentsList } = useAgents({ workspaceId });
   const { data: endpointsList } = useTelephony({ workspaceId });
   const createBatch = useCreateBatch();
@@ -50,7 +51,7 @@ function NewBatchRoute() {
         agentId: agentId || null,
         channelKind: "voice",
         channelEndpointId: numberId || null,
-        vertical: (workspace.vertical ?? "home-services") as Vertical,
+        vertical: (wsSettings?.vertical ?? "home-services") as Vertical,
         scheduledFor: scheduleNow ? null : new Date(),
         totalRecipients: recipients,
         concurrency,

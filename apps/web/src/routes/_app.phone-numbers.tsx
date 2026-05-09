@@ -26,7 +26,7 @@ import { useMemo, useState } from "react";
 import { ImportNumberWizard } from "@/components/modals/import-number-wizard";
 import { usePhoneNumbers } from "@/hooks/api/phone-numbers";
 import { useAgents } from "@/hooks/api/agents";
-import { useWorkspace } from "@/contexts/workspace";
+import { useActiveWorkspaceId } from "@/contexts/workspace";
 
 /** API row shape for channels.list (phone number endpoints). */
 interface PhoneNumberRow {
@@ -44,9 +44,9 @@ export const Route = createFileRoute("/_app/phone-numbers")({
 
 function PhoneNumbersRoute() {
   const [importOpen, setImportOpen] = useState(false);
-  const { workspace } = useWorkspace();
-  const pnQuery = usePhoneNumbers({ workspaceId: workspace.id });
-  const agentsQuery = useAgents({ workspaceId: workspace.id, limit: 100 });
+  const workspaceId = useActiveWorkspaceId();
+  const pnQuery = usePhoneNumbers({ workspaceId });
+  const agentsQuery = useAgents({ workspaceId, limit: 100 });
   const numbers = useMemo(() => (pnQuery.data?.items ?? []) as PhoneNumberRow[], [pnQuery.data?.items]);
   const agentsById = useMemo(() => {
     const map = new Map<string, string>();

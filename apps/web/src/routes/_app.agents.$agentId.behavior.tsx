@@ -10,7 +10,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Info } from "lucide-react";
 
 import { AgentEditorShell } from "@/components/configure/agent-editor-shell";
-import { useWorkspace } from "@/contexts/workspace";
+import { useActiveWorkspaceId } from "@/contexts/workspace";
 import { useEditor } from "@/contexts/editor";
 import { useAgent } from "@/hooks/api/agents";
 
@@ -20,9 +20,9 @@ export const Route = createFileRoute("/_app/agents/$agentId/behavior")({
 
 function BehaviorTab() {
   const { agentId } = Route.useParams();
-  const { workspace } = useWorkspace();
+  const workspaceId = useActiveWorkspaceId();
   const { state, dispatch, seeded } = useEditor();
-  const agentQuery = useAgent({ workspaceId: workspace.id, agentId });
+  const agentQuery = useAgent({ workspaceId, agentId });
 
   const ir = state.ir;
   // R2-1 fix: gate on the explicit `seeded` flag from the parent layout, not

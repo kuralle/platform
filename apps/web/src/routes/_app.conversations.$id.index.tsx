@@ -12,7 +12,7 @@ import { ChevronDown, ChevronLeft, Pause, Play, Wrench } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { formatRelative, formatUsd } from "@/lib/format";
-import { useWorkspace } from "@/contexts/workspace";
+import { useActiveWorkspaceId } from "@/contexts/workspace";
 import {
   useConversation,
   useConversationLive,
@@ -24,14 +24,14 @@ export const Route = createFileRoute("/_app/conversations/$id/")({
 
 function ConversationDetailRoute() {
   const { id } = Route.useParams();
-  const { workspace } = useWorkspace();
+  const workspaceId = useActiveWorkspaceId();
   const conversationQuery = useConversation({
-    workspaceId: workspace.id,
+    workspaceId,
     conversationId: id,
   });
   const conversation = conversationQuery.data?.conversation;
   const liveTurns = useConversationLive({
-    workspaceId: workspace.id,
+    workspaceId,
     conversationId: id,
     initialTurns: conversationQuery.data?.turns ?? [],
   }).turns;
