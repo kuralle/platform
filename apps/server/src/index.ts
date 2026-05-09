@@ -16,14 +16,17 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { createMetaWebhookApp } from "./webhooks/meta.js";
 import { MessagingDO } from "./durable-objects/MessagingDO.js";
+import { logServerError, logServerHttp } from "./logger.js";
+import { requestIdMiddleware } from "./middleware/request-id.js";
 
-type AppEnv = { Variables: { db: Db; pool: Pool } };
+type AppEnv = { Variables: { db: Db; pool: Pool; requestId: string } };
 
 const kvStore = new MemoryKvStore();
 
 const app = new Hono<AppEnv>();
 
-app.use(logger());
+app.use(requestIdMiddleware);
+app.use(logger(logServerHttp));
 app.use(
   "/*",
   cors({
@@ -58,7 +61,10 @@ export const apiHandler = new OpenAPIHandler(appRouter, {
   ],
   interceptors: [
     onError((error) => {
-      console.error(error);
+      logServerError("OpenAPI handler error", {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
     }),
   ],
 });
@@ -66,7 +72,10 @@ export const apiHandler = new OpenAPIHandler(appRouter, {
 export const rpcHandler = new RPCHandler(appRouter, {
   interceptors: [
     onError((error) => {
-      console.error(error);
+      logServerError("RPC handler error", {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
     }),
   ],
 });
