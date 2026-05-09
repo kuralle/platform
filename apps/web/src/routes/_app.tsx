@@ -1,11 +1,34 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@kuralle/ui/components/sheet";
-import { Outlet, createFileRoute, redirect, useRouterState } from "@tanstack/react-router";
+import {
+  Outlet,
+  createFileRoute,
+  redirect,
+  useRouterState,
+  type ErrorComponentProps,
+} from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
+import { ErrorBoundaryFallback } from "@/components/error-boundary";
 import { CommandPalette } from "@/components/shell/command-palette";
 import { LeftRail } from "@/components/shell/leftrail";
 import { Topbar } from "@/components/shell/topbar";
 import { getSession } from "@/lib/auth-client";
+
+function AppLayoutErrorBoundary(props: ErrorComponentProps) {
+  return (
+    <div className="grid h-svh grid-cols-1 grid-rows-[auto_1fr] bg-background md:grid-cols-[auto_1fr]">
+      <header className="col-span-1 md:col-span-2">
+        <Topbar onCommandOpen={() => {}} onMobileMenuToggle={() => {}} />
+      </header>
+      <div className="hidden md:block">
+        <LeftRail />
+      </div>
+      <main className="overflow-auto">
+        <ErrorBoundaryFallback {...props} />
+      </main>
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/_app")({
   beforeLoad: async ({ location }) => {
@@ -18,6 +41,7 @@ export const Route = createFileRoute("/_app")({
     }
     return { user: session.data.user, session: session.data.session };
   },
+  errorComponent: AppLayoutErrorBoundary,
   component: AppLayout,
 });
 

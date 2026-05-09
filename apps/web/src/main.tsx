@@ -1,6 +1,7 @@
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import ReactDOM from "react-dom/client";
 
+import { ErrorBoundaryFallback } from "./components/error-boundary";
 import Loader from "./components/loader";
 import { WorkspaceProvider } from "./contexts/workspace";
 import { ApiProvider } from "./providers/api-provider";
@@ -11,6 +12,7 @@ const router = createRouter({
   defaultPreload: "intent",
   scrollRestoration: true,
   defaultPendingComponent: () => <Loader />,
+  defaultErrorComponent: ErrorBoundaryFallback,
   Wrap: function WrapComponent({ children }: { children: React.ReactNode }) {
     return <WorkspaceProvider>{children}</WorkspaceProvider>;
   },
