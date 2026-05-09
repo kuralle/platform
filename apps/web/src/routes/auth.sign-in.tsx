@@ -1,6 +1,5 @@
 import { Alert, AlertDescription } from "@kuralle/ui/components/alert";
 import { Button } from "@kuralle/ui/components/button";
-import { ComplianceChip } from "@kuralle/ui/components/compliance-chip";
 import { Field, FieldDescription, FieldLabel } from "@kuralle/ui/components/field";
 import { Input } from "@kuralle/ui/components/input";
 import { Separator } from "@kuralle/ui/components/separator";
@@ -172,13 +171,6 @@ function SignInScreen() {
           >
             {mode === "sign-in" ? "Create a new workspace instead" : "Back to sign in"}
           </Button>
-        </div>
-
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-          <ComplianceChip label="SOC 2" state="active" />
-          <ComplianceChip label="HIPAA" state="active" suffix="BAA available" />
-          <ComplianceChip label="FERPA" state="active" />
-          <ComplianceChip label="EU AI Act" state="action-required" />
         </div>
 
         <p className="mt-6 text-center text-[12px] text-muted-foreground">
