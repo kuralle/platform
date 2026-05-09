@@ -33,6 +33,11 @@ interface NavSection {
   items: NavLink[];
 }
 
+function currentReceiptPath() {
+  const d = new Date();
+  return `/revenue/receipt/${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
 const SECTIONS: NavSection[] = [
   {
     id: "configure",
@@ -68,7 +73,7 @@ const SECTIONS: NavSection[] = [
     items: [
       { to: "/workspace/settings", label: "Settings", icon: Settings },
       { to: "/workspace/compliance", label: "Compliance", icon: ShieldCheck },
-      { to: "/revenue/receipt/2026-04", label: "ROI receipt", icon: CircleDollarSign },
+      { to: currentReceiptPath(), label: "ROI receipt", icon: CircleDollarSign },
     ],
   },
 ];
