@@ -41,5 +41,7 @@ export {
 export { requireWorkspaceMembership } from "./auth-guard.js";
 export { insertTurnEventDlq } from "./repositories/dlq.js";
 export type { TurnEventDlqInsert } from "./repositories/dlq.js";
+export { healthCheck } from "./repositories/health.js";
+export type { HealthPayload } from "./repositories/health.js";
 export { agentIRSchema } from "./schemas/agent-ir.js";
 export type { AgentIR } from "./schemas/agent-ir.js";

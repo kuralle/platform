@@ -1,6 +1,7 @@
 import { createContext } from "@kuralle/api/context";
 import { appRouter } from "@kuralle/api/routers/index";
 import { createAuth } from "@kuralle/auth";
+import { healthCheck } from "@kuralle/core";
 import { createDb, type Db } from "@kuralle/db";
 import { env } from "@kuralle/env/server";
 import { MemoryKvStore } from "@kuralle/platform/memory";
@@ -111,6 +112,11 @@ app.use("/*", async (c, next) => {
 
 app.get("/", (c) => {
   return c.text("OK");
+});
+
+app.get("/health", async (c) => {
+  const status = await healthCheck(c.var.db);
+  return c.json(status, status.db === "ok" ? 200 : 503);
 });
 
 export default app;
