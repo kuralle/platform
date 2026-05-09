@@ -100,7 +100,7 @@ function SignInScreen() {
                   id="name"
                   type="text"
                   autoComplete="name"
-                  placeholder="RJ Calderon"
+                  placeholder="Your name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="h-11"
