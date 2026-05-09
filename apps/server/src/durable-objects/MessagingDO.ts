@@ -189,11 +189,20 @@ export class MessagingDO extends AriaFlowAgent<MessagingDoEnv> {
           }
         }
       } catch (err: unknown) {
-        // Do not let runtime errors break the inbound flow — caller turn was
-        // already emitted upstream, and projector-side SLO violation rows
-        // capture the failure.
-        const message = err instanceof Error ? err.message : "runtime error";
-        this.workingMemory.lastRuntimeError = message;
+        const error = err instanceof Error ? err : new Error(String(err));
+        this.workingMemory.lastRuntimeError = error.message;
+        console.error(
+          JSON.stringify({
+            level: "error",
+            at: "messaging-do",
+            doId: this.stateRef.id.toString(),
+            operation: "onChatMessage",
+            conversationId: envelope.conversationId,
+            error: error.message,
+            stack: error.stack,
+            ts: new Date().toISOString(),
+          }),
+        );
       }
     }
 
