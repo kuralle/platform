@@ -32,4 +32,23 @@ describe("format helpers", () => {
     expect(formatRelative(new Date(Date.now() - 2 * 3_600_000).toISOString())).toBe("2h ago");
     expect(formatRelative(new Date(Date.now() - 3 * 86_400_000).toISOString())).toBe("3d ago");
   });
+
+  describe("guard against undefined / null / NaN", () => {
+    it("formatUsd returns — for undefined, null, NaN", () => {
+      expect(formatUsd(undefined)).toBe("—");
+      expect(formatUsd(null)).toBe("—");
+      expect(formatUsd(NaN)).toBe("—");
+    });
+
+    it("formatPct returns — for undefined, null, NaN", () => {
+      expect(formatPct(undefined)).toBe("—");
+      expect(formatPct(null)).toBe("—");
+      expect(formatPct(NaN)).toBe("—");
+    });
+
+    it("formatRelative returns — for undefined, null", () => {
+      expect(formatRelative(undefined)).toBe("—");
+      expect(formatRelative(null)).toBe("—");
+    });
+  });
 });

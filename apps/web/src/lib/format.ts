@@ -12,7 +12,10 @@ const CURRENCY_PRECISE = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 2,
 });
 
-export function formatUsd(n: number, options?: { precise?: boolean }) {
+const DASH = "—";
+
+export function formatUsd(n: number | null | undefined, options?: { precise?: boolean }): string {
+  if (n == null || Number.isNaN(n)) return DASH;
   return options?.precise ? CURRENCY_PRECISE.format(n) : CURRENCY.format(n);
 }
 
@@ -21,7 +24,8 @@ const PCT = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0,
 });
 
-export function formatPct(n: number) {
+export function formatPct(n: number | null | undefined): string {
+  if (n == null || Number.isNaN(n)) return DASH;
   return PCT.format(n);
 }
 
@@ -40,7 +44,8 @@ export function formatDuration(sec: number) {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
-export function formatRelative(iso: string) {
+export function formatRelative(iso: string | null | undefined): string {
+  if (iso == null) return DASH;
   const ms = Date.now() - new Date(iso).getTime();
   const min = Math.floor(ms / 60_000);
   if (min < 1) return "just now";
