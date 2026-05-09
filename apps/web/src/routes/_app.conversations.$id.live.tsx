@@ -61,6 +61,7 @@ function LiveSupervisorRoute() {
         speaker: "agent",
         text: composer || "Stand by — checking my notes.",
         timestampSec: elapsed,
+        createdAt: new Date().toISOString(),
       },
     ]);
     audit.current.push({ at: formatDuration(elapsed), event: "Operator injected agent turn" });
@@ -76,6 +77,7 @@ function LiveSupervisorRoute() {
         speaker: "agent",
         text: "[Operator has joined the line.]",
         timestampSec: elapsed,
+        createdAt: new Date().toISOString(),
       },
     ]);
   }

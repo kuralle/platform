@@ -88,6 +88,7 @@ export interface ConversationTurn {
   speaker: "agent" | "caller";
   text: string;
   timestampSec: number;
+  createdAt: string;
   evalVerdict?: "passed" | "failed" | "warning";
   toolCalls?: ToolCall[];
 }

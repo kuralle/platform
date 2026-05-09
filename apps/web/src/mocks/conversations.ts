@@ -14,8 +14,9 @@ const TURN_TEMPLATES: { speaker: "agent" | "caller"; text: string }[] = [
   { speaker: "agent",  text: "Stay warm — talk soon." },
 ];
 
-export function makeTranscript(seed = 1): ConversationTurn[] {
+export function makeTranscript(seed = 1, baseIso?: string): ConversationTurn[] {
   const rng = createRng(seed * 0x9e37);
+  const baseMs = baseIso ? new Date(baseIso).getTime() : Date.now() - 300_000;
   let t = 0;
   return TURN_TEMPLATES.map((turn, i) => {
     const dur = range(rng, 3, 9);
@@ -26,6 +27,7 @@ export function makeTranscript(seed = 1): ConversationTurn[] {
       speaker: turn.speaker,
       text: turn.text,
       timestampSec: before,
+      createdAt: new Date(baseMs + before * 1000).toISOString(),
       evalVerdict:
         turn.speaker === "agent" && i > 0
           ? pick(rng, ["passed", "passed", "passed", "warning"] as const)
@@ -54,7 +56,8 @@ export function makeConversations(count = 24): Conversation[] {
     const startMin = range(rng, 1, 4 * 60);
     const dur = range(rng, 32, 540);
     const isLive = i < 2; // first two rows are live for the dashboard signal
-    const transcript = makeTranscript(i + 1);
+    const startedAt = isoMinutesAgo(startMin);
+    const transcript = makeTranscript(i + 1, startedAt);
     return {
       id: `cv_${(0x80 + i).toString(16)}${pick(rng, ["a", "b", "c", "d"])}${range(rng, 0, 9)}`,
       agentId: `ag_${(0xa00 + (i % 10)).toString(16)}`,
@@ -67,7 +70,7 @@ export function makeConversations(count = 24): Conversation[] {
       direction: pick(rng, directions),
       callerId: `+1 ${range(rng, 200, 999)}-${range(rng, 100, 999)}-${range(rng, 1000, 9999)}`,
       callerName: rng() > 0.4 ? pick(rng, ["Sara P.", "Jamal R.", "Amelia K.", "Devon W.", "Priya R."]) : null,
-      startedAt: isoMinutesAgo(startMin),
+      startedAt,
       durationSec: isLive ? range(rng, 12, 180) : dur,
       outcome: pick(rng, outcomes),
       isLive,

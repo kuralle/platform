@@ -11,7 +11,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { ChevronDown, ChevronLeft, Pause, Play, Wrench } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { formatDuration, formatRelative, formatUsd } from "@/lib/format";
+import { formatRelative, formatUsd } from "@/lib/format";
 import { useWorkspace } from "@/contexts/workspace";
 import {
   useConversation,
@@ -46,6 +46,10 @@ function ConversationDetailRoute() {
       speaker: typeof turn.speaker === "string" ? turn.speaker : "agent",
       timestampSec:
         typeof turn.timestampSec === "number" ? turn.timestampSec : 0,
+      createdAt:
+        typeof turn.createdAt === "string"
+          ? turn.createdAt
+          : new Date().toISOString(),
       text: typeof turn.text === "string" ? turn.text : "",
       evalVerdict:
         typeof turn.evalVerdict === "string" ? turn.evalVerdict : null,
@@ -154,9 +158,13 @@ function ConversationDetailRoute() {
                 >
                   <div className="flex items-center gap-2">
                     <Eyebrow className="text-[10px]">{turn.speaker}</Eyebrow>
-                    <span className="font-mono text-[10px] tabular-nums text-muted-foreground">
-                      {formatDuration(turn.timestampSec)}
-                    </span>
+                    <time
+                      dateTime={turn.createdAt}
+                      title={turn.createdAt}
+                      className="font-mono text-[10px] tabular-nums text-muted-foreground"
+                    >
+                      {formatRelative(turn.createdAt)}
+                    </time>
                     {turn.evalVerdict && (
                       <StatusPill
                         tone={turn.evalVerdict === "passed" ? "success" : "warning"}
