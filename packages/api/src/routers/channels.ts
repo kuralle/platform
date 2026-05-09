@@ -79,7 +79,7 @@ const endpointsDetachOutput = z.object({
   // Returned so client-side hooks can invalidate the connection-scoped
   // endpoint list without storing it locally — fix-pass for kimi gate
   // R2-1 (`useDetachEndpoint` was invalidating `connectionId: ""`).
-  connectionId: z.string(),
+  connectionId: z.string().nullable(),
 }).strict();
 
 export const channelsRouter = {

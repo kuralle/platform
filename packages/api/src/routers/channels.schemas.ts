@@ -23,7 +23,7 @@ export const channelEndpointSchema = z
   .object({
     id: z.string(),
     workspaceId: z.string(),
-    connectionId: z.string(),
+    connectionId: z.string().nullable(),
     channelKind: z.string(),
     identifier: z.string(),
     // §8 — nullable in DB; nullable here to avoid Zod boundary failures.

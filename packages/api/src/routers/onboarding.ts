@@ -56,7 +56,6 @@ export const onboardingRouter = {
     .output(onboardingCompleteOutputSchema)
     .handler(async ({ input, context }) => {
       await assertWorkspaceMember(context, input.workspaceId);
-      void input.phone;
       const repos = withWorkspace(
         context.db,
         input.workspaceId,
@@ -75,8 +74,9 @@ export const onboardingRouter = {
       });
 
       // Step 2: organization.vertical + onboarding_states upsert atomically
-      // via the repo's internal transaction.
-      await repos.onboarding.markComplete(input.vertical);
+      // via the repo's internal transaction. If a phone was provided, a
+      // channel_endpoints row is created in the same transaction.
+      await repos.onboarding.markComplete(input.vertical, input.phone);
 
       return {
         workspaceId: input.workspaceId,

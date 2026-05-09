@@ -138,12 +138,22 @@ function OnboardingRoute() {
               },
               {
                 id: "voice",
-                title: "Voice",
-                description: "Pick a default voice. You can change per-agent on the C4 Voice tab.",
-                render: () => (
-                  <Card className="p-4 text-[13px] text-muted-foreground">
-                    Defaults to the vertical-recommended voice (Aurora for HS, Lyra for Education, Marin for Medical).
-                  </Card>
+                title: "Voice & Number",
+                description: "Confirm the number to connect, or skip and configure later from Settings.",
+                render: ({ goNext }) => (
+                  <div className="flex flex-col gap-4">
+                    <Field>
+                      <FieldLabel htmlFor="ph-voice">Phone number</FieldLabel>
+                      <Input id="ph-voice" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+1 555 123 4567" />
+                    </Field>
+                    <button
+                      type="button"
+                      className="self-start text-[13px] text-muted-foreground underline hover:text-foreground"
+                      onClick={() => { setPhone(""); goNext(); }}
+                    >
+                      Skip — I&apos;ll connect later
+                    </button>
+                  </div>
                 ),
               },
               {

@@ -52,9 +52,10 @@ export const channelEndpoints = pgTable(
     workspaceId: text("workspace_id")
       .notNull()
       .references(() => organization.id, { onDelete: "cascade" }),
-    connectionId: text("connection_id")
-      .notNull()
-      .references(() => channelConnections.id, { onDelete: "cascade" }),
+    connectionId: text("connection_id").references(
+      () => channelConnections.id,
+      { onDelete: "cascade" },
+    ),
     channelKind: text("channel_kind").notNull(),
     identifier: text("identifier").notNull(),
     displayName: text("display_name"),

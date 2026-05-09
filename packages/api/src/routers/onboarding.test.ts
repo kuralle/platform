@@ -11,7 +11,7 @@ import {
 } from "@kuralle/core/test-utils";
 import type { PoolClient } from "@kuralle/core/test-utils";
 import type { TestDb } from "@kuralle/core/test-utils";
-import { onboardingStates, organization } from "@kuralle/db/schema";
+import { onboardingStates, organization, channelEndpoints } from "@kuralle/db/schema";
 import type { Context } from "../context";
 import { callProcedure } from "./test-call";
 import { signUpWithCookieHeaders } from "../test-helpers/auth-test-helpers";
@@ -158,5 +158,35 @@ describe("onboarding router", () => {
         name: "N",
       }, context),
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("complete persists phone in channel_endpoints", async () => {
+    const { userId, requestHeaders, session: sessRow } = await signUpWithCookieHeaders(db);
+    const email = `${userId}@test.local`;
+    await seedWorkspaceMember(db, {
+      workspaceId: WORKSPACE_ID,
+      userId,
+      email,
+    });
+
+    const context = baseContext(testSessionContext(userId, email, sessRow), requestHeaders);
+
+    await callProcedure(appRouter.onboarding.complete, {
+      workspaceId: WORKSPACE_ID,
+      vertical: "home-services",
+      name: "Phone Test WS",
+      phone: "+15551234567",
+    }, context);
+
+    const [ep] = await db
+      .select()
+      .from(channelEndpoints)
+      .where(eq(channelEndpoints.workspaceId, WORKSPACE_ID))
+      .limit(1);
+
+    expect(ep).toBeDefined();
+    expect(ep?.identifier).toBe("+15551234567");
+    expect(ep?.channelKind).toBe("voice");
+    expect(ep?.connectionId).toBeNull();
   });
 });

@@ -49,7 +49,7 @@ export interface ChannelUpdate {
 export interface Endpoint {
   id: string;
   workspaceId: string;
-  connectionId: string;
+  connectionId: string | null;
   channelKind: string;
   identifier: string;
   displayName: string | null;
@@ -65,7 +65,7 @@ export interface Endpoint {
 
 export interface EndpointInsert {
   id: string;
-  connectionId: string;
+  connectionId?: string | null;
   channelKind: string;
   identifier: string;
   displayName?: string | null;
@@ -322,7 +322,7 @@ export class ChannelRepository {
       .values({
         id: input.id,
         workspaceId: this.workspaceId,
-        connectionId: input.connectionId,
+        connectionId: input.connectionId ?? null,
         channelKind: input.channelKind,
         identifier: input.identifier,
         displayName: input.displayName ?? null,
@@ -431,7 +431,7 @@ export class ChannelRepository {
         .values({
           id: opts.endpoint.id,
           workspaceId: this.workspaceId,
-          connectionId: opts.endpoint.connectionId,
+          connectionId: opts.endpoint.connectionId ?? null,
           channelKind: opts.endpoint.channelKind,
           identifier: opts.endpoint.identifier,
           displayName: opts.endpoint.displayName ?? null,

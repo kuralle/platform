@@ -75,7 +75,7 @@ export class OnboardingRepository {
   // to step=done with the given vertical. Both writes inside one transaction
   // so an onboarding flow can't end up with the org's vertical updated but
   // the onboarding state still showing in-flight (or vice versa).
-  async markComplete(vertical: string): Promise<OnboardingState> {
+  async markComplete(vertical: string, phone?: string): Promise<OnboardingState> {
     const now = new Date();
     let result: OnboardingState | undefined;
     const wsId = this.workspaceId;
@@ -117,6 +117,16 @@ export class OnboardingRepository {
           .returning();
         if (!row) throw new Error("OnboardingRepository.markComplete: insert returned no row");
         result = toDomain(row);
+      }
+
+      if (phone) {
+        await tx.insert(schema.channelEndpoints).values({
+          id: `ce_${crypto.randomUUID().slice(0, 12)}`,
+          workspaceId: wsId,
+          connectionId: null,
+          channelKind: "voice",
+          identifier: phone,
+        });
       }
     });
     if (!result) throw new Error("OnboardingRepository.markComplete: transaction yielded no result");
