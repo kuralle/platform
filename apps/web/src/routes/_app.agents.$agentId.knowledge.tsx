@@ -23,10 +23,11 @@ import { File, Globe, Plus, Trash2, Type } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { AgentEditorShell } from "@/components/configure/agent-editor-shell";
-import { AttachDocumentModal } from "@/components/modals/attach-document-modal";
-import { formatRelative } from "@/lib/format";
-import { formatBytes, makeAgents, makeAttachedKbDocuments } from "@/mocks";
-import type { KbDocument } from "@/mocks/kb";
+import { AttachDocumentModal, type KbAttachCandidate } from "@/components/modals/attach-document-modal";
+import { useActiveWorkspaceId } from "@/contexts/workspace";
+import { useAgent } from "@/hooks/api/agents";
+import { useAttachKbDocument, useDetachKbDocument, useKbAttached } from "@/hooks/api/kb";
+import { formatBytes, formatRelative } from "@/lib/format";
 
 export const Route = createFileRoute("/_app/agents/$agentId/knowledge")({
   component: KnowledgeTab,
@@ -34,15 +35,50 @@ export const Route = createFileRoute("/_app/agents/$agentId/knowledge")({
 
 const SOURCE_ICON = { file: File, url: Globe, text: Type } as const;
 
+function sourceVisual(source: string): keyof typeof SOURCE_ICON {
+  const s = source.toLowerCase();
+  if (s.includes("url") || s === "url") return "url";
+  if (s === "text") return "text";
+  return "file";
+}
+
+function shellStatus(s: string | undefined): "live" | "paused" | "draft" {
+  if (s === "live" || s === "paused" || s === "draft") return s;
+  return "draft";
+}
+
+type KbRow = {
+  id: string;
+  name: string;
+  source: string;
+  folder: string | null;
+  sizeBytes: number;
+  status: string;
+  updatedAt: Date | null;
+};
+
 function KnowledgeTab() {
   const { agentId } = Route.useParams();
+  const workspaceId = useActiveWorkspaceId();
   const navigate = useNavigate();
-  const agents = useMemo(() => makeAgents(10), []);
-  const seed = agents.find((a) => a.id === agentId) ?? agents[0]!;
+  const agentQuery = useAgent({ workspaceId, agentId });
+  const attachedQuery = useKbAttached({ workspaceId, agentId });
+  const attachMut = useAttachKbDocument();
+  const detachMut = useDetachKbDocument();
 
-  const initialAttached = useMemo(() => makeAttachedKbDocuments(seed.id), [seed.id]);
-  const [attached, setAttached] = useState<KbDocument[]>(initialAttached);
-  const [originalIds] = useState(() => initialAttached.map((d) => d.id).sort());
+  const attached: KbRow[] = useMemo(
+    () =>
+      (attachedQuery.data?.items ?? []).map((d) => ({
+        id: d.id,
+        name: d.name,
+        source: d.source,
+        folder: d.folder,
+        sizeBytes: d.sizeBytes,
+        status: d.status,
+        updatedAt: d.updatedAt,
+      })),
+    [attachedQuery.data?.items],
+  );
 
   const [attachOpen, setAttachOpen] = useState(false);
   const [sorting, setSorting] = useState<SortingState>([{ id: "updatedAt", desc: true }]);
@@ -51,26 +87,21 @@ function KnowledgeTab() {
 
   const attachedSet = useMemo(() => new Set(attached.map((d) => d.id)), [attached]);
 
-  function detach(id: string) {
-    setAttached((prev) => prev.filter((d) => d.id !== id));
+  async function attachDocs(docs: KbAttachCandidate[]) {
+    for (const d of docs) {
+      await attachMut.mutateAsync({
+        workspaceId,
+        agentId,
+        docId: d.id,
+      });
+    }
   }
 
-  function attachDocs(docs: KbDocument[]) {
-    setAttached((prev) => {
-      const known = new Set(prev.map((d) => d.id));
-      return [...prev, ...docs.filter((d) => !known.has(d.id))];
-    });
+  function detach(docId: string) {
+    void detachMut.mutateAsync({ workspaceId, agentId, docId });
   }
 
-  const currentIds = attached.map((d) => d.id).sort();
-  const idsChanged = currentIds.length !== originalIds.length || currentIds.some((id, i) => id !== originalIds[i]);
-  const changes = idsChanged ? 1 : 0;
-
-  function reset() {
-    setAttached(initialAttached);
-  }
-
-  const columns = useMemo<ColumnDef<KbDocument>[]>(() => [
+  const columns = useMemo<ColumnDef<KbRow>[]>(() => [
     {
       accessorKey: "name",
       header: ({ column }) => <DataTableColumnHeader column={column} label="Document" />,
@@ -80,11 +111,11 @@ function KnowledgeTab() {
         if (!q) return true;
         return (
           row.original.name.toLowerCase().includes(q) ||
-          row.original.folder.toLowerCase().includes(q)
+          (row.original.folder ?? "").toLowerCase().includes(q)
         );
       },
       cell: ({ row }) => {
-        const Icon = SOURCE_ICON[row.original.source];
+        const Icon = SOURCE_ICON[sourceVisual(row.original.source)];
         return (
           <div className="flex items-center gap-3">
             <span className="grid size-7 place-items-center rounded-md border bg-muted text-muted-foreground">
@@ -100,7 +131,7 @@ function KnowledgeTab() {
                 {row.original.name}
               </Link>
               <span className="truncate font-mono text-[11px] tabular-nums text-muted-foreground">
-                {row.original.id} · {row.original.folder}
+                {row.original.id} · {row.original.folder ?? "—"}
               </span>
             </div>
           </div>
@@ -122,7 +153,7 @@ function KnowledgeTab() {
       filterFn: (row, _id, value) => {
         const arr = value as string[] | undefined;
         if (!arr?.length) return true;
-        return arr.includes(row.original.source);
+        return arr.some((v) => row.original.source.toLowerCase().includes(v));
       },
       cell: ({ row }) => (
         <Badge variant="outline" className="text-[10px] uppercase tracking-wide">
@@ -179,9 +210,21 @@ function KnowledgeTab() {
       header: ({ column }) => <DataTableColumnHeader column={column} label="Updated" className="justify-end" />,
       meta: { label: "Updated" },
       cell: ({ row }) => (
-        <div className="text-right text-[12px] text-muted-foreground">{formatRelative(row.original.updatedAt)}</div>
+        <div className="text-right text-[12px] text-muted-foreground">
+          {formatRelative(
+            row.original.updatedAt
+              ? typeof row.original.updatedAt === "string"
+                ? row.original.updatedAt
+                : row.original.updatedAt.toISOString()
+              : null,
+          )}
+        </div>
       ),
-      sortingFn: (a, b) => new Date(a.original.updatedAt).getTime() - new Date(b.original.updatedAt).getTime(),
+      sortingFn: (a, b) => {
+        const ta = a.original.updatedAt ? new Date(a.original.updatedAt).getTime() : 0;
+        const tb = b.original.updatedAt ? new Date(b.original.updatedAt).getTime() : 0;
+        return ta - tb;
+      },
     },
     {
       id: "actions",
@@ -189,7 +232,7 @@ function KnowledgeTab() {
       enableSorting: false,
       enableHiding: false,
       cell: ({ row }) => (
-        <div className="flex items-center justify-end" onClick={(e) => e.stopPropagation()}>
+        <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
           <Button
             variant="ghost"
             size="icon"
@@ -219,14 +262,26 @@ function KnowledgeTab() {
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
 
+  const agentData = agentQuery.data;
+  const agentName = (() => {
+    const snap = agentData?.activeVersion?.snapshot;
+    if (snap && typeof snap === "object" && snap !== null && "name" in snap) {
+      const n = (snap as { name?: string }).name?.trim();
+      if (n) return n;
+    }
+    return agentData?.agent?.id ?? agentId;
+  })();
+  const rawStatus = agentData?.agent?.status === "archived" ? "draft" : agentData?.agent?.status;
+  const agentStatus = shellStatus(rawStatus);
+
   return (
     <AgentEditorShell
-      agentId={seed.id}
-      agentName={seed.name}
-      status={seed.status === "archived" ? "draft" : seed.status}
-      changes={changes}
+      agentId={agentId}
+      agentName={agentName}
+      status={agentStatus}
+      changes={0}
       onSave={() => undefined}
-      onDiscard={reset}
+      onDiscard={() => undefined}
     >
       <div className="flex flex-col gap-4">
         <div className="flex items-end justify-between gap-3">
@@ -239,14 +294,10 @@ function KnowledgeTab() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              nativeButton={false}
-              render={<Link to="/knowledge" />}
-            >
+            <Button variant="outline" nativeButton={false} render={<Link to="/knowledge" />}>
               Open knowledge base →
             </Button>
-            <Button onClick={() => setAttachOpen(true)}>
+            <Button onClick={() => setAttachOpen(true)} disabled={attachMut.isPending}>
               <Plus size={16} /> Attach from KB
             </Button>
           </div>
@@ -261,10 +312,11 @@ function KnowledgeTab() {
       </div>
 
       <AttachDocumentModal
+        workspaceId={workspaceId}
         open={attachOpen}
         onOpenChange={setAttachOpen}
         alreadyAttached={attachedSet}
-        onAttach={attachDocs}
+        onAttach={(docs) => void attachDocs(docs)}
       />
     </AgentEditorShell>
   );

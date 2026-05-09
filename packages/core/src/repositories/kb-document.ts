@@ -40,13 +40,13 @@ export interface KbDocumentInsert {
 }
 
 export interface KbDocumentUpdate {
-  folder?: string;
+  folder?: string | null;
   name?: string;
   status?: string;
   ragIndexed?: boolean;
   autoSync?: boolean;
   lastSyncedAt?: Date;
-  contentText?: string;
+  contentText?: string | null;
 }
 
 export interface KbChunk {
@@ -335,6 +335,58 @@ export class KbDocumentRepository {
       }
       return toChunkDomain(row.kb_chunks);
     }, { ttlSeconds: 60 });
+  }
+
+  async findAttachedForAgentVersion(agentVersionId: string): Promise<KbDocument[]> {
+    const rows = await this.db
+      .select({ d: schema.kbDocuments })
+      .from(schema.agentKbAttachments)
+      .innerJoin(
+        schema.kbDocuments,
+        eq(schema.agentKbAttachments.documentId, schema.kbDocuments.id),
+      )
+      .where(
+        and(
+          eq(schema.agentKbAttachments.agentVersionId, agentVersionId),
+          eq(schema.kbDocuments.workspaceId, this.workspaceId),
+          isNull(schema.kbDocuments.deletedAt),
+        ),
+      )
+      .orderBy(desc(schema.kbDocuments.updatedAt), desc(schema.kbDocuments.id));
+
+    return rows.map((r) => toDomain(r.d));
+  }
+
+  async attachToAgentVersion(
+    agentVersionId: string,
+    documentId: string,
+  ): Promise<void> {
+    await this.db
+      .insert(schema.agentKbAttachments)
+      .values({
+        agentVersionId,
+        documentId,
+      })
+      .onConflictDoNothing({
+        target: [
+          schema.agentKbAttachments.agentVersionId,
+          schema.agentKbAttachments.documentId,
+        ],
+      });
+  }
+
+  async detachFromAgentVersion(
+    agentVersionId: string,
+    documentId: string,
+  ): Promise<void> {
+    await this.db
+      .delete(schema.agentKbAttachments)
+      .where(
+        and(
+          eq(schema.agentKbAttachments.agentVersionId, agentVersionId),
+          eq(schema.agentKbAttachments.documentId, documentId),
+        ),
+      );
   }
 
   async insertChunk(input: KbChunkInsert): Promise<KbChunk> {

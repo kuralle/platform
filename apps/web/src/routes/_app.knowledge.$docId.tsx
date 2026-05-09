@@ -1,12 +1,9 @@
 import { Alert, AlertDescription, AlertTitle } from "@kuralle/ui/components/alert";
-import { Badge } from "@kuralle/ui/components/badge";
 import { Button } from "@kuralle/ui/components/button";
 import { Card } from "@kuralle/ui/components/card";
 import { Eyebrow } from "@kuralle/ui/components/eyebrow";
 import { Field, FieldLabel } from "@kuralle/ui/components/field";
 import { Input } from "@kuralle/ui/components/input";
-import { ScrollArea } from "@kuralle/ui/components/scroll-area";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@kuralle/ui/components/select";
 import { StatusPill } from "@kuralle/ui/components/status-pill";
 import { StickySaveBar } from "@kuralle/ui/components/sticky-save-bar";
 import { Switch } from "@kuralle/ui/components/switch";
@@ -23,14 +20,12 @@ import {
   Trash2,
   Type,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import { formatRelative } from "@/lib/format";
-import { formatBytes, makeKbDocuments } from "@/mocks";
-
-// Retrieval / RAG indexing settings (embedding model, vector distance) are a
-// system concern — Kuralle picks the embedding model and chunking strategy.
-// Users only control the document content, name, folder, and (for URLs) auto-sync.
+import { EmptyState } from "@/components/empty-state";
+import { useActiveWorkspaceId } from "@/contexts/workspace";
+import { useDeleteKbDocument, useKbDocument, useUpdateKbDocument } from "@/hooks/api/kb";
+import { formatBytes, formatRelative } from "@/lib/format";
 
 export const Route = createFileRoute("/_app/knowledge/$docId")({
   component: KnowledgeDocRoute,
@@ -38,45 +33,102 @@ export const Route = createFileRoute("/_app/knowledge/$docId")({
 
 const SOURCE_ICON = { file: FileIcon, url: Globe, text: Type } as const;
 
-const SAMPLE_TEXT = `# Pricing book
-
-| Service                        | Window           | Base price | Notes                          |
-|--------------------------------|------------------|-----------:|--------------------------------|
-| Diagnostic visit (regular)     | M–F 8a–6p        |      $89   | Waived if work proceeds.       |
-| Diagnostic visit (after-hours) | nights / weekend |     $169   | TCPA-disclosed when scheduled. |
-| Furnace tune-up (annual)       | M–F              |     $129   | Includes filter swap.          |
-| AC tune-up (annual)            | M–F              |     $149   | Refrigerant top-off extra.     |
-| Emergency dispatch             | 24/7             |     $295   | 90-min ETA in primary zips.    |
-
-We never quote installed-equipment prices over the phone — escalate to a human and book the in-home estimate.
-`;
+function sourceVisual(source: string): keyof typeof SOURCE_ICON {
+  const s = source.toLowerCase();
+  if (s.includes("url") || s === "url") return "url";
+  if (s === "text") return "text";
+  return "file";
+}
 
 function KnowledgeDocRoute() {
   const navigate = useNavigate();
   const { docId } = Route.useParams();
-  const all = useMemo(() => makeKbDocuments(8), []);
-  const seed = all.find((d) => d.id === docId) ?? all[0]!;
+  const workspaceId = useActiveWorkspaceId();
+  const docQuery = useKbDocument({ workspaceId, docId });
+  const updateMut = useUpdateKbDocument();
+  const deleteMut = useDeleteKbDocument();
 
-  const [name, setName] = useState(seed.name);
-  const [folder, setFolder] = useState(seed.folder);
-  const [content, setContent] = useState(seed.source === "text" ? SAMPLE_TEXT : SAMPLE_TEXT);
-  const [autoSync, setAutoSync] = useState(seed.source === "url");
+  const doc = docQuery.data;
+  const [name, setName] = useState("");
+  const [folder, setFolder] = useState("");
+  const [content, setContent] = useState("");
+  const [autoSync, setAutoSync] = useState(false);
 
-  const [original] = useState({ name, folder, content, autoSync });
-  const changes =
-    (name !== original.name ? 1 : 0) +
-    (folder !== original.folder ? 1 : 0) +
-    (content !== original.content ? 1 : 0) +
-    (autoSync !== original.autoSync ? 1 : 0);
+  useEffect(() => {
+    if (!doc) return;
+    setName(doc.name);
+    setFolder(doc.folder ?? "");
+    setContent(doc.contentText ?? "");
+    setAutoSync(doc.autoSync);
+  }, [doc]);
 
-  const Icon = SOURCE_ICON[seed.source];
+  const baseline = useMemo(
+    () =>
+      doc
+        ? {
+            name: doc.name,
+            folder: doc.folder ?? "",
+            content: doc.contentText ?? "",
+            autoSync: doc.autoSync,
+          }
+        : null,
+    [doc],
+  );
+
+  const changes = baseline
+    ? (name !== baseline.name ? 1 : 0) +
+      (folder !== baseline.folder ? 1 : 0) +
+      (content !== baseline.content ? 1 : 0) +
+      (autoSync !== baseline.autoSync ? 1 : 0)
+    : 0;
 
   function reset() {
-    setName(original.name);
-    setFolder(original.folder);
-    setContent(original.content);
-    setAutoSync(original.autoSync);
+    if (!baseline) return;
+    setName(baseline.name);
+    setFolder(baseline.folder);
+    setContent(baseline.content);
+    setAutoSync(baseline.autoSync);
   }
+
+  async function save() {
+    if (!doc) return;
+    await updateMut.mutateAsync({
+      workspaceId,
+      docId,
+      name,
+      folder: folder.trim() === "" ? null : folder,
+      contentText: content,
+      autoSync,
+    });
+  }
+
+  async function remove() {
+    await deleteMut.mutateAsync({ workspaceId, docId });
+    void navigate({ to: "/knowledge" });
+  }
+
+  if (docQuery.isPending) {
+    return (
+      <div className="flex h-[calc(100svh-3.5rem)] items-center justify-center text-muted-foreground">
+        Loading document…
+      </div>
+    );
+  }
+
+  if (docQuery.isError || !doc) {
+    return (
+      <div className="mx-auto flex min-h-[calc(100svh-3.5rem)] max-w-lg flex-col justify-center px-6 py-16">
+        <EmptyState
+          title="Document not found"
+          description="It may have been deleted or you may not have access."
+          primaryAction={{ label: "Back to knowledge base", to: "/knowledge" }}
+        />
+      </div>
+    );
+  }
+
+  const Icon = SOURCE_ICON[sourceVisual(doc.source)];
+  const isUrl = sourceVisual(doc.source) === "url";
 
   return (
     <div className="flex h-[calc(100svh-3.5rem)] flex-col">
@@ -87,7 +139,7 @@ function KnowledgeDocRoute() {
               <ChevronLeft size={12} /> Knowledge base
             </Link>
             <span>/</span>
-            <span className="font-mono tabular-nums text-foreground">{seed.id}</span>
+            <span className="font-mono tabular-nums text-foreground">{doc.id}</span>
           </div>
 
           <div className="mt-2 flex items-end justify-between gap-4">
@@ -96,34 +148,36 @@ function KnowledgeDocRoute() {
                 <Icon size={18} />
               </span>
               <div>
-                <Eyebrow>Document · {seed.source}</Eyebrow>
+                <Eyebrow>Document · {doc.source}</Eyebrow>
                 <h1 className="mt-1 font-display text-[24px] font-semibold tracking-tight">{name}</h1>
               </div>
               <StatusPill
                 tone={
-                  seed.status === "ready"
+                  doc.status === "ready"
                     ? "success"
-                    : seed.status === "indexing"
+                    : doc.status === "indexing"
                       ? "info"
-                      : seed.status === "needs_refresh"
+                      : doc.status === "needs_refresh"
                         ? "warning"
                         : "danger"
                 }
               >
-                {seed.status.replace("_", " ")}
+                {doc.status.replace("_", " ")}
               </StatusPill>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" className="gap-1.5">
+              <Button variant="outline" className="gap-1.5" type="button" disabled>
                 <RefreshCcw size={14} /> Refresh
               </Button>
-              <Button variant="outline" className="gap-1.5">
+              <Button variant="outline" className="gap-1.5" type="button" disabled>
                 <Download size={14} /> Download
               </Button>
               <Button
                 variant="outline"
                 className="gap-1.5 text-destructive"
-                onClick={() => navigate({ to: "/knowledge" })}
+                type="button"
+                disabled={deleteMut.isPending}
+                onClick={() => void remove()}
               >
                 <Trash2 size={14} /> Delete
               </Button>
@@ -135,19 +189,15 @@ function KnowledgeDocRoute() {
               <Card className="p-6">
                 <Eyebrow>Content</Eyebrow>
                 <h2 className="mt-1 font-display text-[18px] font-semibold">
-                  {seed.source === "text"
-                    ? "Inline body"
-                    : seed.source === "url"
-                      ? "Indexed URL"
-                      : "Imported file content"}
+                  {isUrl ? "Indexed URL" : doc.source === "text" ? "Inline body" : "Imported file content"}
                 </h2>
-                {seed.source === "url" ? (
+                {isUrl ? (
                   <div className="mt-4 grid gap-3">
                     <Field>
                       <FieldLabel>Source URL</FieldLabel>
                       <div className="flex items-center gap-2">
-                        <Input value={seed.url ?? ""} readOnly className="font-mono text-[13px]" />
-                        <Button variant="outline" size="icon" aria-label="Open URL">
+                        <Input value={doc.sourceUrl ?? ""} readOnly className="font-mono text-[13px]" />
+                        <Button variant="outline" size="icon" aria-label="Open URL" nativeButton={false} render={<a href={doc.sourceUrl ?? "#"} target="_blank" rel="noopener noreferrer" />}>
                           <ExternalLink size={14} />
                         </Button>
                       </div>
@@ -155,9 +205,7 @@ function KnowledgeDocRoute() {
                     <label className="flex items-center justify-between rounded-md border bg-background px-3 py-2">
                       <div>
                         <div className="text-[13px] font-medium">Auto-sync</div>
-                        <div className="text-[12px] text-muted-foreground">
-                          Re-fetch when the source changes.
-                        </div>
+                        <div className="text-[12px] text-muted-foreground">Re-fetch when the source changes.</div>
                       </div>
                       <Switch checked={autoSync} onCheckedChange={setAutoSync} />
                     </label>
@@ -174,7 +222,7 @@ function KnowledgeDocRoute() {
                 </Field>
               </Card>
 
-              {seed.status === "needs_refresh" && (
+              {doc.status === "needs_refresh" && (
                 <Alert variant="destructive" className="border-amber-500/30 bg-amber-500/8 text-foreground">
                   <ShieldAlert />
                   <AlertTitle>Source changed since last sync.</AlertTitle>
@@ -195,62 +243,37 @@ function KnowledgeDocRoute() {
                     <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
                   </Field>
                   <Field>
-                    <FieldLabel>Folder</FieldLabel>
-                    <Select value={folder} onValueChange={(v) => v != null && setFolder(v)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {["Pricing", "Operations", "Policy", "Marketing", "Compliance"].map((f) => (
-                          <SelectItem key={f} value={f}>
-                            {f}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FieldLabel htmlFor="folder">Folder</FieldLabel>
+                    <Input id="folder" value={folder} onChange={(e) => setFolder(e.target.value)} placeholder="e.g. Pricing" />
                   </Field>
                   <div className="grid grid-cols-2 gap-3 text-[12px]">
-                    <MetaRow label="Size" value={formatBytes(seed.sizeBytes)} />
-                    <MetaRow label="Updated" value={formatRelative(seed.updatedAt)} />
-                    <MetaRow label="Source" value={seed.source} />
-                    <MetaRow label="ID" value={seed.id} />
+                    <MetaRow label="Size" value={formatBytes(doc.sizeBytes)} />
+                    <MetaRow
+                      label="Updated"
+                      value={formatRelative(doc.updatedAt ? doc.updatedAt.toISOString() : null)}
+                    />
+                    <MetaRow label="Source" value={doc.source} />
+                    <MetaRow label="ID" value={doc.id} />
                   </div>
                 </div>
               </Card>
 
               <Card className="p-5">
                 <Eyebrow>Used by agents</Eyebrow>
-                <div className="mt-2 text-[13px] text-muted-foreground">
-                  {seed.dependentAgents.length === 0
-                    ? "No agents reference this document yet."
-                    : `${seed.dependentAgents.length} agent${seed.dependentAgents.length === 1 ? "" : "s"} attach this doc:`}
-                </div>
-                {seed.dependentAgents.length > 0 && (
-                  <ScrollArea className="mt-3 max-h-[180px]">
-                    <ul className="grid gap-1.5">
-                      {seed.dependentAgents.map((a) => (
-                        <li
-                          key={a}
-                          className="flex items-center justify-between rounded-md border bg-background px-3 py-2 text-[13px]"
-                        >
-                          <span>{a}</span>
-                          <Badge variant="outline" className="text-[10px] uppercase tracking-wide">
-                            attached
-                          </Badge>
-                        </li>
-                      ))}
-                    </ul>
-                  </ScrollArea>
-                )}
-                <p className="mt-3 text-[11px] text-muted-foreground">
-                  Detaching an agent doesn't delete the document — it just removes the reference.
+                <p className="mt-2 text-[13px] text-muted-foreground">
+                  Attachment references are managed from each agent&apos;s Knowledge tab.
                 </p>
               </Card>
             </div>
           </div>
         </div>
       </div>
-      <StickySaveBar changes={changes} onSave={() => undefined} onDiscard={reset} />
+      <StickySaveBar
+        changes={changes}
+        onSave={() => void save()}
+        onDiscard={reset}
+        isSaving={updateMut.isPending}
+      />
     </div>
   );
 }

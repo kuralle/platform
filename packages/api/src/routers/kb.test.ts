@@ -154,4 +154,103 @@ describe("kb router", () => {
       callProcedure(appRouter.kb.list, { workspaceId: WORKSPACE_ID, limit: 20 }, context),
     ).rejects.toMatchObject({ code: "UNAUTHORIZED" });
   });
+
+  const memberSession: Context["session"] = {
+    user: {
+      id: USER_ID,
+      name: "T",
+      email: "t@t",
+      emailVerified: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      image: null,
+      systemRole: "user",
+    },
+    session: {
+      id: "s1",
+      token: "tok",
+      userId: USER_ID,
+      expiresAt: new Date(Date.now() + 60_000),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  };
+
+  it("update persists fields", async () => {
+    const context = ctx(memberSession);
+    const { docId } = await callProcedure<{ docId: string }>(
+      appRouter.kb.create,
+      {
+        workspaceId: WORKSPACE_ID,
+        name: "Doc",
+        sourceType: "text",
+        sizeBytes: 4,
+        contentText: "ab",
+      },
+      context,
+    );
+    const updated = await callProcedure<{ name: string; contentText: string | null }>(
+      appRouter.kb.update,
+      {
+        workspaceId: WORKSPACE_ID,
+        docId,
+        name: "Renamed",
+        contentText: "cd",
+      },
+      context,
+    );
+    expect(updated.name).toBe("Renamed");
+    expect(updated.contentText).toBe("cd");
+  });
+
+  it("attach → listAttached → detach round-trip", async () => {
+    const context = ctx(memberSession);
+    const { agentId } = await callProcedure<{ agentId: string }>(
+      appRouter.agents.create,
+      { workspaceId: WORKSPACE_ID },
+      context,
+    );
+    const { docId } = await callProcedure<{ docId: string }>(
+      appRouter.kb.create,
+      {
+        workspaceId: WORKSPACE_ID,
+        name: "Attach me",
+        sourceType: "file",
+        sizeBytes: 10,
+      },
+      context,
+    );
+    await callProcedure(
+      appRouter.kb.attach,
+      { workspaceId: WORKSPACE_ID, agentId, docId },
+      context,
+    );
+    const attached = await callProcedure<{ items: { id: string }[] }>(
+      appRouter.kb.listAttached,
+      { workspaceId: WORKSPACE_ID, agentId },
+      context,
+    );
+    expect(attached.items.some((d) => d.id === docId)).toBe(true);
+    await callProcedure(
+      appRouter.kb.detach,
+      { workspaceId: WORKSPACE_ID, agentId, docId },
+      context,
+    );
+    const after = await callProcedure<{ items: { id: string }[] }>(
+      appRouter.kb.listAttached,
+      { workspaceId: WORKSPACE_ID, agentId },
+      context,
+    );
+    expect(after.items.some((d) => d.id === docId)).toBe(false);
+  });
+
+  it("listAttached returns NOT_FOUND for unknown agent", async () => {
+    const context = ctx(memberSession);
+    await expect(
+      callProcedure(appRouter.kb.listAttached, {
+        workspaceId: WORKSPACE_ID,
+        agentId: "ag_nope",
+      }, context),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+  });
 });
