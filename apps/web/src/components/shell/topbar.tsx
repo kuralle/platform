@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import { Avatar, AvatarFallback } from "@kuralle/ui/components/avatar";
 import { Badge } from "@kuralle/ui/components/badge";
 import { Button } from "@kuralle/ui/components/button";
@@ -19,6 +21,7 @@ import { Bell, Search } from "lucide-react";
 
 import { useWorkspace } from "@/contexts/workspace";
 
+import { SignOutConfirmDialog } from "./sign-out-confirm-dialog";
 import { Wordmark } from "./wordmark";
 
 interface TopbarProps {
@@ -27,6 +30,8 @@ interface TopbarProps {
 
 export function Topbar({ onCommandOpen }: TopbarProps) {
   const { workspace } = useWorkspace();
+  const [signOutOpen, setSignOutOpen] = useState(false);
+
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-card px-4">
       <Link to="/home" search={{ welcome: false }} className="flex items-center gap-2">
@@ -86,15 +91,20 @@ export function Topbar({ onCommandOpen }: TopbarProps) {
           <DropdownMenuItem
             variant="destructive"
             data-testid="sign-out"
-            onClick={async () => {
-              await authClient.signOut();
-              window.location.href = "/auth/sign-in";
-            }}
+            onSelect={() => setSignOutOpen(true)}
           >
             Sign out
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      <SignOutConfirmDialog
+        open={signOutOpen}
+        onOpenChange={setSignOutOpen}
+        onConfirm={async () => {
+          await authClient.signOut();
+          window.location.href = "/auth/sign-in";
+        }}
+      />
     </header>
   );
 }
