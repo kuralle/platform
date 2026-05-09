@@ -228,7 +228,7 @@ function ComplianceTab() {
                 } else if (!disclosureScript) {
                   patchCompliance({
                     disclosureScript:
-                      "Hi, this is an AI dispatcher for Calderon HVAC. This call is recorded for quality and may be used to schedule service.",
+                      "Hi, this is an AI assistant. This call is recorded for quality and may be used to schedule service.",
                   });
                 }
               }}

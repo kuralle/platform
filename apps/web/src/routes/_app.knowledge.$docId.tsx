@@ -38,7 +38,7 @@ export const Route = createFileRoute("/_app/knowledge/$docId")({
 
 const SOURCE_ICON = { file: FileIcon, url: Globe, text: Type } as const;
 
-const SAMPLE_TEXT = `# Calderon HVAC — pricing book
+const SAMPLE_TEXT = `# Pricing book
 
 | Service                        | Window           | Base price | Notes                          |
 |--------------------------------|------------------|-----------:|--------------------------------|

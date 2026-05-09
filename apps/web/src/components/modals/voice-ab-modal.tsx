@@ -26,7 +26,7 @@ const SIDE_B = { id: "v_lyra", name: "Lyra", language: "en-US" };
 export function VoiceAbModal({ open, onOpenChange }: VoiceAbModalProps) {
   const [pick, setPick] = useState<"a" | "b">("a");
   const [phrase, setPhrase] = useState(
-    "Thanks for calling Calderon HVAC, this is your virtual dispatcher — how can I help today?",
+    "Thanks for calling, this is your virtual dispatcher — how can I help today?",
   );
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

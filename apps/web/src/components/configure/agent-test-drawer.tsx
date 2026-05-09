@@ -22,7 +22,7 @@ interface Turn {
 }
 
 const SCRIPT: Turn[] = [
-  { id: "t0", role: "agent", text: "Thanks for calling Calderon HVAC, this is your virtual dispatcher — how can I help today?" },
+  { id: "t0", role: "agent", text: "Thanks for calling, this is your virtual dispatcher — how can I help today?" },
   { id: "t1", role: "user", text: "My furnace stopped heating about an hour ago, it's freezing." },
   {
     id: "t2",

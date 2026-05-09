@@ -1,7 +1,6 @@
 import { useState } from "react";
 
 import { Avatar, AvatarFallback } from "@kuralle/ui/components/avatar";
-import { Badge } from "@kuralle/ui/components/badge";
 import { Button } from "@kuralle/ui/components/button";
 import {
   DropdownMenu,
@@ -17,9 +16,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@kuralle/ui/components/
 import { Link } from "@tanstack/react-router";
 
 import { authClient } from "@/lib/auth-client";
+import { getInitials } from "@/lib/initials";
+import { useWorkspaceSettings } from "@/hooks/api/workspace";
+import { useActiveWorkspaceId, useWorkspace } from "@/contexts/workspace";
 import { Bell, Search } from "lucide-react";
-
-import { useWorkspace } from "@/contexts/workspace";
 
 import { SignOutConfirmDialog } from "./sign-out-confirm-dialog";
 import { Wordmark } from "./wordmark";
@@ -30,7 +30,25 @@ interface TopbarProps {
 
 export function Topbar({ onCommandOpen }: TopbarProps) {
   const { workspace } = useWorkspace();
+  const workspaceId = useActiveWorkspaceId();
+  const { data: session, isPending } = authClient.useSession();
+  const { data: wsSettings } = useWorkspaceSettings({ workspaceId });
   const [signOutOpen, setSignOutOpen] = useState(false);
+
+  const userName = session?.user?.name ?? "";
+  const initials = getInitials(userName);
+  const workspaceName = wsSettings?.name ?? "";
+
+  if (isPending) {
+    return (
+      <header className="flex h-14 items-center gap-4 border-b bg-card px-4">
+        <div className="flex items-center gap-2">
+          <Wordmark />
+        </div>
+        <div className="ml-auto size-7 animate-pulse rounded-full bg-muted" />
+      </header>
+    );
+  }
 
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-card px-4">
@@ -53,14 +71,8 @@ export function Topbar({ onCommandOpen }: TopbarProps) {
       <Tooltip>
         <TooltipTrigger
           render={
-            <Button variant="ghost" size="icon" aria-label="Notifications" className="relative">
+            <Button variant="ghost" size="icon" aria-label="Notifications">
               <Bell size={16} />
-              <Badge
-                variant="destructive"
-                className="absolute -top-1 -right-1 h-4 min-w-4 rounded-full px-1 font-mono text-[10px] tabular-nums"
-              >
-                3
-              </Badge>
             </Button>
           }
         />
@@ -72,15 +84,15 @@ export function Topbar({ onCommandOpen }: TopbarProps) {
             <Button variant="ghost" className="h-9 gap-2 px-2">
               <Avatar className="size-7">
                 <AvatarFallback className="bg-foreground text-card text-[11px] font-semibold">
-                  RJ
+                  {initials}
                 </AvatarFallback>
               </Avatar>
-              <span className="hidden text-[13px] font-medium md:inline">RJ Calderon</span>
+              <span className="hidden text-[13px] font-medium md:inline">{userName}</span>
             </Button>
           }
         />
         <DropdownMenuContent align="end" className="w-60">
-          <DropdownMenuLabel className="text-muted-foreground">{workspace.name}</DropdownMenuLabel>
+          <DropdownMenuLabel className="text-muted-foreground">{workspaceName}</DropdownMenuLabel>
           <DropdownMenuItem render={<Link to="/workspace/settings" />}>
             Workspace settings
           </DropdownMenuItem>

@@ -45,7 +45,7 @@ export function WelcomeModal({ open, onOpenChange }: WelcomeModalProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[520px]">
         <DialogHeader>
-          <Eyebrow>Workspace · Calderon HVAC</Eyebrow>
+          <Eyebrow>Workspace</Eyebrow>
           <DialogTitle className="font-display text-[22px]">Welcome to Kuralle.</DialogTitle>
           <DialogDescription>
             Three steps to your first booked call. Each one is under five minutes.

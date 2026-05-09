@@ -23,8 +23,6 @@ interface NavLink {
   to: string;
   label: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
-  /** Render a Live Cyan dot when this nav item should signal live activity. */
-  liveBadge?: number;
 }
 
 interface NavSection {
@@ -54,7 +52,7 @@ const SECTIONS: NavSection[] = [
     label: "Operate",
     items: [
       { to: "/home", label: "Home", icon: Home },
-      { to: "/conversations", label: "Conversations", icon: Headset, liveBadge: 2 },
+      { to: "/conversations", label: "Conversations", icon: Headset },
       { to: "/batches", label: "Batches", icon: ListChecks },
     ],
   },
@@ -143,12 +141,6 @@ export function LeftRail() {
                   )}
                   <item.icon size={16} className={cn(isActive ? "text-primary" : "")} />
                   {!collapsed && <span className="flex-1 truncate">{item.label}</span>}
-                  {item.liveBadge && !collapsed && (
-                    <span className="ml-auto inline-flex items-center gap-1 rounded-md bg-cyan-500/15 px-1.5 py-0.5 font-mono text-[10px] tabular-nums text-cyan-700 dark:text-cyan-300">
-                      <span className="size-1.5 rounded-full bg-cyan-500 live-pulse" />
-                      {item.liveBadge}
-                    </span>
-                  )}
                 </Link>
               );
             })}
