@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { secretSchema } from "./secrets.schemas";
 import { protectedProcedure } from "../index";
+import { assertWorkspaceMember } from "../workspace-access";
 
 const listInput = z.object({
   workspaceId: z.string(),
@@ -17,7 +18,8 @@ export const secretsRouter = {
   list: protectedProcedure
     .input(listInput)
     .output(listOutput)
-    .handler(async () => {
+    .handler(async ({ input, context }) => {
+      await assertWorkspaceMember(context, input.workspaceId);
       return { items: [], cursor: null };
     }),
 };

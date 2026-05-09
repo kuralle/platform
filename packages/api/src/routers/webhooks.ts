@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { webhookSchema } from "./webhooks.schemas";
 import { protectedProcedure } from "../index";
+import { assertWorkspaceMember } from "../workspace-access";
 
 const listInput = z.object({
   workspaceId: z.string(),
@@ -17,7 +18,8 @@ export const webhooksRouter = {
   list: protectedProcedure
     .input(listInput)
     .output(listOutput)
-    .handler(async () => {
+    .handler(async ({ input, context }) => {
+      await assertWorkspaceMember(context, input.workspaceId);
       return { items: [], cursor: null };
     }),
 };

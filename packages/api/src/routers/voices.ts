@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { voiceSchema } from "./voices.schemas";
-import { publicProcedure } from "../index";
+import { protectedProcedure } from "../index";
+import { assertWorkspaceMember } from "../workspace-access";
 
 const listInput = z.object({
   workspaceId: z.string().nullable().optional(),
@@ -14,10 +15,13 @@ const listOutput = z.object({
 }).strict();
 
 export const voicesRouter = {
-  list: publicProcedure
+  list: protectedProcedure
     .input(listInput)
     .output(listOutput)
-    .handler(async () => {
+    .handler(async ({ input, context }) => {
+      if (input.workspaceId) {
+        await assertWorkspaceMember(context, input.workspaceId);
+      }
       return { items: [], cursor: null };
     }),
 };
