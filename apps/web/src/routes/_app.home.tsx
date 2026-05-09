@@ -58,7 +58,6 @@ function HomeRoute() {
   const navigate = useNavigate();
   const [welcomeOpen, setWelcomeOpen] = useState(false);
   const [complianceOpen, setComplianceOpen] = useState(false);
-  const [empty, setEmpty] = useState(false);
 
   const health = useHealthCheck();
 
@@ -145,7 +144,7 @@ function HomeRoute() {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  if (empty) {
+  if (!conversationsQuery.isLoading && conversations.length === 0) {
     return (
       <div className="mx-auto flex min-h-[calc(100svh-3.5rem)] max-w-3xl flex-col items-center justify-center gap-6 px-8 py-16 text-center">
         <div className="grid size-16 place-items-center rounded-full bg-muted">
@@ -163,9 +162,6 @@ function HomeRoute() {
         <div className="flex items-center gap-3">
           <Button nativeButton={false} render={<Link to="/agents" />} className="h-11 gap-2 px-5">
             <Plus size={16} /> Build my first agent
-          </Button>
-          <Button variant="ghost" onClick={() => setEmpty(false)}>
-            Show populated home
           </Button>
         </div>
       </div>
@@ -185,7 +181,6 @@ function HomeRoute() {
         description={`Live activity, recent calls, and compliance posture for ${formatRelative(new Date().toISOString()).replace(" ago", "")}.`}
         actions={
           <>
-            <Button variant="ghost" onClick={() => setEmpty(true)}>Show empty state</Button>
             <Button variant="outline" onClick={() => setWelcomeOpen(true)}>
               Open setup checklist
             </Button>
