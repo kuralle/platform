@@ -25,6 +25,7 @@ import { useMemo, useState } from "react";
 import { AddDocumentModal } from "@/components/modals/add-document-modal";
 import { useKb } from "@/hooks/api/kb";
 import { useActiveWorkspaceId } from "@/contexts/workspace";
+import { EmptyState } from "@/components/empty-state";
 import { formatRelative } from "@/lib/format";
 
 function formatBytes(n: number) {
@@ -55,6 +56,7 @@ function KnowledgeListRoute() {
   const workspaceId = useActiveWorkspaceId();
   const kbQuery = useKb({ workspaceId, limit: 100 });
   const data = useMemo(() => (kbQuery.data?.items ?? []) as KbDocumentRow[], [kbQuery.data?.items]);
+  const isLoading = kbQuery.isLoading;
   const [addOpen, setAddOpen] = useState(false);
 
   const [sorting, setSorting] = useState<SortingState>([{ id: "updatedAt", desc: true }]);
@@ -223,22 +225,32 @@ function KnowledgeListRoute() {
           </Button>
         }
       />
-      <div className="mb-4 grid gap-3 sm:grid-cols-3">
-        <Stat label="Documents" value={data.length.toLocaleString()} />
-        <Stat label="Total size" value={formatBytes(totalSize)} sub="across all sources" />
-        <Stat
-          label="Characters"
-          value={`${totalChars.toLocaleString()} / ${charCap.toLocaleString()}`}
-          sub="non-enterprise cap"
-          warn={totalChars > charCap}
+      {!isLoading && data.length === 0 ? (
+        <EmptyState
+          title="No documents yet"
+          description="Upload pricing, policies, or FAQs your agent can reference."
+          primaryAction={{ label: "+ Add document", onClick: () => setAddOpen(true) }}
         />
-      </div>
-      <DataTable
-        table={table}
-        onRowClick={(d) => navigate({ to: "/knowledge/$docId", params: { docId: d.id } })}
-      >
-        <DataTableToolbar table={table} />
-      </DataTable>
+      ) : (
+        <>
+          <div className="mb-4 grid gap-3 sm:grid-cols-3">
+            <Stat label="Documents" value={data.length.toLocaleString()} />
+            <Stat label="Total size" value={formatBytes(totalSize)} sub="across all sources" />
+            <Stat
+              label="Characters"
+              value={`${totalChars.toLocaleString()} / ${charCap.toLocaleString()}`}
+              sub="non-enterprise cap"
+              warn={totalChars > charCap}
+            />
+          </div>
+          <DataTable
+            table={table}
+            onRowClick={(d) => navigate({ to: "/knowledge/$docId", params: { docId: d.id } })}
+          >
+            <DataTableToolbar table={table} />
+          </DataTable>
+        </>
+      )}
       <AddDocumentModal open={addOpen} onOpenChange={setAddOpen} />
     </div>
   );

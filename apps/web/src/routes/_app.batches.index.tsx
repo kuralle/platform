@@ -23,6 +23,7 @@ import { useMemo, useState } from "react";
 
 import { useBatches } from "@/hooks/api/batches";
 import { useActiveWorkspaceId } from "@/contexts/workspace";
+import { EmptyState } from "@/components/empty-state";
 import { formatPct, formatUsd } from "@/lib/format";
 
 export const Route = createFileRoute("/_app/batches/")({
@@ -217,9 +218,17 @@ function BatchesListRoute() {
           </Button>
         }
       />
+      {!isLoading && batches.length === 0 ? (
+        <EmptyState
+          title="No batches yet"
+          description="Send WhatsApp re-engagement, voice reminders, or SMS in bulk."
+          primaryAction={{ label: "+ New batch", to: "/batches/new" }}
+        />
+      ) : (
       <DataTable table={table}>
         <DataTableToolbar table={table} />
       </DataTable>
+      )}
     </div>
   );
 }

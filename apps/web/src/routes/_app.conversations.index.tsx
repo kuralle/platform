@@ -22,6 +22,7 @@ import { useMemo, useState } from "react";
 
 import { useConversations } from "@/hooks/api/conversations";
 import { useActiveWorkspaceId } from "@/contexts/workspace";
+import { EmptyState } from "@/components/empty-state";
 import { formatRelative, formatUsd } from "@/lib/format";
 
 /** API row shape for conversations.list. */
@@ -47,6 +48,7 @@ function ConversationsList() {
   const workspaceId = useActiveWorkspaceId();
   const conversationsQuery = useConversations({ workspaceId, limit: 100 });
   const data = useMemo(() => (conversationsQuery.data?.items ?? []) as ConversationRow[], [conversationsQuery.data?.items]);
+  const isLoading = conversationsQuery.isLoading;
   const [sorting, setSorting] = useState<SortingState>([{ id: "startedAt", desc: true }]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -198,6 +200,13 @@ function ConversationsList() {
         title="Conversations"
         description="Filter, search, and drill into any call. The toolbar below carries every filter that used to live in the old left rail."
       />
+      {!isLoading && data.length === 0 ? (
+        <EmptyState
+          title="No conversations yet"
+          description="When your agent takes its first call, the transcript appears here."
+          primaryAction={{ label: "Set up your first agent", to: "/agents" }}
+        />
+      ) : (
       <DataTable
         table={table}
         onRowClick={(c) =>
@@ -209,6 +218,7 @@ function ConversationsList() {
       >
         <DataTableToolbar table={table} />
       </DataTable>
+      )}
     </div>
   );
 }

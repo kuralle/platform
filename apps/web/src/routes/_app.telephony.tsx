@@ -8,6 +8,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { useTelephony } from "@/hooks/api/telephony";
 import { useActiveWorkspaceId } from "@/contexts/workspace";
+import { EmptyState } from "@/components/empty-state";
 
 export const Route = createFileRoute("/_app/telephony")({
   component: TelephonyRoute,
@@ -56,7 +57,8 @@ const CONNECTORS: Connector[] = [
 
 function TelephonyRoute() {
   const workspaceId = useActiveWorkspaceId();
-  void useTelephony({ workspaceId });
+  const telephonyQuery = useTelephony({ workspaceId });
+  const endpoints = telephonyQuery.data?.items ?? [];
 
   return (
     <div className="mx-auto max-w-[1280px] px-8 py-8">
@@ -70,6 +72,13 @@ function TelephonyRoute() {
           </Button>
         }
       />
+      {!telephonyQuery.isLoading && endpoints.length === 0 ? (
+        <EmptyState
+          title="No voice endpoints yet"
+          description="Connect a carrier to start making and receiving calls through Kuralle."
+          primaryAction={{ label: "+ Connect a number", to: "/phone-numbers" }}
+        />
+      ) : (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {CONNECTORS.map((c) => (
           <Card key={c.id} className="flex h-full flex-col gap-3 p-5">
@@ -112,6 +121,7 @@ function TelephonyRoute() {
           </Card>
         ))}
       </div>
+      )}
     </div>
   );
 }

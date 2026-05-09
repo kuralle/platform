@@ -26,6 +26,7 @@ import { useMemo, useState } from "react";
 import { formatPct, formatRelative, formatUsd } from "@/lib/format";
 import { useAgents, useCreateAgent } from "@/hooks/api/agents";
 import { useActiveWorkspaceId } from "@/contexts/workspace";
+import { EmptyState } from "@/components/empty-state";
 import type { Agent } from "@/types/domain";
 
 export const Route = createFileRoute("/_app/agents/")({
@@ -35,7 +36,7 @@ export const Route = createFileRoute("/_app/agents/")({
 function AgentsListRoute() {
   const navigate = useNavigate();
   const workspaceId = useActiveWorkspaceId();
-  const { data: agentsList } = useAgents({ workspaceId });
+  const { data: agentsList, isLoading } = useAgents({ workspaceId });
   const createAgent = useCreateAgent();
   const data = useMemo(() => (agentsList?.items ?? []) as unknown as Agent[], [agentsList?.items]);
   const [sorting, setSorting] = useState<SortingState>([{ id: "calls7d", desc: true }]);
@@ -213,12 +214,36 @@ function AgentsListRoute() {
           </Button>
         }
       />
+      {!isLoading && data.length === 0 ? (
+        <EmptyState
+          title="No agents yet"
+          description="Your first agent answers calls 24/7. Pick a template or start blank."
+          primaryAction={{
+            label: "+ New agent",
+            onClick: () => {
+              createAgent.mutate(
+                { workspaceId },
+                {
+                  onSuccess: (d) => {
+                    void navigate({
+                      to: "/agents/$agentId/behavior",
+                      params: { agentId: d.agentId },
+                    });
+                  },
+                },
+              );
+            },
+          }}
+          secondaryAction={{ label: "Start from a template", to: "/templates" }}
+        />
+      ) : (
       <DataTable
         table={table}
         onRowClick={(a) => navigate({ to: "/agents/$agentId/behavior", params: { agentId: a.id } })}
       >
         <DataTableToolbar table={table} />
       </DataTable>
+      )}
     </div>
   );
 }

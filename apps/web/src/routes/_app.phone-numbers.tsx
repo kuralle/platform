@@ -27,6 +27,7 @@ import { ImportNumberWizard } from "@/components/modals/import-number-wizard";
 import { usePhoneNumbers } from "@/hooks/api/phone-numbers";
 import { useAgents } from "@/hooks/api/agents";
 import { useActiveWorkspaceId } from "@/contexts/workspace";
+import { EmptyState } from "@/components/empty-state";
 
 /** API row shape for channels.list (phone number endpoints). */
 interface PhoneNumberRow {
@@ -144,9 +145,17 @@ function PhoneNumbersRoute() {
           </Button>
         }
       />
+      {!pnQuery.isLoading && numbers.length === 0 ? (
+        <EmptyState
+          title="No numbers connected"
+          description="Claim a Twilio number or bring your own carrier to start receiving calls."
+          primaryAction={{ label: "+ Connect a number", onClick: () => setImportOpen(true) }}
+        />
+      ) : (
       <DataTable table={table}>
         <DataTableToolbar table={table} />
       </DataTable>
+      )}
       <ImportNumberWizard open={importOpen} onOpenChange={setImportOpen} />
     </div>
   );
