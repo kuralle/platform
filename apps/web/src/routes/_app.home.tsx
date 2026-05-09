@@ -6,7 +6,6 @@ import { Eyebrow } from "@kuralle/ui/components/eyebrow";
 import { KpiTile } from "@kuralle/ui/components/kpi-tile";
 import { LiveDot } from "@kuralle/ui/components/live-dot";
 import { PageHeader } from "@kuralle/ui/components/page-header";
-import { Sparkline } from "@kuralle/ui/components/sparkline";
 import { StatusPill } from "@kuralle/ui/components/status-pill";
 import { type ColumnDef, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -202,31 +201,35 @@ function HomeRoute() {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  if (!conversationsQuery.isLoading && conversations.length === 0) {
-    return (
-      <div className="mx-auto flex min-h-[calc(100svh-3.5rem)] max-w-3xl flex-col items-center justify-center gap-6 px-8 py-16 text-center">
-        <div className="grid size-16 place-items-center rounded-full bg-muted">
-          <BookOpen size={28} className="text-muted-foreground" />
-        </div>
-        <div className="grid gap-2">
-          <h1 className="font-display text-[28px] font-semibold tracking-tight">
-            You don't have an agent yet.
-          </h1>
-          <p className="max-w-md text-[14px] text-muted-foreground">
-            Let's build one in 5 minutes. Pick a template, pick a voice, run a test call. It'll
-            sound and behave like a real dispatcher in your vertical.
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Button nativeButton={false} render={<Link to="/agents" />} className="h-11 gap-2 px-5">
-            <Plus size={16} /> Build my first agent
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  const d = dashboard.data;
+  const activityPending = dashboard.isPending;
+  const showCallsActivityCard =
+    !activityPending && d != null && (d.todayCalls > 0 || d.liveCalls > 0);
+  const chartRowIsSplit = activityPending || showCallsActivityCard;
 
-  return (
+  const emptyConversationsView = (
+    <div className="mx-auto flex min-h-[calc(100svh-3.5rem)] max-w-3xl flex-col items-center justify-center gap-6 px-8 py-16 text-center">
+      <div className="grid size-16 place-items-center rounded-full bg-muted">
+        <BookOpen size={28} className="text-muted-foreground" />
+      </div>
+      <div className="grid gap-2">
+        <h1 className="font-display text-[28px] font-semibold tracking-tight">
+          You don&apos;t have an agent yet.
+        </h1>
+        <p className="max-w-md text-[14px] text-muted-foreground">
+          Let&apos;s build one in 5 minutes. Pick a template, pick a voice, run a test call.
+          It&apos;ll sound and behave like a real dispatcher in your vertical.
+        </p>
+      </div>
+      <div className="flex items-center gap-3">
+        <Button nativeButton={false} render={<Link to="/agents" />} className="h-11 gap-2 px-5">
+          <Plus size={16} /> Build my first agent
+        </Button>
+      </div>
+    </div>
+  );
+
+  const dashboardView = (
     <div className="mx-auto max-w-[1280px] px-4 py-6 md:px-8 md:py-8">
       <div className="mb-6">
         <StatusPill tone={health.isLoading ? "neutral" : health.isError ? "danger" : "live"}>
@@ -269,27 +272,44 @@ function HomeRoute() {
         ))}
       </div>
 
-      {/* Compliance + chart row */}
-      <div className="mt-6 grid gap-4 lg:grid-cols-[2fr_1fr]">
-        <Card className="p-5">
-          <div className="mb-4 flex items-center justify-between">
-            <div>
-              <Eyebrow>Calls / hour · last 24h</Eyebrow>
-              <div className="mt-1 font-display text-[18px] font-semibold">312 today, peak 41 at 2pm</div>
+      {/* Compliance + calls activity (real metrics only; no fabricated sparkline) */}
+      <div
+        className={
+          chartRowIsSplit ? "mt-6 grid gap-4 lg:grid-cols-[2fr_1fr]" : "mt-6 grid gap-4"
+        }
+      >
+        {activityPending ? (
+          <Card className="p-5">
+            <div className="animate-pulse space-y-4">
+              <div className="h-3 w-36 rounded bg-muted" />
+              <div className="h-7 w-48 rounded bg-muted" />
+              <div className="h-[100px] rounded bg-muted/60" />
             </div>
-            <div className="flex items-center gap-2">
-              <LiveDot size={8} tone="live" />
-              <span className="text-[12px] text-muted-foreground">2 calls in flight</span>
+          </Card>
+        ) : showCallsActivityCard && d ? (
+          <Card className="p-5">
+            <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <Eyebrow>Calls today</Eyebrow>
+                <div className="mt-1 font-display text-[18px] font-semibold">
+                  {d.todayCalls.toLocaleString()}{" "}
+                  {d.todayCalls === 1 ? "call" : "calls"}
+                </div>
+              </div>
+              {d.liveCalls > 0 ? (
+                <div className="flex items-center gap-2">
+                  <LiveDot size={8} tone="live" />
+                  <span className="text-[12px] text-muted-foreground">
+                    {d.liveCalls} {d.liveCalls === 1 ? "call" : "calls"} in flight
+                  </span>
+                </div>
+              ) : null}
             </div>
-          </div>
-          <Sparkline
-            data={[8, 11, 16, 19, 22, 18, 14, 9, 6, 12, 18, 24, 28, 35, 41, 38, 33, 27, 22, 18, 14, 12, 10, 9]}
-            width={780}
-            height={140}
-            tone="signal"
-            className="w-full"
-          />
-        </Card>
+            <p className="text-[13px] text-muted-foreground">
+              Hourly charts appear once we have bucketed traffic for this workspace.
+            </p>
+          </Card>
+        ) : null}
         <Card className="p-5">
           <Eyebrow>Compliance posture</Eyebrow>
           <div className="mt-3 flex flex-col gap-2">
@@ -334,9 +354,22 @@ function HomeRoute() {
         }
       />
 
-      <WelcomeModal open={welcomeOpen} onOpenChange={(open) => { if (!open) dismissWelcome(); }} />
-      <ComplianceStatusModal open={complianceOpen} onOpenChange={setComplianceOpen} />
     </div>
+  );
+
+  return (
+    <>
+      {!conversationsQuery.isLoading && conversations.length === 0
+        ? emptyConversationsView
+        : dashboardView}
+      <WelcomeModal
+        open={welcomeOpen}
+        onOpenChange={(open) => {
+          if (!open) dismissWelcome();
+        }}
+      />
+      <ComplianceStatusModal open={complianceOpen} onOpenChange={setComplianceOpen} />
+    </>
   );
 }
 
