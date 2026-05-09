@@ -20,7 +20,7 @@
 import { spawnSync } from "node:child_process";
 
 const SERVER = process.env.LOADTEST_SERVER ?? "http://localhost:8787";
-const WEB = process.env.WEB_URL ?? "http://localhost:3001";
+const _WEB = process.env.WEB_URL ?? "http://localhost:3001";
 const DB = process.env.DATABASE_URL;
 if (!DB) {
   console.error("DATABASE_URL not set");
@@ -48,7 +48,7 @@ function sql(query: string): string {
   return (r.stdout ?? "").trim();
 }
 
-function ab(args: string[]): string {
+function _ab(args: string[]): string {
   const r = spawnSync("agent-browser", args, { encoding: "utf8" });
   return (r.stdout ?? "") + (r.stderr ? `\n[stderr] ${r.stderr}` : "");
 }

@@ -13,6 +13,8 @@ import { Kbd } from "@kuralle/ui/components/kbd";
 import { ScopeChip } from "@kuralle/ui/components/scope-chip";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@kuralle/ui/components/tooltip";
 import { Link } from "@tanstack/react-router";
+
+import { authClient } from "@/lib/auth-client";
 import { Bell, Search } from "lucide-react";
 
 import { useWorkspace } from "@/contexts/workspace";
@@ -81,7 +83,14 @@ export function Topbar({ onCommandOpen }: TopbarProps) {
             Compliance posture
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem variant="destructive" render={<Link to="/auth/sign-in" />}>
+          <DropdownMenuItem
+            variant="destructive"
+            data-testid="sign-out"
+            onClick={async () => {
+              await authClient.signOut();
+              window.location.href = "/auth/sign-in";
+            }}
+          >
             Sign out
           </DropdownMenuItem>
         </DropdownMenuContent>

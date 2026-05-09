@@ -1,5 +1,6 @@
 import { createContext, type ReactNode, useCallback, useContext, useMemo, useState } from "react";
 
+import { authClient } from "@/lib/auth-client";
 import type { Environment, Region, Vertical, Workspace } from "@/types/domain";
 
 const STORAGE_KEY = "vokari.workspace.v1";
@@ -74,9 +75,27 @@ export function useWorkspace() {
   return ctx;
 }
 
+// Source of truth = better-auth's session.activeOrganizationId, populated
+// server-side by the organization plugin on every authenticated request.
+// Falls back to the local WorkspaceProvider's stored id during the brief
+// hydration window or in tests (kept for stability), but session always wins
+// once the auth hook has resolved.
+// Ref: better-auth v1.5.5 docs (Context7) — Session Active Organization Fields.
+// Resolves BL-S3-10 fully.
 export function useActiveWorkspaceId(): string {
+  const sessionResult = useSessionSafely();
   const { workspace } = useWorkspace();
-  return workspace.id;
+  return sessionResult?.activeOrganizationId ?? workspace.id;
+}
+
+function useSessionSafely(): { activeOrganizationId: string | null } | null {
+  try {
+    const { data } = authClient.useSession();
+    if (!data?.session) return null;
+    return { activeOrganizationId: data.session.activeOrganizationId ?? null };
+  } catch {
+    return null;
+  }
 }
 
 export const VERTICAL_LABEL: Record<Vertical, string> = {
