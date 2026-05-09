@@ -54,11 +54,9 @@ function SignInScreen() {
       }
       // Hard reload so the route guard re-runs and loads the freshly-signed-in
       // session into all the queries that depend on activeOrganizationId.
-      // Sign-up always lands on welcome; sign-in honors ?redirect=.
-      const target = mode === "sign-up"
-        ? "/home?welcome=true&firstrun=true"
-        : redirectTarget;
-      window.location.href = target;
+      // First-run welcome is detected on /home from `user.createdAt` — no URL
+      // flag needed. Sign-in honors ?redirect=; sign-up always lands on /home.
+      window.location.href = mode === "sign-up" ? "/home" : redirectTarget;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unexpected auth error");
     } finally {

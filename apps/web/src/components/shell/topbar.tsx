@@ -73,7 +73,7 @@ export function Topbar({ onCommandOpen, onMobileMenuToggle }: TopbarProps) {
           <Menu size={20} />
         </button>
       )}
-      <Link to="/home" search={{ welcome: false, firstrun: false }} className="flex items-center gap-2">
+      <Link to="/home" className="flex items-center gap-2">
         <Wordmark />
       </Link>
       <span className="h-6 w-px bg-border" />

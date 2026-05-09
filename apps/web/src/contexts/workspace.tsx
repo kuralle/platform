@@ -99,15 +99,19 @@ export function useWorkspace() {
   return ctx;
 }
 
-const SUSPENDED = new Promise(() => {});
-
+// Read workspace ID synchronously from authClient.useSession(). The route
+// guard in /_app already awaits getSession() in beforeLoad, so by the time
+// any descendant renders, the session is fetched and `data` is populated.
+// We accept undefined as a transient "session hook still hydrating" state
+// (better-auth's useSession briefly returns isPending=true before the cached
+// fetch lands) and short-circuit to "" — callers that gate downstream RPCs
+// on a non-empty workspaceId will simply skip until the next render. No
+// Suspense throw: a never-resolving SUSPENDED promise would deadlock the
+// router's defaultPendingComponent.
 export function useActiveWorkspaceId(): string {
-  const { data, isPending, error } = authClient.useSession();
+  const { data, error } = authClient.useSession();
   if (error) throw new Error(`Auth session error: ${error.message}`);
-  if (isPending) throw SUSPENDED;
-  const orgId = data?.session?.activeOrganizationId;
-  if (!orgId) throw new Error("No active workspace — route guard should have redirected");
-  return orgId;
+  return data?.session?.activeOrganizationId ?? "";
 }
 
 export const VERTICAL_LABEL: Record<Vertical, string> = {

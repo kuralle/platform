@@ -11,7 +11,7 @@ import { StatusPill } from "@kuralle/ui/components/status-pill";
 import { type ColumnDef, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowUpRight, BookOpen, Plus } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { ComplianceStatusModal } from "@/components/modals/compliance-status-modal";
 import { WelcomeModal } from "@/components/modals/welcome-modal";
@@ -22,6 +22,7 @@ import { useAgents } from "@/hooks/api/agents";
 import { useWorkspaceSettings } from "@/hooks/api/workspace";
 import { useCompliancePosture } from "@/hooks/api/compliance";
 import { useDashboard } from "@/hooks/api/home";
+import { authClient } from "@/lib/auth-client";
 import { formatRelative, formatUsd } from "@/lib/format";
 import type { ComplianceState, KpiTilePoint } from "@/types/domain";
 
@@ -41,19 +42,50 @@ interface ConversationRow {
 
 export const Route = createFileRoute("/_app/home")({
   component: HomeRoute,
-  validateSearch: (s) => ({
-    welcome: s.welcome === "true",
-    firstrun: s.firstrun === "true",
-  }),
 });
+
+// First-run detection from better-auth session: a user whose account was
+// created in the last 5 minutes and hasn't dismissed the welcome modal in
+// THIS browser (per-userId localStorage key) is on first run. No URL state,
+// no schema change, no extra RPC — just compares `user.createdAt` against
+// `Date.now()`.
+const FIRST_RUN_WINDOW_MS = 5 * 60 * 1000;
+function welcomeStorageKey(userId: string | undefined): string | null {
+  return userId ? `kuralle.welcomeSeen.${userId}` : null;
+}
+function shouldShowWelcomeOnMount(
+  userId: string | undefined,
+  userCreatedAt: string | Date | undefined,
+): boolean {
+  if (!userId || !userCreatedAt) return false;
+  const created = new Date(userCreatedAt).getTime();
+  if (Number.isNaN(created)) return false;
+  if (Date.now() - created > FIRST_RUN_WINDOW_MS) return false;
+  if (typeof window === "undefined") return false;
+  const key = welcomeStorageKey(userId);
+  return key ? window.localStorage.getItem(key) !== "1" : false;
+}
 
 function HomeRoute() {
   const workspaceId = useActiveWorkspaceId();
   const { data: wsSettings } = useWorkspaceSettings({ workspaceId });
   const { data: posture } = useCompliancePosture({ workspaceId });
   const navigate = useNavigate();
-  const search = Route.useSearch();
-  const [welcomeOpen, setWelcomeOpen] = useState(search.welcome);
+  const session = authClient.useSession();
+  const userId = session.data?.user?.id;
+  const userCreatedAt = session.data?.user?.createdAt as string | Date | undefined;
+  const [welcomeOpen, setWelcomeOpen] = useState(false);
+  // Auto-open the welcome modal once, after the session resolves: useState's
+  // initializer fires only on first render — when better-auth.useSession is
+  // still pending — so userId/createdAt are undefined and the modal would
+  // never open. Watching them via useEffect catches the post-hydration tick
+  // when both values land.
+  useEffect(() => {
+    if (welcomeOpen) return;
+    if (shouldShowWelcomeOnMount(userId, userCreatedAt)) {
+      setWelcomeOpen(true);
+    }
+  }, [userId, userCreatedAt, welcomeOpen]);
   const [complianceOpen, setComplianceOpen] = useState(false);
 
   const health = useHealthCheck();
@@ -89,7 +121,10 @@ function HomeRoute() {
 
   function dismissWelcome() {
     setWelcomeOpen(false);
-    navigate({ to: "/home", search: { welcome: false, firstrun: false } });
+    const key = welcomeStorageKey(userId);
+    if (key && typeof window !== "undefined") {
+      window.localStorage.setItem(key, "1");
+    }
   }
 
   const recentColumns = useMemo<ColumnDef<ConversationRow>[]>(() => [

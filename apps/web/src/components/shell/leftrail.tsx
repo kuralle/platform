@@ -122,7 +122,6 @@ export function LeftRail() {
                 <Link
                   key={item.to}
                   to={item.to}
-                  search={item.to === "/home" ? { welcome: false } : undefined}
                   className={cn(
                     "group relative flex h-9 items-center gap-2.5 rounded-md text-[13px] font-medium transition",
                     collapsed ? "size-9 justify-center px-0" : "px-2",

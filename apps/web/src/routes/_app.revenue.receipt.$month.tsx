@@ -99,7 +99,7 @@ function RoiReceiptRoute() {
     <div className="min-h-[calc(100svh-3.5rem)] bg-muted/60 print:bg-card">
       <div className="mx-auto max-w-[920px] px-8 py-8 print:p-0">
         <div className="mb-4 flex items-center justify-between print:hidden">
-          <Link to="/home" search={{ welcome: false, firstrun: false }} className="inline-flex items-center gap-1 text-[12px] text-muted-foreground hover:text-foreground">
+          <Link to="/home" className="inline-flex items-center gap-1 text-[12px] text-muted-foreground hover:text-foreground">
             <ChevronLeft size={12} /> Back to home
           </Link>
           <div className="flex items-center gap-2">
