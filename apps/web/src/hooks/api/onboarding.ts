@@ -5,6 +5,7 @@ import { $api } from "@/providers/api-provider";
 export function useOnboardingState(input: { workspaceId: string }) {
   return useQuery({
     ...$api.onboarding.get.queryOptions({ input }),
+    enabled: !!input.workspaceId,
   });
 }
 

@@ -5,6 +5,7 @@ import { $api } from "@/providers/api-provider";
 export function useWidgetConfig(input: { workspaceId: string }) {
   return useQuery({
     ...$api.widget.get.queryOptions({ input }),
+    enabled: !!input.workspaceId,
   });
 }
 

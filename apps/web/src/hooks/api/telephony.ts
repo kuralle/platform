@@ -15,5 +15,6 @@ export function useTelephony(input: { workspaceId: string }) {
     ...$api.channels.endpoints.listByKind.queryOptions({
       input: { workspaceId: input.workspaceId, kind: "voice" },
     }),
+    enabled: !!input.workspaceId,
   });
 }

@@ -10,6 +10,7 @@ export function useBatches(input: {
 }) {
   return useQuery({
     ...$api.batches.list.queryOptions({ input }),
+    enabled: !!input.workspaceId,
   });
 }
 
@@ -19,6 +20,7 @@ export function useBatch(input: {
 }) {
   return useQuery({
     ...$api.batches.get.queryOptions({ input }),
+    enabled: !!input.workspaceId && !!input.batchId,
   });
 }
 

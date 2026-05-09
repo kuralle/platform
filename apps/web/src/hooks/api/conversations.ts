@@ -11,6 +11,7 @@ export function useConversations(input: {
 }) {
   return useQuery({
     ...$api.conversations.list.queryOptions({ input }),
+    enabled: !!input.workspaceId,
   });
 }
 
@@ -20,6 +21,7 @@ export function useConversation(input: {
 }) {
   return useQuery({
     ...$api.conversations.get.queryOptions({ input }),
+    enabled: !!input.workspaceId && !!input.conversationId,
   });
 }
 
@@ -39,6 +41,7 @@ export function useConversationLive(input: {
             : 0,
       },
     }),
+    enabled: !!input.workspaceId && !!input.conversationId,
     refetchInterval: 1000,
   });
 

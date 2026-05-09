@@ -10,6 +10,7 @@ export function useChannels(opts: {
 }) {
   return useQuery({
     ...$api.channels.list.queryOptions({ input: opts }),
+    enabled: !!opts.workspaceId,
   });
 }
 
@@ -19,6 +20,7 @@ export function useChannelEndpoints(opts: {
 }) {
   return useQuery({
     ...$api.channels.endpoints.list.queryOptions({ input: opts }),
+    enabled: !!opts.workspaceId && !!opts.connectionId,
   });
 }
 

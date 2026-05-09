@@ -5,6 +5,7 @@ import { $api } from "@/providers/api-provider";
 export function useWorkspaceSettings(input: { workspaceId: string }) {
   return useQuery({
     ...$api.workspace.get.queryOptions({ input }),
+    enabled: !!input.workspaceId,
   });
 }
 

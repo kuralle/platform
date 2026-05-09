@@ -9,5 +9,6 @@ export function useMonthlyReceipt(input: {
 }) {
   return useQuery({
     ...$api.receipts.getMonthly.queryOptions({ input }),
+    enabled: !!input.workspaceId,
   });
 }

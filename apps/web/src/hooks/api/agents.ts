@@ -9,6 +9,7 @@ export function useAgents(input: {
 }) {
   return useQuery({
     ...$api.agents.list.queryOptions({ input }),
+    enabled: !!input.workspaceId,
   });
 }
 
@@ -16,6 +17,7 @@ export function useAgents(input: {
 export function useAgent(input: { workspaceId: string; agentId: string }) {
   return useQuery({
     ...$api.agents.get.queryOptions({ input }),
+    enabled: !!input.workspaceId && !!input.agentId,
   });
 }
 
@@ -64,5 +66,6 @@ export function useAgentHistory(input: {
 }) {
   return useQuery({
     ...$api.agents.history.queryOptions({ input }),
+    enabled: !!input.workspaceId && !!input.agentId,
   });
 }
