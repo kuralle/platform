@@ -19,16 +19,17 @@ import { authClient } from "@/lib/auth-client";
 import { getInitials } from "@/lib/initials";
 import { useWorkspaceSettings } from "@/hooks/api/workspace";
 import { useActiveWorkspaceId, useWorkspace } from "@/contexts/workspace";
-import { Bell, Search } from "lucide-react";
+import { Bell, Menu, Search } from "lucide-react";
 
 import { SignOutConfirmDialog } from "./sign-out-confirm-dialog";
 import { Wordmark } from "./wordmark";
 
 interface TopbarProps {
   onCommandOpen: () => void;
+  onMobileMenuToggle?: () => void;
 }
 
-export function Topbar({ onCommandOpen }: TopbarProps) {
+export function Topbar({ onCommandOpen, onMobileMenuToggle }: TopbarProps) {
   const { workspace } = useWorkspace();
   const workspaceId = useActiveWorkspaceId();
   const { data: session, isPending } = authClient.useSession();
@@ -42,6 +43,16 @@ export function Topbar({ onCommandOpen }: TopbarProps) {
   if (isPending) {
     return (
       <header className="flex h-14 items-center gap-4 border-b bg-card px-4">
+        {onMobileMenuToggle && (
+          <button
+            type="button"
+            onClick={onMobileMenuToggle}
+            className="flex size-9 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground md:hidden"
+            aria-label="Open menu"
+          >
+            <Menu size={20} />
+          </button>
+        )}
         <div className="flex items-center gap-2">
           <Wordmark />
         </div>
@@ -52,6 +63,16 @@ export function Topbar({ onCommandOpen }: TopbarProps) {
 
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-card px-4">
+      {onMobileMenuToggle && (
+        <button
+          type="button"
+          onClick={onMobileMenuToggle}
+          className="flex size-9 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground md:hidden"
+          aria-label="Open menu"
+        >
+          <Menu size={20} />
+        </button>
+      )}
       <Link to="/home" search={{ welcome: false, firstrun: false }} className="flex items-center gap-2">
         <Wordmark />
       </Link>
@@ -61,7 +82,7 @@ export function Topbar({ onCommandOpen }: TopbarProps) {
       <button
         type="button"
         onClick={onCommandOpen}
-        className="ml-3 flex h-8 min-w-[280px] items-center gap-2 rounded-md border bg-background px-2 text-[13px] text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
+        className="ml-3 hidden h-8 min-w-[280px] items-center gap-2 rounded-md border bg-background px-2 text-[13px] text-muted-foreground transition hover:border-primary/40 hover:text-foreground md:flex"
       >
         <Search size={14} />
         <span className="flex-1 text-left">Jump to a screen, agent, or conversation…</span>

@@ -192,7 +192,7 @@ function HomeRoute() {
   }
 
   return (
-    <div className="mx-auto max-w-[1280px] px-8 py-8">
+    <div className="mx-auto max-w-[1280px] px-4 py-6 md:px-8 md:py-8">
       <div className="mb-6">
         <StatusPill tone={health.isLoading ? "neutral" : health.isError ? "danger" : "live"}>
           API {health.isLoading ? "…" : health.isError ? "down" : "live"}
@@ -215,10 +215,10 @@ function HomeRoute() {
       />
 
       {/* KPI row */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="flex gap-4 overflow-x-auto pb-2 md:grid md:grid-cols-2 md:overflow-x-visible md:pb-0 lg:grid-cols-3">
         {kpis.map((kpi) => (
+          <div key={kpi.label} className="shrink-0 w-[180px] md:w-auto">
           <KpiTile
-            key={kpi.label}
             label={kpi.label}
             value={
               kpi.currency
@@ -234,6 +234,7 @@ function HomeRoute() {
             currency={kpi.currency}
             live={kpi.live}
           />
+          </div>
         ))}
       </div>
 

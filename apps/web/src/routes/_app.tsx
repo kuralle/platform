@@ -1,15 +1,12 @@
-import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
-import { useState } from "react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@kuralle/ui/components/sheet";
+import { Outlet, createFileRoute, redirect, useRouterState } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 
 import { CommandPalette } from "@/components/shell/command-palette";
 import { LeftRail } from "@/components/shell/leftrail";
 import { Topbar } from "@/components/shell/topbar";
 import { getSession } from "@/lib/auth-client";
 
-// Auth gate for everything under `/_app/*`. better-auth + TanStack Router
-// recommend `beforeLoad` on a pathless layout route — that's exactly what
-// `_app` is. Source: better-auth v1.5.5 docs (Context7) — Tanstack route
-// integration § "Protecting Multiple Routes with a Layout Route".
 export const Route = createFileRoute("/_app")({
   beforeLoad: async ({ location }) => {
     const session = await getSession();
@@ -25,21 +22,41 @@ export const Route = createFileRoute("/_app")({
 });
 
 function AppLayout() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [, setCmdSeed] = useState(0);
+
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
   function bump() {
     setCmdSeed((s) => s + 1);
     window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }));
   }
+
   return (
-    <div className="grid h-svh grid-cols-[auto_1fr] grid-rows-[auto_1fr] bg-background">
-      <header className="col-span-2">
-        <Topbar onCommandOpen={bump} />
+    <div className="grid h-svh grid-cols-1 md:grid-cols-[auto_1fr] grid-rows-[auto_1fr] bg-background">
+      <header className="col-span-1 md:col-span-2">
+        <Topbar onCommandOpen={bump} onMobileMenuToggle={() => setMobileMenuOpen(true)} />
       </header>
-      <LeftRail />
+      <div className="hidden md:block">
+        <LeftRail />
+      </div>
       <main className="overflow-auto">
         <Outlet />
       </main>
       <CommandPalette />
+
+      <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+        <SheetContent side="left" showCloseButton={false} className="w-64 p-0">
+          <SheetHeader className="sr-only">
+            <SheetTitle>Navigation</SheetTitle>
+          </SheetHeader>
+          <LeftRail />
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
