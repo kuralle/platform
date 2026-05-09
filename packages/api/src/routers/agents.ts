@@ -12,6 +12,7 @@ import {
   agentVersionSchema,
   agentWithVersionSchema,
 } from "./agents.schemas";
+import { assertWorkspaceMember } from "../workspace-access";
 
 // ── shared inputs ──────────────────────────────────────────────────
 
@@ -84,6 +85,7 @@ export const agentsRouter = {
     )
     .output(createOutput)
     .handler(async ({ input, context }) => {
+      await assertWorkspaceMember(context, input.workspaceId);
       const repos = withWorkspace(
         context.db,
         input.workspaceId,
@@ -137,6 +139,7 @@ export const agentsRouter = {
     .input(workspaceIdInput.merge(cursorInput))
     .output(listOutput)
     .handler(async ({ input, context }) => {
+      await assertWorkspaceMember(context, input.workspaceId);
       const repos = withWorkspace(
         context.db,
         input.workspaceId,
@@ -153,6 +156,7 @@ export const agentsRouter = {
     .input(agentIdInput)
     .output(getOutput)
     .handler(async ({ input, context }) => {
+      await assertWorkspaceMember(context, input.workspaceId);
       const repos = withWorkspace(
         context.db,
         input.workspaceId,
@@ -183,6 +187,7 @@ export const agentsRouter = {
     )
     .output(publishOutput)
     .handler(async ({ input, context }) => {
+      await assertWorkspaceMember(context, input.workspaceId);
       const repos = withWorkspace(
         context.db,
         input.workspaceId,
@@ -269,6 +274,7 @@ export const agentsRouter = {
     )
     .output(autoSaveOutput)
     .handler(async ({ input, context }) => {
+      await assertWorkspaceMember(context, input.workspaceId);
       const repos = withWorkspace(
         context.db,
         input.workspaceId,
@@ -307,6 +313,7 @@ export const agentsRouter = {
     .input(agentIdInput.merge(cursorInput))
     .output(historyOutput)
     .handler(async ({ input, context }) => {
+      await assertWorkspaceMember(context, input.workspaceId);
       const repos = withWorkspace(
         context.db,
         input.workspaceId,

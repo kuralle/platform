@@ -43,7 +43,7 @@ export const Route = createFileRoute("/_app/home")({
   component: HomeRoute,
   validateSearch: (s) => ({
     welcome: s.welcome === "true",
-    firstrun: s.firstrun === "1",
+    firstrun: s.firstrun === "true",
   }),
 });
 
@@ -63,18 +63,18 @@ function HomeRoute() {
     const d = dashboard.data;
     if (!d) {
       return [
-        { label: "Live calls", value: 0, delta: 0, spark: [], live: true },
-        { label: "Calls today", value: 0, delta: 0, spark: [] },
-        { label: "7-day trend", value: 0, delta: 0, spark: [] },
+        { label: "Live calls", value: 0, delta: null, spark: [], live: true },
+        { label: "Calls today", value: 0, delta: null, spark: [] },
+        { label: "7-day trend", value: 0, delta: null, spark: [] },
       ];
     }
     return [
-      { label: "Live calls", value: d.liveCalls, delta: 0, spark: [], live: true },
-      { label: "Calls today", value: d.todayCalls, delta: 0, spark: [] },
+      { label: "Live calls", value: d.liveCalls, delta: null, spark: [], live: true },
+      { label: "Calls today", value: d.todayCalls, delta: null, spark: [] },
       {
         label: "7-day trend",
         value: d.weeklyTrend.count,
-        delta: d.weeklyTrend.deltaPct ?? 0,
+        delta: d.weeklyTrend.deltaPct ?? null,
         spark: [],
       },
     ];
@@ -223,13 +223,9 @@ function HomeRoute() {
             value={
               kpi.currency
                 ? formatUsd(kpi.value)
-                : kpi.label === "7-day trend"
-                  ? dashboard.data?.weeklyTrend.deltaPct == null
-                    ? `${kpi.value}`
-                    : `${kpi.value}`
-                  : kpi.value.toLocaleString()
+                : kpi.value.toLocaleString()
             }
-            delta={dashboard.data?.weeklyTrend.deltaPct == null && kpi.label === "7-day trend" ? 0 : kpi.delta}
+            delta={kpi.delta}
             spark={kpi.spark}
             currency={kpi.currency}
             live={kpi.live}

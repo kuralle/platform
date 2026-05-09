@@ -56,7 +56,7 @@ function SignInScreen() {
       // session into all the queries that depend on activeOrganizationId.
       // Sign-up always lands on welcome; sign-in honors ?redirect=.
       const target = mode === "sign-up"
-        ? "/home?welcome=true&firstrun=1"
+        ? "/home?welcome=true&firstrun=true"
         : redirectTarget;
       window.location.href = target;
     } catch (err) {

@@ -34,16 +34,20 @@ describe("format helpers", () => {
   });
 
   describe("guard against undefined / null / NaN", () => {
-    it("formatUsd returns — for undefined, null, NaN", () => {
+    it("formatUsd returns — for undefined, null, NaN, Infinity", () => {
       expect(formatUsd(undefined)).toBe("—");
       expect(formatUsd(null)).toBe("—");
       expect(formatUsd(NaN)).toBe("—");
+      expect(formatUsd(Infinity)).toBe("—");
+      expect(formatUsd(-Infinity)).toBe("—");
     });
 
-    it("formatPct returns — for undefined, null, NaN", () => {
+    it("formatPct returns — for undefined, null, NaN, Infinity", () => {
       expect(formatPct(undefined)).toBe("—");
       expect(formatPct(null)).toBe("—");
       expect(formatPct(NaN)).toBe("—");
+      expect(formatPct(Infinity)).toBe("—");
+      expect(formatPct(-Infinity)).toBe("—");
     });
 
     it("formatRelative returns — for undefined, null", () => {

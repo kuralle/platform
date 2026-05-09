@@ -1,6 +1,6 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@kuralle/ui/components/sheet";
 import { Outlet, createFileRoute, redirect, useRouterState } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 import { CommandPalette } from "@/components/shell/command-palette";
 import { LeftRail } from "@/components/shell/leftrail";
@@ -45,7 +45,9 @@ function AppLayout() {
         <LeftRail />
       </div>
       <main className="overflow-auto">
-        <Outlet />
+        <Suspense fallback={<div className="grid h-full place-items-center p-8 text-muted-foreground">Loading…</div>}>
+          <Outlet />
+        </Suspense>
       </main>
       <CommandPalette />
 

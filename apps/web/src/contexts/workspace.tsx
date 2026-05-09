@@ -99,10 +99,12 @@ export function useWorkspace() {
   return ctx;
 }
 
+const SUSPENDED = new Promise(() => {});
+
 export function useActiveWorkspaceId(): string {
   const { data, isPending, error } = authClient.useSession();
   if (error) throw new Error(`Auth session error: ${error.message}`);
-  if (isPending) throw new Error("Session not loaded — route guard should prevent this");
+  if (isPending) throw SUSPENDED;
   const orgId = data?.session?.activeOrganizationId;
   if (!orgId) throw new Error("No active workspace — route guard should have redirected");
   return orgId;

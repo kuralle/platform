@@ -15,7 +15,7 @@ const CURRENCY_PRECISE = new Intl.NumberFormat("en-US", {
 const DASH = "—";
 
 export function formatUsd(n: number | null | undefined, options?: { precise?: boolean }): string {
-  if (n == null || Number.isNaN(n)) return DASH;
+  if (n == null || !Number.isFinite(n)) return DASH;
   return options?.precise ? CURRENCY_PRECISE.format(n) : CURRENCY.format(n);
 }
 
@@ -25,7 +25,7 @@ const PCT = new Intl.NumberFormat("en-US", {
 });
 
 export function formatPct(n: number | null | undefined): string {
-  if (n == null || Number.isNaN(n)) return DASH;
+  if (n == null || !Number.isFinite(n)) return DASH;
   return PCT.format(n);
 }
 

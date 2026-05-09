@@ -7,8 +7,8 @@ interface KpiTileProps {
   label: string;
   /** Pre-formatted display value (e.g. "$47,200" or "61%"). */
   value: string;
-  /** Decimal delta — 0.18 → "+18%". */
-  delta: number;
+  /** Decimal delta — 0.18 → "+18%". null renders "—". */
+  delta: number | null;
   /** 14-point sparkline series. */
   spark?: number[];
   /** When true, value is rendered in Receipt Gold and `data-currency` is set. */
@@ -24,8 +24,6 @@ interface KpiTileProps {
  * tabular numerals; delta chip below; optional sparkline on the right.
  */
 export function KpiTile({ label, value, delta, spark, currency, live, className }: KpiTileProps) {
-  const positive = delta >= 0;
-  const deltaPct = `${positive ? "+" : ""}${(delta * 100).toFixed(0)}%`;
   return (
     <div
       className={cn(
@@ -64,15 +62,21 @@ export function KpiTile({ label, value, delta, spark, currency, live, className 
         )}
       </div>
       <div className="flex items-center gap-2 text-[12px]">
-        <span
-          className={cn(
-            "rounded px-1.5 py-0.5 font-mono font-semibold tabular-nums",
-            positive ? "bg-emerald-500/10 text-emerald-500" : "bg-destructive/10 text-destructive",
-          )}
-        >
-          {positive ? "↑" : "↓"} {deltaPct.replace("-", "")}
-        </span>
-        <span className="text-muted-foreground">vs last 7d</span>
+        {delta == null ? (
+          <span className="text-muted-foreground">—</span>
+        ) : (
+          <>
+            <span
+              className={cn(
+                "rounded px-1.5 py-0.5 font-mono font-semibold tabular-nums",
+                delta >= 0 ? "bg-emerald-500/10 text-emerald-500" : "bg-destructive/10 text-destructive",
+              )}
+            >
+              {delta >= 0 ? "↑" : "↓"} {`${delta >= 0 ? "+" : ""}${(delta * 100).toFixed(0)}%`.replace("-", "")}
+            </span>
+            <span className="text-muted-foreground">vs last 7d</span>
+          </>
+        )}
       </div>
     </div>
   );

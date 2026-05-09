@@ -7,6 +7,7 @@ import {
   conversationLivePollingSchema,
 } from "./conversations.schemas";
 import { protectedProcedure } from "../index";
+import { assertWorkspaceMember } from "../workspace-access";
 
 const listInput = z
   .object({
@@ -43,6 +44,7 @@ export const conversationsRouter = {
     .input(listInput)
     .output(listOutput)
     .handler(async ({ input, context }) => {
+      await assertWorkspaceMember(context, input.workspaceId);
       const repos = withWorkspace(
         context.db,
         input.workspaceId,
@@ -58,6 +60,7 @@ export const conversationsRouter = {
     .input(getInput)
     .output(conversationDetailSchema)
     .handler(async ({ input, context }) => {
+      await assertWorkspaceMember(context, input.workspaceId);
       const repos = withWorkspace(
         context.db,
         input.workspaceId,
@@ -73,6 +76,7 @@ export const conversationsRouter = {
     .input(liveInput)
     .output(conversationLivePollingSchema)
     .handler(async ({ input, context }) => {
+      await assertWorkspaceMember(context, input.workspaceId);
       const repos = withWorkspace(
         context.db,
         input.workspaceId,

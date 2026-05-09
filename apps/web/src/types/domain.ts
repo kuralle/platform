@@ -171,8 +171,8 @@ export interface KpiTilePoint {
   value: number;
   /** Receipt Gold formatting for currency values; toggle via `currency`. */
   currency?: boolean;
-  /** Compared to last 7-day period. */
-  delta: number;
+  /** Compared to last 7-day period. null when no baseline exists. */
+  delta: number | null;
   /** Sparkline series (count = 14). */
   spark: number[];
   /** Render as live/streaming with Live Cyan. */
