@@ -1,11 +1,12 @@
 import { Alert, AlertDescription, AlertTitle } from "@kuralle/ui/components/alert";
+import { Button } from "@kuralle/ui/components/button";
 import { Card } from "@kuralle/ui/components/card";
 import { Eyebrow } from "@kuralle/ui/components/eyebrow";
 import { Field, FieldLabel } from "@kuralle/ui/components/field";
 import { Input } from "@kuralle/ui/components/input";
 import { WizardShell } from "@kuralle/ui/components/wizard-shell";
 import { cn } from "@kuralle/ui/lib/utils";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Building2, GraduationCap, Wrench } from "lucide-react";
 import { useState } from "react";
 
@@ -159,14 +160,23 @@ function OnboardingRoute() {
               {
                 id: "done",
                 title: "Done",
-                description: "We'll drop you on your empty home so you can build your first agent.",
+                description: "Connect your number from the Numbers page when you are ready.",
                 render: () => (
                   <Card className="p-6 text-center">
-                    <p className="font-display text-[18px] font-semibold">All set.</p>
-                    <p className="mt-1 text-[13px] text-muted-foreground">
-                      Your workspace inherits {VERTICAL_LABEL[vertical]} defaults. We'll be in your dashboard in
-                      a moment.
+                    <p className="font-display text-[18px] font-semibold">Your workspace is ready.</p>
+                    <p className="mt-2 text-[13px] text-muted-foreground">
+                      Your workspace inherits {VERTICAL_LABEL[vertical]} defaults. Your phone number connection happens
+                      next, from the Numbers page. We&apos;ll set up routing, verify your business with the carrier, and
+                      run a test call together.
                     </p>
+                    <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+                      <Button nativeButton={false} render={<Link to="/phone-numbers" />}>
+                        Go to Numbers
+                      </Button>
+                      <Link to="/home" className="text-[13px] text-muted-foreground underline hover:text-foreground">
+                        Skip to dashboard
+                      </Link>
+                    </div>
                   </Card>
                 ),
               },
