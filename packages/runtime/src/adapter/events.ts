@@ -81,7 +81,7 @@ const toolResultPayloadSchema = z
 
 /**
  * Payload shape for tokens.updated events.
- * Matches `TurnUsage` from `@ariaflowagents/core/dist/types/telemetry.d.ts`
+ * Matches `TurnUsage` from `@kuralle-agents/core/dist/types/telemetry.d.ts`
  * byte-for-byte per FINDINGS.
  */
 const tokensUpdatedPayloadSchema = z

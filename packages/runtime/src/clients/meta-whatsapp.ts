@@ -1,9 +1,9 @@
 import {
   GraphAPIClient,
   verifySignature,
-} from "@ariaflowagents/messaging-meta";
-import type { GraphAPIClientConfig } from "@ariaflowagents/messaging-meta";
-import type { VerifySignatureOptions } from "@ariaflowagents/messaging-meta";
+} from "@kuralle-agents/messaging-meta";
+import type { GraphAPIClientConfig } from "@kuralle-agents/messaging-meta";
+import type { VerifySignatureOptions } from "@kuralle-agents/messaging-meta";
 
 export interface MetaWhatsAppClientDeps {
   graphApi: GraphAPIClient;
@@ -36,9 +36,9 @@ export interface VerifyHmacOpts {
 }
 
 /**
- * Thin typed wrapper around @ariaflowagents/messaging-meta's Graph API + webhook
+ * Thin typed wrapper around @kuralle-agents/messaging-meta's Graph API + webhook
  * verifier. This is the test seam — router handlers import from here, NOT from
- * the AriaFlow package directly. S3-03 imports `verifyHmac` from here as well.
+ * the Kuralle package directly. S3-03 imports `verifyHmac` from here as well.
  */
 export function createMetaWhatsAppClient(config: GraphAPIClientConfig): MetaWhatsAppClientDeps {
   const graphApi = new GraphAPIClient(config);

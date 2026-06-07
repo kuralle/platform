@@ -246,7 +246,7 @@ export interface RuntimePlatform {
 }
 
 // ── §2.5 SessionStore — per-conversation runtime state
-// Owned by AriaFlow. Will be re-exported from @ariaflowagents/core in S2.
+// Owned by Kuralle. Will be re-exported from @kuralle-agents/core in S2.
 // Until then this is a structural placeholder.
 export interface SessionStore {
   readonly __aria_marker: "SessionStore";
@@ -297,7 +297,7 @@ export interface ActorState {
 
 // ── §2.8 LlmGateway — provider proxy
 // LlmProviderClient shape is not fully specified in §2.8.
-// S2 fills in the shape when AriaFlow integrates the gateway.
+// S2 fills in the shape when Kuralle integrates the gateway.
 export interface LlmProviderClient {
   readonly provider: "openai" | "anthropic" | "google" | "custom";
   /** Shape not yet specified — S2 fills this in when the LLM gateway is exercised. */

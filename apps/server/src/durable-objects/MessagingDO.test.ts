@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import type { DurableObjectState } from "@cloudflare/workers-types";
 
-vi.mock("@ariaflowagents/cf-agent", () => {
-  class AriaFlowAgent {
+vi.mock("@kuralle-agents/cf-agent", () => {
+  class KuralleAgent {
     messages: unknown[] = [];
     constructor() {}
     async saveMessages(messages: unknown[]) {
@@ -12,7 +12,7 @@ vi.mock("@ariaflowagents/cf-agent", () => {
       return new Response("OK");
     }
   }
-  return { AriaFlowAgent };
+  return { KuralleAgent };
 });
 
 class InMemoryStorage {

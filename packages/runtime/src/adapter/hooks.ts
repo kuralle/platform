@@ -1,4 +1,5 @@
-import type { HarnessHooks, RunContext, ToolCallRecord } from "@ariaflowagents/core";
+import type { HarnessHooks } from "@kuralle-agents/core";
+import type { RunContext, ToolCallRecord } from "@kuralle-agents/core/types";
 import type { MessageQueue } from "@kuralle/platform/interface";
 import type { MessagingEvent } from "./events.js";
 
@@ -83,7 +84,7 @@ const QUEUE_TOPIC = "messaging-events";
 // ── factory ───────────────────────────────────────────────────────
 
 /**
- * Builds an AriaFlow-compatible `HarnessHooks` object whose hook impls
+ * Builds an Kuralle-compatible `HarnessHooks` object whose hook impls
  * serialize runtime events into `MessagingEvent` discriminated-union
  * payloads and publish them to the `MessageQueue` port.
  *
@@ -95,7 +96,7 @@ const QUEUE_TOPIC = "messaging-events";
  * `scripts/sink-spike/FINDINGS.md` that justifies the event mapping.
  *
  * @param deps  Queue port, conversationId, optional clock override.
- * @returns     An object whose key names match AriaFlow's `HarnessHooks` verbatim.
+ * @returns     An object whose key names match Kuralle's `HarnessHooks` verbatim.
  */
 export function buildHarnessHooks(deps: HarnessHooksDeps): HarnessHooks {
   const { queue, conversationId } = deps;

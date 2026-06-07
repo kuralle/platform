@@ -2,7 +2,7 @@
  * S3-06 Real-DO loop test (workerd, via @cloudflare/vitest-pool-workers).
  *
  * **Scope:** verifies that the REAL `MessagingDO` (extending
- * `@ariaflowagents/cf-agent` `AriaFlowAgent`) loads inside the Cloudflare
+ * `@kuralle-agents/cf-agent` `KuralleAgent`) loads inside the Cloudflare
  * Workers runtime and processes an inbound envelope without falling back to
  * any shell behaviour. This is the workerd-side complement to the Node-side
  * projector-pipeline test in `slo-whatsapp-e2e.test.ts`.
@@ -16,7 +16,7 @@
  *   - Working-memory persistence flows through the documented seam.
  *
  * What this test does NOT verify (deferred to S4 voice work):
- *   - The full `AriaFlowAgent.onChatMessage` runtime invocation. CF's
+ *   - The full `KuralleAgent.onChatMessage` runtime invocation. CF's
  *     AIChatAgent base fires `onChatMessage` from the WebSocket chat protocol
  *     (`CF_AGENT_USE_CHAT_REQUEST` frame) — exercising it requires either a
  *     real WebSocket client or extracting `onChatMessage` to be callable from
@@ -24,7 +24,7 @@
  *     [S3-fix] scope.
  *
  * Per `feedback_no_shell_implementations.md`: this test does NOT mock the
- * AriaFlowAgent base. It loads the real class via workerd, exercises
+ * KuralleAgent base. It loads the real class via workerd, exercises
  * documented integration seams (deps injection, queue capture), and asserts
  * on real behaviour.
  */

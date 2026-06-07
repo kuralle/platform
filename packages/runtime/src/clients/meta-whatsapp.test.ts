@@ -8,7 +8,7 @@ import {
 } from "./meta-whatsapp.js";
 import type { MetaWhatsAppClientDeps } from "./meta-whatsapp.js";
 
-vi.mock("@ariaflowagents/messaging-meta", () => {
+vi.mock("@kuralle-agents/messaging-meta", () => {
   const mockGet = vi.fn();
   const mockPost = vi.fn();
   // Arrow fns have no [[Construct]] internal method; the thin client calls
@@ -25,7 +25,7 @@ vi.mock("@ariaflowagents/messaging-meta", () => {
   };
 });
 
-import { GraphAPIClient, verifySignature } from "@ariaflowagents/messaging-meta";
+import { GraphAPIClient, verifySignature } from "@kuralle-agents/messaging-meta";
 
 const MockGraphAPIClient = GraphAPIClient as unknown as ReturnType<typeof vi.fn>;
 const mockVerifySignature = verifySignature as ReturnType<typeof vi.fn>;

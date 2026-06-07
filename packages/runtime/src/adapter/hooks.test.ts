@@ -3,7 +3,7 @@ import { MemoryMessageQueue } from "@kuralle/platform/memory";
 import { buildHarnessHooks, emitCallerTurn } from "./hooks.js";
 import type { HarnessHooksDeps } from "./hooks.js";
 import type { MessagingEvent } from "./events.js";
-import type { RunContext, ToolCallRecord } from "@ariaflowagents/core";
+import type { RunContext, ToolCallRecord } from "@kuralle-agents/core/types";
 import type { ConsumeMessage } from "@kuralle/platform/interface";
 
 /** Fixed clock so timestamps are deterministic. */

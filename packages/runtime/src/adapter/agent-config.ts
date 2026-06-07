@@ -1,19 +1,19 @@
 import type { AgentIR } from "@kuralle/core";
-import type { ExtractionConfig, ToolSet } from "@ariaflowagents/core";
+import { collect } from "@kuralle-agents/core";
+import type { AgentConfig, ToolSet, Flow } from "@kuralle-agents/core";
 import type {
-  AgentConfig,
   InputProcessor,
   OutputProcessor,
-} from "@ariaflowagents/core";
+} from "@kuralle-agents/core/types";
 import { z } from "zod";
 
 /** Extracted from `AgentConfig.model` to avoid importing from `ai` directly. */
 type LanguageModel = NonNullable<AgentConfig["model"]>;
 
 /**
- * Parameters the AriaFlow `AgentConfig` requires that the IR doesn't carry.
+ * Parameters the Kuralle `AgentConfig` requires that the IR doesn't carry.
  *
- * The adapter is platform-neutral — it imports only `@ariaflowagents/core`
+ * The adapter is platform-neutral — it imports only `@kuralle-agents/core`
  * types, not AI SDK providers. The caller threads in the runtime-specific
  * resolvers so the adapter stays dep-free of database/provider concerns.
  */
@@ -63,7 +63,7 @@ export interface AgentConfigOpts {
 
   /**
    * Max tool-calling steps for a single model invocation (Vercel AI SDK `maxSteps`).
-   * Separate from AriaFlow's own loop `maxSteps`. Defaults to 5 if unset.
+   * Separate from Kuralle's own loop `maxSteps`. Defaults to 5 if unset.
    */
   toolMaxSteps?: number;
 }
@@ -114,37 +114,44 @@ function buildGuardrailProcessors(ir: AgentIR): {
 }
 
 /**
- * Builds an `ExtractionConfig` from `ir.requestContextSchema` when the IR
- * carries a non-empty schema with actual field definitions.
+ * Builds a `collect` flow from `ir.requestContextSchema`.
  *
- * IR §5:365 — `requestContextSchema` is a key-value map. When the object has
- * entries, the adapter lifts it into an AriaFlow `ExtractionConfig` so the
- * runtime collects structured fields across turns.
+ * IR §5:365 — `requestContextSchema` is a key-value map of fields the agent must
+ * gather. In `@kuralle-agents/core`, field collection is modeled as a `collect`
+ * flow node, so the adapter lifts the schema into a single-node flow that the
+ * runtime drives across turns. Returns `undefined` for an empty schema.
+ *
+ * @internal — not exported; the public API is `irToAgentConfig`.
  */
-function buildExtractionConfig(ir: AgentIR): ExtractionConfig | undefined {
+function buildRequestContextFlow(ir: AgentIR): Flow | undefined {
   const raw = ir.requestContextSchema as Record<string, unknown>;
   const keys = Object.keys(raw);
   if (keys.length === 0) return undefined;
 
-  // Build a lazy Zod object schema from the IR key set. Each key is typed
-  // as z.string().optional() since extraction is partial across turns.
+  // Each key is z.string().optional() since collection is partial across turns.
   const shape: Record<string, z.ZodTypeAny> = {};
   for (const key of keys) {
     shape[key] = z.string().optional();
   }
 
+  const node = collect({
+    id: "collect_request_context",
+    schema: z.object(shape),
+    required: keys,
+    onComplete: () => ({ end: "request_context_collected" }),
+  });
+
   return {
-    schema: z.strictObject(shape),
-    requiredFields: keys,
-    memoryKey: "extraction:request_context",
-    includeInSystemPrompt: true,
-    mergeIntoFlowState: true,
+    name: "request_context",
+    description: "Collects the request-context fields declared in the agent IR.",
+    start: node,
+    nodes: [node],
   };
 }
 
 /**
  * Pure function: translates Kuralle's `AgentIR` into the `AgentConfig` shape
- * that `@ariaflowagents/core`'s `Runtime` expects.
+ * that `@kuralle-agents/core`'s `Runtime` expects.
  *
  * Every major mapping step is annotated with `// §5:NNN` citations tracing
  * back to the source IR field in `packages/core/src/schemas/agent-ir.ts`.
@@ -157,7 +164,8 @@ function buildExtractionConfig(ir: AgentIR): ExtractionConfig | undefined {
  *  - `workflowAttachments` (§5:354) — no `AgentConfig` equivalent.
  *  - `defaultOptions` (§5:351) — no `AgentConfig` equivalent.
  *  - `kbAttachments` (§5:358) — maps to `knowledge` when a retriever is wired.
- *  - `guardrailGraph` (§5:359) — maps to input/output processors below.
+ *  - `guardrailGraph` (§5:359) — maps to `guardrails.input`/`guardrails.output` below.
+ *  - `requestContextSchema` (§5:365) — maps to a `collect` flow on `AgentConfig.flows`.
  *
  * @param ir    Validated `AgentIR` from the domain schema.
  * @param opts  Runtime-specific resolvers and overrides.
@@ -206,37 +214,44 @@ export async function irToAgentConfig(
     }
   }
 
-  // §5:355 — subagentAttachments: subagent IDs become canHandoffTo
+  // §5:355 — subagentAttachments: subagent IDs become handoffs
   // (the subagent itself is resolved as a tool by resolveTool if needed)
-  const canHandoffTo = Object.keys(ir.subagentAttachments);
+  const handoffs = Object.keys(ir.subagentAttachments);
 
   // ── guardrail processors (§5:359) ───────────────────────────────
   const { inputProcessors, outputProcessors } =
     buildGuardrailProcessors(ir);
 
-  // ── extraction config (§5:365) ──────────────────────────────────
-  const extraction = buildExtractionConfig(ir);
+  // ── request-context collect flow (§5:365) ───────────────────────
+  const requestContextFlow = buildRequestContextFlow(ir);
 
   // ── assemble AgentConfig ────────────────────────────────────────
   const hasTools = Object.keys(tools).length > 0;
-  const hasHandoff = canHandoffTo.length > 0;
+  const hasHandoff = handoffs.length > 0;
   const hasInputProcs = inputProcessors.length > 0;
   const hasOutputProcs = outputProcessors.length > 0;
+  const hasGuardrails = hasInputProcs || hasOutputProcs;
 
   const config: AgentConfig = {
     id: opts.agentId, // from caller (DB row id)
     name: ir.name, // §5:348
     description: ir.description, // §5:348
-    prompt: ir.instructions, // §5:349 → AgentConfig.prompt (string)
+    instructions: ir.instructions, // §5:349 → AgentConfig.instructions (string)
     model, // §5:350 → resolved LanguageModel
     tools: hasTools ? tools : undefined, // §5:353-357
-    canHandoffTo: hasHandoff ? canHandoffTo : undefined, // §5:355
-    maxTurns: opts.maxTurns ?? 50,
-    maxSteps: opts.maxSteps ?? 10,
-    toolMaxSteps: opts.toolMaxSteps ?? 5,
-    extraction, // §5:365
-    inputProcessors: hasInputProcs ? inputProcessors : undefined,
-    outputProcessors: hasOutputProcs ? outputProcessors : undefined,
+    handoffs: hasHandoff ? handoffs : undefined, // §5:355
+    flows: requestContextFlow ? [requestContextFlow] : undefined, // §5:365
+    limits: {
+      maxTurns: opts.maxTurns ?? 50,
+      maxSteps: opts.maxSteps ?? 10,
+      toolMaxSteps: opts.toolMaxSteps ?? 5,
+    },
+    guardrails: hasGuardrails
+      ? {
+          input: hasInputProcs ? inputProcessors : undefined,
+          output: hasOutputProcs ? outputProcessors : undefined,
+        }
+      : undefined,
   };
 
   return config;

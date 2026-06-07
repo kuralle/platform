@@ -1,5 +1,5 @@
-import { AriaFlowAgent } from "@ariaflowagents/cf-agent";
-import type { AgentConfig, HarnessConfig } from "@ariaflowagents/core";
+import { KuralleAgent } from "@kuralle-agents/cf-agent";
+import type { AgentConfig, HarnessConfig } from "@kuralle-agents/core";
 import {
   buildHarnessHooks,
   emitCallerTurn,
@@ -49,7 +49,7 @@ export interface MessagingDoEnv {
   [key: string]: unknown;
 }
 
-export class MessagingDO extends AriaFlowAgent<MessagingDoEnv> {
+export class MessagingDO extends KuralleAgent<MessagingDoEnv> {
   private readonly stateRef: DurableObjectState;
   private readonly envRef: MessagingDoEnv;
   private restorePromise: Promise<void> | null = null;
@@ -165,7 +165,7 @@ export class MessagingDO extends AriaFlowAgent<MessagingDoEnv> {
       "messages" in this && Array.isArray(this.messages) ? this.messages : [];
     await this.saveMessages([...existingMessages, userMessage]);
 
-    // [S3-fix-2] r2 finding #4: trigger the AriaFlow runtime loop directly so
+    // [S3-fix-2] r2 finding #4: trigger the Kuralle runtime loop directly so
     // the assistant turn generates from a Meta inbound (CF's AIChatAgent only
     // fires onChatMessage from a WebSocket chat frame; webhook inbounds need
     // explicit invocation). Skip when no agents are configured (test paths
@@ -175,7 +175,7 @@ export class MessagingDO extends AriaFlowAgent<MessagingDoEnv> {
     if (this.runtimeAgents.length > 0) {
       try {
         const noopOnFinish = (async () => {}) as Parameters<
-          AriaFlowAgent<MessagingDoEnv>["onChatMessage"]
+          KuralleAgent<MessagingDoEnv>["onChatMessage"]
         >[0];
         const response = await this.onChatMessage(noopOnFinish, {
           requestId: envelope.messageId,

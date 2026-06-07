@@ -20,7 +20,7 @@
  *     path under realistic event shape and ordering.
  *
  * What this test does NOT verify (deferred — separate scope):
- *   - The `AriaFlowAgent` runtime loop firing inside the real DO. The DO is not
+ *   - The `KuralleAgent` runtime loop firing inside the real DO. The DO is not
  *     instantiated here because cf-agent imports `cloudflare:workers` which
  *     requires the workerd runtime; see `slo-do-real-loop.test.ts` (under the
  *     `vitest.slo.do.config.ts` pool-workers config) for the workerd-side

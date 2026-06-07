@@ -59,7 +59,7 @@ export interface Agent {
    *  via `agent.asTool()`, or surfaced in the Triage / Workflow picker. */
   description: string;
   /** Maximum tool-call iterations before the agent must yield to the user.
-   *  Maps to AriaFlow's `Agent.maxSteps`. */
+   *  Maps to the Kuralle agent's `limits.maxSteps`. */
   maxSteps: number;
 
   /** "Models & Voice" tab state — modelled on LiveKit's pipeline-mode toggle. */

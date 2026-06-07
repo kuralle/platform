@@ -14,10 +14,10 @@
     "test:wrangler": "vitest run src/durable-objects/MessagingDO.test.ts"
   },
   "dependencies": {
-    "@ariaflowagents/cf-agent": "1.0.0",
-    "@ariaflowagents/core": "1.0.0",
-    "@ariaflowagents/messaging": "1.0.0",
-    "@ariaflowagents/messaging-meta": "1.0.0",
+    "@kuralle-agents/cf-agent": "^0.5.0",
+    "@kuralle-agents/core": "^0.5.0",
+    "@kuralle-agents/messaging": "^0.5.0",
+    "@kuralle-agents/messaging-meta": "^0.5.0",
     "@kuralle/api": "workspace:*",
     "@kuralle/auth": "workspace:*",
     "@kuralle/core": "workspace:*",

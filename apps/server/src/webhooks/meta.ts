@@ -3,7 +3,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import { withWorkspace } from "@kuralle/core";
 import type { RepoDb } from "@kuralle/core";
 import * as schema from "@kuralle/db/schema";
-import { normalizeWebhook, verifySignature } from "@ariaflowagents/messaging-meta/server";
+import { normalizeWebhook, verifySignature } from "@kuralle-agents/messaging-meta";
 import type { DurableObjectNamespace } from "@cloudflare/workers-types";
 
 interface MetaWebhookBindings {

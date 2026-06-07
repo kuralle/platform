@@ -6,11 +6,11 @@ import calderonIR from "../projector/__fixtures__/calderon-dispatcher-ir.json";
 
 /** Extracted from AgentConfig.model to avoid importing from `ai`. */
 type LanguageModel = NonNullable<
-  import("@ariaflowagents/core").AgentConfig["model"]
+  import("@kuralle-agents/core").AgentConfig["model"]
 >;
 /** Extracted from AgentConfig.tools to avoid importing from `ai`. */
 type ToolSet = NonNullable<
-  import("@ariaflowagents/core").AgentConfig["tools"]
+  import("@kuralle-agents/core").AgentConfig["tools"]
 >;
 
 const modelStub = {} as unknown as LanguageModel;
@@ -46,8 +46,8 @@ describe("irToAgentConfig", () => {
     expect(config.name).toBe(ir.name);
     expect(config.description).toBe(ir.description);
 
-    // §5:349 — instructions → prompt
-    expect(config.prompt).toBe(ir.instructions);
+    // §5:349 — instructions
+    expect(config.instructions).toBe(ir.instructions);
 
     // §5:350 — model resolved
     expect(config.model).toBeDefined();
@@ -68,22 +68,22 @@ describe("irToAgentConfig", () => {
     // §5:355 — subagentAttachments (1 subagent)
     const subagentCount = Object.keys(ir.subagentAttachments).length;
     expect(subagentCount).toBe(1);
-    expect(config.canHandoffTo).toHaveLength(1);
-    expect(config.canHandoffTo).toEqual(["ag_calderon_intake"]);
+    expect(config.handoffs).toHaveLength(1);
+    expect(config.handoffs).toEqual(["ag_calderon_intake"]);
 
     // §5:359 — guardrailGraph: 4 nodes
     expect(ir.guardrailGraph.nodes).toHaveLength(4);
     // 2 input-direction (gr_pii_input, gr_profanity_both)
     // 3 output-direction (gr_pricing_output, gr_profanity_both, gr_tcpa_output)
-    expect(config.inputProcessors).toBeDefined();
-    expect(config.outputProcessors).toBeDefined();
+    expect(config.guardrails?.input).toBeDefined();
+    expect(config.guardrails?.output).toBeDefined();
     // "both" direction guardrails produce both an input and output processor
-    expect(config.inputProcessors?.length ?? 0).toBeGreaterThanOrEqual(1);
-    expect(config.outputProcessors?.length ?? 0).toBeGreaterThanOrEqual(1);
+    expect(config.guardrails?.input?.length ?? 0).toBeGreaterThanOrEqual(1);
+    expect(config.guardrails?.output?.length ?? 0).toBeGreaterThanOrEqual(1);
 
-    // §5:365 — requestContextSchema (empty in fixture → no extraction config)
+    // §5:365 — requestContextSchema (empty in fixture → no collect flow)
     expect(Object.keys(ir.requestContextSchema)).toHaveLength(0);
-    expect(config.extraction).toBeUndefined();
+    expect(config.flows).toBeUndefined();
 
     // §6 — workflow: 8 nodes, 10 edges (not mapped to AgentConfig)
     // The AgentConfig is a base config, not a FlowAgentConfig. Workflow
@@ -99,7 +99,8 @@ describe("irToAgentConfig", () => {
     expect(ir.voiceConfig.pipelineMode).toBe("stt-llm-tts");
   });
 
-  it("produces extraction config when requestContextSchema has entries", async () => {
+  // §5:365 — requestContextSchema entries map to a `collect` flow.
+  it("maps requestContextSchema entries to a collect flow", async () => {
     const ir = {
       ...(calderonIR as unknown as AgentIR),
       requestContextSchema: {
@@ -108,8 +109,10 @@ describe("irToAgentConfig", () => {
       } as Record<string, Record<string, unknown>>,
     };
     const config = await irToAgentConfig(ir, defaultOpts);
-    expect(config.extraction).toBeDefined();
-    expect(config.extraction!.requiredFields).toEqual([
+    expect(config.flows).toHaveLength(1);
+    const node = config.flows![0]!.nodes[0]!;
+    expect(node.kind).toBe("collect");
+    expect((node as { required?: string[] }).required).toEqual([
       "customerName",
       "appointmentDate",
     ]);
@@ -121,9 +124,9 @@ describe("irToAgentConfig", () => {
       agentId: "ag_defaults",
       resolveModel: () => modelStub,
     });
-    expect(config.maxTurns).toBe(50);
-    expect(config.maxSteps).toBe(10);
-    expect(config.toolMaxSteps).toBe(5);
+    expect(config.limits?.maxTurns).toBe(50);
+    expect(config.limits?.maxSteps).toBe(10);
+    expect(config.limits?.toolMaxSteps).toBe(5);
   });
 
   it("respects explicit maxTurns/maxSteps/toolMaxSteps from opts", async () => {
@@ -135,9 +138,9 @@ describe("irToAgentConfig", () => {
       maxSteps: 5,
       toolMaxSteps: 2,
     });
-    expect(config.maxTurns).toBe(3);
-    expect(config.maxSteps).toBe(5);
-    expect(config.toolMaxSteps).toBe(2);
+    expect(config.limits?.maxTurns).toBe(3);
+    expect(config.limits?.maxSteps).toBe(5);
+    expect(config.limits?.toolMaxSteps).toBe(2);
   });
 
   it("skips disabled guardrail nodes", async () => {
@@ -171,8 +174,8 @@ describe("irToAgentConfig", () => {
     };
     const config = await irToAgentConfig(ir, defaultOpts);
     // Only the enabled guardrail produces a processor
-    expect(config.inputProcessors).toHaveLength(1);
-    expect(config.inputProcessors?.[0]?.id).toBe("gr_enabled");
-    expect(config.outputProcessors ?? []).toHaveLength(0);
+    expect(config.guardrails?.input).toHaveLength(1);
+    expect(config.guardrails?.input?.[0]?.id).toBe("gr_enabled");
+    expect(config.guardrails?.output ?? []).toHaveLength(0);
   });
 });
