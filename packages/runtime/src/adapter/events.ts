@@ -116,6 +116,17 @@ const turnEndPayloadSchema = z
   })
   .strict();
 
+const deliveryPayloadSchema = z
+  .strictObject({
+    turnId: z.string().optional(),
+    outboundMessageId: z.string().optional(),
+    channel: z.literal("whatsapp"),
+    reason: z.string().optional(),
+    error: z.string().optional(),
+    payloadKind: z.enum(["text", "interactive"]).optional(),
+  })
+  .strict();
+
 // ── discriminated-union event schema ──────────────────────────────────
 
 export const messagingEventSchema = z.discriminatedUnion("kind", [
@@ -174,6 +185,27 @@ export const messagingEventSchema = z.discriminatedUnion("kind", [
     sequenceNumber: z.number().int().min(1),
     occurredAt: z.coerce.date(),
     payload: turnEndPayloadSchema,
+  }),
+  z.strictObject({
+    kind: z.literal("delivery.sent"),
+    conversationId: z.string(),
+    sequenceNumber: z.number().int().min(1),
+    occurredAt: z.coerce.date(),
+    payload: deliveryPayloadSchema,
+  }),
+  z.strictObject({
+    kind: z.literal("delivery.deferred"),
+    conversationId: z.string(),
+    sequenceNumber: z.number().int().min(1),
+    occurredAt: z.coerce.date(),
+    payload: deliveryPayloadSchema,
+  }),
+  z.strictObject({
+    kind: z.literal("delivery.failed"),
+    conversationId: z.string(),
+    sequenceNumber: z.number().int().min(1),
+    occurredAt: z.coerce.date(),
+    payload: deliveryPayloadSchema,
   }),
 ]);
 

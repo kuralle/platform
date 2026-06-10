@@ -22,19 +22,19 @@ const STEPS = [
     id: "agent",
     label: "Build your first agent",
     icon: Sparkles,
-    description: "5 minutes from prompt to live test call.",
+    description: "5 minutes from prompt to a live test conversation.",
   },
   {
     id: "number",
-    label: "Connect a phone number",
+    label: "Connect a WhatsApp number",
     icon: Phone,
-    description: "Twilio-native, BYO carrier, or SIP.",
+    description: "Bind your WhatsApp Business number to a published agent.",
   },
   {
     id: "test",
-    label: "Test call yourself",
+    label: "Test it yourself",
     icon: Users,
-    description: "Drive the agent live before pointing real customers at it.",
+    description: "Drive the agent in the test drawer before pointing real customers at it.",
   },
 ] as const;
 
@@ -49,7 +49,7 @@ export function WelcomeModal({ open, onOpenChange }: WelcomeModalProps) {
           <Eyebrow>Workspace</Eyebrow>
           <DialogTitle className="font-display text-[22px]">Welcome to Kuralle.</DialogTitle>
           <DialogDescription>
-            Three steps to your first booked call. Each one is under five minutes.
+            Three steps to your first live conversation. Each one is under five minutes.
           </DialogDescription>
         </DialogHeader>
         <ul className="mt-2 grid gap-2">

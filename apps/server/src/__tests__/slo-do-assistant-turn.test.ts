@@ -73,10 +73,30 @@ function pongIr(name: string, modelName = "pong-model") {
 }
 
 async function resetWorkspaceData(db: SeedDb, workspaceId: string): Promise<void> {
+  // Settle + retry: the in-memory queue projector can insert usage rows
+  // between deletes (same pattern as launch-gate.e2e.test.ts).
+  for (let attempt = 0; ; attempt++) {
+    await new Promise((r) => setTimeout(r, 150));
+    try {
+      await resetWorkspaceDataOnce(db, workspaceId);
+      return;
+    } catch (e) {
+      const code =
+        (e as { code?: string }).code ??
+        ((e as { cause?: { code?: string } }).cause?.code);
+      if (attempt >= 2 || code !== "23503") throw e;
+    }
+  }
+}
+
+async function resetWorkspaceDataOnce(db: SeedDb, workspaceId: string): Promise<void> {
   await db.execute(
     sql`DELETE FROM runtime_sessions WHERE conversation_id IN (SELECT id FROM conversations WHERE workspace_id = ${workspaceId})`,
   );
   await db.delete(messagingThreads).where(eq(messagingThreads.workspaceId, workspaceId));
+  await db.execute(
+    sql`DELETE FROM usage_events WHERE workspace_id = ${workspaceId}`,
+  );
   await db.delete(conversations).where(eq(conversations.workspaceId, workspaceId));
   await db.delete(channelEndpoints).where(eq(channelEndpoints.workspaceId, workspaceId));
   await db.delete(channelConnections).where(eq(channelConnections.workspaceId, workspaceId));

@@ -28,7 +28,7 @@ import {
   messagingEventSchema,
   projectConversationEvent,
 } from "@kuralle/runtime";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, gt, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import {
   beforeAll,
@@ -185,6 +185,24 @@ function createCapturingWhatsAppClient(
 }
 
 async function resetWorkspaceData(db: SeedDb, workspaceId: string): Promise<void> {
+  // The in-memory queue drains asynchronously; a prior test's projector can
+  // insert SLO usage rows between our deletes. Settle, then retry once on the
+  // resulting FK conflict (23503).
+  for (let attempt = 0; ; attempt++) {
+    await new Promise((r) => setTimeout(r, 150));
+    try {
+      await resetWorkspaceDataOnce(db, workspaceId);
+      return;
+    } catch (e) {
+      const code =
+        (e as { code?: string }).code ??
+        ((e as { cause?: { code?: string } }).cause?.code);
+      if (attempt >= 2 || code !== "23503") throw e;
+    }
+  }
+}
+
+async function resetWorkspaceDataOnce(db: SeedDb, workspaceId: string): Promise<void> {
   await db.execute(sql`DELETE FROM usage_events WHERE workspace_id = ${workspaceId}`);
   await db.execute(
     sql`DELETE FROM runtime_sessions WHERE conversation_id IN (SELECT id FROM conversations WHERE workspace_id = ${workspaceId})`,
@@ -193,6 +211,9 @@ async function resetWorkspaceData(db: SeedDb, workspaceId: string): Promise<void
     sql`conversation_id IN (SELECT id FROM conversations WHERE workspace_id = ${workspaceId})`,
   );
   await db.delete(messagingThreads).where(eq(messagingThreads.workspaceId, workspaceId));
+  await db.execute(
+    sql`DELETE FROM usage_events WHERE workspace_id = ${workspaceId}`,
+  );
   await db.delete(conversations).where(eq(conversations.workspaceId, workspaceId));
   await db.delete(channelEndpoints).where(eq(channelEndpoints.workspaceId, workspaceId));
   await db.delete(channelConnections).where(eq(channelConnections.workspaceId, workspaceId));
@@ -471,6 +492,7 @@ describe("L4-1 launch gate full product loop", () => {
   it(
     "create → publish → connect → three signed webhook turns with p95 latency under CI bound",
     async () => {
+      const gateStartedAt = new Date();
       const latencies: number[] = [];
       const { agentId } = await setupViaApi();
       const workerEnv = configureWorkerEnv();
@@ -551,6 +573,18 @@ describe("L4-1 launch gate full product loop", () => {
         }),
       );
       expect(p95).toBeLessThan(LAUNCH_GATE_P95_MS);
+
+      // Every emitted event must project cleanly — a growing DLQ means a
+      // schema/emitter mismatch (the exact class of bug this gate exists
+      // to catch; delivery.* and agent.start/end once dead-lettered here).
+      const dlqRows = await db
+        .select({ id: schema.turnEventsDlq.id, error: schema.turnEventsDlq.errorMessage })
+        .from(schema.turnEventsDlq)
+        .where(gt(schema.turnEventsDlq.dlqAt, gateStartedAt));
+      expect(
+        dlqRows,
+        `unprojectable events dead-lettered during the gate: ${JSON.stringify(dlqRows)}`,
+      ).toHaveLength(0);
     },
     120_000,
   );

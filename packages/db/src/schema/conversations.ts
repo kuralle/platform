@@ -1,5 +1,6 @@
 import { relations, sql } from "drizzle-orm";
 import {
+  check,
   pgTable,
   primaryKey,
   text,
@@ -172,6 +173,11 @@ export const conversationTurns = pgTable(
     uniqueIndex("conversation_turns_conversation_message_id_uidx")
       .on(table.conversationId, table.messageId)
       .where(sql`message_id IS NOT NULL`),
+    // "deferred" = window-closed, held until the customer messages again.
+    check(
+      "conversation_turns_delivery_status_check",
+      sql`delivery_status IN ('sending', 'sent', 'delivered', 'read', 'failed', 'deferred')`,
+    ),
   ],
 );
 

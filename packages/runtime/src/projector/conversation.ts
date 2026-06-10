@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import type { ExtractTablesWithRelations } from "drizzle-orm";
 import type { NeonQueryResultHKT } from "drizzle-orm/neon-serverless";
 import type { NodePgQueryResultHKT } from "drizzle-orm/node-postgres";
@@ -68,6 +68,41 @@ export async function projectConversationEvent(
       })
       .returning();
     rowsInserted += result.length;
+    return { rowsInserted };
+  }
+
+  if (
+    event.kind === "delivery.sent" ||
+    event.kind === "delivery.deferred" ||
+    event.kind === "delivery.failed"
+  ) {
+    const status = event.kind.slice("delivery.".length);
+    // Target the explicit turn when the DO provided one; otherwise the latest
+    // assistant turn of the conversation (the turn this delivery belongs to).
+    if (event.payload.turnId) {
+      await tx
+        .update(schema.conversationTurns)
+        .set({ deliveryStatus: status })
+        .where(eq(schema.conversationTurns.id, event.payload.turnId));
+    } else {
+      const latest = await tx
+        .select({ id: schema.conversationTurns.id })
+        .from(schema.conversationTurns)
+        .where(
+          and(
+            eq(schema.conversationTurns.conversationId, event.conversationId),
+            eq(schema.conversationTurns.speaker, "agent"),
+          ),
+        )
+        .orderBy(desc(schema.conversationTurns.ordinal))
+        .limit(1);
+      if (latest[0]) {
+        await tx
+          .update(schema.conversationTurns)
+          .set({ deliveryStatus: status })
+          .where(eq(schema.conversationTurns.id, latest[0].id));
+      }
+    }
     return { rowsInserted };
   }
 

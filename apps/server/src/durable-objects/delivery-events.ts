@@ -2,22 +2,11 @@ import type { MessagingEvent } from "@kuralle/runtime";
 
 export type DeliveryEventKind = "delivery.sent" | "delivery.deferred" | "delivery.failed";
 
-export interface DeliveryEvent {
-  kind: DeliveryEventKind;
-  conversationId: string;
-  sequenceNumber: number;
-  occurredAt: Date;
-  payload: {
-    turnId?: string;
-    outboundMessageId?: string;
-    channel: "whatsapp";
-    reason?: string;
-    error?: string;
-    payloadKind?: "text" | "interactive";
-  };
-}
+/** Delivery events are part of the runtime MessagingEvent union (projected to
+ * conversation_turns.delivery_status); this narrows for DO-local call sites. */
+export type DeliveryEvent = Extract<MessagingEvent, { kind: DeliveryEventKind }>;
 
-export type ConversationPlatformEvent = MessagingEvent | DeliveryEvent;
+export type ConversationPlatformEvent = MessagingEvent;
 
 export function isDeliveryEvent(
   event: ConversationPlatformEvent,

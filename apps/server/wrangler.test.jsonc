@@ -1,0 +1,88 @@
+// TEST-ONLY mirror of wrangler.jsonc for @cloudflare/vitest-pool-workers.
+// Identical except the `hyperdrive` binding is omitted: pg cannot be bundled
+// by the pool's optimizer (node builtins), and createDbFromEnv falls back to
+// the direct neon-serverless driver by design when the binding is absent.
+// Keep DO/queues/vars in sync with wrangler.jsonc when it changes.
+{
+  "name": "kuralle-server",
+  "main": "src/index.ts",
+  // Latest supported by wrangler 4.86.0 (the pinned dev binary). pool-workers
+  // uses miniflare 4.20260507.1 which would accept 2026-05-08 too; standardize
+  // on the wrangler-binary-supported date so plain `wrangler dev` boots.
+  "compatibility_date": "2026-05-03",
+  // nodejs_compat is required because the workspace pulls in Node built-ins
+  // (e.g., `path` via mime-types via Hono's static middleware chain). Without
+  // it, `wrangler dev` errors with "Could not resolve 'path'" at boot. Same
+  // flag is mirrored in vitest.slo.do.config.ts's miniflare options for the
+  // pool-workers test pool.
+  "compatibility_flags": ["nodejs_compat"],
+  "dev": {
+    "port": 8787
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "MESSAGING_DO",
+        "class_name": "MessagingDO"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1-messaging-do",
+      // cf-agent's AriaFlowAgent extends @cloudflare/ai-chat AIChatAgent, which
+      // uses SQLite for orchestration state via this.sql. SQLite-backed DOs require
+      // new_sqlite_classes per CF migration semantics. Changed from new_classes
+      // during [S3-fix] when pool-workers loaded the real DO class and surfaced
+      // the requirement.
+      "new_sqlite_classes": ["MessagingDO"]
+    }
+  ],
+  "queues": {
+    "producers": [
+      { "binding": "TURNS_SHARD_0", "queue": "turns-shard-0" },
+      { "binding": "TURNS_SHARD_1", "queue": "turns-shard-1" },
+      { "binding": "TURNS_SHARD_2", "queue": "turns-shard-2" },
+      { "binding": "TURNS_SHARD_3", "queue": "turns-shard-3" },
+      { "binding": "TURNS_SHARD_4", "queue": "turns-shard-4" },
+      { "binding": "TURNS_SHARD_5", "queue": "turns-shard-5" },
+      { "binding": "TURNS_SHARD_6", "queue": "turns-shard-6" },
+      { "binding": "TURNS_SHARD_7", "queue": "turns-shard-7" },
+      { "binding": "TURNS_SHARD_8", "queue": "turns-shard-8" },
+      { "binding": "TURNS_SHARD_9", "queue": "turns-shard-9" },
+      { "binding": "TURNS_SHARD_10", "queue": "turns-shard-10" },
+      { "binding": "TURNS_SHARD_11", "queue": "turns-shard-11" },
+      { "binding": "TURNS_SHARD_12", "queue": "turns-shard-12" },
+      { "binding": "TURNS_SHARD_13", "queue": "turns-shard-13" },
+      { "binding": "TURNS_SHARD_14", "queue": "turns-shard-14" },
+      { "binding": "TURNS_SHARD_15", "queue": "turns-shard-15" }
+    ],
+    "consumers": [
+      { "queue": "turns-shard-0", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-1", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-2", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-3", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-4", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-5", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-6", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-7", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-8", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-9", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-10", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-11", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-12", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-13", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-14", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-15", "max_batch_size": 25, "max_retries": 3 }
+    ]
+  },
+  "vars": {
+    "META_APP_ID": "",
+    "META_VERIFY_TOKEN": "",
+    "META_PHONE_NUMBER_ID": "",
+    "PUBLIC_BASE_URL": "https://kuralle-server.mithushancj.workers.dev",
+    "BETTER_AUTH_URL": "https://kuralle-server.mithushancj.workers.dev",
+    "CORS_ORIGIN": "https://kuralle-web.mithushancj.workers.dev"
+  }
+}
+

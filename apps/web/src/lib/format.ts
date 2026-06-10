@@ -78,3 +78,10 @@ export function formatBytes(n: number): string {
   if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
   return `${(n / (1024 * 1024)).toFixed(1)} MB`;
 }
+
+/** DB agent.status → editor status pill vocabulary ("published" renders as live). */
+export function agentStatusPill(status: string | undefined): "live" | "paused" | "draft" {
+  if (status === "published" || status === "live") return "live";
+  if (status === "paused") return "paused";
+  return "draft";
+}

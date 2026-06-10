@@ -15,6 +15,7 @@ import { AgentEditorShell } from "@/components/configure/agent-editor-shell";
 import { useActiveWorkspaceId } from "@/contexts/workspace";
 import { useEditor } from "@/contexts/editor";
 import { useAgent } from "@/hooks/api/agents";
+import { agentStatusPill } from "@/lib/format";
 
 export const Route = createFileRoute("/_app/agents/$agentId/compliance")({
   component: ComplianceTab,
@@ -76,7 +77,7 @@ function ComplianceTab() {
 
   const agent = agentQuery.data?.agent;
   const agentName = agent?.id ? ir.name || agent.id : ir.name || agentId;
-  const status = (agent?.status as "live" | "paused" | "draft") ?? "draft";
+  const status = agentStatusPill(agent?.status);
   const mode = "none";
 
   const cc = ir.complianceConfig ?? { retentionDays: 90, redactionPatterns: [], disclosureScript: "" };

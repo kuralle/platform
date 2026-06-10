@@ -156,7 +156,7 @@ function OnboardingRoute() {
               {
                 id: "phone",
                 title: "Number",
-                description: "Add a phone number now or skip and do it later. Twilio-native is fastest.",
+                description: "Connect a WhatsApp Business number now or skip and do it later.",
                 render: () => (
                   <Field>
                     <FieldLabel htmlFor="ph">Phone number</FieldLabel>
@@ -192,7 +192,7 @@ function OnboardingRoute() {
                   <Card className="p-6 text-center">
                     <p className="font-display text-[18px] font-semibold">Your workspace is ready.</p>
                     <p className="mt-2 text-[13px] text-muted-foreground">
-                      Your workspace inherits {VERTICAL_LABEL[vertical]} defaults. Your phone number connection happens
+                      Your workspace inherits {VERTICAL_LABEL[vertical]} defaults. Your WhatsApp number connection happens
                       next, from the Numbers page. We&apos;ll set up routing, verify your business with the carrier, and
                       run a test call together.
                     </p>

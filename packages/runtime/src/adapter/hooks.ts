@@ -6,6 +6,9 @@ import type { MessagingEvent } from "./events.js";
 // ── deps ─────────────────────────────────────────────────────────
 
 export interface HarnessHooksDeps {
+  /** Agent the conversation's endpoint is bound to — attribution fallback for
+   * agent.start/end (onStart fires before the runtime selects an agent). */
+  defaultAgentId?: string;
   /** MessageQueue port instance (memory, CF Queue, or BullMQ). */
   queue: MessageQueue;
   /** Conversation ID for every emitted event header. */
@@ -157,9 +160,19 @@ export function buildHarnessHooks(deps: HarnessHooksDeps): HarnessHooks {
     });
   }
 
+  // The wire RunContext (run-context.ts) carries no agentId — only the hook
+  // RunContext (session.ts) does. Fall back to the session's active agent so
+  // agent.start/end events always validate against the event schema.
+  const activeAgentId = (context: RunContext): string =>
+    context.agentId ??
+    context.session.activeAgentId ??
+    context.session.currentAgent ??
+    deps.defaultAgentId ??
+    "unattributed";
+
   const hooks: HarnessHooks = {
     onStart: async (context: RunContext) => {
-      await emitAgentStart(context.agentId);
+      await emitAgentStart(activeAgentId(context));
     },
 
     onStreamPart: async (
@@ -216,20 +229,20 @@ export function buildHarnessHooks(deps: HarnessHooksDeps): HarnessHooks {
 
     onError: async (context: RunContext, error: Error) => {
       if (!didEmitAgentEnd) {
-        await emitAgentEnd(context.agentId, false, error.message);
+        await emitAgentEnd(activeAgentId(context), false, error.message);
       }
     },
 
     // FINDINGS: onAgentStart → agent.start event.
     // Lifecycle hook; 1 event per agent activation.
-    onAgentStart: async (_context: RunContext, agentId: string) => {
-      await emitAgentStart(agentId);
+    onAgentStart: async (context: RunContext, agentId: string) => {
+      await emitAgentStart(agentId ?? activeAgentId(context));
     },
 
     // FINDINGS: onAgentEnd → agent.end event.
     // Lifecycle hook; 1 event per agent deactivation.
-    onAgentEnd: async (_context: RunContext, agentId: string) => {
-      await emitAgentEnd(agentId, true);
+    onAgentEnd: async (context: RunContext, agentId: string) => {
+      await emitAgentEnd(agentId ?? activeAgentId(context), true);
     },
 
     // FINDINGS: onStepStart → step.start event.
@@ -345,7 +358,7 @@ export function buildHarnessHooks(deps: HarnessHooksDeps): HarnessHooks {
 
     onEnd: async (context: RunContext) => {
       if (!didEmitAgentEnd) {
-        await emitAgentEnd(context.agentId, true);
+        await emitAgentEnd(activeAgentId(context), true);
       }
     },
   };
