@@ -1,4 +1,4 @@
-import { and, eq, isNull, desc } from "drizzle-orm";
+import { and, eq, isNull, desc, sql } from "drizzle-orm";
 import type { RepoDb } from "./types.js";
 import * as schema from "@kuralle/db/schema";
 import type { KvStore } from "@kuralle/platform/interface";
@@ -74,6 +74,37 @@ function cacheKey(workspaceId: string, id: string): string {
   return `repo:tool:${workspaceId}:${id}`;
 }
 
+interface KeysetCursor {
+  u: string;
+  i: string;
+}
+
+function encodeCursor(c: KeysetCursor): string {
+  return Buffer.from(JSON.stringify(c), "utf8").toString("base64url");
+}
+
+function decodeCursor(raw: string | null | undefined): KeysetCursor | null {
+  if (!raw) return null;
+  try {
+    const parsed: unknown = JSON.parse(
+      Buffer.from(raw, "base64url").toString("utf8"),
+    );
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      "u" in parsed &&
+      "i" in parsed &&
+      typeof (parsed as KeysetCursor).u === "string" &&
+      typeof (parsed as KeysetCursor).i === "string"
+    ) {
+      return parsed as KeysetCursor;
+    }
+  } catch {
+    // invalid cursor → first page
+  }
+  return null;
+}
+
 export class ToolRepository {
   constructor(
     private readonly db: RepoDb,
@@ -140,23 +171,41 @@ export class ToolRepository {
   }
 
   async findManyByWorkspace(opts?: {
-    cursor?: string;
+    cursor?: string | null;
     limit?: number;
-  }): Promise<Tool[]> {
+  }): Promise<{ items: Tool[]; cursor: string | null }> {
     const limit = opts?.limit ?? 50;
+    const conditions = [
+      eq(schema.tools.workspaceId, this.workspaceId),
+      isNull(schema.tools.deletedAt),
+    ];
+
+    const decoded = decodeCursor(opts?.cursor);
+    if (decoded) {
+      conditions.push(
+        sql`(${schema.tools.updatedAt}, ${schema.tools.id}) < (${decoded.u}, ${decoded.i})`,
+      );
+    }
+
     const rows = await this.db
       .select()
       .from(schema.tools)
-      .where(
-        and(
-          eq(schema.tools.workspaceId, this.workspaceId),
-          isNull(schema.tools.deletedAt),
-        ),
-      )
-      .orderBy(desc(schema.tools.updatedAt))
-      .limit(limit);
+      .where(and(...conditions))
+      .orderBy(desc(schema.tools.updatedAt), desc(schema.tools.id))
+      .limit(limit + 1);
 
-    return rows.map(toDomain);
+    const hasMore = rows.length > limit;
+    const page = hasMore ? rows.slice(0, limit) : rows;
+    const last = page[page.length - 1];
+    const cursor =
+      hasMore && last
+        ? encodeCursor({
+            u: (last.updatedAt ?? new Date()).toISOString(),
+            i: last.id,
+          })
+        : null;
+
+    return { items: page.map(toDomain), cursor };
   }
 
   async insert(input: ToolInsert): Promise<Tool> {

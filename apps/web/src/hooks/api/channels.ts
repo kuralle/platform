@@ -82,3 +82,40 @@ export function useDetachEndpoint() {
     },
   });
 }
+
+export function useChannelStatus(opts: {
+  workspaceId: string;
+  endpointId: string;
+}) {
+  return useQuery({
+    ...$api.channels.status.queryOptions({ input: opts }),
+    enabled: !!opts.workspaceId && !!opts.endpointId,
+  });
+}
+
+export function useWebhookInfo(opts: { workspaceId: string }) {
+  return useQuery({
+    ...$api.channels.webhookInfo.queryOptions({ input: opts }),
+    enabled: !!opts.workspaceId,
+  });
+}
+
+export function useBindAgent() {
+  const qc = useQueryClient();
+  return useMutation({
+    ...$api.channels.bindAgent.mutationOptions(),
+    onSuccess: (_data, variables) => {
+      void qc.invalidateQueries({
+        queryKey: $api.channels.status.queryKey({
+          input: {
+            workspaceId: variables.workspaceId,
+            endpointId: variables.endpointId,
+          },
+        }),
+      });
+      void qc.invalidateQueries({
+        queryKey: ["channels", "endpoints", "listByKind"],
+      });
+    },
+  });
+}

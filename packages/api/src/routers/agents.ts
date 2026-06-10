@@ -2,8 +2,10 @@ import { z } from "zod";
 import { ORPCError } from "@orpc/server";
 import { withWorkspace, agentIRSchema } from "@kuralle/core";
 import {
+  ModelResolutionError,
   projectAgent,
   recordSloViolation,
+  runAgentTestTurn,
   SLO_PUBLISH_THRESHOLD_MS,
 } from "@kuralle/runtime";
 import { protectedProcedure } from "../index";
@@ -12,7 +14,8 @@ import {
   agentVersionSchema,
   agentWithVersionSchema,
 } from "./agents.schemas";
-import { assertWorkspaceMember } from "../workspace-access";
+import { assertWorkspaceMember, assertWorkspaceRole } from "../workspace-access";
+import { cursorInput, cursorListOutput } from "../list-pagination";
 
 // ── shared inputs ──────────────────────────────────────────────────
 
@@ -24,28 +27,13 @@ const agentIdInput = workspaceIdInput.extend({
   agentId: z.string(),
 });
 
-const cursorInput = z.object({
-  cursor: z.string().nullable().optional(),
-  limit: z.number().int().min(1).max(100).default(20),
-});
-
 // ── output schemas ─────────────────────────────────────────────────
 
-const listOutput = z
-  .object({
-    items: z.array(agentSchema),
-    cursor: z.string().nullable(),
-  })
-  .strict();
+const listOutput = cursorListOutput(agentSchema);
 
 const getOutput = agentWithVersionSchema;
 
-const historyOutput = z
-  .object({
-    items: z.array(agentVersionSchema),
-    cursor: z.string().nullable(),
-  })
-  .strict();
+const historyOutput = cursorListOutput(agentVersionSchema);
 
 const createOutput = z
   .object({
@@ -68,6 +56,19 @@ const autoSaveOutput = z
   })
   .strict();
 
+const testTurnOutput = z
+  .object({
+    reply: z.string(),
+    sessionId: z.string(),
+    toolCalls: z.array(
+      z.object({
+        name: z.string(),
+        ok: z.boolean(),
+      }),
+    ),
+  })
+  .strict();
+
 // ── helpers ────────────────────────────────────────────────────────
 
 function newId(prefix: string): string {
@@ -85,7 +86,7 @@ export const agentsRouter = {
     )
     .output(createOutput)
     .handler(async ({ input, context }) => {
-      await assertWorkspaceMember(context, input.workspaceId);
+      await assertWorkspaceRole(context, input.workspaceId, "admin");
       const repos = withWorkspace(
         context.db,
         input.workspaceId,
@@ -187,7 +188,7 @@ export const agentsRouter = {
     )
     .output(publishOutput)
     .handler(async ({ input, context }) => {
-      await assertWorkspaceMember(context, input.workspaceId);
+      await assertWorkspaceRole(context, input.workspaceId, "admin");
       const repos = withWorkspace(
         context.db,
         input.workspaceId,
@@ -201,7 +202,6 @@ export const agentsRouter = {
         });
       }
 
-      // F09: agentIRSchema is already in the input contract — oRPC validates.
       const ir = input.ir;
       const versionId = newId("av");
 
@@ -274,7 +274,7 @@ export const agentsRouter = {
     )
     .output(autoSaveOutput)
     .handler(async ({ input, context }) => {
-      await assertWorkspaceMember(context, input.workspaceId);
+      await assertWorkspaceRole(context, input.workspaceId, "member");
       const repos = withWorkspace(
         context.db,
         input.workspaceId,
@@ -288,7 +288,6 @@ export const agentsRouter = {
         });
       }
 
-      // F09: agentIRSchema already in the input contract — oRPC validates.
       const ir = input.ir;
       const versionNumber = await repos.agents.nextVersionNumber(
         input.agentId,
@@ -307,6 +306,49 @@ export const agentsRouter = {
       });
 
       return { versionId, versionNumber };
+    }),
+
+  testTurn: protectedProcedure
+    .input(
+      agentIdInput.extend({
+        ir: agentIRSchema.optional(),
+        input: z.string().min(1),
+        sessionId: z.string().optional(),
+      }),
+    )
+    .output(testTurnOutput)
+    .handler(async ({ input, context }) => {
+      await assertWorkspaceRole(context, input.workspaceId, "member");
+
+      const agent = await withWorkspace(
+        context.db,
+        input.workspaceId,
+        context.kvStore,
+      ).agents.findById(input.agentId);
+      if (!agent) {
+        throw new ORPCError("NOT_FOUND", {
+          message: "Agent not found",
+        });
+      }
+
+      try {
+        return await runAgentTestTurn({
+          db: context.db,
+          kv: context.kvStore,
+          workspaceId: input.workspaceId,
+          agentId: input.agentId,
+          ir: input.ir,
+          input: input.input,
+          sessionId: input.sessionId,
+        });
+      } catch (error) {
+        if (error instanceof ModelResolutionError) {
+          throw new ORPCError("FAILED_PRECONDITION", {
+            message: error.message,
+          });
+        }
+        throw error;
+      }
     }),
 
   history: protectedProcedure

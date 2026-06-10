@@ -2,17 +2,15 @@ import { z } from "zod";
 import { secretSchema } from "./secrets.schemas";
 import { protectedProcedure } from "../index";
 import { assertWorkspaceMember } from "../workspace-access";
+import { cursorInput, cursorListOutput } from "../list-pagination";
 
-const listInput = z.object({
-  workspaceId: z.string(),
-  cursor: z.string().nullable().optional(),
-  limit: z.number().int().min(1).max(100).default(20),
-});
+const listInput = z
+  .object({
+    workspaceId: z.string(),
+  })
+  .merge(cursorInput);
 
-const listOutput = z.object({
-  items: z.array(secretSchema),
-  cursor: z.string().nullable(),
-}).strict();
+const listOutput = cursorListOutput(secretSchema);
 
 export const secretsRouter = {
   list: protectedProcedure

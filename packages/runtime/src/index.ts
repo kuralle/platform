@@ -27,7 +27,7 @@ export type {
   UnsubscribeAppOpts,
   VerifyHmacOpts,
 } from "./clients/index.js";
-export { mockMetaClient } from "./test-utils.js";
+export { createStubLanguageModel, mockMetaClient } from "./test-utils.js";
 export {
   irToAgentConfig,
   buildHarnessHooks,
@@ -38,6 +38,9 @@ export {
   buildGuardrailProcessors,
   catalogToolToDefineTool,
   inferProviderFromModelName,
+  createLazyWorkspaceModelResolver,
+  createWorkspaceModelResolver,
+  ModelResolutionError,
 } from "./adapter/index.js";
 export type {
   AgentConfigOpts,
@@ -48,4 +51,10 @@ export type {
   DbToolResolvers,
   AdapterLogger,
   GuardrailBuildResult,
+  ModelResolverEnv,
 } from "./adapter/index.js";
+export {
+  runAgentTestTurn,
+  __setTestTurnResolveModelOverride,
+} from "./test-turn.js";
+export type { AgentTestTurnResult, RunAgentTestTurnOpts } from "./test-turn.js";

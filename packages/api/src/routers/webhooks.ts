@@ -2,17 +2,15 @@ import { z } from "zod";
 import { webhookSchema } from "./webhooks.schemas";
 import { protectedProcedure } from "../index";
 import { assertWorkspaceMember } from "../workspace-access";
+import { cursorInput, cursorListOutput } from "../list-pagination";
 
-const listInput = z.object({
-  workspaceId: z.string(),
-  cursor: z.string().nullable().optional(),
-  limit: z.number().int().min(1).max(100).default(20),
-});
+const listInput = z
+  .object({
+    workspaceId: z.string(),
+  })
+  .merge(cursorInput);
 
-const listOutput = z.object({
-  items: z.array(webhookSchema),
-  cursor: z.string().nullable(),
-}).strict();
+const listOutput = cursorListOutput(webhookSchema);
 
 export const webhooksRouter = {
   list: protectedProcedure

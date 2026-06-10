@@ -132,7 +132,12 @@ export async function closePool(): Promise<void> {
 
 export async function seedWorkspaceMember(
   db: TestDb,
-  opts: { workspaceId: string; userId: string; email: string },
+  opts: {
+    workspaceId: string;
+    userId: string;
+    email: string;
+    role?: "viewer" | "member" | "admin" | "owner";
+  },
 ): Promise<void> {
   await db
     .insert(schema.user)
@@ -152,7 +157,7 @@ export async function seedWorkspaceMember(
       id: `m_${opts.userId}_${opts.workspaceId}`,
       organizationId: opts.workspaceId,
       userId: opts.userId,
-      role: "owner",
+      role: opts.role ?? "owner",
       createdAt: new Date(),
     })
     .onConflictDoNothing();

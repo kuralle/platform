@@ -3,26 +3,18 @@ import { ORPCError } from "@orpc/server";
 import { withWorkspace } from "@kuralle/core";
 import { batchSchema } from "./batches.schemas";
 import { protectedProcedure } from "../index";
-import { assertWorkspaceMember } from "../workspace-access";
+import { assertWorkspaceMember, assertWorkspaceRole } from "../workspace-access";
+import { cursorInput, cursorListOutput } from "../list-pagination";
 
 const workspaceIdInput = z.object({
   workspaceId: z.string(),
 });
 
-const cursorInput = z.object({
-  cursor: z.string().nullable().optional(),
-  limit: z.number().int().min(1).max(100).default(20),
+const listInput = workspaceIdInput.merge(cursorInput).extend({
   status: z.string().optional(),
 });
 
-const listInput = workspaceIdInput.merge(cursorInput);
-
-const listOutput = z
-  .object({
-    items: z.array(batchSchema),
-    cursor: z.string().nullable(),
-  })
-  .strict();
+const listOutput = cursorListOutput(batchSchema);
 
 const recipientsSummarySchema = z
   .object({
@@ -98,7 +90,7 @@ export const batchesRouter = {
     .input(createInput)
     .output(createOutput)
     .handler(async ({ input, context }) => {
-      await assertWorkspaceMember(context, input.workspaceId);
+      await assertWorkspaceRole(context, input.workspaceId, "member");
       const repos = withWorkspace(
         context.db,
         input.workspaceId,

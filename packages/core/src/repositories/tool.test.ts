@@ -57,7 +57,7 @@ describe("ToolRepository", () => {
     it("returns tools scoped to workspace", async () => {
       await repo.insert({ id: "t_list_1", name: "tool_a", kind: "webhook" });
       await repo.insert({ id: "t_list_2", name: "tool_b", kind: "mcp" });
-      const tools = await repo.findManyByWorkspace();
+      const { items: tools } = await repo.findManyByWorkspace();
       expect(tools).toHaveLength(2);
     });
   });

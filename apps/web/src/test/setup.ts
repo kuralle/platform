@@ -30,3 +30,9 @@ class ResizeObserverStub {
 if (typeof window !== "undefined" && !window.ResizeObserver) {
   window.ResizeObserver = ResizeObserverStub as typeof ResizeObserver;
 }
+
+if (typeof Element !== "undefined" && !("getAnimations" in Element.prototype)) {
+  (
+    Element.prototype as Element & { getAnimations: () => Animation[] }
+  ).getAnimations = () => [];
+}

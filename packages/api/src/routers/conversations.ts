@@ -8,12 +8,12 @@ import {
 } from "./conversations.schemas";
 import { protectedProcedure } from "../index";
 import { assertWorkspaceMember } from "../workspace-access";
+import { cursorInputFields, cursorListOutput } from "../list-pagination";
 
 const listInput = z
   .object({
     workspaceId: z.string(),
-    cursor: z.string().nullable().optional(),
-    limit: z.number().int().min(1).max(100).default(20),
+    ...cursorInputFields,
   })
   .strict();
 
@@ -32,12 +32,7 @@ const liveInput = z
   })
   .strict();
 
-const listOutput = z
-  .object({
-    items: z.array(conversationSchema),
-    cursor: z.string().nullable(),
-  })
-  .strict();
+const listOutput = cursorListOutput(conversationSchema);
 
 export const conversationsRouter = {
   list: protectedProcedure

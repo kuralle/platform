@@ -4,7 +4,7 @@ import { createAuth } from "@kuralle/auth";
 import { withWorkspace } from "@kuralle/core";
 import { workspaceSettingsSchema } from "./workspace.schemas";
 import { protectedProcedure } from "../index";
-import { assertWorkspaceMember } from "../workspace-access";
+import { assertWorkspaceMember, assertWorkspaceRole } from "../workspace-access";
 import { headersForBetterAuthApi } from "../better-auth-headers";
 
 const workspaceIdInput = z.object({
@@ -41,7 +41,7 @@ export const workspaceRouter = {
     .input(updateInput)
     .output(workspaceSettingsSchema)
     .handler(async ({ input, context }) => {
-      await assertWorkspaceMember(context, input.workspaceId);
+      await assertWorkspaceRole(context, input.workspaceId, "admin");
       const repos = withWorkspace(
         context.db,
         input.workspaceId,

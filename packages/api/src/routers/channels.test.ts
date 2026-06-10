@@ -35,6 +35,36 @@ vi.mock("@kuralle/runtime", async (importOriginal) => {
 const WORKSPACE_ID = "org_ch_mb";
 const USER_ID = "user_ch_mb";
 
+const PUBLISH_IR = {
+  name: "Channel Test Agent",
+  description: "",
+  instructions: "Hi",
+  model: { provider: "openai" as const, name: "gpt-4o", temperature: 0.4 },
+  defaultOptions: {},
+  toolAttachments: {},
+  workflowAttachments: {},
+  subagentAttachments: {},
+  integrationTools: {},
+  mcpClientAttachments: {},
+  kbAttachments: [],
+  guardrailGraph: { nodes: [], edges: [] },
+  scorerAttachments: {},
+  voiceConfig: {
+    pipelineMode: "stt-llm-tts" as const,
+    ttsModel: "cartesia-sonic-3",
+    ttsVoiceId: "v_aurora",
+    sttModel: "deepgram-nova-3-monolingual",
+    sttLanguage: "en",
+  },
+  channelConfig: {},
+  complianceConfig: {
+    retentionDays: 90,
+    redactionPatterns: [],
+    disclosureScript: "",
+  },
+  requestContextSchema: {},
+};
+
 function strangerSession(): Context["session"] {
   return {
     user: {
@@ -102,6 +132,20 @@ describe("channels membership guard", () => {
     };
   }
 
+  async function createPublishedAgent(workspaceId: string) {
+    const { agentId } = await callProcedure<{ agentId: string }>(
+      appRouter.agents.create,
+      { workspaceId },
+      ctx(memberSession),
+    );
+    await callProcedure(
+      appRouter.agents.publish,
+      { workspaceId, agentId, ir: PUBLISH_IR },
+      ctx(memberSession),
+    );
+    return agentId;
+  }
+
   const memberSession: Context["session"] = {
     user: {
       id: USER_ID,
@@ -152,7 +196,7 @@ describe("channels membership guard", () => {
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 
-  it("connect allows members", async () => {
+  it("connect allows workspace owners (admin+)", async () => {
     const result = await callProcedure<{ connectionId: string }>(
       appRouter.channels.connect,
       {
@@ -219,11 +263,7 @@ describe("channels membership guard", () => {
   });
 
   it("endpoints.attach allows members", async () => {
-    const { agentId } = await callProcedure<{ agentId: string }>(
-      appRouter.agents.create,
-      { workspaceId: WORKSPACE_ID },
-      ctx(memberSession),
-    );
+    const agentId = await createPublishedAgent(WORKSPACE_ID);
 
     const { connectionId } = await callProcedure<{ connectionId: string }>(
       appRouter.channels.connect,
@@ -258,11 +298,7 @@ describe("channels membership guard", () => {
   });
 
   it("endpoints.detach allows members", async () => {
-    const { agentId } = await callProcedure<{ agentId: string }>(
-      appRouter.agents.create,
-      { workspaceId: WORKSPACE_ID },
-      ctx(memberSession),
-    );
+    const agentId = await createPublishedAgent(WORKSPACE_ID);
 
     const { connectionId } = await callProcedure<{ connectionId: string }>(
       appRouter.channels.connect,

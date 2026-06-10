@@ -37,8 +37,15 @@ export {
   AppendOnlyViolation,
   WorkspaceScopeViolation,
   WorkspaceAccessDeniedError,
+  WorkspaceRoleDeniedError,
+  type WorkspaceRole,
 } from "./errors.js";
-export { requireWorkspaceMembership } from "./auth-guard.js";
+export {
+  requireWorkspaceMembership,
+  requireWorkspaceRole,
+  getWorkspaceMemberRole,
+  roleSatisfies,
+} from "./auth-guard.js";
 export { insertTurnEventDlq } from "./repositories/dlq.js";
 export type { TurnEventDlqInsert } from "./repositories/dlq.js";
 export { healthCheck } from "./repositories/health.js";

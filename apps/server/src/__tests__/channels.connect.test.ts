@@ -51,12 +51,14 @@ import {
   channelEndpoints,
   secrets,
   agents,
+  agentVersions,
 } from "@kuralle/db/schema";
 import { eq } from "drizzle-orm";
 
 const WORKSPACE_ID = "org_test_s3_01";
 const USER_ID = "user_test_s3_01";
 const AGENT_ID = "ag_test_s3_01_fixture";
+const AGENT_VERSION_ID = "av_test_s3_01_fixture";
 
 type ProcedureLike = {
   "~orpc": {
@@ -116,11 +118,20 @@ describe("channels router round-trip", () => {
       userId: USER_ID,
       email: `${USER_ID}@test.local`,
     });
-    // Endpoints require an agent (per DATA_MODEL.md §8:626 attachment CHECK).
     await db.insert(agents).values({
       id: AGENT_ID,
       workspaceId: WORKSPACE_ID,
-      status: "draft",
+      status: "published",
+      activeVersionId: AGENT_VERSION_ID,
+    });
+    await db.insert(agentVersions).values({
+      id: AGENT_VERSION_ID,
+      agentId: AGENT_ID,
+      versionNumber: 1,
+      versionKind: "publish",
+      parentVersionId: null,
+      publishedAt: new Date(),
+      snapshot: { name: "Fixture Agent" },
     });
     ctx = makeTestContext(db, kvStore, USER_ID, {
       META_APP_ID: "test_app",

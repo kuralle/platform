@@ -8,7 +8,8 @@ import {
   unsubscribeApp,
 } from "@kuralle/runtime";
 import { protectedProcedure } from "../index";
-import { assertWorkspaceMember } from "../workspace-access";
+import { assertWorkspaceMember, assertWorkspaceRole } from "../workspace-access";
+import { cursorInputFields, cursorListOutput } from "../list-pagination";
 import {
   channelConnectionSchema,
   channelEndpointSchema,
@@ -23,18 +24,16 @@ const workspaceIdInput = z.object({ workspaceId: z.string() }).strict();
 
 const listInput = workspaceIdInput.extend({
   kind: z.string().optional(),
-  cursor: z.string().nullable().optional(),
-  limit: z.number().int().min(1).max(100).default(20),
+  ...cursorInputFields,
 }).strict();
 
-const listOutput = z.object({
-  items: z.array(channelConnectionSchema),
-  cursor: z.string().nullable(),
-}).strict();
+const listOutput = cursorListOutput(channelConnectionSchema);
 
 const connectInput = workspaceIdInput.extend({
   provider: z.literal("meta-whatsapp-cloud"),
   displayName: z.string(),
+  accessToken: z.string().min(1).optional(),
+  appSecret: z.string().min(1).optional(),
 }).strict();
 
 const connectOutput = z.object({
@@ -83,6 +82,63 @@ const endpointsDetachOutput = z.object({
   connectionId: z.string().nullable(),
 }).strict();
 
+const bindAgentInput = workspaceIdInput.extend({
+  endpointId: z.string(),
+  agentId: z.string(),
+}).strict();
+
+const bindAgentOutput = z.object({
+  endpointId: z.string(),
+  agentId: z.string(),
+  agentVersionId: z.string(),
+}).strict();
+
+const statusInput = workspaceIdInput.extend({
+  endpointId: z.string(),
+}).strict();
+
+const boundAgentSchema = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    activeVersionNumber: z.number().int(),
+  })
+  .strict();
+
+const statusOutput = z
+  .object({
+    receivingTraffic: z.boolean(),
+    lastInboundAt: z.date().nullable(),
+    boundAgent: boundAgentSchema.nullable(),
+  })
+  .strict();
+
+const webhookInfoOutput = z
+  .object({
+    url: z.string(),
+    verifyTokenHint: z.string(),
+    instructions: z.string(),
+  })
+  .strict();
+
+function agentNameFromSnapshot(snapshot: unknown): string {
+  if (
+    snapshot &&
+    typeof snapshot === "object" &&
+    "name" in snapshot &&
+    typeof (snapshot as { name: unknown }).name === "string"
+  ) {
+    return (snapshot as { name: string }).name;
+  }
+  return "Untitled agent";
+}
+
+function maskVerifyToken(token: string): string {
+  if (!token) return "(not configured)";
+  if (token.length <= 4) return "••••";
+  return `${token.slice(0, 2)}••••${token.slice(-2)}`;
+}
+
 export const channelsRouter = {
   list: protectedProcedure
     .input(listInput)
@@ -94,20 +150,21 @@ export const channelsRouter = {
         input.workspaceId,
         context.kvStore,
       );
-      const items = await repos.channels.findManyByWorkspaceFiltered({
+      return await repos.channels.findManyByWorkspaceFiltered({
         kind: input.kind,
+        cursor: input.cursor ?? null,
         limit: input.limit,
       });
-      return { items, cursor: null };
     }),
 
   connect: protectedProcedure
     .input(connectInput)
     .output(connectOutput)
     .handler(async ({ input, context }) => {
-      await assertWorkspaceMember(context, input.workspaceId);
-      const appSecret = context.env.META_APP_SECRET;
-      const systemUserToken = context.env.META_SYSTEM_USER_TOKEN;
+      await assertWorkspaceRole(context, input.workspaceId, "admin");
+      const appSecret = input.appSecret ?? context.env.META_APP_SECRET;
+      const systemUserToken =
+        input.accessToken ?? context.env.META_SYSTEM_USER_TOKEN;
       const appId = context.env.META_APP_ID;
 
       if (!appSecret || !systemUserToken || !appId) {
@@ -204,7 +261,7 @@ export const channelsRouter = {
       .input(endpointsAttachInput)
       .output(endpointsAttachOutput)
       .handler(async ({ input, context }) => {
-        await assertWorkspaceMember(context, input.workspaceId);
+        await assertWorkspaceRole(context, input.workspaceId, "admin");
         const repos = withWorkspace(
           context.db,
           input.workspaceId,
@@ -215,6 +272,26 @@ export const channelsRouter = {
         if (!connection) {
           throw new ORPCError("NOT_FOUND", {
             message: "Channel connection not found",
+          });
+        }
+
+        const agent = await repos.agents.findById(input.agentId);
+        if (!agent) {
+          throw new ORPCError("NOT_FOUND", {
+            message: "Agent not found",
+          });
+        }
+        if (!agent.activeVersionId) {
+          throw new ORPCError("BAD_REQUEST", {
+            message: "agent-not-published",
+          });
+        }
+        const activeVersion = await repos.agentVersions.findById(
+          agent.activeVersionId,
+        );
+        if (!activeVersion?.publishedAt) {
+          throw new ORPCError("BAD_REQUEST", {
+            message: "agent-not-published",
           });
         }
 
@@ -244,6 +321,7 @@ export const channelsRouter = {
             identifier: input.phoneNumberId,
             displayName: input.phoneNumberId,
             attachedAgentId: input.agentId,
+            attachedAgentVersionId: agent.activeVersionId,
             publicWebhookUrl: webhookUrl,
           },
           onAttached: async () => {
@@ -260,7 +338,7 @@ export const channelsRouter = {
       .input(endpointsDetachInput)
       .output(endpointsDetachOutput)
       .handler(async ({ input, context }) => {
-        await assertWorkspaceMember(context, input.workspaceId);
+        await assertWorkspaceRole(context, input.workspaceId, "admin");
         const repos = withWorkspace(
           context.db,
           input.workspaceId,
@@ -303,4 +381,123 @@ export const channelsRouter = {
         };
       }),
   },
+
+  bindAgent: protectedProcedure
+    .input(bindAgentInput)
+    .output(bindAgentOutput)
+    .handler(async ({ input, context }) => {
+      await assertWorkspaceRole(context, input.workspaceId, "admin");
+      const repos = withWorkspace(
+        context.db,
+        input.workspaceId,
+        context.kvStore,
+      );
+
+      const endpoint = await repos.channels.findEndpointById(input.endpointId);
+      if (!endpoint) {
+        throw new ORPCError("NOT_FOUND", {
+          message: "Channel endpoint not found",
+        });
+      }
+
+      const agent = await repos.agents.findById(input.agentId);
+      if (!agent) {
+        throw new ORPCError("NOT_FOUND", {
+          message: "Agent not found",
+        });
+      }
+
+      if (!agent.activeVersionId) {
+        throw new ORPCError("BAD_REQUEST", {
+          message: "agent-not-published",
+        });
+      }
+
+      const activeVersion = await repos.agentVersions.findById(
+        agent.activeVersionId,
+      );
+      if (!activeVersion?.publishedAt) {
+        throw new ORPCError("BAD_REQUEST", {
+          message: "agent-not-published",
+        });
+      }
+
+      const updated = await repos.channels.updateEndpointBinding({
+        endpointId: input.endpointId,
+        attachedAgentId: input.agentId,
+        attachedAgentVersionId: agent.activeVersionId,
+      });
+
+      return {
+        endpointId: updated.id,
+        agentId: updated.attachedAgentId!,
+        agentVersionId: updated.attachedAgentVersionId!,
+      };
+    }),
+
+  status: protectedProcedure
+    .input(statusInput)
+    .output(statusOutput)
+    .handler(async ({ input, context }) => {
+      await assertWorkspaceMember(context, input.workspaceId);
+      const repos = withWorkspace(
+        context.db,
+        input.workspaceId,
+        context.kvStore,
+      );
+
+      const endpoint = await repos.channels.findEndpointById(input.endpointId);
+      if (!endpoint) {
+        throw new ORPCError("NOT_FOUND", {
+          message: "Channel endpoint not found",
+        });
+      }
+
+      const lastInboundAt = await repos.channels.findLastInboundAtForEndpoint(
+        input.endpointId,
+      );
+
+      let boundAgent: z.infer<typeof boundAgentSchema> | null = null;
+      if (endpoint.attachedAgentId && endpoint.attachedAgentVersionId) {
+        const agent = await repos.agents.findById(endpoint.attachedAgentId);
+        const version = await repos.agentVersions.findById(
+          endpoint.attachedAgentVersionId,
+        );
+        if (agent && version) {
+          boundAgent = {
+            id: agent.id,
+            name: agentNameFromSnapshot(version.snapshot),
+            activeVersionNumber: version.versionNumber,
+          };
+        }
+      }
+
+      return {
+        receivingTraffic: lastInboundAt !== null,
+        lastInboundAt,
+        boundAgent,
+      };
+    }),
+
+  webhookInfo: protectedProcedure
+    .input(workspaceIdInput)
+    .output(webhookInfoOutput)
+    .handler(async ({ input, context }) => {
+      await assertWorkspaceMember(context, input.workspaceId);
+      const publicBaseUrl = context.env.PUBLIC_BASE_URL;
+      const verifyToken = context.env.META_VERIFY_TOKEN ?? "";
+
+      if (!publicBaseUrl) {
+        throw new ORPCError("INTERNAL_SERVER_ERROR", {
+          message: "PUBLIC_BASE_URL not configured",
+        });
+      }
+
+      return {
+        url: `${publicBaseUrl}/webhooks/meta`,
+        verifyTokenHint: maskVerifyToken(verifyToken),
+        instructions:
+          "In Meta App Dashboard → WhatsApp → Configuration, set Callback URL to the webhook URL and Verify Token to your META_VERIFY_TOKEN. Subscribe to messages. Replies outside the 24-hour customer care window are deferred until the customer messages again.",
+      };
+    }),
 };

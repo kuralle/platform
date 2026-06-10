@@ -3,25 +3,16 @@ import { ORPCError } from "@orpc/server";
 import { withWorkspace, type KbDocumentUpdate } from "@kuralle/core";
 import { kbDocumentSchema } from "./kb.schemas";
 import { protectedProcedure } from "../index";
-import { assertWorkspaceMember } from "../workspace-access";
+import { assertWorkspaceMember, assertWorkspaceRole } from "../workspace-access";
+import { cursorInput, cursorListOutput } from "../list-pagination";
 
 const workspaceIdInput = z.object({
   workspaceId: z.string(),
 });
 
-const cursorInput = z.object({
-  cursor: z.string().nullable().optional(),
-  limit: z.number().int().min(1).max(100).default(20),
-});
-
 const listInput = workspaceIdInput.merge(cursorInput);
 
-const listOutput = z
-  .object({
-    items: z.array(kbDocumentSchema),
-    cursor: z.string().nullable(),
-  })
-  .strict();
+const listOutput = cursorListOutput(kbDocumentSchema);
 
 const getInput = workspaceIdInput.extend({
   docId: z.string(),
@@ -117,7 +108,7 @@ export const kbRouter = {
     .input(createInput)
     .output(createOutput)
     .handler(async ({ input, context }) => {
-      await assertWorkspaceMember(context, input.workspaceId);
+      await assertWorkspaceRole(context, input.workspaceId, "member");
       const repos = withWorkspace(
         context.db,
         input.workspaceId,
@@ -142,7 +133,7 @@ export const kbRouter = {
     .input(deleteInput)
     .output(deleteOutput)
     .handler(async ({ input, context }) => {
-      await assertWorkspaceMember(context, input.workspaceId);
+      await assertWorkspaceRole(context, input.workspaceId, "admin");
       const repos = withWorkspace(
         context.db,
         input.workspaceId,
@@ -160,7 +151,7 @@ export const kbRouter = {
     .input(updateInput)
     .output(kbDocumentSchema)
     .handler(async ({ input, context }) => {
-      await assertWorkspaceMember(context, input.workspaceId);
+      await assertWorkspaceRole(context, input.workspaceId, "member");
       const repos = withWorkspace(
         context.db,
         input.workspaceId,
@@ -205,7 +196,7 @@ export const kbRouter = {
     .input(attachToAgentInput)
     .output(attachDetachOutput)
     .handler(async ({ input, context }) => {
-      await assertWorkspaceMember(context, input.workspaceId);
+      await assertWorkspaceRole(context, input.workspaceId, "member");
       const repos = withWorkspace(
         context.db,
         input.workspaceId,
@@ -235,7 +226,7 @@ export const kbRouter = {
     .input(detachFromAgentInput)
     .output(attachDetachOutput)
     .handler(async ({ input, context }) => {
-      await assertWorkspaceMember(context, input.workspaceId);
+      await assertWorkspaceRole(context, input.workspaceId, "member");
       const repos = withWorkspace(
         context.db,
         input.workspaceId,

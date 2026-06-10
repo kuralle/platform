@@ -9,6 +9,7 @@ import { Link, useParams, useRouterState } from "@tanstack/react-router";
 import { ChevronLeft, Play } from "lucide-react";
 import { type ReactNode, useState } from "react";
 
+import { useActiveWorkspaceId } from "@/contexts/workspace";
 import { AgentTestDrawer } from "./agent-test-drawer";
 
 const TABS = [
@@ -47,6 +48,7 @@ export function AgentEditorShell({
 }: AgentEditorShellProps) {
   const router = useRouterState();
   const path = router.location.pathname;
+  const workspaceId = useActiveWorkspaceId();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
@@ -79,7 +81,11 @@ export function AgentEditorShell({
               }
             />
             <SheetContent side="right" className="w-[560px] sm:max-w-[560px]">
-              <AgentTestDrawer agentName={agentName} />
+              <AgentTestDrawer
+                agentName={agentName}
+                agentId={agentId}
+                workspaceId={workspaceId}
+              />
             </SheetContent>
           </Sheet>
         </div>

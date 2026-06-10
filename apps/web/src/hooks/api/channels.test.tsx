@@ -10,6 +10,9 @@ import {
   useConnectMetaChannel,
   useAttachEndpoint,
   useDetachEndpoint,
+  useChannelStatus,
+  useWebhookInfo,
+  useBindAgent,
 } from "./channels";
 
 const BASE_URL = "http://localhost:8787/rpc";
@@ -149,6 +152,94 @@ describe("useAttachEndpoint", () => {
         agentId: "ag_1",
       });
       expect(res.endpointId).toBe("che_new");
+    });
+  });
+});
+
+describe("useChannelStatus", () => {
+  it("returns deploy status for an endpoint", async () => {
+    server.use(
+      http.post(`${BASE_URL}/channels/status`, () =>
+        HttpResponse.json({
+          json: {
+            receivingTraffic: true,
+            lastInboundAt: "2026-06-10T12:00:00.000Z",
+            boundAgent: {
+              id: "ag_1",
+              name: "Support",
+              activeVersionNumber: 1,
+            },
+          },
+        }),
+      ),
+    );
+
+    const { result } = renderHook(
+      () =>
+        useChannelStatus({
+          workspaceId: "ws_test",
+          endpointId: "che_1",
+        }),
+      { wrapper },
+    );
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+    expect(result.current.data?.receivingTraffic).toBe(true);
+    expect(result.current.data?.boundAgent?.name).toBe("Support");
+  });
+});
+
+describe("useWebhookInfo", () => {
+  it("returns webhook setup info", async () => {
+    server.use(
+      http.post(`${BASE_URL}/channels/webhookInfo`, () =>
+        HttpResponse.json({
+          json: {
+            url: "http://localhost:3000/webhooks/meta",
+            verifyTokenHint: "ab••••yz",
+            instructions: "Set callback URL in Meta.",
+          },
+        }),
+      ),
+    );
+
+    const { result } = renderHook(
+      () => useWebhookInfo({ workspaceId: "ws_test" }),
+      { wrapper },
+    );
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+    expect(result.current.data?.url).toContain("/webhooks/meta");
+  });
+});
+
+describe("useBindAgent", () => {
+  it("binds an agent to an endpoint", async () => {
+    server.use(
+      http.post(`${BASE_URL}/channels/bindAgent`, () =>
+        HttpResponse.json({
+          json: {
+            endpointId: "che_1",
+            agentId: "ag_2",
+            agentVersionId: "av_2",
+          },
+        }),
+      ),
+    );
+
+    const { result } = renderHook(() => useBindAgent(), { wrapper });
+
+    await act(async () => {
+      const res = await result.current.mutateAsync({
+        workspaceId: "ws_test",
+        endpointId: "che_1",
+        agentId: "ag_2",
+      });
+      expect(res.agentId).toBe("ag_2");
     });
   });
 });

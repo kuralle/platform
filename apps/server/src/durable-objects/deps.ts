@@ -1,32 +1,25 @@
-import { createAnthropic } from "@ai-sdk/anthropic";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { createOpenAI } from "@ai-sdk/openai";
 import type { AgentIR } from "@kuralle/core";
 import { agentIRSchema } from "@kuralle/core";
 import { createDb, type Db } from "@kuralle/db";
 import {
   agentVersions,
   agents,
+  channelConnections,
   channelEndpoints,
   conversations,
   messagingThreads,
   runtimeSessions,
   secrets,
 } from "@kuralle/db/schema";
+import type { PlatformClient } from "@kuralle-agents/messaging";
+import { createWhatsAppClient } from "@kuralle-agents/messaging-meta/whatsapp";
 import { MemoryKvStore } from "@kuralle/platform/memory";
-import type { AgentConfigOpts, MessagingEvent } from "@kuralle/runtime";
-import { createDbToolResolver } from "@kuralle/runtime";
+import type { AgentConfigOpts } from "@kuralle/runtime";
+import { createDbToolResolver, createLazyWorkspaceModelResolver } from "@kuralle/runtime";
 import { and, eq, isNull } from "drizzle-orm";
-
-type LanguageModel = ReturnType<AgentConfigOpts["resolveModel"]>;
+import type { ConversationPlatformEvent } from "./delivery-events.js";
 
 const MAX_GRAPH_DEPTH = 5;
-
-const PROVIDER_ENV_KEYS: Record<string, string[]> = {
-  openai: ["OPENAI_API_KEY"],
-  anthropic: ["ANTHROPIC_API_KEY"],
-  google: ["GOOGLE_GENERATIVE_AI_API_KEY", "GOOGLE_API_KEY"],
-};
 
 export interface AgentGraphEntry {
   agentId: string;
@@ -37,6 +30,11 @@ export interface AgentGraphResult {
   workspaceId: string;
   defaultAgentId: string;
   agents: AgentGraphEntry[];
+}
+
+export interface WhatsAppSender {
+  client: PlatformClient;
+  phoneNumberId: string;
 }
 
 export interface MessagingDoDeps {
@@ -52,7 +50,8 @@ export interface MessagingDoDeps {
     conversationId: string,
     workingMemory: Record<string, unknown>,
   ) => Promise<void>;
-  emitEvents: (conversationId: string, events: MessagingEvent[]) => Promise<void>;
+  emitEvents: (conversationId: string, events: ConversationPlatformEvent[]) => Promise<void>;
+  createWhatsAppSender?: (conversationId: string) => Promise<WhatsAppSender | null>;
   bindConversation?: (conversationId: string, workspaceId: string) => void;
 }
 
@@ -71,9 +70,13 @@ export interface MessagingDoEnv {
       | "loadWorkingMemory"
       | "persistWorkingMemory"
       | "emitEvents"
+      | "createWhatsAppSender"
     >
   >;
   DATABASE_URL?: string;
+  META_APP_SECRET?: string;
+  META_SYSTEM_USER_TOKEN?: string;
+  META_VERIFY_TOKEN?: string;
   OPENAI_API_KEY?: string;
   ANTHROPIC_API_KEY?: string;
   GOOGLE_GENERATIVE_AI_API_KEY?: string;
@@ -88,6 +91,134 @@ export type MessagingDoDepsOverrides = NonNullable<
 function getDatabaseUrl(env: MessagingDoEnv): string | undefined {
   const url = env.DATABASE_URL;
   return typeof url === "string" && url.length > 0 ? url : undefined;
+}
+
+interface MetaChannelCredentials {
+  appSecret: string;
+  accessToken: string;
+}
+
+function decodeMetaChannelCredentials(
+  row: typeof secrets.$inferSelect,
+): MetaChannelCredentials | null {
+  if (row.kmsKeyId !== "none") {
+    return null;
+  }
+  const raw = row.ciphertext.toString("utf8");
+  try {
+    const parsed = JSON.parse(raw) as {
+      appSecret?: string;
+      systemUserToken?: string;
+      accessToken?: string;
+      token?: string;
+    };
+    const appSecret = parsed.appSecret;
+    const accessToken =
+      parsed.systemUserToken ?? parsed.accessToken ?? parsed.token;
+    if (!appSecret || !accessToken) {
+      return null;
+    }
+    return { appSecret, accessToken };
+  } catch {
+    return null;
+  }
+}
+
+async function resolveWhatsAppChannelContext(
+  db: Db,
+  conversationId: string,
+): Promise<{
+  workspaceId: string;
+  phoneNumberId: string;
+  credentialsSecretId: string | null;
+} | null> {
+  const conversationRows = await db
+    .select()
+    .from(conversations)
+    .where(eq(conversations.id, conversationId))
+    .limit(1);
+  const conversation = conversationRows[0];
+  if (!conversation) {
+    return null;
+  }
+
+  const threadRows = await db
+    .select({ channelEndpointId: messagingThreads.channelEndpointId })
+    .from(messagingThreads)
+    .where(
+      and(
+        eq(messagingThreads.workspaceId, conversation.workspaceId),
+        eq(messagingThreads.lastConversationId, conversationId),
+      ),
+    )
+    .limit(1);
+
+  const endpointId =
+    threadRows[0]?.channelEndpointId ?? conversation.channelEndpointId;
+  if (!endpointId) {
+    return null;
+  }
+
+  const endpointRows = await db
+    .select({
+      identifier: channelEndpoints.identifier,
+      connectionId: channelEndpoints.connectionId,
+    })
+    .from(channelEndpoints)
+    .where(
+      and(
+        eq(channelEndpoints.id, endpointId),
+        eq(channelEndpoints.workspaceId, conversation.workspaceId),
+      ),
+    )
+    .limit(1);
+  const endpoint = endpointRows[0];
+  if (!endpoint?.connectionId) {
+    return null;
+  }
+
+  const connectionRows = await db
+    .select({ credentialsSecretId: channelConnections.credentialsSecretId })
+    .from(channelConnections)
+    .where(eq(channelConnections.id, endpoint.connectionId))
+    .limit(1);
+
+  return {
+    workspaceId: conversation.workspaceId,
+    phoneNumberId: endpoint.identifier,
+    credentialsSecretId: connectionRows[0]?.credentialsSecretId ?? null,
+  };
+}
+
+async function resolveMetaCredentials(
+  env: MessagingDoEnv,
+  db: Db,
+  credentialsSecretId: string | null,
+): Promise<MetaChannelCredentials | null> {
+  if (credentialsSecretId) {
+    const rows = await db
+      .select()
+      .from(secrets)
+      .where(eq(secrets.id, credentialsSecretId))
+      .limit(1);
+    const decoded = rows[0] ? decodeMetaChannelCredentials(rows[0]) : null;
+    if (decoded) {
+      return decoded;
+    }
+  }
+
+  const appSecret = env.META_APP_SECRET;
+  const accessToken = env.META_SYSTEM_USER_TOKEN;
+  if (
+    typeof appSecret === "string" &&
+    appSecret.length > 0 &&
+    typeof accessToken === "string" &&
+    accessToken.length > 0
+  ) {
+    return { appSecret, accessToken };
+  }
+
+  return null;
 }
 
 async function withDb<T>(
@@ -109,58 +240,6 @@ async function withDb<T>(
       // Neon websocket teardown can race inside workerd; ignore close errors.
     }
   }
-}
-
-function decodeSecretPlaintext(row: typeof secrets.$inferSelect): string | null {
-  if (row.kmsKeyId !== "none") {
-    return null;
-  }
-  const raw = row.ciphertext.toString("utf8");
-  try {
-    const parsed = JSON.parse(raw) as { apiKey?: string; key?: string; token?: string };
-    return parsed.apiKey ?? parsed.key ?? parsed.token ?? raw;
-  } catch {
-    return raw;
-  }
-}
-
-async function resolveProviderApiKey(
-  env: MessagingDoEnv,
-  db: Db,
-  workspaceId: string,
-  provider: string,
-): Promise<string> {
-  const normalized = provider.toLowerCase();
-  const candidateNames = PROVIDER_ENV_KEYS[normalized] ?? [
-    `${normalized.toUpperCase()}_API_KEY`,
-  ];
-
-  for (const name of candidateNames) {
-    const rows = await db
-      .select()
-      .from(secrets)
-      .where(
-        and(
-          eq(secrets.workspaceId, workspaceId),
-          eq(secrets.name, name),
-          isNull(secrets.agentId),
-        ),
-      )
-      .limit(1);
-    const decoded = rows[0] ? decodeSecretPlaintext(rows[0]) : null;
-    if (decoded) return decoded;
-  }
-
-  for (const name of candidateNames) {
-    const fromEnv = env[name];
-    if (typeof fromEnv === "string" && fromEnv.length > 0) {
-      return fromEnv;
-    }
-  }
-
-  throw new Error(
-    `No API key found for provider "${provider}" in workspace "${workspaceId}"`,
-  );
 }
 
 async function loadAgentSnapshot(
@@ -329,56 +408,6 @@ export async function loadAgentGraphFromDb(
   };
 }
 
-function instantiateProviderModel(
-  provider: string,
-  modelName: string,
-  apiKey: string,
-): LanguageModel {
-  switch (provider.toLowerCase()) {
-    case "openai":
-      return createOpenAI({ apiKey })(modelName);
-    case "anthropic":
-      return createAnthropic({ apiKey })(modelName);
-    case "google":
-      return createGoogleGenerativeAI({ apiKey })(modelName);
-    default:
-      throw new Error(`Unsupported model provider: ${provider}`);
-  }
-}
-
-function createLazyProviderModel(
-  env: MessagingDoEnv,
-  getContext: () => { conversationId: string; workspaceId: string } | null,
-  provider: string,
-  modelName: string,
-): LanguageModel {
-  let resolved: LanguageModel | null = null;
-
-  async function getModel(): Promise<LanguageModel> {
-    if (resolved) return resolved;
-    const context = getContext();
-    if (!context) {
-      throw new Error(
-        `resolveModel called before conversation context was bound (provider=${provider})`,
-      );
-    }
-    const apiKey = await withDb(env, (db) =>
-      resolveProviderApiKey(env, db, context.workspaceId, provider),
-    );
-    resolved = instantiateProviderModel(provider, modelName, apiKey);
-    return resolved;
-  }
-
-  return {
-    specificationVersion: "v2",
-    provider,
-    modelId: modelName,
-    supportedUrls: {},
-    doGenerate: async (options) => (await getModel()).doGenerate(options),
-    doStream: async (options) => (await getModel()).doStream(options),
-  } as LanguageModel;
-}
-
 export async function loadAgentIrFromDb(
   db: Db,
   conversationId: string,
@@ -389,20 +418,13 @@ export async function loadAgentIrFromDb(
   return root ?? null;
 }
 
-function createResolveModel(
-  env: MessagingDoEnv,
-  getContext: () => { conversationId: string; workspaceId: string } | null,
-): AgentConfigOpts["resolveModel"] {
-  return (provider: string, modelName: string) =>
-    createLazyProviderModel(env, getContext, provider, modelName);
-}
-
 export function createMessagingDoDeps(
   env: MessagingDoEnv,
   overrides?: MessagingDoDepsOverrides,
 ): MessagingDoDeps {
   let conversationContext: { conversationId: string; workspaceId: string } | null =
     null;
+  const whatsAppSenderCache = new Map<string, WhatsAppSender>();
 
   const toolKv = new MemoryKvStore();
 
@@ -422,7 +444,11 @@ export function createMessagingDoDeps(
     },
     loadAgentGraph: loadAgentGraphImpl,
     loadAgentIr: loadAgentIrImpl,
-    resolveModel: createResolveModel(env, () => conversationContext),
+    resolveModel: createLazyWorkspaceModelResolver({
+      env,
+      getWorkspaceId: () => conversationContext?.workspaceId ?? null,
+      withDb: (fn) => withDb(env, fn),
+    }),
     resolveTool: async (toolId) => {
       const ctx = conversationContext;
       if (!ctx) return {};
@@ -475,6 +501,43 @@ export function createMessagingDoDeps(
           });
       }),
     emitEvents: async () => {},
+    createWhatsAppSender: async (conversationId) => {
+      const cached = whatsAppSenderCache.get(conversationId);
+      if (cached) {
+        return cached;
+      }
+      const sender = await withDb(env, async (db) => {
+        const channel = await resolveWhatsAppChannelContext(db, conversationId);
+        if (!channel) {
+          return null;
+        }
+        const creds = await resolveMetaCredentials(
+          env,
+          db,
+          channel.credentialsSecretId,
+        );
+        if (!creds) {
+          throw new Error(
+            `No WhatsApp credentials for conversation "${conversationId}"`,
+          );
+        }
+        const verifyToken =
+          typeof env.META_VERIFY_TOKEN === "string" && env.META_VERIFY_TOKEN.length > 0
+            ? env.META_VERIFY_TOKEN
+            : "kuralle-sandbox";
+        const client = createWhatsAppClient({
+          accessToken: creds.accessToken,
+          appSecret: creds.appSecret,
+          phoneNumberId: channel.phoneNumberId,
+          verifyToken,
+        });
+        return { client, phoneNumberId: channel.phoneNumberId };
+      });
+      if (sender) {
+        whatsAppSenderCache.set(conversationId, sender);
+      }
+      return sender;
+    },
   };
 
   if (!overrides) {
@@ -485,5 +548,7 @@ export function createMessagingDoDeps(
     ...base,
     ...overrides,
     bindConversation: base.bindConversation,
+    createWhatsAppSender:
+      overrides.createWhatsAppSender ?? base.createWhatsAppSender,
   };
 }

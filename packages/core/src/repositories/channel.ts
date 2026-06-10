@@ -1,4 +1,4 @@
-import { and, eq, isNull, desc } from "drizzle-orm";
+import { and, eq, isNull, desc, sql } from "drizzle-orm";
 import type { NeonQueryResultHKT } from "drizzle-orm/neon-serverless";
 import type { NodePgQueryResultHKT } from "drizzle-orm/node-postgres";
 import type { PgTransaction } from "drizzle-orm/pg-core";
@@ -127,6 +127,37 @@ function toEndpointDomain(
   };
 }
 
+interface KeysetCursor {
+  u: string;
+  i: string;
+}
+
+function encodeCursor(c: KeysetCursor): string {
+  return Buffer.from(JSON.stringify(c), "utf8").toString("base64url");
+}
+
+function decodeCursor(raw: string | null | undefined): KeysetCursor | null {
+  if (!raw) return null;
+  try {
+    const parsed: unknown = JSON.parse(
+      Buffer.from(raw, "base64url").toString("utf8"),
+    );
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      "u" in parsed &&
+      "i" in parsed &&
+      typeof (parsed as KeysetCursor).u === "string" &&
+      typeof (parsed as KeysetCursor).i === "string"
+    ) {
+      return parsed as KeysetCursor;
+    }
+  } catch {
+    // invalid cursor → first page
+  }
+  return null;
+}
+
 function cacheKey(workspaceId: string, id: string): string {
   return `repo:channel:${workspaceId}:${id}`;
 }
@@ -187,9 +218,9 @@ export class ChannelRepository {
 
   async findManyByWorkspaceFiltered(opts?: {
     kind?: string;
-    cursor?: string;
+    cursor?: string | null;
     limit?: number;
-  }): Promise<Channel[]> {
+  }): Promise<{ items: Channel[]; cursor: string | null }> {
     const limit = opts?.limit ?? 50;
     const conditions = [
       eq(schema.channelConnections.workspaceId, this.workspaceId),
@@ -198,14 +229,36 @@ export class ChannelRepository {
     if (opts?.kind) {
       conditions.push(eq(schema.channelConnections.channelKind, opts.kind));
     }
+
+    const decoded = decodeCursor(opts?.cursor);
+    if (decoded) {
+      conditions.push(
+        sql`(${schema.channelConnections.updatedAt}, ${schema.channelConnections.id}) < (${decoded.u}, ${decoded.i})`,
+      );
+    }
+
     const rows = await this.db
       .select()
       .from(schema.channelConnections)
       .where(and(...conditions))
-      .orderBy(desc(schema.channelConnections.updatedAt))
-      .limit(limit);
+      .orderBy(
+        desc(schema.channelConnections.updatedAt),
+        desc(schema.channelConnections.id),
+      )
+      .limit(limit + 1);
 
-    return rows.map(toDomain);
+    const hasMore = rows.length > limit;
+    const page = hasMore ? rows.slice(0, limit) : rows;
+    const last = page[page.length - 1];
+    const cursor =
+      hasMore && last
+        ? encodeCursor({
+            u: (last.updatedAt ?? new Date()).toISOString(),
+            i: last.id,
+          })
+        : null;
+
+    return { items: page.map(toDomain), cursor };
   }
 
   async insert(input: ChannelInsert): Promise<Channel> {
@@ -352,6 +405,52 @@ export class ChannelRepository {
       );
 
     await this.kv.delete(endpointCacheKey(this.workspaceId, id));
+  }
+
+  async updateEndpointBinding(opts: {
+    endpointId: string;
+    attachedAgentId: string;
+    attachedAgentVersionId: string;
+  }): Promise<Endpoint> {
+    const [row] = await this.db
+      .update(schema.channelEndpoints)
+      .set({
+        attachedAgentId: opts.attachedAgentId,
+        attachedAgentVersionId: opts.attachedAgentVersionId,
+      })
+      .where(
+        and(
+          eq(schema.channelEndpoints.id, opts.endpointId),
+          eq(schema.channelEndpoints.workspaceId, this.workspaceId),
+          isNull(schema.channelEndpoints.releasedAt),
+        ),
+      )
+      .returning();
+
+    if (!row) {
+      throw new Error("ChannelRepository.updateEndpointBinding: no row returned");
+    }
+
+    await this.kv.delete(endpointCacheKey(this.workspaceId, opts.endpointId));
+    return toEndpointDomain(row);
+  }
+
+  async findLastInboundAtForEndpoint(
+    endpointId: string,
+  ): Promise<Date | null> {
+    const [row] = await this.db
+      .select({
+        lastInboundAt: sql<Date | null>`max(${schema.messagingThreads.lastInboundAt})`,
+      })
+      .from(schema.messagingThreads)
+      .where(
+        and(
+          eq(schema.messagingThreads.workspaceId, this.workspaceId),
+          eq(schema.messagingThreads.channelEndpointId, endpointId),
+        ),
+      );
+
+    return row?.lastInboundAt ?? null;
   }
 
   /**

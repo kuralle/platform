@@ -1,5 +1,6 @@
 import { KuralleAgent } from "@kuralle-agents/cf-agent";
-import type { AgentConfig, HarnessConfig } from "@kuralle-agents/core";
+import type { AgentConfig, HarnessConfig, HarnessStreamPart } from "@kuralle-agents/core";
+import type { WindowStore } from "@kuralle-agents/messaging";
 import {
   buildHarnessHooks,
   emitCallerTurn,
@@ -7,11 +8,15 @@ import {
   irToAgentConfig,
 } from "@kuralle/runtime";
 import type { DurableObjectState } from "@cloudflare/workers-types";
+import { DoStorageWindowStore } from "./do-storage-window-store.js";
+import type { ConversationPlatformEvent } from "./delivery-events.js";
 import {
   createMessagingDoDeps,
   type MessagingDoDeps,
   type MessagingDoEnv,
+  type WhatsAppSender,
 } from "./deps.js";
+import { deliverAssistantTurn } from "./outbound-delivery.js";
 import { shardKeyForConversation } from "./shard.js";
 
 interface InboundEnvelope {
@@ -44,11 +49,16 @@ export class MessagingDO extends KuralleAgent<MessagingDoEnv> {
   private sequenceNumber = 0;
   private workingMemory: Record<string, unknown> = {};
   private resolvedDeps: MessagingDoDeps | null = null;
+  private windowStore: WindowStore;
+  private readonly turnStreamParts: HarnessStreamPart[] = [];
+  private readonly whatsAppSenders = new Map<string, WhatsAppSender>();
+  private deliverySequence = 0;
 
   constructor(state: DurableObjectState, env: MessagingDoEnv) {
     super(state, env);
     this.stateRef = state;
     this.envRef = env;
+    this.windowStore = new DoStorageWindowStore(state.storage);
   }
 
   protected getAgents(): HarnessConfig["agents"] {
@@ -64,15 +74,23 @@ export class MessagingDO extends KuralleAgent<MessagingDoEnv> {
       return {};
     }
     const queue = this.createQueueAdapter(this.currentConversationId);
+    const baseHooks = buildHarnessHooks({
+      queue,
+      conversationId: this.currentConversationId,
+      initialSequence: this.sequenceNumber,
+      onSequenceAllocated: (value) => {
+        this.sequenceNumber = value;
+      },
+    });
+    const streamParts = this.turnStreamParts;
     return {
-      hooks: buildHarnessHooks({
-        queue,
-        conversationId: this.currentConversationId,
-        initialSequence: this.sequenceNumber,
-        onSequenceAllocated: (value) => {
-          this.sequenceNumber = value;
+      hooks: {
+        ...baseHooks,
+        onStreamPart: async (context, part) => {
+          streamParts.push(part);
+          await baseHooks.onStreamPart?.(context, part);
         },
-      }),
+      },
     };
   }
 
@@ -130,8 +148,10 @@ export class MessagingDO extends KuralleAgent<MessagingDoEnv> {
     await this.ensureRestored();
 
     this.currentConversationId = envelope.conversationId;
+    this.turnStreamParts.length = 0;
     const deps = this.getDeps();
     deps?.bindConversation?.(envelope.conversationId, envelope.workspaceId);
+    await this.windowStore.recordInbound(envelope.threadKey, new Date());
     await this.stateRef.blockConcurrencyWhile(async () => {
       if (!deps) return;
       const dbSnapshot = await deps.loadWorkingMemory(envelope.conversationId);
@@ -187,6 +207,8 @@ export class MessagingDO extends KuralleAgent<MessagingDoEnv> {
               ts: new Date().toISOString(),
             }),
           );
+        } else if (deps) {
+          await this.deliverAssistantOutbound(envelope, deps);
         }
       } catch (err: unknown) {
         const error = err instanceof Error ? err : new Error(String(err));
@@ -274,9 +296,57 @@ export class MessagingDO extends KuralleAgent<MessagingDoEnv> {
     };
   }
 
+  private async deliverAssistantOutbound(
+    envelope: InboundEnvelope,
+    deps: MessagingDoDeps,
+  ): Promise<void> {
+    if (!deps.createWhatsAppSender || this.turnStreamParts.length === 0) {
+      return;
+    }
+
+    let sender = this.whatsAppSenders.get(envelope.conversationId);
+    if (!sender) {
+      const resolved = await deps.createWhatsAppSender(envelope.conversationId);
+      if (!resolved) {
+        return;
+      }
+      this.whatsAppSenders.set(envelope.conversationId, resolved);
+      sender = resolved;
+    }
+
+    try {
+      await deliverAssistantTurn({
+        conversationId: envelope.conversationId,
+        waId: envelope.waId,
+        threadKey: envelope.threadKey,
+        streamParts: [...this.turnStreamParts],
+        sessionId: this.stateRef.id.toString(),
+        platform: sender.client,
+        windowStore: this.windowStore,
+        allocateSequence: () => ++this.deliverySequence,
+        emitDelivery: async (event) => {
+          await this.emitQueueEvent(envelope.conversationId, event);
+        },
+      });
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      console.error(
+        JSON.stringify({
+          level: "error",
+          at: "messaging-do",
+          doId: this.stateRef.id.toString(),
+          operation: "deliverAssistantOutbound",
+          conversationId: envelope.conversationId,
+          error: error.message,
+          ts: new Date().toISOString(),
+        }),
+      );
+    }
+  }
+
   private async emitQueueEvent(
     conversationId: string,
-    event: MessagingEvent,
+    event: ConversationPlatformEvent,
   ): Promise<void> {
     const queueName = shardKeyForConversation(conversationId);
     const queueBinding = this.envRef[this.toQueueBindingName(queueName)] as
@@ -289,6 +359,11 @@ export class MessagingDO extends KuralleAgent<MessagingDoEnv> {
     if (deps) {
       await deps.emitEvents(conversationId, [event]);
     }
+  }
+
+  /** Test seam: inject a fixed window store (e.g. closed-window defer tests). */
+  setWindowStoreForTests(store: WindowStore): void {
+    this.windowStore = store;
   }
 
   private toQueueBindingName(queueName: string): string {

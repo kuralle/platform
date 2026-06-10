@@ -11,6 +11,9 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.0",
+    "@ai-sdk/google": "^3.0.0",
+    "@ai-sdk/openai": "^3.0.0",
     "@kuralle-agents/core": "^0.9.0",
     "@kuralle-agents/messaging": "^0.9.0",
     "@kuralle-agents/messaging-meta": "^0.9.0",

@@ -2,7 +2,7 @@ import { z } from "zod";
 import { withWorkspace } from "@kuralle/core";
 import { compliancePostureSchema } from "./compliance.schemas";
 import { protectedProcedure } from "../index";
-import { assertWorkspaceMember } from "../workspace-access";
+import { assertWorkspaceMember, assertWorkspaceRole } from "../workspace-access";
 
 const workspaceIdInput = z.object({
   workspaceId: z.string(),
@@ -43,7 +43,7 @@ export const complianceRouter = {
     .input(updateInput)
     .output(compliancePostureSchema)
     .handler(async ({ input, context }) => {
-      await assertWorkspaceMember(context, input.workspaceId);
+      await assertWorkspaceRole(context, input.workspaceId, "admin");
       const repos = withWorkspace(
         context.db,
         input.workspaceId,

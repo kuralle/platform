@@ -17,6 +17,16 @@ export {
 } from "./tool-resolver.js";
 export type { DbToolResolverOpts, DbToolResolvers } from "./tool-resolver.js";
 export { inferProviderFromModelName } from "./model-provider.js";
+export {
+  createLazyWorkspaceModelResolver,
+  createWorkspaceModelResolver,
+  decodeSecretPlaintext,
+  instantiateProviderModel,
+  ModelResolutionError,
+  PROVIDER_ENV_KEYS,
+  resolveProviderApiKey,
+} from "./resolve-model.js";
+export type { LazyWorkspaceModelResolverOpts, ModelResolverEnv, WorkspaceModelResolverOpts } from "./resolve-model.js";
 export type { AdapterLogger } from "./logger.js";
 export { consoleAdapterLogger, noopAdapterLogger } from "./logger.js";
 export { buildHarnessHooks, emitCallerTurn } from "./hooks.js";

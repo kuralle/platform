@@ -1,18 +1,17 @@
 import { z } from "zod";
+import { withWorkspace } from "@kuralle/core";
 import { toolSchema } from "./tools.schemas";
 import { protectedProcedure } from "../index";
 import { assertWorkspaceMember } from "../workspace-access";
+import { cursorInput, cursorListOutput } from "../list-pagination";
 
-const listInput = z.object({
-  workspaceId: z.string(),
-  cursor: z.string().nullable().optional(),
-  limit: z.number().int().min(1).max(100).default(20),
-});
+const listInput = z
+  .object({
+    workspaceId: z.string(),
+  })
+  .merge(cursorInput);
 
-const listOutput = z.object({
-  items: z.array(toolSchema),
-  cursor: z.string().nullable(),
-}).strict();
+const listOutput = cursorListOutput(toolSchema);
 
 export const toolsRouter = {
   list: protectedProcedure
@@ -20,6 +19,21 @@ export const toolsRouter = {
     .output(listOutput)
     .handler(async ({ input, context }) => {
       await assertWorkspaceMember(context, input.workspaceId);
-      return { items: [], cursor: null };
+      const repos = withWorkspace(
+        context.db,
+        input.workspaceId,
+        context.kvStore,
+      );
+      const page = await repos.tools.findManyByWorkspace({
+        cursor: input.cursor ?? null,
+        limit: input.limit,
+      });
+      return {
+        items: page.items.map((tool) => ({
+          ...tool,
+          status: tool.status ?? "active",
+        })),
+        cursor: page.cursor,
+      };
     }),
 };

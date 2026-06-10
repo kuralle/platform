@@ -1,3 +1,4 @@
+import type { AgentIR } from "@kuralle/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { $api } from "@/providers/api-provider";
@@ -56,6 +57,21 @@ export function useCreateAgent() {
     },
   });
 }
+
+/** Runs an ephemeral test turn against the in-editor draft IR. */
+export function useTestTurn() {
+  return useMutation({
+    ...$api.agents.testTurn.mutationOptions(),
+  });
+}
+
+export type TestTurnInput = {
+  workspaceId: string;
+  agentId: string;
+  ir?: AgentIR;
+  input: string;
+  sessionId?: string;
+};
 
 /** Returns paginated version history for an agent. */
 export function useAgentHistory(input: {

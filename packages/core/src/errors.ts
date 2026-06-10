@@ -23,3 +23,15 @@ export class WorkspaceAccessDeniedError extends Error {
     super(message);
   }
 }
+
+export type WorkspaceRole = "viewer" | "member" | "admin" | "owner";
+
+export class WorkspaceRoleDeniedError extends Error {
+  public readonly name = "WorkspaceRoleDeniedError";
+  public readonly requiredRole: WorkspaceRole;
+
+  constructor(requiredRole: WorkspaceRole) {
+    super(`Requires workspace role: ${requiredRole}`);
+    this.requiredRole = requiredRole;
+  }
+}
