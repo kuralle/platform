@@ -25,10 +25,10 @@
         "@ai-sdk/anthropic": "^3.0.0",
         "@ai-sdk/google": "^3.0.0",
         "@ai-sdk/openai": "^3.0.0",
-        "@kuralle-agents/cf-agent": "^0.8.5",
-        "@kuralle-agents/core": "^0.8.5",
-        "@kuralle-agents/messaging": "^0.8.5",
-        "@kuralle-agents/messaging-meta": "^0.8.5",
+        "@kuralle-agents/cf-agent": "^0.9.0",
+        "@kuralle-agents/core": "^0.9.0",
+        "@kuralle-agents/messaging": "^0.9.0",
+        "@kuralle-agents/messaging-meta": "^0.9.0",
         "@kuralle/api": "workspace:*",
         "@kuralle/auth": "workspace:*",
         "@kuralle/core": "workspace:*",
@@ -256,9 +256,9 @@
       "name": "@kuralle/runtime",
       "version": "0.0.1",
       "dependencies": {
-        "@kuralle-agents/core": "^0.8.5",
-        "@kuralle-agents/messaging": "^0.8.5",
-        "@kuralle-agents/messaging-meta": "^0.8.5",
+        "@kuralle-agents/core": "^0.9.0",
+        "@kuralle-agents/messaging": "^0.9.0",
+        "@kuralle-agents/messaging-meta": "^0.9.0",
         "@kuralle/core": "workspace:*",
         "@kuralle/db": "workspace:*",
         "@kuralle/platform": "workspace:*",
@@ -312,7 +312,7 @@
       "name": "@kuralle/sink-spike",
       "dependencies": {
         "@ai-sdk/openai": "^3.0.0",
-        "@kuralle-agents/core": "^0.8.5",
+        "@kuralle-agents/core": "^0.9.0",
         "ai": "^6.0.0",
         "dotenv": "catalog:",
         "zod": "catalog:",
@@ -768,19 +768,19 @@
 
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.9", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.0.3", "@jridgewell/sourcemap-codec": "^1.4.10" } }, "sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ=="],
 
-    "@kuralle-agents/cf-agent": ["@kuralle-agents/cf-agent@0.8.5", "", { "dependencies": { "@cloudflare/ai-chat": "^0.8.4", "@kuralle-agents/core": "0.8.5", "@kuralle-agents/realtime-audio": "0.8.5", "ai": "^6.0.90" }, "peerDependencies": { "@kuralle-agents/voice-protocol": "0.8.5", "agents": ">=0.14.0 <1.0.0", "zod": "^4.0.0" } }, "sha512-s9lscFWhaWI5Zzh2kjlotASM6ZgBvsHs8XTwMJqUw1OhkR9ODAUz49jqWF204jmHeXOSRaVuaNhYV2t4py0o4A=="],
+    "@kuralle-agents/cf-agent": ["@kuralle-agents/cf-agent@0.9.0", "", { "dependencies": { "@cloudflare/ai-chat": "^0.8.4", "@kuralle-agents/core": "0.9.0", "@kuralle-agents/realtime-audio": "0.9.0", "ai": "^6.0.90" }, "peerDependencies": { "@kuralle-agents/voice-protocol": "0.9.0", "agents": ">=0.14.0 <1.0.0", "zod": "^4.0.0" } }, "sha512-mybkebx2wfJSQPGbeG1Sy5v8BhHuwgm3x3PEqBLG03JCvLWRaJBc/aJ/DPlfo1b3VhbzN2piolI78GwrkiZliA=="],
 
-    "@kuralle-agents/core": ["@kuralle-agents/core@0.8.5", "", { "dependencies": { "chrono-node": "^2.6.0" }, "peerDependencies": { "ai": "^6.0.0", "zod": "^4.0.0" } }, "sha512-uGVSm/s9T5lbDg7RuTSf2Vb6DuFUZ/doFUmB3fENmnh3WevfxxfgHr1oienhOzfNxbn3Pcn9pQsB3Ck1oQlVTA=="],
+    "@kuralle-agents/core": ["@kuralle-agents/core@0.9.0", "", { "dependencies": { "chrono-node": "^2.6.0" }, "peerDependencies": { "ai": "^6.0.0", "zod": "^4.0.0" } }, "sha512-Yxs3BBWAG1NTgsMDKnVWM/TIxbgBbzYtFmAxI90/tEuGA29yosgShprB1lU/m17bizZjkmbDskIkGz9mrvYikg=="],
 
-    "@kuralle-agents/http-client": ["@kuralle-agents/http-client@0.8.5", "", {}, "sha512-CfCqkYsXxYDVJVTRnbkUEi53nl2qFVoKXJxzHyhkfzS+9PEjaHi/SHLp1x9FQCG82feNCibW7V3jPpfAyfWeBA=="],
+    "@kuralle-agents/http-client": ["@kuralle-agents/http-client@0.9.0", "", {}, "sha512-AbKiFT/IP1YXWKk2iu+Xw7XXAI0WEE/i5GM2Zuqs/oLeUBT8CZXV0OgwVlFjjfj6B4cL0XTZzWyO6fS+JCoYwQ=="],
 
-    "@kuralle-agents/messaging": ["@kuralle-agents/messaging@0.8.5", "", { "dependencies": { "@kuralle-agents/core": "0.8.5", "hono": "^4.7.4" } }, "sha512-3nNiLs2Yruni+3wHArj6Q7KGkkCEtc7OPq2GpBs4vd8Bf24SBbLggpoUV8Eneks2+jh9PHASsvUfx9ot+lOKSg=="],
+    "@kuralle-agents/messaging": ["@kuralle-agents/messaging@0.9.0", "", { "dependencies": { "@kuralle-agents/core": "0.9.0", "hono": "^4.7.4" } }, "sha512-EtQJotfYKPfR5J3VRaWrZnmmPkP5KJ5i+2zxyYzd0awOOVS5ovJPJ4DFflpYYfyFZhDxZNzcs3wUsM6ehXgchg=="],
 
-    "@kuralle-agents/messaging-meta": ["@kuralle-agents/messaging-meta@0.8.5", "", { "dependencies": { "@kuralle-agents/http-client": "0.8.5", "@kuralle-agents/messaging": "0.8.5" }, "peerDependencies": { "hono": "^4.12.0" } }, "sha512-WB/u1JceJUAhVpQTDTamSkBhpaZLzcgrzJzBz9FPmzkEMOiuLNjEDatI4iiYqppnvv+02p4FDZjmxUMTJDsvqw=="],
+    "@kuralle-agents/messaging-meta": ["@kuralle-agents/messaging-meta@0.9.0", "", { "dependencies": { "@kuralle-agents/http-client": "0.9.0", "@kuralle-agents/messaging": "0.9.0" }, "peerDependencies": { "hono": "^4.12.0" } }, "sha512-YTMotVxlt8MDgN3h/u+fGzlt6M7kaAxNzEIHC/YXchY/dH4dkKjyvHz9JZBLW/0ThTRdyCzwewW+pWLBvhJpyg=="],
 
-    "@kuralle-agents/realtime-audio": ["@kuralle-agents/realtime-audio@0.8.5", "", { "dependencies": { "@google/genai": "^1.0.0", "@kuralle-agents/voice-protocol": "0.8.5", "ws": "^8.19.0" }, "peerDependencies": { "@kuralle-agents/core": "0.8.5", "ai": "^6.0.0", "zod": "^4.0.0" } }, "sha512-pU08QPEutV/Cq2PIZ9EeJ29S1qzaGTSK9YN8cXBp13JVSsHgnz9MkwgBRdI/HvP/J0JM//dHEZB0+Lzydurjfw=="],
+    "@kuralle-agents/realtime-audio": ["@kuralle-agents/realtime-audio@0.9.0", "", { "dependencies": { "@google/genai": "^1.0.0", "@kuralle-agents/voice-protocol": "0.9.0", "ws": "^8.19.0" }, "peerDependencies": { "@kuralle-agents/core": "0.9.0", "ai": "^6.0.0", "zod": "^4.0.0" } }, "sha512-LNN8K1jF7kvHa9miySucmi9E5wvOjN1o4TlEbVOXFpFe1l2EgeALE8gIdCwqWzQtK5ElwICnvoa6nmvqZj0kdQ=="],
 
-    "@kuralle-agents/voice-protocol": ["@kuralle-agents/voice-protocol@0.8.5", "", { "peerDependencies": { "zod": "^4.0.0" }, "optionalPeers": ["zod"] }, "sha512-aX5vTsxBPmcZO+EeOpqaISOipTlDKoff22nSGlR6GSGIvwYCXODQwM+VpmJtUNKtiIPozQcr5gjCvdNAYKhUfA=="],
+    "@kuralle-agents/voice-protocol": ["@kuralle-agents/voice-protocol@0.9.0", "", { "peerDependencies": { "zod": "^4.0.0" }, "optionalPeers": ["zod"] }, "sha512-PXtlJV+B4SLOABFvpAmB8SJYnHX9rzbIFzqrpbGdl+yHYEmnJARqTDsqmSzurfE6/HkzLUueSLHYVv0Z+NHuFw=="],
 
     "@kuralle/api": ["@kuralle/api@workspace:packages/api"],
 
