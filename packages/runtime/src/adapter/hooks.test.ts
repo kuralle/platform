@@ -236,6 +236,28 @@ describe("buildHarnessHooks", () => {
     });
   });
 
+  it("emits turn.end for assistant text via onStreamPart", async () => {
+    const hooks = buildHarnessHooks(deps);
+    const ctx = makeContext();
+    await hooks.onStart?.(ctx);
+    await hooks.onStreamPart?.(ctx, { type: "text-start", id: "msg_stream_1" });
+    await hooks.onStreamPart?.(ctx, {
+      type: "text-delta",
+      id: "msg_stream_1",
+      delta: "Hello",
+    });
+    await hooks.onStreamPart?.(ctx, { type: "text-end", id: "msg_stream_1" });
+
+    const events = await collectEvents(queue, "messaging-events");
+    const turnEnd = events.find((event) => event.kind === "turn.end");
+    expect(turnEnd?.payload).toEqual({
+      turnId: expect.any(String),
+      messageId: "msg_stream_1",
+      fullText: "Hello",
+      speaker: "assistant",
+    });
+  });
+
   it("emits turn.end for assistant messages via onMessage", async () => {
     const hooks = buildHarnessHooks(deps);
     await hooks.onMessage?.(makeContext(), {
@@ -298,12 +320,9 @@ describe("buildHarnessHooks", () => {
     });
   });
 
-  it("emits agent.end with success=false+error on onEnd failure", async () => {
+  it("emits agent.end with success=false+error on onError", async () => {
     const hooks = buildHarnessHooks(deps);
-    await hooks.onEnd?.(makeContext(), {
-      success: false,
-      error: new Error("Model timeout"),
-    });
+    await hooks.onError?.(makeContext(), new Error("Model timeout"));
 
     const events = await collectEvents(queue, "messaging-events");
     const ev = first(events);
@@ -315,12 +334,17 @@ describe("buildHarnessHooks", () => {
     });
   });
 
-  it("does NOT emit on onEnd when success is true", async () => {
+  it("emits agent.end on onEnd when agent.end was not already emitted", async () => {
     const hooks = buildHarnessHooks(deps);
     await hooks.onEnd?.(makeContext(), { success: true });
 
     const events = await collectEvents(queue, "messaging-events");
-    expect(events).toHaveLength(0);
+    const ev = first(events);
+    expect(ev.kind).toBe("agent.end");
+    expect(ev.payload).toEqual({
+      agentId: "ag_main",
+      success: true,
+    });
   });
 
   it("sequenceNumber is strictly increasing across hook calls", async () => {

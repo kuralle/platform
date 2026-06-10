@@ -9,7 +9,13 @@ import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
 import { eq } from "drizzle-orm";
 import { appRouter } from "@kuralle/api/routers/index";
 import { MemoryKvStore } from "@kuralle/platform/memory";
-import { createTestDb, releaseTestDb, resetSchema } from "@kuralle/core/test-utils";
+import {
+  createTestDb,
+  releaseTestDb,
+  resetSchema,
+  seedWorkspaceMember,
+} from "@kuralle/core/test-utils";
+import { makeTestContext } from "./test-context.js";
 import type { PoolClient } from "@kuralle/core/test-utils";
 import type { TestDb } from "@kuralle/core/test-utils";
 import type { Context } from "@kuralle/api/context";
@@ -82,6 +88,7 @@ const AMENDED_IR: AgentIR = {
 };
 
 const WORKSPACE_ID = "org_test_s2_03";
+const USER_ID = "user_test_s2_03";
 
 type ProcedureLike = {
   "~orpc": {
@@ -150,24 +157,12 @@ describe("agents router round-trip", () => {
   beforeEach(async () => {
     kvStore = new MemoryKvStore();
     await resetSchema(client, WORKSPACE_ID);
-    // F08: build a minimal but typed session for protectedProcedure context.
-    // The `call` helper bypasses middleware; the handler reads
-    // `context.session?.user?.id ?? null`, so a null session is sufficient.
-    ctx = {
-      auth: null,
-      session: null,
-      db,
-      kvStore,
-      env: {
-        META_APP_ID: "",
-        META_APP_SECRET: "",
-        META_SYSTEM_USER_TOKEN: "",
-        META_VERIFY_TOKEN: "",
-        META_PHONE_NUMBER_ID: "",
-        PUBLIC_BASE_URL: "http://localhost:3000",
-      },
-      requestHeaders: new Headers(),
-    };
+    await seedWorkspaceMember(db, {
+      workspaceId: WORKSPACE_ID,
+      userId: USER_ID,
+      email: `${USER_ID}@test.local`,
+    });
+    ctx = makeTestContext(db, kvStore, USER_ID);
   });
 
   async function insertAgent(agentId: string): Promise<void> {

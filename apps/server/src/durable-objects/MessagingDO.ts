@@ -3,12 +3,15 @@ import type { AgentConfig, HarnessConfig } from "@kuralle-agents/core";
 import {
   buildHarnessHooks,
   emitCallerTurn,
-  type AgentConfigOpts,
   type MessagingEvent,
   irToAgentConfig,
 } from "@kuralle/runtime";
-import type { AgentIR } from "@kuralle/core";
 import type { DurableObjectState } from "@cloudflare/workers-types";
+import {
+  createMessagingDoDeps,
+  type MessagingDoDeps,
+  type MessagingDoEnv,
+} from "./deps.js";
 import { shardKeyForConversation } from "./shard.js";
 
 interface InboundEnvelope {
@@ -29,25 +32,7 @@ interface QueueProducerBinding {
   send(body: unknown): Promise<void>;
 }
 
-interface MessagingDoDeps {
-  loadAgentIr?: (conversationId: string) => Promise<{ agentId: string; ir: AgentIR } | null>;
-  resolveModel?: AgentConfigOpts["resolveModel"];
-  resolveTool?: AgentConfigOpts["resolveTool"];
-  resolveIntegrationTools?: AgentConfigOpts["resolveIntegrationTools"];
-  resolveMcpTools?: AgentConfigOpts["resolveMcpTools"];
-  runtimeDefaults?: Pick<AgentConfigOpts, "maxSteps" | "maxTurns" | "toolMaxSteps">;
-  loadWorkingMemory: (conversationId: string) => Promise<Record<string, unknown> | null>;
-  persistWorkingMemory: (
-    conversationId: string,
-    workingMemory: Record<string, unknown>,
-  ) => Promise<void>;
-  emitEvents: (conversationId: string, events: MessagingEvent[]) => Promise<void>;
-}
-
-export interface MessagingDoEnv {
-  __messagingDODeps?: MessagingDoDeps;
-  [key: string]: unknown;
-}
+export type { MessagingDoDeps, MessagingDoEnv };
 
 export class MessagingDO extends KuralleAgent<MessagingDoEnv> {
   private readonly stateRef: DurableObjectState;
@@ -58,6 +43,7 @@ export class MessagingDO extends KuralleAgent<MessagingDoEnv> {
   private defaultAgentId = "messaging";
   private sequenceNumber = 0;
   private workingMemory: Record<string, unknown> = {};
+  private resolvedDeps: MessagingDoDeps | null = null;
 
   constructor(state: DurableObjectState, env: MessagingDoEnv) {
     super(state, env);
@@ -92,6 +78,19 @@ export class MessagingDO extends KuralleAgent<MessagingDoEnv> {
 
   static threadKeyForWaId(waId: string): string {
     return `whatsapp:${waId}`;
+  }
+
+  private getDeps(): MessagingDoDeps | undefined {
+    if (this.envRef.__messagingDODeps) {
+      return this.envRef.__messagingDODeps;
+    }
+    if (!this.resolvedDeps) {
+      this.resolvedDeps = createMessagingDoDeps(
+        this.envRef,
+        this.envRef.__messagingDoDepsOverrides,
+      );
+    }
+    return this.resolvedDeps;
   }
 
   async onRequest(request: Request): Promise<Response> {
@@ -131,7 +130,8 @@ export class MessagingDO extends KuralleAgent<MessagingDoEnv> {
     await this.ensureRestored();
 
     this.currentConversationId = envelope.conversationId;
-    const deps = this.envRef.__messagingDODeps;
+    const deps = this.getDeps();
+    deps?.bindConversation?.(envelope.conversationId, envelope.workspaceId);
     await this.stateRef.blockConcurrencyWhile(async () => {
       if (!deps) return;
       const dbSnapshot = await deps.loadWorkingMemory(envelope.conversationId);
@@ -156,37 +156,37 @@ export class MessagingDO extends KuralleAgent<MessagingDoEnv> {
       occurredAt: new Date(),
     });
 
-    const userMessage = {
-      id: envelope.messageId,
-      role: "user",
-      parts: [{ type: "text", text: envelope.text }],
-    } as const;
-    const existingMessages =
-      "messages" in this && Array.isArray(this.messages) ? this.messages : [];
-    await this.saveMessages([...existingMessages, userMessage]);
-
-    // [S3-fix-2] r2 finding #4: trigger the Kuralle runtime loop directly so
-    // the assistant turn generates from a Meta inbound (CF's AIChatAgent only
-    // fires onChatMessage from a WebSocket chat frame; webhook inbounds need
-    // explicit invocation). Skip when no agents are configured (test paths
-    // without dep injection): the caller turn is still emitted upstream, and
-    // the kimi-gate blocker #1 (no shells) is satisfied because we route
-    // through the real `super.onChatMessage` rather than fake hook calls.
+    // saveMessages triggers a programmatic chat turn (onChatMessage + _reply).
+    // Only run when agents are resolved — otherwise CF would invoke the runtime
+    // with the default agent id and no configured agents.
     if (this.runtimeAgents.length > 0) {
+      const userMessage = {
+        id: envelope.messageId,
+        role: "user",
+        parts: [{ type: "text", text: envelope.text }],
+      } as const;
+      const existingMessages =
+        "messages" in this && Array.isArray(this.messages) ? this.messages : [];
       try {
-        const noopOnFinish = (async () => {}) as Parameters<
-          KuralleAgent<MessagingDoEnv>["onChatMessage"]
-        >[0];
-        const response = await this.onChatMessage(noopOnFinish, {
-          requestId: envelope.messageId,
-        });
-        // Drain the SSE response so the runtime stream completes and final
-        // hooks (turn.end, tokens.updated) fire.
-        if (response.body) {
-          const reader = response.body.getReader();
-          while (!(await reader.read()).done) {
-            // discard chunks; events are emitted via hooks → MessageQueue
-          }
+        const result = await this.saveMessages([...existingMessages, userMessage]);
+        if (result.status !== "completed") {
+          const message =
+            result.error instanceof Error
+              ? result.error.message
+              : String(result.error ?? result.status);
+          this.workingMemory.lastRuntimeError = message;
+          console.error(
+            JSON.stringify({
+              level: "error",
+              at: "messaging-do",
+              doId: this.stateRef.id.toString(),
+              operation: "saveMessages",
+              conversationId: envelope.conversationId,
+              status: result.status,
+              error: message,
+              ts: new Date().toISOString(),
+            }),
+          );
         }
       } catch (err: unknown) {
         const error = err instanceof Error ? err : new Error(String(err));
@@ -196,7 +196,7 @@ export class MessagingDO extends KuralleAgent<MessagingDoEnv> {
             level: "error",
             at: "messaging-do",
             doId: this.stateRef.id.toString(),
-            operation: "onChatMessage",
+            operation: "saveMessages",
             conversationId: envelope.conversationId,
             error: error.message,
             stack: error.stack,
@@ -221,22 +221,43 @@ export class MessagingDO extends KuralleAgent<MessagingDoEnv> {
   }
 
   private async resolveAgents(conversationId: string): Promise<void> {
-    const deps = this.envRef.__messagingDODeps;
-    if (!deps?.loadAgentIr || !deps.resolveModel) return;
-    const resolved = await deps.loadAgentIr(conversationId);
-    if (!resolved) return;
-    const config = await irToAgentConfig(resolved.ir, {
-      agentId: resolved.agentId,
-      resolveModel: deps.resolveModel,
-      resolveTool: deps.resolveTool,
-      resolveIntegrationTools: deps.resolveIntegrationTools,
-      resolveMcpTools: deps.resolveMcpTools,
-      maxSteps: deps.runtimeDefaults?.maxSteps,
-      maxTurns: deps.runtimeDefaults?.maxTurns,
-      toolMaxSteps: deps.runtimeDefaults?.toolMaxSteps,
-    });
-    this.runtimeAgents = [config as AgentConfig];
-    this.defaultAgentId = config.id;
+    const deps = this.getDeps();
+    if (!deps?.resolveModel) return;
+
+    const graph = deps.loadAgentGraph
+      ? await deps.loadAgentGraph(conversationId)
+      : deps.loadAgentIr
+        ? await deps.loadAgentIr(conversationId).then((resolved) =>
+            resolved
+              ? {
+                  defaultAgentId: resolved.agentId,
+                  agents: [resolved],
+                  workspaceId: "",
+                }
+              : null,
+          )
+        : null;
+
+    if (!graph || graph.agents.length === 0) return;
+
+    const configs: AgentConfig[] = [];
+    for (const entry of graph.agents) {
+      configs.push(
+        (await irToAgentConfig(entry.ir, {
+          agentId: entry.agentId,
+          resolveModel: deps.resolveModel,
+          resolveTool: deps.resolveTool,
+          resolveIntegrationTools: deps.resolveIntegrationTools,
+          resolveMcpTools: deps.resolveMcpTools,
+          maxSteps: deps.runtimeDefaults?.maxSteps,
+          maxTurns: deps.runtimeDefaults?.maxTurns,
+          toolMaxSteps: deps.runtimeDefaults?.toolMaxSteps,
+        })) as AgentConfig,
+      );
+    }
+
+    this.runtimeAgents = configs;
+    this.defaultAgentId = graph.defaultAgentId;
   }
 
   private createQueueAdapter(conversationId: string) {
@@ -264,7 +285,7 @@ export class MessagingDO extends KuralleAgent<MessagingDoEnv> {
     if (queueBinding) {
       await queueBinding.send(event);
     }
-    const deps = this.envRef.__messagingDODeps;
+    const deps = this.getDeps();
     if (deps) {
       await deps.emitEvents(conversationId, [event]);
     }

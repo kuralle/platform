@@ -41,7 +41,9 @@ import {
   createTestDb,
   releaseTestDb,
   resetSchema,
+  seedWorkspaceMember,
 } from "@kuralle/core/test-utils";
+import { makeTestContext } from "./test-context.js";
 import type { PoolClient, TestDb } from "@kuralle/core/test-utils";
 import type { Context } from "@kuralle/api/context";
 import {
@@ -53,6 +55,7 @@ import {
 import { eq } from "drizzle-orm";
 
 const WORKSPACE_ID = "org_test_s3_01";
+const USER_ID = "user_test_s3_01";
 const AGENT_ID = "ag_test_s3_01_fixture";
 
 type ProcedureLike = {
@@ -108,27 +111,24 @@ describe("channels router round-trip", () => {
     vi.clearAllMocks();
     kvStore = new MemoryKvStore();
     await resetSchema(client, WORKSPACE_ID);
+    await seedWorkspaceMember(db, {
+      workspaceId: WORKSPACE_ID,
+      userId: USER_ID,
+      email: `${USER_ID}@test.local`,
+    });
     // Endpoints require an agent (per DATA_MODEL.md §8:626 attachment CHECK).
     await db.insert(agents).values({
       id: AGENT_ID,
       workspaceId: WORKSPACE_ID,
       status: "draft",
     });
-    ctx = {
-      auth: null,
-      session: null,
-      db,
-      kvStore,
-      env: {
-        META_APP_ID: "test_app",
-        META_APP_SECRET: "test_secret",
-        META_SYSTEM_USER_TOKEN: "test_token",
-        META_VERIFY_TOKEN: "test_verify",
-        META_PHONE_NUMBER_ID: "111111",
-        PUBLIC_BASE_URL: "http://localhost:3000",
-      },
-      requestHeaders: new Headers(),
-    };
+    ctx = makeTestContext(db, kvStore, USER_ID, {
+      META_APP_ID: "test_app",
+      META_APP_SECRET: "test_secret",
+      META_SYSTEM_USER_TOKEN: "test_token",
+      META_VERIFY_TOKEN: "test_verify",
+      META_PHONE_NUMBER_ID: "111111",
+    });
   });
 
   it("connect inserts secret + connection rows and returns available numbers", async () => {

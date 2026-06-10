@@ -6,7 +6,9 @@ import {
   createTestDb,
   releaseTestDb,
   resetSchema,
+  seedWorkspaceMember,
 } from "@kuralle/core/test-utils";
+import { makeTestContext } from "./test-context.js";
 import type { PoolClient } from "@kuralle/core/test-utils";
 import type { TestDb } from "@kuralle/core/test-utils";
 import type { Context } from "@kuralle/api/context";
@@ -34,6 +36,7 @@ async function call<T>(
 
 describe("conversations router", () => {
   const workspaceId = "org_test_s3_05";
+  const userId = "user_test_s3_05";
   let db: TestDb;
   let client: PoolClient;
   let kvStore: MemoryKvStore;
@@ -53,21 +56,12 @@ describe("conversations router", () => {
   beforeEach(async () => {
     kvStore = new MemoryKvStore();
     await resetSchema(client, workspaceId);
-    ctx = {
-      auth: null,
-      session: null,
-      db,
-      kvStore,
-      env: {
-        META_APP_ID: "",
-        META_APP_SECRET: "",
-        META_SYSTEM_USER_TOKEN: "",
-        META_VERIFY_TOKEN: "",
-        META_PHONE_NUMBER_ID: "",
-        PUBLIC_BASE_URL: "http://localhost:3000",
-      },
-      requestHeaders: new Headers(),
-    };
+    await seedWorkspaceMember(db, {
+      workspaceId,
+      userId,
+      email: `${userId}@test.local`,
+    });
+    ctx = makeTestContext(db, kvStore, userId);
   });
 
   it("list paginates with cursor", async () => {

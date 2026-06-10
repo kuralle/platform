@@ -8,32 +8,37 @@ import calderonIR from "../projector/__fixtures__/calderon-dispatcher-ir.json";
 type LanguageModel = NonNullable<
   import("@kuralle-agents/core").AgentConfig["model"]
 >;
-/** Extracted from AgentConfig.tools to avoid importing from `ai`. */
-type ToolSet = NonNullable<
-  import("@kuralle-agents/core").AgentConfig["tools"]
->;
+type AnyTool = import("@kuralle-agents/core").AnyTool;
+
+function stubTool(name: string, description: string): AnyTool {
+  return {
+    name,
+    description,
+    execute: async () => ({}),
+  };
+}
 
 const modelStub = {} as unknown as LanguageModel;
 
 const defaultOpts: AgentConfigOpts = {
   agentId: "ag_test_calderon",
   resolveModel: () => modelStub,
-  resolveTool: async (toolId: string) => {
-    return { [toolId]: { description: `Tool: ${toolId}` } } as unknown as ToolSet;
-  },
+  resolveTool: async (toolId: string) => ({
+    [toolId]: stubTool(toolId, `Tool: ${toolId}`),
+  }),
   resolveIntegrationTools: async (_tcpId, selectedTools) => {
-    const result: Record<string, unknown> = {};
+    const result: Record<string, AnyTool> = {};
     for (const t of selectedTools) {
-      result[t] = { description: `Integration tool: ${t}` };
+      result[t] = stubTool(t, `Integration tool: ${t}`);
     }
-    return result as unknown as ToolSet;
+    return result;
   },
   resolveMcpTools: async (_clientId, allowedTools) => {
-    const result: Record<string, unknown> = {};
+    const result: Record<string, AnyTool> = {};
     for (const t of allowedTools) {
-      result[t] = { description: `MCP tool: ${t}` };
+      result[t] = stubTool(t, `MCP tool: ${t}`);
     }
-    return result as unknown as ToolSet;
+    return result;
   },
 };
 
@@ -173,9 +178,12 @@ describe("irToAgentConfig", () => {
       },
     };
     const config = await irToAgentConfig(ir, defaultOpts);
-    // Only the enabled guardrail produces a processor
-    expect(config.guardrails?.input).toHaveLength(1);
-    expect(config.guardrails?.input?.[0]?.id).toBe("gr_enabled");
+    // Prompt-injection floor + only the enabled IR guardrail
+    expect(config.guardrails?.input).toHaveLength(2);
+    expect(config.guardrails?.input?.map((p) => p.id)).toContain("gr_enabled");
+    expect(config.guardrails?.input?.map((p) => p.id)).toContain(
+      "prompt-injection-guard",
+    );
     expect(config.guardrails?.output ?? []).toHaveLength(0);
   });
 });

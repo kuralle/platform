@@ -30,7 +30,7 @@ describe("useKb", () => {
     );
 
     const { result } = renderHook(
-      () => useKb({ workspaceId: "demo-workspace" }),
+      () => useKb({ workspaceId: "ws_test" }),
       { wrapper },
     );
 
@@ -49,7 +49,7 @@ describe("useKb", () => {
     );
 
     const { result } = renderHook(
-      () => useKb({ workspaceId: "demo-workspace" }),
+      () => useKb({ workspaceId: "ws_test" }),
       { wrapper },
     );
 

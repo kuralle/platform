@@ -9,7 +9,7 @@ describe("shardKeyForConversation", () => {
 
   it("spreads ids uniformly across 16 shards", () => {
     const buckets = new Array<number>(16).fill(0);
-    for (let i = 0; i < 1000; i += 1) {
+    for (let i = 0; i < 5000; i += 1) {
       const key = shardKeyForConversation(crypto.randomUUID());
       const shard = Number(key.replace("turns-shard-", ""));
       buckets[shard] += 1;

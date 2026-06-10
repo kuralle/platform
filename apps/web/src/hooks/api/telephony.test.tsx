@@ -30,7 +30,7 @@ describe("useTelephony", () => {
     );
 
     const { result } = renderHook(
-      () => useTelephony({ workspaceId: "demo-workspace" }),
+      () => useTelephony({ workspaceId: "ws_test" }),
       { wrapper },
     );
 
@@ -48,7 +48,7 @@ describe("useTelephony", () => {
     );
 
     const { result } = renderHook(
-      () => useTelephony({ workspaceId: "demo-workspace" }),
+      () => useTelephony({ workspaceId: "ws_test" }),
       { wrapper },
     );
 

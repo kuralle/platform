@@ -6,7 +6,7 @@
     "start": "bun run run.ts"
   },
   "dependencies": {
-    "@kuralle-agents/core": "^0.5.0",
+    "@kuralle-agents/core": "^0.8.5",
     "@ai-sdk/openai": "^3.0.0",
     "ai": "^6.0.0",
     "dotenv": "catalog:",

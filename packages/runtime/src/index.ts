@@ -33,10 +33,19 @@ export {
   buildHarnessHooks,
   emitCallerTurn,
   messagingEventSchema,
+  createDbToolResolver,
+  createIrGuardrailProcessor,
+  buildGuardrailProcessors,
+  catalogToolToDefineTool,
+  inferProviderFromModelName,
 } from "./adapter/index.js";
 export type {
   AgentConfigOpts,
   HarnessHooksDeps,
   EmitCallerTurnDeps,
   MessagingEvent,
+  DbToolResolverOpts,
+  DbToolResolvers,
+  AdapterLogger,
+  GuardrailBuildResult,
 } from "./adapter/index.js";

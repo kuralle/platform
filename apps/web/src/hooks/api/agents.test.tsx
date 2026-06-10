@@ -4,7 +4,14 @@ import { http, HttpResponse } from "msw";
 import { beforeAll, afterAll, afterEach, describe, expect, it } from "vitest";
 
 import { server } from "@/test/msw-server";
-import { useAgents, useAgent, useAgentPublish, useAgentAutoSave, useAgentHistory } from "./agents";
+import {
+  useAgents,
+  useAgent,
+  useAgentPublish,
+  useAgentAutoSave,
+  useAgentHistory,
+  useCreateAgent,
+} from "./agents";
 
 const BASE_URL = "http://localhost:8787/rpc";
 
@@ -30,7 +37,7 @@ describe("useAgents", () => {
     );
 
     const { result } = renderHook(
-      () => useAgents({ workspaceId: "demo-workspace" }),
+      () => useAgents({ workspaceId: "ws_test" }),
       { wrapper },
     );
 
@@ -49,7 +56,7 @@ describe("useAgents", () => {
     );
 
     const { result } = renderHook(
-      () => useAgents({ workspaceId: "demo-workspace" }),
+      () => useAgents({ workspaceId: "ws_test" }),
       { wrapper },
     );
 
@@ -87,7 +94,7 @@ describe("useAgent", () => {
     );
 
     const { result } = renderHook(
-      () => useAgent({ workspaceId: "demo-workspace", agentId: "ag_a00" }),
+      () => useAgent({ workspaceId: "ws_test", agentId: "ag_a00" }),
       { wrapper },
     );
 
@@ -163,6 +170,31 @@ describe("useAgentAutoSave", () => {
       expect(result.current.isSuccess).toBe(true);
     });
     expect(result.current.data?.versionId).toBe("av_auto");
+  });
+});
+
+describe("useCreateAgent", () => {
+  it("creates an agent and returns agentId on success", async () => {
+    server.use(
+      http.post(`${BASE_URL}/agents/create`, async ({ request }) => {
+        const body = (await request.json()) as { json: { workspaceId: string } };
+        expect(body.json.workspaceId).toBe("ws_test");
+        return HttpResponse.json({
+          json: { agentId: "ag_new01" },
+        });
+      }),
+    );
+
+    const { result } = renderHook(() => useCreateAgent(), { wrapper });
+
+    await act(async () => {
+      result.current.mutate({ workspaceId: "ws_test" });
+    });
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+    expect(result.current.data?.agentId).toBe("ag_new01");
   });
 });
 

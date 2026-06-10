@@ -34,7 +34,7 @@ describe("useChannels", () => {
     );
 
     const { result } = renderHook(
-      () => useChannels({ workspaceId: "demo-workspace" }),
+      () => useChannels({ workspaceId: "ws_test" }),
       { wrapper },
     );
 
@@ -55,7 +55,7 @@ describe("useChannels", () => {
     );
 
     renderHook(
-      () => useChannels({ workspaceId: "demo-workspace", kind: "whatsapp" }),
+      () => useChannels({ workspaceId: "ws_test", kind: "whatsapp" }),
       { wrapper },
     );
 
@@ -63,7 +63,7 @@ describe("useChannels", () => {
       expect(receivedInput).toBeDefined();
     });
     expect(receivedInput).toMatchObject({
-      json: { workspaceId: "demo-workspace", kind: "whatsapp" },
+      json: { workspaceId: "ws_test", kind: "whatsapp" },
     });
   });
 
@@ -75,7 +75,7 @@ describe("useChannels", () => {
       ),
     );
     const { result } = renderHook(
-      () => useChannels({ workspaceId: "demo-workspace" }),
+      () => useChannels({ workspaceId: "ws_test" }),
       { wrapper },
     );
     await waitFor(() => {
@@ -95,7 +95,7 @@ describe("useChannelEndpoints", () => {
     const { result } = renderHook(
       () =>
         useChannelEndpoints({
-          workspaceId: "demo-workspace",
+          workspaceId: "ws_test",
           connectionId: "chc_1",
         }),
       { wrapper },
@@ -122,7 +122,7 @@ describe("useConnectMetaChannel", () => {
 
     await act(async () => {
       const res = await result.current.mutateAsync({
-        workspaceId: "demo-workspace",
+        workspaceId: "ws_test",
         provider: "meta-whatsapp-cloud",
         displayName: "Test",
       });
@@ -143,7 +143,7 @@ describe("useAttachEndpoint", () => {
 
     await act(async () => {
       const res = await result.current.mutateAsync({
-        workspaceId: "demo-workspace",
+        workspaceId: "ws_test",
         connectionId: "chc_1",
         phoneNumberId: "111",
         agentId: "ag_1",
@@ -167,7 +167,7 @@ describe("useDetachEndpoint", () => {
 
     await act(async () => {
       const res = await result.current.mutateAsync({
-        workspaceId: "demo-workspace",
+        workspaceId: "ws_test",
         endpointId: "che_to_release",
       });
       expect(res.released).toBe(true);

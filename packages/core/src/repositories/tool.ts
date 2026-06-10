@@ -109,6 +109,36 @@ export class ToolRepository {
     }, { ttlSeconds: 60 });
   }
 
+  async findByCatalogProviderAndExternalKey(
+    catalogProviderId: string,
+    externalToolKey: string,
+  ): Promise<Tool | null> {
+    const rows = await this.db
+      .select()
+      .from(schema.tools)
+      .where(
+        and(
+          eq(schema.tools.catalogProviderId, catalogProviderId),
+          eq(schema.tools.externalToolKey, externalToolKey),
+          eq(schema.tools.workspaceId, this.workspaceId),
+          isNull(schema.tools.deletedAt),
+        ),
+      )
+      .limit(1);
+
+    if (rows.length === 0) return null;
+    const row = rows[0]!;
+    if (row.workspaceId !== this.workspaceId) {
+      throw new WorkspaceScopeViolation(
+        "tool",
+        row.id,
+        this.workspaceId,
+        row.workspaceId ?? "<null>",
+      );
+    }
+    return toDomain(row);
+  }
+
   async findManyByWorkspace(opts?: {
     cursor?: string;
     limit?: number;

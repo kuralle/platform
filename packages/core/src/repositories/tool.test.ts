@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll, beforeEach, afterAll } from "vitest";
+import * as schema from "@kuralle/db/schema";
 import { ToolRepository } from "./tool.js";
 import { MemoryKvStore } from "@kuralle/platform/memory";
 import {
@@ -84,6 +85,31 @@ describe("ToolRepository", () => {
 
       const found = await repo.findById("t_update");
       expect(found!.name).toBe("new_name");
+    });
+  });
+
+  describe("findByCatalogProviderAndExternalKey", () => {
+    it("returns a catalog tool by provider and external key", async () => {
+      await db.insert(schema.toolCatalogProviders).values({
+        id: "tcp_crm",
+        workspaceId,
+        kind: "mcp-custom",
+        displayName: "CRM",
+        mcpServerUrl: "https://example.com/mcp",
+      });
+
+      await repo.insert({
+        id: "t_catalog_1",
+        name: "crm.get_customer",
+        kind: "mcp",
+        catalogProviderId: "tcp_crm",
+        externalToolKey: "get_customer",
+      });
+      const found = await repo.findByCatalogProviderAndExternalKey(
+        "tcp_crm",
+        "get_customer",
+      );
+      expect(found?.id).toBe("t_catalog_1");
     });
   });
 

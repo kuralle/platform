@@ -1,6 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 import type { DurableObjectState } from "@cloudflare/workers-types";
 
+vi.mock("./deps.js", () => ({
+  createMessagingDoDeps: vi.fn(() => ({
+    loadWorkingMemory: async () => null,
+    persistWorkingMemory: async () => {},
+    emitEvents: async () => {},
+  })),
+}));
+
 vi.mock("@kuralle-agents/cf-agent", () => {
   class KuralleAgent {
     messages: unknown[] = [];

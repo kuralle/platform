@@ -125,24 +125,111 @@ export function buildHarnessHooks(deps: HarnessHooksDeps): HarnessHooks {
 
   // Cache last assistant messageId for turn.end dedup
   let lastAssistantMessageId = "";
+  const textBuffers = new Map<string, string>();
+
+  async function emitAgentStart(agentId: string): Promise<void> {
+    currentTurnId = crypto.randomUUID();
+    didEmitAgentEnd = false;
+    await emit("agent.start", { agentId });
+  }
+
+  async function emitAgentEnd(
+    agentId: string,
+    success: boolean,
+    error?: string,
+  ): Promise<void> {
+    didEmitAgentEnd = true;
+    await emit("agent.end", {
+      agentId,
+      success,
+      ...(error ? { error } : {}),
+    });
+  }
+
+  async function emitAssistantTurnEnd(messageId: string, fullText: string): Promise<void> {
+    if (!fullText || messageId === lastAssistantMessageId) return;
+    lastAssistantMessageId = messageId;
+    await emit("turn.end", {
+      turnId: currentTurnId,
+      messageId,
+      fullText,
+      speaker: "assistant",
+    });
+  }
 
   const hooks: HarnessHooks = {
+    onStart: async (context: RunContext) => {
+      await emitAgentStart(context.agentId);
+    },
+
+    onStreamPart: async (
+      _context: RunContext,
+      part: Parameters<NonNullable<HarnessHooks["onStreamPart"]>>[1],
+    ) => {
+      switch (part.type) {
+        case "text-start":
+          textBuffers.set(part.id, "");
+          break;
+        case "text-delta":
+          textBuffers.set(part.id, (textBuffers.get(part.id) ?? "") + part.delta);
+          break;
+        case "text-end":
+          await emitAssistantTurnEnd(part.id, textBuffers.get(part.id) ?? "");
+          textBuffers.delete(part.id);
+          break;
+        case "tool-call":
+          await emit("tool.call", {
+            turnId: currentTurnId,
+            toolCallId: part.toolCallId ?? crypto.randomUUID(),
+            toolName: part.toolName,
+            args: part.args,
+          });
+          break;
+        case "tool-result": {
+          type ToolResultPayload = Extract<
+            MessagingEvent,
+            { kind: "tool.result" }
+          >["payload"];
+          const payload: ToolResultPayload = {
+            turnId: currentTurnId,
+            toolCallId: part.toolCallId ?? crypto.randomUUID(),
+            toolName: part.toolName,
+            success: true,
+          };
+          if (isFlowTransitionResult(part.result)) {
+            payload.extraction = {
+              targetNode: part.result.targetNode ?? "",
+              data: part.result.data ?? {},
+            };
+          }
+          await emit("tool.result", payload);
+          break;
+        }
+        case "handoff":
+          await emitAgentEnd(part.from, true);
+          await emitAgentStart(part.to);
+          break;
+        default:
+          break;
+      }
+    },
+
+    onError: async (context: RunContext, error: Error) => {
+      if (!didEmitAgentEnd) {
+        await emitAgentEnd(context.agentId, false, error.message);
+      }
+    },
+
     // FINDINGS: onAgentStart → agent.start event.
     // Lifecycle hook; 1 event per agent activation.
     onAgentStart: async (_context: RunContext, agentId: string) => {
-      currentTurnId = crypto.randomUUID();
-      didEmitAgentEnd = false;
-      await emit("agent.start", { agentId });
+      await emitAgentStart(agentId);
     },
 
     // FINDINGS: onAgentEnd → agent.end event.
     // Lifecycle hook; 1 event per agent deactivation.
     onAgentEnd: async (_context: RunContext, agentId: string) => {
-      didEmitAgentEnd = true;
-      await emit("agent.end", {
-        agentId,
-        success: true,
-      });
+      await emitAgentEnd(agentId, true);
     },
 
     // FINDINGS: onStepStart → step.start event.
@@ -253,28 +340,12 @@ export function buildHarnessHooks(deps: HarnessHooksDeps): HarnessHooks {
           ? message.id
           : undefined;
       if (!msgId) return;
-      if (msgId === lastAssistantMessageId) return;
-      lastAssistantMessageId = msgId;
-
-      await emit("turn.end", {
-        turnId: currentTurnId,
-        messageId: msgId,
-        fullText: content,
-        speaker: "assistant",
-      });
+      await emitAssistantTurnEnd(msgId, content);
     },
 
-    // FINDINGS: onEnd captures session-level completion with any errors.
-    // This fires when the full stream call finishes — per-turn text is
-    // captured by onMessage above.
-    onEnd: async (context: RunContext, result) => {
-      if (!result.success && result.error && !didEmitAgentEnd) {
-        didEmitAgentEnd = true;
-        await emit("agent.end", {
-          agentId: context.agentId,
-          success: false,
-          error: result.error.message,
-        });
+    onEnd: async (context: RunContext) => {
+      if (!didEmitAgentEnd) {
+        await emitAgentEnd(context.agentId, true);
       }
     },
   };

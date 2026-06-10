@@ -1,11 +1,11 @@
 import type { AgentIR } from "@kuralle/core";
-import { collect } from "@kuralle-agents/core";
-import type { AgentConfig, ToolSet, Flow } from "@kuralle-agents/core";
-import type {
-  InputProcessor,
-  OutputProcessor,
-} from "@kuralle-agents/core/types";
+import { collect, createPromptInjectionGuard } from "@kuralle-agents/core";
+import type { AgentConfig, AnyTool, Flow } from "@kuralle-agents/core";
 import { z } from "zod";
+import { buildGuardrailProcessors } from "./guardrails.js";
+import type { AdapterLogger } from "./logger.js";
+import { consoleAdapterLogger } from "./logger.js";
+import { createRedactionPatternProcessors } from "./redaction-patterns.js";
 
 /** Extracted from `AgentConfig.model` to avoid importing from `ai` directly. */
 type LanguageModel = NonNullable<AgentConfig["model"]>;
@@ -31,7 +31,7 @@ export interface AgentConfigOpts {
    * Resolves a tool ID from `ir.toolAttachments` to an AI SDK tool subset.
    * The caller fetches tool definitions from the DB/registry.
    */
-  resolveTool?: (toolId: string) => Promise<ToolSet>;
+  resolveTool?: (toolId: string) => Promise<Record<string, AnyTool>>;
 
   /**
    * Resolves an integration tool-catalog-provider ID to its tools.
@@ -40,7 +40,7 @@ export interface AgentConfigOpts {
   resolveIntegrationTools?: (
     tcpId: string,
     selectedTools: string[],
-  ) => Promise<ToolSet>;
+  ) => Promise<Record<string, AnyTool>>;
 
   /**
    * Resolves an MCP client ID's allowed-tools list to actual tool definitions.
@@ -48,7 +48,7 @@ export interface AgentConfigOpts {
   resolveMcpTools?: (
     clientId: string,
     allowedTools: string[],
-  ) => Promise<ToolSet>;
+  ) => Promise<Record<string, AnyTool>>;
 
   /**
    * Max turns for this agent execution. Defaults to 50 if unset.
@@ -66,51 +66,9 @@ export interface AgentConfigOpts {
    * Separate from Kuralle's own loop `maxSteps`. Defaults to 5 if unset.
    */
   toolMaxSteps?: number;
-}
 
-/**
- * Builds guardrail processors from the IR guardrail graph.
- *
- * Input-direction guardrails become `InputProcessor`s; output-direction
- * guardrails become `OutputProcessor`s. "both" direction produces both.
- * This mirrors the guardrail evaluation model from the IR.
- *
- * @internal — not exported; the public API is `irToAgentConfig`.
- */
-function buildGuardrailProcessors(ir: AgentIR): {
-  inputProcessors: InputProcessor[];
-  outputProcessors: OutputProcessor[];
-} {
-  const inputProcessors: InputProcessor[] = [];
-  const outputProcessors: OutputProcessor[] = [];
-
-  for (const node of ir.guardrailGraph.nodes) {
-    if (!node.enabled) continue;
-
-    if (node.direction === "input" || node.direction === "both") {
-      inputProcessors.push({
-        id: node.id,
-        name: node.name,
-        description: `Guardrail: ${node.name} (${node.direction})`,
-        process: async ({ input: _input }) => {
-          return { action: "allow" as const };
-        },
-      });
-    }
-
-    if (node.direction === "output" || node.direction === "both") {
-      outputProcessors.push({
-        id: node.id,
-        name: node.name,
-        description: `Guardrail: ${node.name} (${node.direction})`,
-        process: async ({ text: _text }) => {
-          return { action: "allow" as const };
-        },
-      });
-    }
-  }
-
-  return { inputProcessors, outputProcessors };
+  /** Optional logger for adapter warnings (guard/tool resolution). */
+  logger?: AdapterLogger;
 }
 
 /**
@@ -182,7 +140,7 @@ export async function irToAgentConfig(
   );
 
   // ── resolve tools (§5:353, §5:355, §5:356, §5:357) ─────────────
-  const tools: ToolSet = {};
+  const tools: Record<string, AnyTool> = {};
 
   // §5:353 — toolAttachments: native tools
   if (opts.resolveTool) {
@@ -218,9 +176,29 @@ export async function irToAgentConfig(
   // (the subagent itself is resolved as a tool by resolveTool if needed)
   const handoffs = Object.keys(ir.subagentAttachments);
 
-  // ── guardrail processors (§5:359) ───────────────────────────────
-  const { inputProcessors, outputProcessors } =
-    buildGuardrailProcessors(ir);
+  const logger = opts.logger ?? consoleAdapterLogger;
+
+  // ── guardrail processors (§5:359) + compliance floor (§5:364) ─
+  const {
+    inputProcessors: irInputProcessors,
+    outputProcessors: irOutputProcessors,
+    validationCapabilities,
+  } = buildGuardrailProcessors(ir, { resolveModel: opts.resolveModel, logger });
+
+  const redaction = createRedactionPatternProcessors(
+    ir.complianceConfig.redactionPatterns,
+    logger,
+  );
+
+  const inputProcessors = [
+    createPromptInjectionGuard(),
+    ...redaction.inputProcessors,
+    ...irInputProcessors,
+  ];
+  const outputProcessors = [
+    ...redaction.outputProcessors,
+    ...irOutputProcessors,
+  ];
 
   // ── request-context collect flow (§5:365) ───────────────────────
   const requestContextFlow = buildRequestContextFlow(ir);
@@ -231,6 +209,7 @@ export async function irToAgentConfig(
   const hasInputProcs = inputProcessors.length > 0;
   const hasOutputProcs = outputProcessors.length > 0;
   const hasGuardrails = hasInputProcs || hasOutputProcs;
+  const hasValidate = validationCapabilities.length > 0;
 
   const config: AgentConfig = {
     id: opts.agentId, // from caller (DB row id)
@@ -252,6 +231,7 @@ export async function irToAgentConfig(
           output: hasOutputProcs ? outputProcessors : undefined,
         }
       : undefined,
+    validate: hasValidate ? validationCapabilities : undefined,
   };
 
   return config;

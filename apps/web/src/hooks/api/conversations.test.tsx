@@ -34,7 +34,7 @@ describe("useConversations", () => {
     );
 
     const { result } = renderHook(
-      () => useConversations({ workspaceId: "demo-workspace" }),
+      () => useConversations({ workspaceId: "ws_test" }),
       { wrapper },
     );
 
@@ -53,7 +53,7 @@ describe("useConversations", () => {
     );
 
     const { result } = renderHook(
-      () => useConversations({ workspaceId: "demo-workspace" }),
+      () => useConversations({ workspaceId: "ws_test" }),
       { wrapper },
     );
 
@@ -75,7 +75,7 @@ describe("useConversation", () => {
           json: {
             conversation: {
               id: "cv_1",
-              workspaceId: "demo-workspace",
+              workspaceId: "ws_test",
               agentId: null,
               agentVersionId: null,
               bundleHash: null,
@@ -111,7 +111,7 @@ describe("useConversation", () => {
     const { result } = renderHook(
       () =>
         useConversation({
-          workspaceId: "demo-workspace",
+          workspaceId: "ws_test",
           conversationId: "cv_1",
         }),
       { wrapper },
@@ -135,7 +135,7 @@ describe("useConversation", () => {
     const { result } = renderHook(
       () =>
         useConversation({
-          workspaceId: "demo-workspace",
+          workspaceId: "ws_test",
           conversationId: "cv_1",
         }),
       { wrapper },
@@ -190,7 +190,7 @@ describe("useConversationLive", () => {
     const { result } = renderHook(
       () =>
         useConversationLive({
-          workspaceId: "demo-workspace",
+          workspaceId: "ws_test",
           conversationId: "cv_1",
           initialTurns: [
             {

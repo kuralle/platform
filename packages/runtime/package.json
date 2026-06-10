@@ -11,12 +11,13 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@kuralle-agents/core": "^0.5.0",
-    "@kuralle-agents/messaging": "^0.5.0",
-    "@kuralle-agents/messaging-meta": "^0.5.0",
+    "@kuralle-agents/core": "^0.8.5",
+    "@kuralle-agents/messaging": "^0.8.5",
+    "@kuralle-agents/messaging-meta": "^0.8.5",
     "@kuralle/core": "workspace:*",
     "@kuralle/db": "workspace:*",
     "@kuralle/platform": "workspace:*",
+    "ai": "^6.0.0",
     "drizzle-orm": "catalog:",
     "zod": "catalog:"
   },
