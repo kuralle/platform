@@ -1,0 +1,8 @@
+{
+  "name": "kuralle-web",
+  "compatibility_date": "2026-05-03",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}

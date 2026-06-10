@@ -64,6 +64,59 @@ function buildDlqInsert(info: {
   };
 }
 
+
+/**
+ * Project ONE messaging event (conversation lookup + transactional projection
+ * + SLO-lag recording). Shared by the in-process MessageQueue consumer below
+ * and the Cloudflare Queues consumer in apps/server.
+ * Throws on projection/transaction errors (caller decides retry semantics).
+ */
+export async function projectMessagingEventOnce(
+  db: AnyPgDb,
+  event: MessagingEvent,
+): Promise<"committed" | "conversation-not-found"> {
+  const conversation = await db
+    .select({
+      workspaceId: schema.conversations.workspaceId,
+      agentId: schema.conversations.agentId,
+      channelEndpointId: schema.conversations.channelEndpointId,
+    })
+    .from(schema.conversations)
+    .where(eq(schema.conversations.id, event.conversationId))
+    .limit(1);
+
+  if (conversation.length === 0) {
+    return "conversation-not-found";
+  }
+
+  const ctx = conversation[0]!;
+  await db.transaction(async (tx) => {
+    await projectConversationEvent(tx, event, ctx);
+    const observedMs = Date.now() - event.occurredAt.getTime();
+    if (observedMs > SLO_PROJECTOR_LAG_THRESHOLD_MS) {
+      await tx
+        .insert(schema.usageEvents)
+        .values({
+          id: `ue_slo_${event.conversationId}_${event.sequenceNumber}`,
+          workspaceId: ctx.workspaceId,
+          agentId: ctx.agentId,
+          agentVersionId: null,
+          conversationId: event.conversationId,
+          kind: "slo_violation",
+          quantity: observedMs,
+          payload: {
+            slo: SLO_PROJECTOR_LAG_NAME,
+            observedMs,
+            thresholdMs: SLO_PROJECTOR_LAG_THRESHOLD_MS,
+          },
+          occurredAt: new Date(),
+        })
+        .onConflictDoNothing();
+    }
+  });
+  return "committed";
+}
+
 export function runProjectorWorker(opts: RunProjectorWorkerOpts): ConsumerHandle {
   const handles: ConsumerHandle[] = [];
   const shardKeys = opts.shardKeys ?? defaultShardKeys();
@@ -83,54 +136,19 @@ export function runProjectorWorker(opts: RunProjectorWorkerOpts): ConsumerHandle
     const event = parsed.data;
     opts.onConsume?.(event);
 
-    const conversation = await opts.db
-      .select({
-        workspaceId: schema.conversations.workspaceId,
-        agentId: schema.conversations.agentId,
-        channelEndpointId: schema.conversations.channelEndpointId,
-      })
-      .from(schema.conversations)
-      .where(eq(schema.conversations.id, event.conversationId))
-      .limit(1);
-
-    if (conversation.length === 0) {
-      const requeue = msg.attempt < 2;
-      logProjectorError({
-        messageId: `${event.conversationId}:${event.sequenceNumber}`,
-        shardId,
-        attempt: msg.attempt,
-        error: "conversation-not-found",
-      });
-      await msg.nack({ requeue, reason: "conversation-not-found" });
-      return;
-    }
-
-    const ctx = conversation[0]!;
     try {
-      await opts.db.transaction(async (tx) => {
-        await projectConversationEvent(tx, event, ctx);
-        const observedMs = Date.now() - event.occurredAt.getTime();
-        if (observedMs > SLO_PROJECTOR_LAG_THRESHOLD_MS) {
-          await tx
-            .insert(schema.usageEvents)
-            .values({
-              id: `ue_slo_${event.conversationId}_${event.sequenceNumber}`,
-              workspaceId: ctx.workspaceId,
-              agentId: ctx.agentId,
-              agentVersionId: null,
-              conversationId: event.conversationId,
-              kind: "slo_violation",
-              quantity: observedMs,
-              payload: {
-                slo: SLO_PROJECTOR_LAG_NAME,
-                observedMs,
-                thresholdMs: SLO_PROJECTOR_LAG_THRESHOLD_MS,
-              },
-              occurredAt: new Date(),
-            })
-            .onConflictDoNothing();
-        }
-      });
+      const result = await projectMessagingEventOnce(opts.db, event);
+      if (result === "conversation-not-found") {
+        const requeue = msg.attempt < 2;
+        logProjectorError({
+          messageId: `${event.conversationId}:${event.sequenceNumber}`,
+          shardId,
+          attempt: msg.attempt,
+          error: "conversation-not-found",
+        });
+        await msg.nack({ requeue, reason: "conversation-not-found" });
+        return;
+      }
       await msg.ack();
       opts.onCommit?.(event);
     } catch (err) {

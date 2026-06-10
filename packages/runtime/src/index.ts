@@ -2,7 +2,7 @@ export { projectAgent } from "./projector/agent.js";
 export type { AgentProjectionTx, ProjectionCounts } from "./projector/agent.js";
 export { projectConversationEvent } from "./projector/conversation.js";
 export type { RuntimeTx, ProjectionContext } from "./projector/conversation.js";
-export { runProjectorWorker, defaultShardKeys } from "./projector/projector-worker.js";
+export { runProjectorWorker, defaultShardKeys, projectMessagingEventOnce } from "./projector/projector-worker.js";
 export {
   recordSloViolation,
   SLO_PUBLISH_THRESHOLD_MS,

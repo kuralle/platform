@@ -16,6 +16,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { createMetaWebhookApp } from "./webhooks/meta.js";
+import { handleTurnsQueueBatch } from "./queue-consumer.js";
 import { MessagingDO } from "./durable-objects/MessagingDO.js";
 import { logServerError, logServerHttp } from "./logger.js";
 import { requestIdMiddleware } from "./middleware/request-id.js";
@@ -122,5 +123,9 @@ app.get("/health", async (c) => {
   return c.json(status, status.db === "ok" ? 200 : 503);
 });
 
-export default app;
+// Module worker export: HTTP via Hono, queue batches via the projector consumer.
+export default {
+  fetch: app.fetch,
+  queue: handleTurnsQueueBatch,
+};
 export { MessagingDO };

@@ -51,13 +51,39 @@
       { "binding": "TURNS_SHARD_13", "queue": "turns-shard-13" },
       { "binding": "TURNS_SHARD_14", "queue": "turns-shard-14" },
       { "binding": "TURNS_SHARD_15", "queue": "turns-shard-15" }
+    ],
+    "consumers": [
+      { "queue": "turns-shard-0", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-1", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-2", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-3", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-4", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-5", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-6", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-7", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-8", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-9", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-10", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-11", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-12", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-13", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-14", "max_batch_size": 25, "max_retries": 3 },
+      { "queue": "turns-shard-15", "max_batch_size": 25, "max_retries": 3 }
     ]
   },
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "4a752e3a3e424949a0b0bc57c1b27c78"
+    }
+  ],
   "vars": {
     "META_APP_ID": "",
     "META_VERIFY_TOKEN": "",
     "META_PHONE_NUMBER_ID": "",
-    "PUBLIC_BASE_URL": "http://localhost:8787"
+    "PUBLIC_BASE_URL": "https://kuralle-server.mithushancj.workers.dev",
+    "BETTER_AUTH_URL": "https://kuralle-server.mithushancj.workers.dev",
+    "CORS_ORIGIN": "https://kuralle-web.mithushancj.workers.dev"
   }
 }
 
