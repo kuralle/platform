@@ -1,6 +1,6 @@
 import type { AgentIR } from "@kuralle/core";
 import { agentIRSchema } from "@kuralle/core";
-import { createDb, type Db } from "@kuralle/db";
+import { createDb, createHyperdriveDb, type Db, type HyperdriveBinding } from "@kuralle/db";
 import {
   agentVersions,
   agents,
@@ -225,12 +225,19 @@ async function withDb<T>(
   env: MessagingDoEnv,
   fn: (db: Db) => Promise<T>,
 ): Promise<T> {
-  const connectionString = getDatabaseUrl(env);
-  if (!connectionString) {
-    throw new Error("DATABASE_URL is not configured for MessagingDO database access");
+  const hyperdrive = (env as { HYPERDRIVE?: HyperdriveBinding }).HYPERDRIVE;
+  let handle;
+  if (hyperdrive?.connectionString) {
+    handle = createHyperdriveDb(hyperdrive);
+  } else {
+    const connectionString = getDatabaseUrl(env);
+    if (!connectionString) {
+      throw new Error("DATABASE_URL is not configured for MessagingDO database access");
+    }
+    handle = createDb(connectionString);
   }
-  const { db, pool } = createDb(connectionString);
-  pool.on("error", () => {});
+  const { db, pool } = handle;
+  (pool as { on?: (e: string, f: () => void) => void }).on?.("error", () => {});
   try {
     return await fn(db);
   } finally {

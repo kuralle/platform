@@ -2,7 +2,7 @@ import { createContext } from "@kuralle/api/context";
 import { appRouter } from "@kuralle/api/routers/index";
 import { createAuth } from "@kuralle/auth";
 import { healthCheck } from "@kuralle/core";
-import { createDb, type Db } from "@kuralle/db";
+import { createDbFromEnv, type Db, type HyperdriveBinding } from "@kuralle/db";
 import { env } from "@kuralle/env/server";
 import { MemoryKvStore } from "@kuralle/platform/memory";
 import { getEnvSync } from "./env.js";
@@ -38,11 +38,14 @@ app.use(
   }),
 );
 
-// Per-request neon-serverless Pool. WebSocket connections cannot outlive a
-// single request handler, so the Pool is created here and disposed via
-// `executionCtx.waitUntil(pool.end())` after the response is sent.
+// Per-request DB handle. With the HYPERDRIVE binding (deployed Workers) this
+// is a pg connection through Cloudflare's pooler; otherwise a direct
+// neon-serverless Pool. Either way the connection cannot outlive a single
+// request handler — created here, disposed via `executionCtx.waitUntil`.
 app.use("/*", async (c, next) => {
-  const { db, pool } = createDb();
+  const { db, pool } = createDbFromEnv(
+    c.env as { HYPERDRIVE?: HyperdriveBinding } | undefined,
+  );
   c.set("db", db);
   c.set("pool", pool);
   await next();

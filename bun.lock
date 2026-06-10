@@ -201,11 +201,12 @@
         "@neondatabase/serverless": "catalog:",
         "dotenv": "catalog:",
         "drizzle-orm": "catalog:",
+        "pg": "^8.13.0",
         "zod": "catalog:",
       },
       "devDependencies": {
         "@kuralle/config": "workspace:*",
-        "@types/pg": "^8.20.0",
+        "@types/pg": "^8.11.0",
         "drizzle-kit": "catalog:",
         "pg": "catalog:",
         "typescript": "catalog:",
@@ -256,6 +257,9 @@
       "name": "@kuralle/runtime",
       "version": "0.0.1",
       "dependencies": {
+        "@ai-sdk/anthropic": "^3.0.0",
+        "@ai-sdk/google": "^3.0.0",
+        "@ai-sdk/openai": "^3.0.0",
         "@kuralle-agents/core": "^0.9.0",
         "@kuralle-agents/messaging": "^0.9.0",
         "@kuralle-agents/messaging-meta": "^0.9.0",

@@ -23,11 +23,12 @@
     "@neondatabase/serverless": "catalog:",
     "dotenv": "catalog:",
     "drizzle-orm": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "pg": "^8.13.0"
   },
   "devDependencies": {
     "@kuralle/config": "workspace:*",
-    "@types/pg": "^8.20.0",
+    "@types/pg": "^8.11.0",
     "drizzle-kit": "catalog:",
     "pg": "catalog:",
     "typescript": "catalog:"
