@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:slo": "vitest run --config vitest.slo.config.ts",
     "test:slo:do": "vitest run --config vitest.slo.do.config.ts",
+    "test:launch-gate": "vitest run --config vitest.slo.do.config.ts src/__tests__/launch-gate.e2e.test.ts",
     "test:wrangler": "vitest run src/durable-objects/MessagingDO.test.ts"
   },
   "dependencies": {

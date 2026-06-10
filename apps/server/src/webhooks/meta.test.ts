@@ -7,7 +7,7 @@ import type { TestDb } from "@kuralle/core/test-utils";
 import { agents, channelConnections, channelEndpoints } from "@kuralle/db/schema";
 import { messagingThreads } from "@kuralle/db/schema";
 import { createMetaWebhookApp } from "./meta.js";
-import { metaWebhookInbound } from "./meta-fixtures.js";
+import { metaWebhookButtonReply, metaWebhookInbound } from "./meta-fixtures.js";
 
 const WORKSPACE_ID = "org_meta_test";
 
@@ -115,6 +115,39 @@ describe("meta webhook", () => {
     const rows = await db.select().from(messagingThreads);
     expect(rows).toHaveLength(1);
     expect(rows[0]?.threadKey).toBe("whatsapp:94770000000");
+  });
+
+  it("POST button_reply forwards selection title as inbound text", async () => {
+    let inboundText = "";
+    const inbound = metaWebhookButtonReply({
+      appSecret: "test_secret",
+      phoneNumberId: "111111",
+      buttonTitle: "Option A",
+    });
+    const res = await app.request(
+      "http://localhost/webhooks/meta",
+      {
+        method: "POST",
+        body: inbound.rawBody,
+        headers: { "X-Hub-Signature-256": inbound.signature, "content-type": "application/json" },
+      },
+      {
+        META_VERIFY_TOKEN: "verify",
+        META_APP_SECRET: "test_secret",
+        MESSAGING_DO: {
+          idFromName: (name: string) => name,
+          get: () => ({
+            fetch: async (request: Request) => {
+              const body = (await request.json()) as { text?: string };
+              inboundText = body.text ?? "";
+              return new Response("OK");
+            },
+          }),
+        },
+      },
+    );
+    expect(res.status).toBe(200);
+    expect(inboundText).toBe("Option A");
   });
 
   it("routes same wa_id to the same durable object id", async () => {

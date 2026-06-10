@@ -3,7 +3,11 @@ import { and, eq, isNull } from "drizzle-orm";
 import { withWorkspace } from "@kuralle/core";
 import type { RepoDb } from "@kuralle/core";
 import * as schema from "@kuralle/db/schema";
-import { normalizeWebhook, verifySignature } from "@kuralle-agents/messaging-meta";
+import {
+  normalizeWebhook,
+  verifySignature,
+  type NormalizedMessage,
+} from "@kuralle-agents/messaging-meta";
 import type { DurableObjectNamespace } from "@cloudflare/workers-types";
 
 interface MetaWebhookBindings {
@@ -28,6 +32,7 @@ interface NormalizedInboundMessage {
   from: string;
   phoneNumberId: string;
   text: { body: string } | null;
+  interactive?: NormalizedMessage["interactive"];
 }
 
 function internalRequestForInboundMessage(body: Record<string, unknown>): Request {
@@ -113,7 +118,7 @@ export function createMetaWebhookApp(deps: MetaWebhookDeps) {
           conversationId,
           workspaceId: endpoint.workspaceId,
           channelEndpointId: endpoint.id,
-          text: message.text?.body ?? "",
+          text: inboundTextFromMessage(message),
           messageId: message.id,
           phoneNumberId: message.phoneNumberId,
         }),
@@ -124,6 +129,21 @@ export function createMetaWebhookApp(deps: MetaWebhookDeps) {
   });
 
   return app;
+}
+
+function inboundTextFromMessage(message: NormalizedMessage | NormalizedInboundMessage): string {
+  if (message.text?.body) {
+    return message.text.body;
+  }
+  const interactive =
+    "interactive" in message ? message.interactive : undefined;
+  if (interactive?.button_reply) {
+    return interactive.button_reply.title ?? interactive.button_reply.id;
+  }
+  if (interactive?.list_reply) {
+    return interactive.list_reply.title ?? interactive.list_reply.id;
+  }
+  return "";
 }
 
 function extractInboundMessages(payload: unknown): NormalizedInboundMessage[] {
@@ -156,6 +176,14 @@ function extractInboundMessages(payload: unknown): NormalizedInboundMessage[] {
           typeof message.text.body === "string"
             ? { body: message.text.body }
             : null;
+        const interactive =
+          typeof message === "object" &&
+          message !== null &&
+          "interactive" in message &&
+          typeof message.interactive === "object" &&
+          message.interactive !== null
+            ? (message.interactive as NormalizedMessage["interactive"])
+            : undefined;
         if (
           typeof message === "object" &&
           message !== null &&
@@ -167,6 +195,7 @@ function extractInboundMessages(payload: unknown): NormalizedInboundMessage[] {
             from: message.from,
             phoneNumberId,
             text,
+            interactive,
           });
         }
       }

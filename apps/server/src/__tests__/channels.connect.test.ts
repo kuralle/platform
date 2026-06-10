@@ -122,7 +122,7 @@ describe("channels router round-trip", () => {
       id: AGENT_ID,
       workspaceId: WORKSPACE_ID,
       status: "published",
-      activeVersionId: AGENT_VERSION_ID,
+      activeVersionId: null,
     });
     await db.insert(agentVersions).values({
       id: AGENT_VERSION_ID,
@@ -133,6 +133,10 @@ describe("channels router round-trip", () => {
       publishedAt: new Date(),
       snapshot: { name: "Fixture Agent" },
     });
+    await db
+      .update(agents)
+      .set({ activeVersionId: AGENT_VERSION_ID })
+      .where(eq(agents.id, AGENT_ID));
     ctx = makeTestContext(db, kvStore, USER_ID, {
       META_APP_ID: "test_app",
       META_APP_SECRET: "test_secret",

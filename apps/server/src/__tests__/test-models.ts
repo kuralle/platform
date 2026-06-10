@@ -107,6 +107,75 @@ export function createPongTestModel(): AgentConfigOpts["resolveModel"] {
     });
 }
 
+function extractLastUserMessage(options: { prompt?: unknown }): string {
+  const prompt = options.prompt;
+  if (!Array.isArray(prompt)) return "";
+  for (let i = prompt.length - 1; i >= 0; i--) {
+    const msg = prompt[i];
+    if (
+      msg &&
+      typeof msg === "object" &&
+      "role" in msg &&
+      (msg as { role: string }).role === "user"
+    ) {
+      const content = (msg as { content?: unknown }).content;
+      if (typeof content === "string") return content;
+      if (Array.isArray(content)) {
+        return content
+          .filter(
+            (part): part is { type: "text"; text: string } =>
+              typeof part === "object" &&
+              part !== null &&
+              (part as { type?: string }).type === "text" &&
+              typeof (part as { text?: string }).text === "string",
+          )
+          .map((part) => part.text)
+          .join("");
+      }
+    }
+  }
+  return "";
+}
+
+export function createLaunchGateTestModel(
+  getActiveVersion: () => "v1" | "v2",
+): AgentConfigOpts["resolveModel"] {
+  return (_provider, modelName) => {
+    const finishUsage = { inputTokens: 1, outputTokens: 1, totalTokens: 2 };
+
+    const resolveReply = (options: { prompt?: unknown }): string => {
+      if (getActiveVersion() === "v2") {
+        return "REPLY_V2";
+      }
+      const userText = extractLastUserMessage(options);
+      if (userText === "Option A" || userText.includes("Option A")) {
+        return "ACK_OPTION_A";
+      }
+      return "REPLY_V1";
+    };
+
+    return {
+      specificationVersion: "v2",
+      provider: "test",
+      modelId: modelName,
+      supportedUrls: {},
+      async doGenerate(options) {
+        const text = resolveReply(options);
+        return {
+          content: [{ type: "text", text }],
+          finishReason: "stop",
+          usage: finishUsage,
+          warnings: [],
+        };
+      },
+      async doStream(options) {
+        const text = resolveReply(options);
+        return { stream: buildStream({ kind: "text", text }) };
+      },
+    } as LanguageModel;
+  };
+}
+
 export function createHandoffTestModel(
   handoffTargetId: string,
   subagentModelName = "pong-subagent",

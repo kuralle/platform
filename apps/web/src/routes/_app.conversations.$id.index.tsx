@@ -11,7 +11,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { ChevronDown, ChevronLeft, Pause, Play, Wrench } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { formatRelative, formatUsd } from "@/lib/format";
+import { formatRelative, formatUsd, turnCreatedAtIso } from "@/lib/format";
 import { useActiveWorkspaceId } from "@/contexts/workspace";
 import {
   useConversation,
@@ -46,10 +46,10 @@ function ConversationDetailRoute() {
       speaker: typeof turn.speaker === "string" ? turn.speaker : "agent",
       timestampSec:
         typeof turn.timestampSec === "number" ? turn.timestampSec : 0,
-      createdAt:
-        typeof turn.createdAt === "string"
-          ? turn.createdAt
-          : new Date().toISOString(),
+      createdAt: turnCreatedAtIso({
+        createdAt: turn.createdAt,
+        timestampSec: turn.timestampSec,
+      }),
       text: typeof turn.text === "string" ? turn.text : "",
       evalVerdict:
         typeof turn.evalVerdict === "string" ? turn.evalVerdict : null,

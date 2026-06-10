@@ -44,6 +44,23 @@ export function formatDuration(sec: number) {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
+/** Resolve a turn's display timestamp from createdAt or unix-epoch timestampSec. */
+export function turnCreatedAtIso(turn: {
+  createdAt?: unknown;
+  timestampSec?: unknown;
+}): string {
+  if (turn.createdAt instanceof Date) {
+    return turn.createdAt.toISOString();
+  }
+  if (typeof turn.createdAt === "string" && turn.createdAt.length > 0) {
+    return turn.createdAt;
+  }
+  if (typeof turn.timestampSec === "number" && turn.timestampSec > 0) {
+    return new Date(turn.timestampSec * 1000).toISOString();
+  }
+  return new Date().toISOString();
+}
+
 export function formatRelative(iso: string | null | undefined): string {
   if (iso == null) return DASH;
   const ms = Date.now() - new Date(iso).getTime();

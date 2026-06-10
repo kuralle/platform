@@ -10,6 +10,7 @@
     "check-types": "vite build && tsc --noEmit",
     "dev:bare": "vite dev",
     "test": "vitest run",
+    "test:f2-timestamps": "vitest run src/test/f2-timestamps.test.tsx",
     "test:watch": "vitest"
   },
   "dependencies": {

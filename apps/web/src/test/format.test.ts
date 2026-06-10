@@ -1,6 +1,13 @@
 import { describe, it, expect } from "vitest";
 
-import { formatCompact, formatDuration, formatPct, formatRelative, formatUsd } from "@/lib/format";
+import {
+  formatCompact,
+  formatDuration,
+  formatPct,
+  formatRelative,
+  formatUsd,
+  turnCreatedAtIso,
+} from "@/lib/format";
 
 describe("format helpers", () => {
   it("formats USD without cents by default", () => {
@@ -31,6 +38,11 @@ describe("format helpers", () => {
     expect(formatRelative(new Date(Date.now() - 5 * 60_000).toISOString())).toBe("5m ago");
     expect(formatRelative(new Date(Date.now() - 2 * 3_600_000).toISOString())).toBe("2h ago");
     expect(formatRelative(new Date(Date.now() - 3 * 86_400_000).toISOString())).toBe("3d ago");
+  });
+
+  it("turnCreatedAtIso falls back to timestampSec unix epoch", () => {
+    const sec = Math.floor((Date.now() - 10 * 60_000) / 1000);
+    expect(formatRelative(turnCreatedAtIso({ timestampSec: sec }))).toBe("10m ago");
   });
 
   describe("guard against undefined / null / NaN", () => {

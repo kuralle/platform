@@ -22,7 +22,10 @@ export default defineConfig({
     }),
   ],
   test: {
-    include: ["src/__tests__/slo-do-*.test.ts"],
+    include: [
+      "src/__tests__/slo-do-*.test.ts",
+      "src/__tests__/launch-gate.e2e.test.ts",
+    ],
     testTimeout: 60_000,
   },
 });

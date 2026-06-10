@@ -30,6 +30,7 @@ export default defineConfig({
       "**/dist/**",
       "**/slo-*.test.ts",
       "**/*slo.test.ts",
+      "**/launch-gate.e2e.test.ts",
     ],
   },
 });
