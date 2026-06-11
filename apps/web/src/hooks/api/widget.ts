@@ -20,3 +20,18 @@ export function useUpdateWidgetConfig() {
     },
   });
 }
+
+export function useEnableWidget() {
+  const qc = useQueryClient();
+  return useMutation({
+    ...$api.widget.enable.mutationOptions(),
+    onSuccess: (_data, variables) => {
+      void qc.invalidateQueries({
+        queryKey: $api.widget.get.queryKey({ input: { workspaceId: variables.workspaceId } }),
+      });
+      void qc.invalidateQueries({
+        queryKey: ["channels", "endpoints", "listByKind"],
+      });
+    },
+  });
+}
