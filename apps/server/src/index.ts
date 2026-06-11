@@ -16,6 +16,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { createMetaWebhookApp } from "./webhooks/meta.js";
+import { createWidgetIngressApp } from "./widget/ingress.js";
 import { handleTurnsQueueBatch } from "./queue-consumer.js";
 import { MessagingDO } from "./durable-objects/MessagingDO.js";
 import { logServerError, logServerHttp } from "./logger.js";
@@ -57,6 +58,7 @@ app.on(["POST", "GET"], "/api/auth/*", (c) =>
   createAuth(c.var.db).handler(c.req.raw),
 );
 app.route("/webhooks/meta", createMetaWebhookApp({ kvStore }));
+app.route("/widget", createWidgetIngressApp({ kvStore }));
 
 export const apiHandler = new OpenAPIHandler(appRouter, {
   plugins: [

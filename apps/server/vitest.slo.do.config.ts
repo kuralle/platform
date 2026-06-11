@@ -31,6 +31,7 @@ export default defineConfig({
       "src/__tests__/launch-gate.e2e.test.ts",
     ],
     testTimeout: 60_000,
+    hookTimeout: 60_000,
     // One shared Postgres + one queue-consumer pipeline: parallel test files
     // cross-pollute the DLQ/turn tables. Serial execution keeps per-test
     // assertions (e.g. the gate's DLQ-empty check) sound.

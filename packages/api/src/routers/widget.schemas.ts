@@ -11,5 +11,14 @@ export const widgetConfigSchema = z
     termsUrl: z.string().nullable(),
     createdAt: z.date(),
     updatedAt: z.date().nullable(),
+    embedKey: z.string().nullable(),
+    serverUrl: z.string(),
+  })
+  .strict();
+
+export const widgetEnableOutputSchema = z
+  .object({
+    embedKey: z.string(),
+    endpointId: z.string(),
   })
   .strict();

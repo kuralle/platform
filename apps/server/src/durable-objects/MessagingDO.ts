@@ -18,6 +18,12 @@ import {
 } from "./deps.js";
 import { deliverAssistantTurn } from "./outbound-delivery.js";
 import { shardKeyForConversation } from "./shard.js";
+import {
+  KURALLE_CHANNEL_ENDPOINT_HEADER,
+  KURALLE_CONVERSATION_HEADER,
+  KURALLE_THREAD_KEY_HEADER,
+  KURALLE_WORKSPACE_HEADER,
+} from "../widget/ingress.js";
 
 interface InboundEnvelope {
   waId: string;
@@ -53,12 +59,76 @@ export class MessagingDO extends KuralleAgent<MessagingDoEnv> {
   private readonly turnStreamParts: HarnessStreamPart[] = [];
   private readonly whatsAppSenders = new Map<string, WhatsAppSender>();
   private deliverySequence = 0;
+  private widgetChatMode = false;
 
   constructor(state: DurableObjectState, env: MessagingDoEnv) {
     super(state, env);
     this.stateRef = state;
     this.envRef = env;
     this.windowStore = new DoStorageWindowStore(state.storage);
+
+    if (typeof this.broadcast === "function") {
+      const upstreamBroadcast = this.broadcast.bind(this);
+      this.broadcast = (message, without) => {
+        if (this.widgetChatMode && typeof message === "string") {
+          try {
+            const envelope = JSON.parse(message) as {
+              type?: string;
+              body?: string;
+              done?: boolean;
+            };
+            if (envelope.type === "cf_agent_use_chat_response") {
+              if (envelope.done) {
+                return upstreamBroadcast(JSON.stringify({ type: "done" }), without);
+              }
+              if (envelope.body) {
+                const frame = JSON.parse(envelope.body) as { type?: string };
+                if (frame.type) {
+                  return upstreamBroadcast(envelope.body, without);
+                }
+              }
+            }
+          } catch {
+            // fall through
+          }
+        }
+        return upstreamBroadcast(message, without);
+      };
+    }
+
+    if (typeof this.onMessage === "function") {
+      const upstreamOnMessage = this.onMessage.bind(this);
+      this.onMessage = async (connection, message) => {
+        let outbound: string | ArrayBuffer = message;
+        if (this.currentConversationId && typeof message === "string") {
+          try {
+            const data = JSON.parse(message) as { message?: unknown };
+            if (typeof data.message === "string" && data.message.trim().length > 0) {
+              outbound = JSON.stringify({
+                type: "cf_agent_use_chat_request",
+                id: crypto.randomUUID(),
+                init: {
+                  method: "POST",
+                  body: JSON.stringify({
+                    messages: [
+                      {
+                        id: crypto.randomUUID(),
+                        role: "user",
+                        parts: [{ type: "text", text: data.message }],
+                      },
+                    ],
+                    trigger: "submit-message",
+                  }),
+                },
+              });
+            }
+          } catch {
+            // keep original frame
+          }
+        }
+        return upstreamOnMessage(connection, outbound);
+      };
+    }
   }
 
   protected getAgents(): HarnessConfig["agents"] {
@@ -118,7 +188,86 @@ export class MessagingDO extends KuralleAgent<MessagingDoEnv> {
       await this.processInbound(envelope);
       return new Response("OK", { status: 200 });
     }
+    if (url.pathname.endsWith("/internal/widget-turn")) {
+      const conversationId = request.headers.get(KURALLE_CONVERSATION_HEADER);
+      const workspaceId = request.headers.get(KURALLE_WORKSPACE_HEADER) ?? "";
+      const channelEndpointId =
+        request.headers.get(KURALLE_CHANNEL_ENDPOINT_HEADER) ?? "";
+      const threadKey = request.headers.get(KURALLE_THREAD_KEY_HEADER) ?? "";
+      if (!conversationId || !workspaceId || !channelEndpointId || !threadKey) {
+        return Response.json({ error: "missing-widget-context" }, { status: 400 });
+      }
+
+      const body = (await request.json()) as { text?: string; messageId?: string };
+      if (!body.text?.trim()) {
+        return Response.json({ error: "message-required" }, { status: 400 });
+      }
+
+      this.widgetChatMode = threadKey.startsWith("widget:");
+      await this.processInbound({
+        waId: "widget",
+        threadKey,
+        conversationId,
+        workspaceId,
+        channelEndpointId,
+        text: body.text,
+        messageId: body.messageId ?? crypto.randomUUID(),
+      });
+
+      const streamParts = [...this.turnStreamParts];
+      const fullText = streamParts
+        .filter((part) => part.type === "text-delta")
+        .map((part) => ("delta" in part ? String(part.delta) : ""))
+        .join("");
+      return Response.json({ fullText, streamParts });
+    }
+    if (url.pathname.includes("/agents/chat")) {
+      const conversationId = request.headers.get(KURALLE_CONVERSATION_HEADER);
+      if (conversationId) {
+        const workspaceId = request.headers.get(KURALLE_WORKSPACE_HEADER) ?? "";
+        const channelEndpointId =
+          request.headers.get(KURALLE_CHANNEL_ENDPOINT_HEADER) ?? "";
+        await this.bindFromRequest({
+          conversationId,
+          workspaceId,
+          channelEndpointId,
+          threadKey: request.headers.get(KURALLE_THREAD_KEY_HEADER) ?? "",
+        });
+      }
+    }
     return super.onRequest(request);
+  }
+
+  private async bindFromRequest(input: {
+    conversationId: string;
+    workspaceId: string;
+    channelEndpointId: string;
+    threadKey: string;
+  }): Promise<void> {
+    await this.ensureRestored();
+    this.currentConversationId = input.conversationId;
+    this.widgetChatMode = input.threadKey.startsWith("widget:");
+    const deps = this.getDeps();
+    if (input.workspaceId) {
+      deps?.bindConversation?.(input.conversationId, input.workspaceId);
+    }
+    if (input.threadKey) {
+      await this.windowStore.recordInbound(input.threadKey, new Date());
+    }
+    await this.stateRef.blockConcurrencyWhile(async () => {
+      if (!deps) return;
+      try {
+        const dbSnapshot = await deps.loadWorkingMemory(input.conversationId);
+        if (!dbSnapshot) return;
+        this.workingMemory = dbSnapshot;
+        await this.stateRef.storage.put("runtime-session", {
+          workingMemory: this.workingMemory,
+        } satisfies RuntimeSessionSnapshot);
+      } catch {
+        // cold widget chat may not have a persisted runtime session yet
+      }
+    });
+    await this.resolveAgents(input.conversationId);
   }
 
   async alarm(): Promise<void> {

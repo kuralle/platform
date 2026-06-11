@@ -13,6 +13,7 @@ import {
   agents,
   channelConnections,
   channelEndpoints,
+  conversationTurns,
   conversations,
   messagingThreads,
   organization,
@@ -145,13 +146,15 @@ async function resetWorkspaceData(db: SeedDb, workspaceId: string): Promise<void
 }
 
 async function resetWorkspaceDataOnce(db: SeedDb, workspaceId: string): Promise<void> {
+  await db.execute(sql`DELETE FROM usage_events WHERE workspace_id = ${workspaceId}`);
   await db.execute(
     sql`DELETE FROM runtime_sessions WHERE conversation_id IN (SELECT id FROM conversations WHERE workspace_id = ${workspaceId})`,
   );
-  await db.delete(messagingThreads).where(eq(messagingThreads.workspaceId, workspaceId));
-  await db.execute(
-    sql`DELETE FROM usage_events WHERE workspace_id = ${workspaceId}`,
+  await db.delete(conversationTurns).where(
+    sql`conversation_id IN (SELECT id FROM conversations WHERE workspace_id = ${workspaceId})`,
   );
+  await db.delete(messagingThreads).where(eq(messagingThreads.workspaceId, workspaceId));
+  await db.execute(sql`DELETE FROM usage_events WHERE workspace_id = ${workspaceId}`);
   await db.delete(conversations).where(eq(conversations.workspaceId, workspaceId));
   await db.delete(channelEndpoints).where(eq(channelEndpoints.workspaceId, workspaceId));
   await db.delete(channelConnections).where(eq(channelConnections.workspaceId, workspaceId));

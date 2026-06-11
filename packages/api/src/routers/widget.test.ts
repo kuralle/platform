@@ -15,6 +15,7 @@ import { callProcedure } from "./test-call";
 
 const WORKSPACE_ID = "org_w1_wid";
 const USER_ID = "user_w1_wid";
+const VIEWER_ID = "user_w1_viewer";
 
 describe("widget router", () => {
   let db: TestDb;
@@ -39,15 +40,22 @@ describe("widget router", () => {
       workspaceId: WORKSPACE_ID,
       userId: USER_ID,
       email: `${USER_ID}@test.local`,
+      role: "admin",
+    });
+    await seedWorkspaceMember(db, {
+      workspaceId: WORKSPACE_ID,
+      userId: VIEWER_ID,
+      email: `${VIEWER_ID}@test.local`,
+      role: "viewer",
     });
   });
 
-  function ctx(): Context {
+  function ctx(userId = USER_ID): Context {
     return {
       auth: null,
       session: {
         user: {
-          id: USER_ID,
+          id: userId,
           name: "T",
           email: "t@t",
           emailVerified: true,
@@ -59,7 +67,7 @@ describe("widget router", () => {
         session: {
           id: "s1",
           token: "tok",
-          userId: USER_ID,
+          userId,
           expiresAt: new Date(Date.now() + 60_000),
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -79,22 +87,61 @@ describe("widget router", () => {
     };
   }
 
-  it("get returns null then update creates row", async () => {
+  it("get returns embedKey null and serverUrl before enable", async () => {
+    const first = await callProcedure<{
+      embedKey: string | null;
+      serverUrl: string;
+      modality: string;
+    }>(appRouter.widget.get, { workspaceId: WORKSPACE_ID }, ctx());
+    expect(first.embedKey).toBeNull();
+    expect(first.serverUrl).toBe("http://localhost:3000");
+    expect(first.modality).toBe("both");
+  });
+
+  it("enable is idempotent and get returns embedKey after enable", async () => {
     const context = ctx();
-    const first = await callProcedure(
+    const first = await callProcedure<{ embedKey: string; endpointId: string }>(
+      appRouter.widget.enable,
+      { workspaceId: WORKSPACE_ID },
+      context,
+    );
+    expect(first.embedKey).toMatch(/^wk_[A-Za-z0-9]{24}$/);
+
+    const second = await callProcedure<{ embedKey: string; endpointId: string }>(
+      appRouter.widget.enable,
+      { workspaceId: WORKSPACE_ID },
+      context,
+    );
+    expect(second.embedKey).toBe(first.embedKey);
+    expect(second.endpointId).toBe(first.endpointId);
+
+    const got = await callProcedure<{ embedKey: string | null; serverUrl: string }>(
       appRouter.widget.get,
       { workspaceId: WORKSPACE_ID },
       context,
     );
-    expect(first).toBeNull();
+    expect(got.embedKey).toBe(first.embedKey);
+    expect(got.serverUrl).toBe("http://localhost:3000");
+  });
 
-    const w = await callProcedure<{ modality: string; feedbackEnabled: boolean | null }>(
+  it("update creates config row with embedKey and serverUrl", async () => {
+    const context = ctx();
+    await callProcedure(appRouter.widget.enable, { workspaceId: WORKSPACE_ID }, context);
+
+    const w = await callProcedure<{
+      modality: string;
+      feedbackEnabled: boolean | null;
+      embedKey: string | null;
+      serverUrl: string;
+    }>(
       appRouter.widget.update,
       { workspaceId: WORKSPACE_ID, modality: "voice", feedbackEnabled: true },
       context,
     );
     expect(w.modality).toBe("voice");
     expect(w.feedbackEnabled).toBe(true);
+    expect(w.embedKey).toMatch(/^wk_/);
+    expect(w.serverUrl).toBe("http://localhost:3000");
   });
 
   it("rejects non-members on update", async () => {
@@ -125,6 +172,16 @@ describe("widget router", () => {
             },
           },
         },
+      ),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+
+  it("viewer cannot enable widget", async () => {
+    await expect(
+      callProcedure(
+        appRouter.widget.enable,
+        { workspaceId: WORKSPACE_ID },
+        ctx(VIEWER_ID),
       ),
     ).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
